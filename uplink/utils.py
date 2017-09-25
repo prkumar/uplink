@@ -1,0 +1,77 @@
+# Standard library imports
+import collections
+
+try:
+    # Python 3.2+
+    from inspect import signature
+except ImportError:
+    # Python 2.7
+    from inspect import getcallargs as get_call_args, getargspec as _getargspec
+
+    def signature(_):
+        raise ImportError
+
+    def get_arg_spec(f):
+        arg_spec = _getargspec(f)
+        args = arg_spec.args
+        if arg_spec.varargs is not None:
+            args.append(arg_spec.varargs)
+        if arg_spec.keywords is not None:
+            args.append(arg_spec.keywords)
+        return Signature(args, {}, None)
+else:
+    def get_call_args(f, *args, **kwargs):
+        bound = signature(f).bind(*args, **kwargs)
+        bound.apply_defaults()
+        return bound.arguments
+
+    def get_arg_spec(f):
+        sig = signature(f)
+        parameters = sig.parameters
+        args = []
+        annotations = collections.OrderedDict()
+        has_return_type = sig.return_annotation is not sig.empty
+        return_type = sig.return_annotation if has_return_type else None
+        for p in parameters:
+            if parameters[p].annotation is not sig.empty:
+                annotations[p] = parameters[p].annotation
+            args.append(p)
+        return Signature(args, annotations, return_type)
+
+try:
+    import urllib.parse as urlparse
+except ImportError:
+    import urlparse
+
+# Third party imports
+import uritemplate
+
+
+Signature = collections.namedtuple(
+    "Signature",
+    "args annotations return_annotation"
+)
+
+Request = collections.namedtuple("Request", "method uri info return_type")
+
+
+class URIBuilder(object):
+
+    @staticmethod
+    def variables(uri):
+        try:
+            return uritemplate.URITemplate(uri).variable_names
+        except TypeError:
+            return set()
+
+    def __init__(self, uri):
+        self._uri = uritemplate.URITemplate(uri or "")
+
+    def set_variable(self, var_dict=None, **kwargs):
+        self._uri = self._uri.partial(var_dict, **kwargs)
+
+    def remaining_variables(self):
+        return self._uri.variable_names
+
+    def build(self):
+        return self._uri.expand()

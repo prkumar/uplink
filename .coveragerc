@@ -1,0 +1,17 @@
+# Configuration file for coverage.py, used by pytest-cov (see tox.ini)
+
+[run]
+# Whether to measure branch coverage in addition to statement coverage.
+branch = True
+
+# The source to measure during execution.
+source = uplink
+
+# A list of file name patterns, specifying files not to measure.
+omit =
+    uplink/__about__.py
+    uplink/interfaces.py
+
+[report]
+# When running a summary report, show missing lines.
+show_missing = True
