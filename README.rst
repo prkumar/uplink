@@ -4,7 +4,7 @@ Uplink
 An expressive HTTP client framework for Python, inspired by
 `Retrofit <http://square.github.io/retrofit/>`__.
 
-|Build Status| |Coverage Status|
+|Build Status| |Coverage Status| |Documentation Status|
 
 
 Define your client using decorators (and annotations in Python 3):
@@ -48,9 +48,12 @@ Installation
 Documentation
 -------------
 
-TODO: Add link.
+For more details, check out the documentation at http://uplink.readthedocs.io/.
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
+.. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
+   :target: http://uplink.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
