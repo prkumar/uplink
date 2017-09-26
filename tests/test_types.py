@@ -211,20 +211,20 @@ class TestPath(ArgumentTestCase):
 
 class TestQuery(ArgumentTestCase):
     type_cls = types.Query
-    expected_converter_type = converter.CONVERT_TO_STRING
+    expected_converter_type = converter.RequestBodyConverter
 
     def test_modify_request(self, request_builder):
         types.Query("name").modify_request(request_builder, "value")
-        assert request_builder.info["params"] == {"name": ["value"]}
+        assert request_builder.info["params"] == {"name": "value"}
 
 
 class TestQueryMap(ArgumentTestCase):
     type_cls = types.QueryMap
-    expected_converter_type = converter.Map(converter.CONVERT_TO_STRING)
+    expected_converter_type = converter.Map(converter.RequestBodyConverter)
 
     def test_modify_request(self, request_builder):
         types.QueryMap().modify_request(request_builder, {"hello": "world"})
-        assert request_builder.info["params"] == {"hello": ["world"]}
+        assert request_builder.info["params"] == {"hello": "world"}
 
 
 class TestHeader(ArgumentTestCase):
