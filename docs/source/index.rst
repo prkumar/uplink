@@ -3,8 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Uplink's documentation!
-==================================
+Uplink 📡
+==========
+Build Expressive HTTP Clients with Python. Inspired by `Retrofit
+<http://square.github.io/retrofit/>`__.
+
+|Coverage Status|
+
+With `uplink`, you can make a request
+
 
 .. toctree::
    :maxdepth: 2
@@ -18,3 +25,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
+   :target: https://coveralls.io/github/prkumar/uplink?branch=master

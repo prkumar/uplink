@@ -1,13 +1,12 @@
 Uplink
 ======
 
-Build expressive HTTP clients in Python. Inspired by
-`Retrofit <http://square.github.io/retrofit/>`__.
+Build Expressive HTTP Clients with Python. Inspired by `Retrofit
+<http://square.github.io/retrofit/>`__.
 
 |Build Status| |Coverage Status| |Documentation Status|
 
-
-Define a client using decorators (and annotations in Python 3):
+Describe your API using decorators (and annotations in Python 3):
 
 .. code:: python
 
