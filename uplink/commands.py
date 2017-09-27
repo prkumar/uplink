@@ -19,20 +19,18 @@ class HttpMethodFactory(object):
     def __init__(self, method):
         self._method = method
 
-    def __call__(self, uri=None, args=None, returns=None):
-        if callable(uri) and args is None and returns is None:
+    def __call__(self, uri=None):
+        if callable(uri):
             return HttpMethod(self._method)(uri)
         else:
-            return HttpMethod(self._method, uri, args, returns)
+            return HttpMethod(self._method, uri)
 
 
 class HttpMethod(object):
 
-    def __init__(self, method, uri=None, args=None, returns=None):
+    def __init__(self, method, uri=None):
         self._method = method
-        self._uri = URIDefinitionBuilder(uri)
-        self._args = args or {}
-        self._return_type = returns
+        self._uri = uri
 
     def __call__(self, func):
         spec = utils.get_arg_spec(func)
@@ -40,17 +38,16 @@ class HttpMethod(object):
         method_handler = decorators.MethodAnnotationHandlerBuilder()
         builder = RequestDefinitionBuilder(
             self._method,
-            self._uri,
+            URIDefinitionBuilder(self._uri),
             arg_handler,
             method_handler
         )
         if spec.args:
             # Ignore `self` instance reference
             spec.annotations.pop(spec.args[0], None)
-        arg_handler.set_annotations(spec.annotations or self._args)
-        return_type = spec.return_annotation or self._return_type
-        if return_type is not None:
-            builder = decorators.returns(return_type)(builder)
+        arg_handler.set_annotations(spec.annotations)
+        if spec.return_annotation is not None:
+            builder = decorators.returns(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
         return builder
 
