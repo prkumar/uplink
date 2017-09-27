@@ -359,7 +359,7 @@ class Query(NamedArgument):
 
     @property
     def converter_type(self):
-        return converter.RequestBodyConverter
+        return converter.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
         value = self.convert_to_string(value)
@@ -373,7 +373,7 @@ class QueryMap(TypedArgument):
 
     @property
     def converter_type(self):
-        return converter.Map(converter.RequestBodyConverter)
+        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
 
     @classmethod
     def modify_request(cls, request_builder, value):
