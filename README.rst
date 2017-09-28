@@ -6,7 +6,9 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 
 |Build Status| |Coverage Status| |Documentation Status|
 
-Build your API using decorators (and function annotations in Python 3):
+----
+
+Define your API using decorators (and function annotations in Python 3):
 
 .. code:: python
 
@@ -32,7 +34,7 @@ Then, **Uplink** handles the rest:
 .. code:: python
 
     github = build(GitHubService, base_url="https://api.github.com/")
-    response = github.update_user(oauth_token, bio="Scotty, beam me up.").execute()
+    response = github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
 
 Installation
 ------------
