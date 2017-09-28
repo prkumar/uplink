@@ -4,7 +4,7 @@ import collections
 try:
     # Python 3.2+
     from inspect import signature
-except ImportError:
+except ImportError:  # pragma: no cover
     # Python 2.7
     from inspect import getcallargs as get_call_args, getargspec as _getargspec
 
@@ -19,11 +19,26 @@ except ImportError:
         if arg_spec.keywords is not None:
             args.append(arg_spec.keywords)
         return Signature(args, {}, None)
-else:
+else:  # pragma: no cover
     def get_call_args(f, *args, **kwargs):
-        bound = signature(f).bind(*args, **kwargs)
-        bound.apply_defaults()
-        return bound.arguments
+        sig = signature(f)
+        arguments = sig.bind(*args, **kwargs).arguments
+        # apply defaults:
+        new_arguments = []
+        for name, param in sig.parameters.items():
+            try:
+                new_arguments.append((name, arguments[name]))
+            except KeyError:
+                if param.default is not param.empty:
+                    val = param.default
+                elif param.kind is param.VAR_POSITIONAL:
+                    val = ()
+                elif param.kind is param.VAR_KEYWORD:
+                    val = {}
+                else:
+                    continue
+                new_arguments.append((name, val))
+        return collections.OrderedDict(new_arguments)
 
     def get_arg_spec(f):
         sig = signature(f)

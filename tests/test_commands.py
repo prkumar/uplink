@@ -114,9 +114,9 @@ class TestRequestDefinitionBuilder(object):
         )
         definition = builder.build(uplink_builder_mock)
         assert isinstance(definition, commands.RequestDefinition)
-        uri_definition_builder.build.assert_called()
-        argument_handler_builder.build.assert_called()
-        method_handler_builder.build.assert_called()
+        assert uri_definition_builder.build.called
+        assert argument_handler_builder.build.called
+        assert method_handler_builder.build.called
 
 
 class TestRequestDefinition(object):
