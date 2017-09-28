@@ -211,7 +211,7 @@ class TestPath(ArgumentTestCase):
 
 class TestQuery(ArgumentTestCase):
     type_cls = types.Query
-    expected_converter_type = converter.RequestBodyConverter
+    expected_converter_type = converter.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
         types.Query("name").modify_request(request_builder, "value")
@@ -220,7 +220,7 @@ class TestQuery(ArgumentTestCase):
 
 class TestQueryMap(ArgumentTestCase):
     type_cls = types.QueryMap
-    expected_converter_type = converter.Map(converter.RequestBodyConverter)
+    expected_converter_type = converter.Map(converter.CONVERT_TO_REQUEST_BODY)
 
     def test_modify_request(self, request_builder):
         types.QueryMap().modify_request(request_builder, {"hello": "world"})
