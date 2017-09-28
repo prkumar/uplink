@@ -28,7 +28,7 @@ metadata = dict({
     "keywords": "http api rest clients retrofit",
     "packages": find_packages(exclude=("tests",)),
     "install_requires": [
-        "requests>=2.18.0"
+        "requests>=2.18.0",
         "uritemplate>=3.0.0"
     ],
 }, **about)
