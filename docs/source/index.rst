@@ -29,12 +29,12 @@ to define HTTP requests:
             """Update an authenticated user."""
             pass
 
-The helper function ``uplink.build`` creates the API client instance:
+Then, `uplink.build`` creates an instance:
 
 .. code:: python
 
     github = build(GitHubService, base_url="https://api.github.com/")
-    github.update_user(oauth_token, bio="Scotty, beam me up.").execute()
+    response = github.update_user(oauth_token, bio="Scotty, beam me up.").execute()
 
 
 .. toctree::

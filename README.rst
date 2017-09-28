@@ -27,7 +27,7 @@ Build your API using decorators (and function annotations in Python 3):
             """Update an authenticated user."""
             pass
 
-Then, **Uplink** handles the rest:
+Then, ``uplink`` handles the rest:
 
 .. code:: python
 
