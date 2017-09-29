@@ -2,6 +2,12 @@
 import os
 from setuptools import setup, find_packages
 
+
+def read(filename):
+    with open(filename) as stream:
+        return stream.read()
+
+
 # Read package metadata from __about__.py, to avoid importing the whole
 # package prior to installation.
 about = dict()
@@ -12,7 +18,10 @@ metadata = dict({
     "name": "uplink",
     "author": "P. Raj Kumar",
     "author_email": "raj.pritvi.kumar@gmail.com",
-    "description": "A modular framework for building API clients.",
+    "url": "https://uplink.readthedocs.io/",
+    "license": "MIT",
+    "description": "A Declarative HTTP Client for Python.",
+    "long_description": read("README.rst"),
     "classifiers": [
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
@@ -25,7 +34,7 @@ metadata = dict({
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7"
     ],
-    "keywords": "http api rest clients retrofit",
+    "keywords": "http api rest client retrofit",
     "packages": find_packages(exclude=("tests",)),
     "install_requires": [
         "requests>=2.18.0",
