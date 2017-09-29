@@ -12,9 +12,9 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 
 .. note:: **Uplink** is currently under alpha development and, thus, very
     much under construction. Although it is not yet production ready, we
-    encourage enthusiastic early adopters to install and provide feedback, as
-    we work towards the official release. Moreover, please feel free to reach
-    out if you're interested in contributing.
+    encourage enthusiastic early adopters to install and provide feedback,
+    as we work towards the official release. Moreover, if you're interested in
+    becoming a contributor, please feel free to reach out.
 
 ----
 
