@@ -1,7 +1,7 @@
 Uplink
 ======
 
-Python HTTP Made Expressive. Inspired by `Retrofit \<http://square.github
+Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 .io/retrofit/>`__.
 
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
