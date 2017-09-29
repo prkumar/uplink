@@ -1,9 +1,10 @@
-**Uplink** 📡: *A Declarative HTTP Client for Python*
-=====================================================
+Uplink
+======
 
-Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
+Python HTTP Made Expressive. Inspired by `Retrofit \<http://square.github
+.io/retrofit/>`__.
 
-|Build Status| |Coverage Status| |Documentation Status| |PyPI Version|
+|PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
 ----
 

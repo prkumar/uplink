@@ -65,4 +65,4 @@ expressive HTTP client:
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
 .. |Release| image:: https://img.shields.io/github/release/prkumar/uplink/all.svg
-   :target: https://pypi.python.org/pypi/uplink
+   :target: https://github.com/prkumar/uplink
