@@ -58,9 +58,11 @@ expressive HTTP client:
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
-.. |Release| image:: https://img.shields.io/pypi/v/uplink.svg
-   :target: https://pypi.python.org/pypi/uplink
+.. |GitHub Stars| image:: https://img.shields.io/github/stars/prkumar/uplink.svg?style=social&label=Stars
+   :target: https://github.com/prkumar/uplink
+.. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
+   :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
-.. |License| image:: https://img.shields.io/badge/License-MIT-yellow.svg
-   :target: https://opensource.org/licenses/MIT)
+.. |Release| image:: https://img.shields.io/github/release/prkumar/uplink/all.svg
+   :target: https://pypi.python.org/pypi/uplink
