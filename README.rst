@@ -9,7 +9,7 @@ Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 ----
 
 Using decorators and function annotations, turn any plain old Python class
-into a HTTP API consumer:
+into an HTTP API consumer:
 
 .. code:: python
 

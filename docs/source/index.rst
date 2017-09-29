@@ -22,7 +22,7 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 **A simple example, with GitHub API v3:**
 
 Using decorators and function annotations, turn any plain old Python class
-into a HTTP API consumer:
+into an HTTP API consumer:
 
 .. code:: python
 
