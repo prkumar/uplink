@@ -8,13 +8,15 @@ Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 
 ----
 
-Define your API using decorators (and function annotations in Python 3):
+Using decorators and function annotations, turn any plain old Python class
+into a HTTP API consumer:
 
 .. code:: python
 
     from uplink import *
 
-
+    # To register entities that are common to all API requests, you can
+    # decorate the enclosing class rather than each method separately:
     @headers({"Accept": "application/vnd.github.v3.full+json"})
     class GitHubService(object):
 
@@ -29,12 +31,17 @@ Define your API using decorators (and function annotations in Python 3):
             """Update an authenticated user."""
             pass
 
-Then, **Uplink** handles the rest:
+To construct a consumer instance, use the helper function ``uplink.build``:
 
 .. code:: python
 
     github = build(GitHubService, base_url="https://api.github.com/")
-    response = github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
+    github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
+
+Notably, ``github.update_user(...).execute`` returns a `requests.Response
+<http://docs.python-requests.org/en/master/api/#requests.Response>`__
+instance, which encapsulates the server's response to the underlying HTTP
+request.
 
 Installation
 ------------

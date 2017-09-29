@@ -10,26 +10,26 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 
 |Release| |Python Version| |License| |Coverage Status|
 
-.. note:: **Uplink** is currently under alpha development and, thus, very
-    much under construction. Although it is not yet production ready, we
-    encourage enthusiastic early adopters to install and provide feedback,
-    as we work towards the official release. Moreover, if you're interested in
-    becoming a contributor, please feel free to reach out.
+.. note:: **Uplink** is currently in alpha development and, thus, not
+    production ready at the moment. However, while the package is under
+    construction, enthusiastic early adopters are more than welcome to install
+    and provide feedback, as we work towards the official release. Moreover,
+    for those interested in contributing, I plan to publish a contribution
+    guide soon, but in the meantime, please feel free to reach out!
 
 ----
 
-*Beam me up, Scotty*: A GitHub API Example
-------------------------------------------
+**A simple example, with GitHub API v3:**
 
-Define your API using decorators and function annotations with plain old
-Python methods:
+Using decorators and function annotations, turn any plain old Python class
+into a HTTP API consumer:
 
 .. code:: python
 
     from uplink import *
 
     # To register entities that are common to all API requests, you can
-    # decorate the enclosing class, instead of each method separately:
+    # decorate the enclosing class rather than each method separately:
     @headers({"Accept": "application/vnd.github.v3.full+json"})
     class GitHubService(object):
 
@@ -44,14 +44,17 @@ Python methods:
             """Update an authenticated user."""
             pass
 
-The helper function ``uplink.build`` turns your Python class into an
-expressive HTTP client:
+To construct a consumer instance, use the helper function :py:func:`uplink.build`:
 
 .. code:: python
 
     github = build(GitHubService, base_url="https://api.github.com/")
     github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
 
+Notably, :py:meth:`github.update_user(...).execute` returns a `requests.Response
+<http://docs.python-requests.org/en/master/api/#requests.Response>`__
+instance, which encapsulates the server's response to the underlying HTTP
+request.
 
 .. toctree::
    :maxdepth: 2
