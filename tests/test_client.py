@@ -27,7 +27,7 @@ class TestBaseHttpClient(object):
         request = mocker.stub(name="request")
         connection = client.BaseHttpClient()
         connection.wrap_request(request)
-        request.assert_called()
+        assert request.called
 
     def test_handle_response(self):
         response = {}

@@ -22,8 +22,8 @@ Note:
     skips the instance reference argument (e.g., `self`), with respect
     to argument annotations.
 
-Some shortcuts for named annotations
-------------------------------------
+Omitting the name for a named annotation
+-----------------------------------------
 
 Actually, the above request can be expressed more succinctly. When you
 initialize a named annotation, such as a `Path` or `Field`, without
@@ -37,6 +37,10 @@ matches the intended URI path parameter, we can rewrite the snippet as:
         @uplink.Path
         @uplink.get("users/{username}")
         def get_user(self, username): pass
+
+
+Implicit :code:`Path` annotations
+---------------------------------
 
 But, wait! For `Path` annotations, this is still too verbose. In fact,
 we can forgo annotating the argument `username` entirely; `uplink` will
@@ -86,6 +90,8 @@ option, with function annotations vis-a-vis PEP 3107:
         @uplink.get
         def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
             pass
+
+Path Parameters
 """
 
 
@@ -307,9 +313,21 @@ class Path(NamedArgument):
     """
     Substitution of a URL path parameter.
 
-    Example:
-        @Path
-        @get("users
+    Here's a simple example:
+
+        @Path("id")
+        @get("todos{/id}")
+        def get_todo(self, todo_id): pass
+
+    Then, calling :code:`todo_service.get_todo(100)` would produce the
+    path :code:`"todos/100"`.
+
+    `uplink` will try to match unannotated function arguments with
+    URL path parameters. For example, we can rewrite the previous
+    example as:
+
+        @get("todos{/todo_id}")
+        def get_todo(self, todo_id): pass
     """
 
     @property
@@ -326,14 +344,26 @@ class Path(NamedArgument):
 class Query(NamedArgument):
     """
     A URL query parameter.
+
+
     """
+
+    @staticmethod
+    def convert_to_string(value):
+        # TODO: Move this responsibility to the `converter`
+        # Convert to string or list of strings.
+        if isinstance(value, (list, tuple)):
+            return list(map(str, value))
+        else:
+            return str(value)
 
     @property
     def converter_type(self):
-        return converter.CONVERT_TO_STRING
+        return converter.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
-        request_builder.info["params"].setdefault(self.name, []).append(value)
+        value = self.convert_to_string(value)
+        request_builder.info["params"][self.name] = value
 
 
 class QueryMap(TypedArgument):
@@ -343,13 +373,12 @@ class QueryMap(TypedArgument):
 
     @property
     def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_STRING)
+        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
 
     @classmethod
     def modify_request(cls, request_builder, value):
-        setdefault = request_builder.info["params"].setdefault
-        for name in value:
-            setdefault(name, []).append(value[name])
+        value = dict((k, Query.convert_to_string(value[k])) for k in value)
+        request_builder.info["params"].update(value)
 
 
 class Header(NamedArgument):
