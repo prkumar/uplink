@@ -1,12 +1,11 @@
 Uplink
 ======
-
 Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 .io/retrofit/>`__.
 
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
-----
+**A simple example, with GitHub API v3**
 
 Using decorators and function annotations, turn any plain old Python class
 into an HTTP API consumer:
