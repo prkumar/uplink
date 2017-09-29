@@ -24,13 +24,11 @@ class TestCast(object):
 
 
 class TestResponseBodyConverter(object):
-    def test_convert(self, mocker):
-        response = mocker.Mock(spec=requests.Response)
+    def test_convert(self):
         converter_ = converter.ResponseBodyConverter()
-        response.json.return_value = "json response"
+        response = "json response"
         converted = converter_.convert(response)
-        assert response.json.called
-        assert converted == "json response"
+        assert converted == response
 
 
 class TestRequestBodyConverter(object):

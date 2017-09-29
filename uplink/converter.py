@@ -28,7 +28,7 @@ class Cast(interfaces.AbstractConverter):
 
 class ResponseBodyConverter(interfaces.AbstractConverter):
     def convert(self, response):
-        return response.json()
+        return response
 
 
 class RequestBodyConverter(interfaces.AbstractConverter):
