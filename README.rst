@@ -1,9 +1,9 @@
-Uplink 📡: *A Declarative HTTP Client for Python*
-=================================================
+**Uplink** 📡: *A Declarative HTTP Client for Python*
+=====================================================
 
 Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
-|Build Status| |Coverage Status| |Documentation Status|
+|Build Status| |Coverage Status| |Documentation Status| |PyPI Version|
 
 ----
 
@@ -57,3 +57,5 @@ For more details, check out the documentation at http://uplink.readthedocs.io/.
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/uplink.svg
+   :target: https://pypi.python.org/pypi/uplink
