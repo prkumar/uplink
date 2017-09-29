@@ -4,7 +4,8 @@ Uplink
 Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 .io/retrofit/>`__.
 
-|PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
+|PyPI Version| |Build Status| |Coverage Status| |License| |Python Version|
+|Documentation Status|
 
 ----
 
@@ -38,7 +39,7 @@ To construct a consumer instance, use the helper function ``uplink.build``:
     github = build(GitHubService, base_url="https://api.github.com/")
     github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
 
-Notably, ``github.update_user(...).execute`` returns a `requests.Response
+Notably, ``github.update_user(...).execute()`` returns a `requests.Response
 <http://docs.python-requests.org/en/master/api/#requests.Response>`__
 instance, which encapsulates the server's response to the underlying HTTP
 request.
@@ -65,5 +66,9 @@ For more details, check out the documentation at http://uplink.readthedocs.io/.
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+.. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
+   :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/uplink.svg
+   :target: https://pypi.python.org/pypi/uplink
+.. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
    :target: https://pypi.python.org/pypi/uplink

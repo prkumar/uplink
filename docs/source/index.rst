@@ -61,8 +61,6 @@ request.
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
-.. |GitHub Stars| image:: https://img.shields.io/github/stars/prkumar/uplink.svg?style=social&label=Stars
-   :target: https://github.com/prkumar/uplink
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
