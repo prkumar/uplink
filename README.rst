@@ -1,13 +1,14 @@
 Uplink
 ======
 
-An expressive HTTP client framework for Python, inspired by
-`Retrofit <http://square.github.io/retrofit/>`__.
+A Declarative HTTP Client for Python, inspired by `Retrofit
+<http://square.github.io/retrofit/>`__.
 
-|Build Status| |Coverage Status|
+|Build Status| |Coverage Status| |Documentation Status|
 
+----
 
-Define your client using decorators (and annotations in Python 3):
+Define your API using decorators (and function annotations in Python 3):
 
 .. code:: python
 
@@ -28,12 +29,12 @@ Define your client using decorators (and annotations in Python 3):
             """Update an authenticated user."""
             pass
 
-Then, ``uplink`` handles the rest (pun intended):
+Then, **Uplink** handles the rest:
 
 .. code:: python
 
     github = build(GitHubService, base_url="https://api.github.com/")
-    response = github.update_user(oauth_token, bio="Scotty, beam me up.").execute()
+    response = github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
 
 Installation
 ------------
@@ -48,9 +49,12 @@ Installation
 Documentation
 -------------
 
-TODO: Add link.
+For more details, check out the documentation at http://uplink.readthedocs.io/.
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
+.. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
+   :target: http://uplink.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status

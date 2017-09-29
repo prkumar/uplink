@@ -61,7 +61,7 @@ class TestCallFactory(object):
         request_definition.define_request.assert_called_with(
             request_builder, (instance,) + args, kwargs
         )
-        request_builder.build.assert_called()
+        assert request_builder.build.called
 
 
 class TestCall(object):
