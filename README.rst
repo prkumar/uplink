@@ -1,5 +1,5 @@
-Uplink 📡
-=========
+Uplink
+======
 
 Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 .io/retrofit/>`__.
