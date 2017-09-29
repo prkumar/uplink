@@ -58,7 +58,7 @@ expressive HTTP client:
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
-.. |Release| image:: https://img.shields.io/github/release/prkumar/uplink.svg
+.. |Release| image:: https://img.shields.io/pypi/v/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
