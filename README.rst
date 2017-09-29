@@ -1,4 +1,4 @@
-Uplink: *A Declarative HTTP Client for Python*
+Uplink 📡: *A Declarative HTTP Client for Python*
 ==============================================
 
 Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
