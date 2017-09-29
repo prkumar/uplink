@@ -1,11 +1,10 @@
-Uplink
-======
+Uplink 📡
+=========
 
 Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 .io/retrofit/>`__.
 
-|PyPI Version| |Build Status| |Coverage Status| |License| |Python Version|
-|Documentation Status|
+|PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
 ----
 
