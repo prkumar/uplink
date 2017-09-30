@@ -22,13 +22,11 @@ class into an HTTP API consumer:
         @get("/users/{username}")
         def get_user(self, username):
             """Get a single user."""
-            pass
 
         @json
         @patch("/user")
         def update_user(self, access_token: Query, **info: Body):
             """Update an authenticated user."""
-            pass
 
 To construct a consumer instance, use the helper function ``uplink.build``:
 
@@ -50,8 +48,7 @@ sends that synchronously over the network. Furthermore, the returned
 
 .. code-block:: python
 
-    print(response.json())
-    # Output: {u'disk_usage': 216141, u'private_gists': 0, ...
+    print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
 In essence, **Uplink** enables you to create self-descriptive and conveniently
 shareable API clients, for minimal code and effort.
