@@ -48,13 +48,15 @@ To construct a consumer instance, use the helper function :py:func:`uplink.build
 
     github = build(GitHubService, base_url="https://api.github.com/")
 
-This instance provides a well-defined, accessible interface to the Web API:
+To access the GitHub API with this instance, we simply invoke any of the methods
+we defined in the interface above. To illustrate, let's update a GitHub user's
+bio:
 
 .. code-block:: python
 
     r = github.update_user(token, bio="Beam me up, Scotty!").execute()
 
-And *voila*, :py:meth:`update_user` seamlessly builds the request (using the
+*Voila*, :py:meth:`update_user` seamlessly builds the request (using the
 decorators and annotations from the method's definition), and
 :py:meth:`execute` sends that synchronously over the network. Furthermore,
 the returned response :py:obj:`r` is a :py:class:`requests.Response`
@@ -66,12 +68,13 @@ the returned response :py:obj:`r` is a :py:class:`requests.Response`
     print(r.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
 In essence, **Uplink** enables you to create self-descriptive and conveniently
-shareable API clients, for minimal code and effort.
+shareable API clients, with minimal code and effort.
 
 .. toctree::
    :maxdepth: 2
 
    install.rst
+   types.rst
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master

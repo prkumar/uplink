@@ -34,13 +34,15 @@ To construct a consumer instance, use the helper function ``uplink.build``:
 
     github = build(GitHubService, base_url="https://api.github.com/")
 
-This instance provides a well-defined, accessible interface to the Web API:
+To access the GitHub API with this instance, we simply invoke any of the methods
+we defined in the interface above. To illustrate, let's update a GitHub user's
+bio:
 
 .. code-block:: python
 
     response = github.update_user(oauth_token, bio="Beam me up, Scotty!").execute()
 
-And *voila*, ``update_user(...)`` seamlessly builds the request (using the
+*Voila*, ``update_user(...)`` seamlessly builds the request (using the
 decorators and annotations from the method's definition), and ``execute()``
 sends that synchronously over the network. Furthermore, the returned
 ``response`` is a ``requests.Response`` (`documentation
@@ -51,7 +53,7 @@ sends that synchronously over the network. Furthermore, the returned
     print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
 In essence, **Uplink** enables you to create self-descriptive and conveniently
-shareable API clients, for minimal code and effort.
+shareable API clients, with minimal code and effort.
 
 Installation
 ------------
