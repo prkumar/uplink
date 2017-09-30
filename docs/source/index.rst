@@ -71,6 +71,8 @@ shareable API clients, for minimal code and effort.
 .. toctree::
    :maxdepth: 2
 
+   install.rst
+
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
