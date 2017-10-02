@@ -224,9 +224,10 @@ class Path(NamedArgument):
 
     Here's a simple example:
 
-        @Path("id")
+    .. code-block:: python
+
         @get("todos{/id}")
-        def get_todo(self, todo_id): pass
+        def get_todo(self, todo_id: Path("id")): pass
 
     Then, calling :code:`todo_service.get_todo(100)` would produce the
     path :code:`"todos/100"`.
@@ -234,6 +235,8 @@ class Path(NamedArgument):
     `uplink` will try to match unannotated function arguments with
     URL path parameters. For example, we can rewrite the previous
     example as:
+
+    .. code-block:: python
 
         @get("todos{/todo_id}")
         def get_todo(self, todo_id): pass

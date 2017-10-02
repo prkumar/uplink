@@ -1,8 +1,11 @@
 Argument Annotations
-====================
+********************
+
+Overview
+========
 
 In programming, parametrization drives a function's dynamic behavior; a
-function's output invariably depends on its inputs. With
+function's output depends normally on its inputs. With
 :py:mod:`uplink`, function arguments parametrize an HTTP request, and
 you indicate the dynamic parts of the request by appropriately
 annotating those arguments with the classes defined here.
@@ -31,50 +34,8 @@ Builds an HTTP request that has a URL ending with ``users/prkumar``.
     ignores the instance reference argument (e.g., :py:attr:`self`), with
     respect to argument annotations.
 
-Omitting the name of a named annotation
----------------------------------------
-
-When you initialize a named annotation, such as a
-:py:class:`~uplink.Path` or :py:class:`~Field`, without a name (by
-omitting the :py:attr:`name` parameter), it adopts the name of its
-corresponding method argument.
-
-For example, in the snippet below, we can omit naming the
-:py:class:`~uplink.Path` annotation since the corresponding argument's
-name, :py:attr:`username`, matches the intended URI path parameter:
-
-.. code-block:: python
-
-    class GitHubService(object):
-
-        @uplink.get("users/{username}")
-        def get_user(self, username: uplink.Path): pass
-
-
-Implicit :code:`Path` annotations
----------------------------------
-
-When building the consumer instance, :py:mod:`uplink` will try to resolve
-unannotated method arguments by matching their names with URI path parameters.
-
-For example, consider the consumer defined below, in which the method
-:py:meth:`get_user` has an unannotated argument, :py:attr:`username`.
-Since its name matches the URI path parameter ``{username}``,
-:py:mod:`uplink` will auto-annotate the argument with :py:class:`Path`
-for us:
-
-.. code-block:: python
-
-    class GitHubService(object):
-
-        @uplink.get("user/{username}")
-        def get_user(self, username): pass
-
-Important to note, failure to resolve all unannotated function arguments
-raises an :py:class:`~uplink.InvalidRequestDefinitionError`.
-
-Approaches to annotating arguments
-----------------------------------
+Annotating Your Arguments
+-------------------------
 
 There are several ways to annotate arguments. Most examples in this
 documentation use function annotations, but this approach is unavailable
@@ -131,5 +92,54 @@ annotations (:pep:`3107`):
             pass
 
 
-.. automodule:: uplink.types
+Function Argument Name Adoption
+-------------------------------
+
+When you initialize a named annotation, such as a
+:py:class:`~uplink.Path` or :py:class:`~Field`, without a name (by
+omitting the :py:attr:`name` parameter), it adopts the name of its
+corresponding method argument.
+
+For example, in the snippet below, we can omit naming the
+:py:class:`~uplink.Path` annotation since the corresponding argument's
+name, :py:attr:`username`, matches the intended URI path parameter:
+
+.. code-block:: python
+
+    class GitHubService(object):
+
+        @uplink.get("users/{username}")
+        def get_user(self, username: uplink.Path): pass
+
+
+Implicit :code:`Path` Annotations
+----------------------------------
+
+When building the consumer instance, :py:mod:`uplink` will try to resolve
+unannotated method arguments by matching their names with URI path parameters.
+
+For example, consider the consumer defined below, in which the method
+:py:meth:`get_user` has an unannotated argument, :py:attr:`username`.
+Since its name matches the URI path parameter ``{username}``,
+:py:mod:`uplink` will auto-annotate the argument with :py:class:`Path`
+for us:
+
+.. code-block:: python
+
+    class GitHubService(object):
+
+        @uplink.get("user/{username}")
+        def get_user(self, username): pass
+
+Important to note, failure to resolve all unannotated function arguments
+raises an :py:class:`~uplink.InvalidRequestDefinitionError`.
+
+
+:code:`Path`: URL Path Variables
+================================
+
+.. autoclass:: uplink.Path
    :members:
+
+:code:`Query`: URL Query Parameters
+===================================

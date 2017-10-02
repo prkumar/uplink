@@ -5,7 +5,7 @@ Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
-**A simple example, with GitHub API v3**
+**A quick walkthrough, with GitHub API v3:**
 
 Using decorators and function annotations, you can turn any plain old Python
 class into an HTTP API consumer:
