@@ -10,16 +10,10 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 
 |Release| |Python Version| |License| |Coverage Status|
 
-.. note:: **Uplink** is currently in alpha development and, thus, not
-    production ready at the moment. However, while the package is under
-    construction, enthusiastic early adopters are more than welcome to install
-    and provide feedback, as we work towards the official release. Moreover,
-    for those interested in contributing, I plan to publish a contribution
-    guide soon, but in the meantime, please feel free to reach out!
-
 ----
 
-**A quick walkthrough, with GitHub API v3:**
+A Quick Walkthrough, with GitHub API v3:
+----------------------------------------
 
 Using decorators and function annotations, you can turn any plain old Python
 class into an HTTP API consumer:
@@ -49,8 +43,8 @@ To construct a consumer instance, use the helper function :py:func:`uplink.build
     github = build(GitHubService, base_url="https://api.github.com/")
 
 To access the GitHub API with this instance, we simply invoke any of the methods
-we defined in the interface above. To illustrate, let's update a GitHub user's
-bio:
+that we defined in the interface above. To illustrate, let's update my GitHub
+user's bio:
 
 .. code-block:: python
 
@@ -67,8 +61,34 @@ the returned response :py:obj:`r` is a :py:class:`requests.Response`
 
     print(r.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
-In essence, **Uplink** enables you to create self-descriptive and conveniently
-shareable API clients, with minimal code and effort.
+In essence, **Uplink** delivers API consumers that are self-describing,
+reusable, and fairly compact, with minimal user effort.
+
+----
+
+.. note::
+
+   **Uplink** is currently in initial development and, therefore, not
+   production ready at the moment. Furthermore, as the package follows the
+   `Semantic Versioning Specification <http://semver.org/>`__, the public
+   API outlined in this documentation should not be considered stable until the
+   release of :code:`v1.0.0`.
+
+   However, while **Uplink** is under construction, we invite eager users
+   to install early and provide open feedback, which can be as simple as
+   opening a GitHub issue when you notice a missing feature, latent defect,
+   documentation oversight, etc.
+
+   Moreover, for those interested in contributing, I plan to publish a
+   contribution guide soon, but in the meantime, please feel free to fork
+   the `repository on GitHub <https://github.com/prkumar/uplink>`__ and open
+   a pull request ('tis
+   `Hacktoberfest <https://hacktoberfest.digitalocean.com/>`__, after all)!
+
+The User Manual
+---------------
+
+This guide describes the package's Public API.
 
 .. toctree::
    :maxdepth: 2

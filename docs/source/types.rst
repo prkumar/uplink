@@ -143,3 +143,5 @@ raises an :py:class:`~uplink.InvalidRequestDefinitionError`.
 
 :code:`Query`: URL Query Parameters
 ===================================
+
+.. autoclass:: uplink.Query

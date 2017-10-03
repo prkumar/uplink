@@ -14,12 +14,12 @@ class TestCast(object):
         assert return_value == 2
 
     def test_convert_with_caster(self, mocker, converter_mock):
-        caster = mocker.Mock(return_value=3)
-        converter_mock.convert.return_value = 2
+        caster = mocker.Mock(return_value=2)
+        converter_mock.convert.return_value = 3
         cast = converter.Cast(caster, converter_mock)
         return_value = cast.convert(1)
-        converter_mock.convert.assert_called_with(1)
-        caster.assert_called_with(2)
+        caster.assert_called_with(1)
+        converter_mock.convert.assert_called_with(2)
         assert return_value == 3
 
 

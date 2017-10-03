@@ -5,7 +5,7 @@ Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
-**A quick walkthrough, with GitHub API v3:**
+**A Quick Walkthrough, with GitHub API v3**
 
 Using decorators and function annotations, you can turn any plain old Python
 class into an HTTP API consumer:
@@ -35,8 +35,8 @@ To construct a consumer instance, use the helper function ``uplink.build``:
     github = build(GitHubService, base_url="https://api.github.com/")
 
 To access the GitHub API with this instance, we simply invoke any of the methods
-we defined in the interface above. To illustrate, let's update a GitHub user's
-bio:
+that we defined in the interface above. To illustrate, let's update my GitHub
+user's bio:
 
 .. code-block:: python
 
@@ -52,8 +52,8 @@ sends that synchronously over the network. Furthermore, the returned
 
     print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
-In essence, **Uplink** enables you to create self-descriptive and conveniently
-shareable API clients, with minimal code and effort.
+In essence, **Uplink** delivers API consumers that are self-describing,
+reusable, and fairly compact, with minimal user effort.
 
 Installation
 ------------
