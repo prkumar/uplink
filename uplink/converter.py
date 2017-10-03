@@ -19,16 +19,14 @@ class Cast(interfaces.AbstractConverter):
         self._converter = converter
 
     def convert(self, value):
-        converted_value = self._converter.convert(value)
         if callable(self._cast):
-            return self._cast(converted_value)
-        else:
-            return converted_value
+            value = self._cast(value)
+        return self._converter.convert(value)
 
 
 class ResponseBodyConverter(interfaces.AbstractConverter):
     def convert(self, response):
-        return response.json()
+        return response
 
 
 class RequestBodyConverter(interfaces.AbstractConverter):
@@ -48,7 +46,7 @@ class StringConverter(interfaces.AbstractConverter):
 
 class StandardConverterFactory(interfaces.AbstractConverterFactory):
     def make_response_body_converter(self, type_, *args, **kwargs):
-        return Cast(type_, ResponseBodyConverter())  # pragma: no cover
+        return ResponseBodyConverter()  # pragma: no cover
 
     def make_request_body_converter(self, type_, *args, **kwargs):
         return Cast(type_, RequestBodyConverter())  # pragma: no cover

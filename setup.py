@@ -13,6 +13,7 @@ def read(filename):
 about = dict()
 with open(os.path.join("uplink", "__about__.py")) as fp:
     exec(fp.read(), about)
+    about = dict((k.strip("_"), about[k]) for k in about)
 
 metadata = dict({
     "name": "uplink",
