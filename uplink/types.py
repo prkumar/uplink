@@ -1,97 +1,6 @@
 """
-Argument Annotations
-====================
-
-In programming, parametrization drives a function's dynamic behavior; a
-function's output invariably depends on its inputs. With `uplink`,
-function arguments parametrize an HTTP request, and you indicate the
-dynamic parts of the request by appropriately annotating those arguments
-with the classes defined below.
-
-For example, in the following snippet, we flagged the first argument,
-`username`, as a URI path parameter using the `Path` annotation:
-
-    class GitHubService(object):
-
-        @uplink.Path("username")
-        @uplink.get("users/{username}")
-        def get_user(self, username): pass
-
-Note:
-    As you probably took away from the above example, `uplink` always
-    skips the instance reference argument (e.g., `self`), with respect
-    to argument annotations.
-
-Omitting the name for a named annotation
------------------------------------------
-
-Actually, the above request can be expressed more succinctly. When you
-initialize a named annotation, such as a `Path` or `Field`, without
-a name (by omitting the `name` parameter), it adopts the name of its
-corresponding function argument. So, since the name of the corresponding
-function argument of the `Path` annotation in our previous example
-matches the intended URI path parameter, we can rewrite the snippet as:
-
-    class GitHubService(object):
-
-        @uplink.Path
-        @uplink.get("users/{username}")
-        def get_user(self, username): pass
-
-
-Implicit :code:`Path` annotations
----------------------------------
-
-But, wait! For `Path` annotations, this is still too verbose. In fact,
-we can forgo annotating the argument `username` entirely; `uplink` will
-cover us. At runtime, it tries to match unannotated function arguments
-with URI path parameters. So, the simplest form of this example would
-be:
-
-    class GitHubService(object):
-
-        @uplink.get("user/{username}")
-        def get_user(self, username): pass
-
-Important to note, Failure to resolve all unannotated function arguments
-raises an `uplink.InvalidRequestDefinitionError`.
-
-Approaches to annotating arguments
-----------------------------------
-
-There are several ways to annotate arguments. For one, annotations can
-work as function decorators, as illustrated in the previous examples.
-With this approach, annotations are mapped to arguments from
-"bottom-up". For instance, in the below definition, the `Url` annotation
-corresponds to `commits_url`, and `Path` to `sha`.
-
-    class GitHubService(object):
-
-        @uplink.Path
-        @uplink.Url
-        @uplink.get
-        def get_commit(self, commits_url, sha): pass
-
-The second approach involves using the method annotation `uplink.args`,
-arranging annotations in the same order as their corresponding function
-arguments (again, ignore `self`):
-
-    class GitHubService(object):
-
-        @uplink.args(uplink.Url, uplink.Path)
-        @uplink.get
-        def get_commit(self, commits_url, sha): pass
-
-Finally, when using Python 3, you have a third
-option, with function annotations vis-a-vis PEP 3107:
-
-    class GitHubService(object):
-
-        @uplink.get
-        def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
-            pass
-
-Path Parameters
+This module implements the built-in argument annotations and their
+handling classes.
 """
 
 
@@ -315,9 +224,10 @@ class Path(NamedArgument):
 
     Here's a simple example:
 
-        @Path("id")
+    .. code-block:: python
+
         @get("todos{/id}")
-        def get_todo(self, todo_id): pass
+        def get_todo(self, todo_id: Path("id")): pass
 
     Then, calling :code:`todo_service.get_todo(100)` would produce the
     path :code:`"todos/100"`.
@@ -325,6 +235,8 @@ class Path(NamedArgument):
     `uplink` will try to match unannotated function arguments with
     URL path parameters. For example, we can rewrite the previous
     example as:
+
+    .. code-block:: python
 
         @get("todos{/todo_id}")
         def get_todo(self, todo_id): pass
