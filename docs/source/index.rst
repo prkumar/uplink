@@ -13,10 +13,10 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 .. note::
 
    **Uplink** is currently in initial development and, therefore, not
-   production ready at the moment. Furthermore, as the package follows the
-   `Semantic Versioning Specification <http://semver.org/>`__, the public
-   API outlined in this documentation should not be considered stable until the
-   release of :code:`v1.0.0`.
+   production ready at the moment. Furthermore, as the package follows a
+   `semantic versioning <https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred>`__
+   scheme, the public API outlined in this documentation should not be
+   considered stable until the release of :code:`v1.0.0`.
 
    However, while **Uplink** is under construction, we invite eager users
    to install early and provide open feedback, which can be as simple as
