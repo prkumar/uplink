@@ -10,6 +10,25 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 
 |Release| |Python Version| |License| |Coverage Status|
 
+.. note::
+
+   **Uplink** is currently in initial development and, therefore, not
+   production ready at the moment. Furthermore, as the package follows the
+   `Semantic Versioning Specification <http://semver.org/>`__, the public
+   API outlined in this documentation should not be considered stable until the
+   release of :code:`v1.0.0`.
+
+   However, while **Uplink** is under construction, we invite eager users
+   to install early and provide open feedback, which can be as simple as
+   opening a GitHub issue when you notice a missing feature, latent defect,
+   documentation oversight, etc.
+
+   Moreover, for those interested in contributing, I plan to publish a
+   contribution guide soon, but in the meantime, please feel free to fork
+   the `repository on GitHub <https://github.com/prkumar/uplink>`__ and open
+   a pull request ('tis
+   `Hacktoberfest <https://hacktoberfest.digitalocean.com/>`__, after all)!
+
 ----
 
 A Quick Walkthrough, with GitHub API v3:
@@ -44,7 +63,7 @@ To construct a consumer instance, use the helper function :py:func:`uplink.build
 
 To access the GitHub API with this instance, we simply invoke any of the methods
 that we defined in the interface above. To illustrate, let's update my GitHub
-user's bio:
+profile's bio:
 
 .. code-block:: python
 
@@ -65,25 +84,6 @@ In essence, **Uplink** delivers API consumers that are self-describing,
 reusable, and fairly compact, with minimal user effort.
 
 ----
-
-.. note::
-
-   **Uplink** is currently in initial development and, therefore, not
-   production ready at the moment. Furthermore, as the package follows the
-   `Semantic Versioning Specification <http://semver.org/>`__, the public
-   API outlined in this documentation should not be considered stable until the
-   release of :code:`v1.0.0`.
-
-   However, while **Uplink** is under construction, we invite eager users
-   to install early and provide open feedback, which can be as simple as
-   opening a GitHub issue when you notice a missing feature, latent defect,
-   documentation oversight, etc.
-
-   Moreover, for those interested in contributing, I plan to publish a
-   contribution guide soon, but in the meantime, please feel free to fork
-   the `repository on GitHub <https://github.com/prkumar/uplink>`__ and open
-   a pull request ('tis
-   `Hacktoberfest <https://hacktoberfest.digitalocean.com/>`__, after all)!
 
 The User Manual
 ---------------
