@@ -222,6 +222,8 @@ class Path(NamedArgument):
     """
     Substitution of a URL path parameter.
 
+    Uplink supports `URI templates <https://tools.ietf.org/html/rfc6570>`__.
+    
     Here's a simple example:
 
     .. code-block:: python
@@ -229,8 +231,14 @@ class Path(NamedArgument):
         @get("todos{/id}")
         def get_todo(self, todo_id: Path("id")): pass
 
-    Then, calling :code:`todo_service.get_todo(100)` would produce the
-    path :code:`"todos/100"`.
+    Then, invoking :code:`get_todo` with a consumer instance:
+
+    .. code-block:: python
+
+        todo_service.get_todo(100)
+
+    builds an HTTP request that has a URL ending with:
+    :code:`"todos/100"`.
 
     `uplink` will try to match unannotated function arguments with
     URL path parameters. For example, we can rewrite the previous
