@@ -11,13 +11,12 @@ you indicate the dynamic parts of the request by appropriately
 annotating those arguments with the classes defined here.
 
 To illustrate, for the method :py:meth:`get_user` in the following
-snippet, we have flagged the argument :py:attr:`username` as a URI path
-parameter using the :py:class:`~uplink.Path` annotation:
+snippet, we have flagged the argument :py:attr:`username` as a URI
+placeholder replacement using the :py:class:`~uplink.Path` annotation:
 
 .. code-block:: python
 
     class GitHubService(object):
-
         @uplink.get("users/{username}")
         def get_user(self, username: uplink.Path("username")): pass
 
@@ -53,9 +52,9 @@ annotation corresponds to :py:attr:`commits_url`, and
 :py:class:`~uplink.Path` to :py:attr:`sha`.
 
 .. code-block:: python
+   :emphasize-lines: 2,3
 
     class GitHubService(object):
-
         @uplink.Path
         @uplink.Url
         @uplink.get
@@ -69,9 +68,9 @@ The second approach involves using the method annotation
 their corresponding function arguments (again, ignore :py:attr:`self`):
 
 .. code-block:: python
+   :emphasize-lines: 2
 
     class GitHubService(object):
-
         @uplink.args(uplink.Url, uplink.Path)
         @uplink.get
         def get_commit(self, commits_url, sha): pass
@@ -84,9 +83,9 @@ Finally, when using Python 3, you can use these classes as function
 annotations (:pep:`3107`):
 
 .. code-block:: python
+   :emphasize-lines: 3
 
     class GitHubService(object):
-
         @uplink.get
         def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
             pass
@@ -107,10 +106,10 @@ name, :py:attr:`username`, matches the intended URI path parameter:
 .. code-block:: python
 
     class GitHubService(object):
-
         @uplink.get("users/{username}")
         def get_user(self, username: uplink.Path): pass
 
+.. _implicit_path_annotations:
 
 Implicit :code:`Path` Annotations
 ----------------------------------
@@ -127,7 +126,6 @@ for us:
 .. code-block:: python
 
     class GitHubService(object):
-
         @uplink.get("user/{username}")
         def get_user(self, username): pass
 
@@ -135,13 +133,54 @@ Important to note, failure to resolve all unannotated function arguments
 raises an :py:class:`~uplink.InvalidRequestDefinitionError`.
 
 
-:code:`Path`: URL Path Variables
-================================
+:code:`Path`: Leverage URI Templates
+====================================
 
 .. autoclass:: uplink.Path
    :members:
 
-:code:`Query`: URL Query Parameters
-===================================
+:code:`Query`: Define URL Query Parameters
+==========================================
 
 .. autoclass:: uplink.Query
+
+.. autoclass:: uplink.QueryMap
+
+:code:`Header`: Add HTTP Header Fields
+======================================
+
+.. autoclass:: uplink.Header
+   :members:
+
+.. autoclass:: uplink.HeaderMap
+   :members:
+
+:code:`Field`:
+==============
+
+.. autoclass:: uplink.Field
+   :members:
+
+.. autoclass:: uplink.FieldMap
+   :members:
+
+:code:`Part`:
+==============
+
+.. autoclass:: uplink.Part
+   :members:
+
+.. autoclass:: uplink.PartMap
+   :members:
+
+:code:`Body`:
+=============
+
+.. autoclass:: uplink.Body
+   :members:
+
+:code:`Url`:
+=============
+
+.. autoclass:: uplink.Url
+   :members:

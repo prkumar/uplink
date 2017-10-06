@@ -220,16 +220,18 @@ class NamedArgument(TypedArgument):
 
 class Path(NamedArgument):
     """
-    Substitution of a URL path parameter.
+    Substitution of a path variable in a `URI template
+    <https://tools.ietf.org/html/rfc6570>`__.
 
-    Uplink supports `URI templates <https://tools.ietf.org/html/rfc6570>`__.
-    
-    Here's a simple example:
+    URI template parameters are enclosed in braces (e.g.,
+    :code:`{name}`). To map an argument to a declared URI parameter, use
+    the :py:class:`Path` annotation:
 
     .. code-block:: python
 
-        @get("todos{/id}")
-        def get_todo(self, todo_id: Path("id")): pass
+        class TodoService(object):
+            @get("todos{/id}")
+            def get_todo(self, todo_id: Path("id")): pass
 
     Then, invoking :code:`get_todo` with a consumer instance:
 
@@ -237,17 +239,20 @@ class Path(NamedArgument):
 
         todo_service.get_todo(100)
 
-    builds an HTTP request that has a URL ending with:
-    :code:`"todos/100"`.
+    creates an HTTP request with a URL ending in :code:`todos/100`.
 
-    `uplink` will try to match unannotated function arguments with
-    URL path parameters. For example, we can rewrite the previous
-    example as:
+    Note:
+        When building the consumer instance, :py:func:`uplink.build` will try
+        match unannotated function arguments with URL path parameters. See
+        :ref:`implicit_path_annotations` for details.
 
-    .. code-block:: python
+        For example, we could rewrite the method from the previous
+        example as:
 
-        @get("todos{/todo_id}")
-        def get_todo(self, todo_id): pass
+        .. code-block:: python
+
+            @get("todos{/todo_id}")
+            def get_todo(self, todo_id): pass
     """
 
     @property
@@ -323,6 +328,7 @@ class HeaderMap(TypedArgument):
 
 
 class Field(NamedArgument):
+    """Key-value pair for a form-encoded request."""
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
         message = (
@@ -335,7 +341,7 @@ class Field(NamedArgument):
 
     @property
     def converter_type(self):
-        return converter.CONVERT_TO_REQUEST_BODY
+        return converter.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
         try:
@@ -356,7 +362,7 @@ class FieldMap(TypedArgument):
 
     @property
     def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+        return converter.Map(converter.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
         try:

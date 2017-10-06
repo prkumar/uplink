@@ -15,8 +15,8 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
    **Uplink** is currently in initial development and, therefore, not
    production ready at the moment. Furthermore, as the package follows a
    `semantic versioning <https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred>`__
-   scheme, the public API outlined in this documentation should not be
-   considered stable until the release of :code:`v1.0.0`.
+   scheme, the public API outlined in this documentation should be
+   considered tentative until the :code:`v1.0.0` release.
 
    However, while **Uplink** is under construction, we invite eager users
    to install early and provide open feedback, which can be as simple as
@@ -63,7 +63,7 @@ To construct a consumer instance, use the helper function :py:func:`uplink.build
 
 To access the GitHub API with this instance, we simply invoke any of the methods
 that we defined in the interface above. To illustrate, let's update my GitHub
-profile's bio:
+profile bio:
 
 .. code-block:: python
 
@@ -81,14 +81,14 @@ the returned response :py:obj:`r` is a :py:class:`requests.Response`
     print(r.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
 In essence, **Uplink** delivers API consumers that are self-describing,
-reusable, and fairly compact, with minimal user effort.
+reusable, and fairly compact, with minimal user pain ☺️.
 
 ----
 
 The User Manual
 ---------------
 
-This guide describes the package's Public API.
+This guide describes Uplink's public API.
 
 .. toctree::
    :maxdepth: 2

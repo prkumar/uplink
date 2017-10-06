@@ -37,7 +37,7 @@ To construct a consumer instance, use the helper function ``uplink.build``:
 
 To access the GitHub API with this instance, we simply invoke any of the methods
 that we defined in the interface above. To illustrate, let's update my GitHub
-profile's bio:
+profile bio:
 
 .. code-block:: python
 
@@ -54,7 +54,7 @@ sends that synchronously over the network. Furthermore, the returned
     print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
 In essence, **Uplink** delivers API consumers that are self-describing,
-reusable, and fairly compact, with minimal user effort.
+reusable, and fairly compact, with minimal user pain ☺️.
 
 Installation
 ------------
