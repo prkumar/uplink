@@ -83,17 +83,24 @@ the returned response :py:obj:`r` is a :py:class:`requests.Response`
 In essence, **Uplink** delivers API consumers that are self-describing,
 reusable, and fairly compact, with minimal user pain ☺️.
 
-----
-
 The User Manual
 ---------------
 
-This guide describes Uplink's public API.
+Showcasing Uplink's public API, this guide helps you get started
 
 .. toctree::
    :maxdepth: 2
 
    install.rst
+   introduction.rst
+   getting_started.rst
+
+The Public API
+--------------
+
+.. toctree::
+   :maxdepth: 2
+
    types.rst
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master

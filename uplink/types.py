@@ -251,8 +251,8 @@ class Path(NamedArgument):
 
         .. code-block:: python
 
-            @get("todos{/todo_id}")
-            def get_todo(self, todo_id): pass
+            @get("todos{/id}")
+            def get_todo(self, id): pass
     """
 
     @property
@@ -267,11 +267,6 @@ class Path(NamedArgument):
 
 
 class Query(NamedArgument):
-    """
-    A URL query parameter.
-
-
-    """
 
     @staticmethod
     def convert_to_string(value):
@@ -292,9 +287,6 @@ class Query(NamedArgument):
 
 
 class QueryMap(TypedArgument):
-    """
-    Mapping of URL query parameters.
-    """
 
     @property
     def converter_type(self):
@@ -328,7 +320,6 @@ class HeaderMap(TypedArgument):
 
 
 class Field(NamedArgument):
-    """Key-value pair for a form-encoded request."""
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
         message = (
