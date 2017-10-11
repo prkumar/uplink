@@ -1,22 +1,22 @@
 Argument Annotations
-******************
+********************
 
 
-Replace a URI :code:`Path` Variable
-===================================
+Replace URI ``Path`` Variables
+==============================
 
 .. autoclass:: uplink.Path
    :members:
 
-Append a URL :code:`Query` Parameter
-====================================
+Append a URL ``Query`` Parameter
+================================
 
 .. autoclass:: uplink.Query
 
 .. autoclass:: uplink.QueryMap
 
-Set a HTTP :code:`Header` Field
-===============================
+Set HTTP ``Header`` Field
+=========================
 
 .. autoclass:: uplink.Header
    :members:
@@ -24,8 +24,9 @@ Set a HTTP :code:`Header` Field
 .. autoclass:: uplink.HeaderMap
    :members:
 
-Add a URL Encoded Form :code:`Field`
-====================================
+
+Add URL-Encoded Form ``Field``
+==============================
 
 .. autoclass:: uplink.Field
    :members:
@@ -33,8 +34,8 @@ Add a URL Encoded Form :code:`Field`
 .. autoclass:: uplink.FieldMap
    :members:
 
-Submit a Form Data :code:`Part`
-===============================
+Submit Form Data ``Part``
+=========================
 
 .. autoclass:: uplink.Part
    :members:
@@ -42,14 +43,14 @@ Submit a Form Data :code:`Part`
 .. autoclass:: uplink.PartMap
    :members:
 
-Control the Request :code:`Body`
-================================
+Control the Request ``Body``
+============================
 
 .. autoclass:: uplink.Body
    :members:
 
-Assign a :code:`Url` at Runtime
-===============================
+Assign a ``Url`` at Runtime
+===========================
 
 .. autoclass:: uplink.Url
    :members:

@@ -45,8 +45,8 @@ URL-Encoded Request Body
 Send Multipart Form Data
 ========================
 
-Other Content Types
-===================
+JSON Requests, and Other Content Types
+======================================
 
 
 

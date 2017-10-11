@@ -98,10 +98,19 @@ Showcasing Uplink's public API, this guide helps you get started
 The Public API
 --------------
 
-.. toctree::
-   :maxdepth: 2
+.. todo::
 
+   Most of this guide is unfinished and completing it is a planned
+   deliverable for the ``v0.2.0`` release. At the least, this work will
+   necessitate adding docstrings to the classes enumerated below.
+
+
+.. toctree::
+   :maxdepth: 3
+
+   decorators.rst
    types.rst
+
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master

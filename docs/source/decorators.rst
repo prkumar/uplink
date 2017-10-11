@@ -4,8 +4,17 @@ Method Annotations
 Assign HTTP :code:`headers`
 ===========================
 
-Format Body for POST/PUT/PATCH Requests
-=======================================
+Format POST/PUT/PATCH Request Body
+==================================
+
+``form_url_encoded``
+--------------------
+
+``multipart``
+-------------
+
+``json``
+--------
 
 Apply :code:`timeout` on Request
 ================================

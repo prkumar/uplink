@@ -1,8 +1,8 @@
 Introduction
 ************
 
-Method Annotations
-==================
+**Method Annotations**: Static Request Properties
+=================================================
 
 Essentially, method annotations describe Request properties that are relevant
 to all invocations of a consumer method.
@@ -28,8 +28,8 @@ As method annotations are simply decorators, you can stack one on top of another
 to chain them.
 
 
-Annotating all API Methods in a Class
--------------------------------------
+A Shortcut for Annotating All Methods in a Class
+------------------------------------------------
 
 To apply an annotation across all methods in a class, you can simply
 annotate the class rather than each method individually:
@@ -48,7 +48,7 @@ annotate the class rather than each method individually:
             """List all organizations."""
 
 
-To drive this point home, the consumer defined above is equivalent to
+Let's drive this point home; the consumer defined above is equivalent to
 the following, slightly more verbose one:
 
 .. code-block:: python
@@ -66,8 +66,8 @@ the following, slightly more verbose one:
 
 
 
-Argument Annotations
-=====================
+**Arguments Annotations**: Dynamic Request Properties
+=====================================================
 
 In programming, parametrization drives a function's dynamic behavior; a
 function's output depends normally on its inputs. With
