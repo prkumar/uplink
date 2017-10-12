@@ -19,6 +19,8 @@ __all__ = [
     "HeaderMap",
     "Field",
     "FieldMap",
+    "Part",
+    "PartMap",
     "Body",
     "Url"
 ]

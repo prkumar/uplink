@@ -12,6 +12,9 @@ Setting the URL
 Path Variables
 ==============
 
+.. _implicit_path_annotations:
+
+
 Implicit :code:`Path` Annotations
 ----------------------------------
 
