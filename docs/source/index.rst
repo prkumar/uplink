@@ -12,13 +12,13 @@ A Declarative HTTP Client for Python, inspired by `Retrofit
 
 .. note::
 
-   **Uplink** is currently in initial development and, therefore, not
+   Uplink is currently in initial development and, therefore, not
    production ready at the moment. Furthermore, as the package follows a
    `semantic versioning <https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred>`__
    scheme, the public API outlined in this documentation should be
    considered tentative until the :code:`v1.0.0` release.
 
-   However, while **Uplink** is under construction, we invite eager users
+   However, while Uplink is under construction, we invite eager users
    to install early and provide open feedback, which can be as simple as
    opening a GitHub issue when you notice a missing feature, latent defect,
    documentation oversight, etc.
@@ -69,10 +69,10 @@ profile bio:
 
     r = github.update_user(token, bio="Beam me up, Scotty!").execute()
 
-*Voila*, :py:meth:`update_user` seamlessly builds the request (using the
+*Voila*, :py:meth:`update_user` builds the request seamlessly (using the
 decorators and annotations from the method's definition), and
 :py:meth:`execute` sends that synchronously over the network. Furthermore,
-the returned response :py:obj:`r` is a :py:class:`requests.Response`
+the returned response :py:obj:`r` is simply a :py:class:`requests.Response`
 (`documentation
 <http://docs.python-requests.org/en/master/api/#requests.Response>`__):
 
@@ -86,7 +86,7 @@ reusable, and fairly compact, with minimal user pain ☺️.
 The User Manual
 ---------------
 
-Showcasing Uplink's public API, this guide helps you get started
+Follow this guide to get up and running with Uplink.
 
 .. toctree::
    :maxdepth: 2

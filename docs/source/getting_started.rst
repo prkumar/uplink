@@ -1,10 +1,8 @@
 Getting Started
 ***************
 
-Send a Request
-==============
-
-Sending a simple
+Making a Request
+================
 
 Setting the URL
 ===============
