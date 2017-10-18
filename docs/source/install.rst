@@ -1,12 +1,10 @@
 Installation
 ============
 
-Getting started with Uplink begins with installation.
+Using :program:`pip`
+--------------------
 
-Using ``pip``
--------------
-
-With ``pip`` or ``pipenv`` installed, you can install Uplink simply by
+With :program:`pip` or :program:`pipenv` installed, you can install Uplink simply by
 typing:
 
 ::
@@ -20,13 +18,14 @@ Download the Source Code
 Uplink's source code is in a `public repository hosted on GitHub
 <https://github.com/prkumar/uplink>`__.
 
-As an alternative to installing with ``pip``, you could clone the repository
+As an alternative to installing with :program:`pip`, you could clone the
+repository
 
 ::
 
     $ git clone https://github.com/prkumar/uplink.git
 
-Then, install; e.g., with ``setup.py``:
+Then, install; e.g., with :file:`setup.py`:
 
 ::
 
