@@ -23,5 +23,5 @@ Added
   ``pip``, and link to online documentation.
 
 
-.. _`Keep a Changelog`: <http://keepachangelog.com/en/1.0.0/>
-.. _`Semantic Versioning`: <https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred>
+.. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
+.. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
