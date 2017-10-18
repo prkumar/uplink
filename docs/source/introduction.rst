@@ -6,7 +6,7 @@ HTTP webservices, with minimal code and user pain.
 
 Defining similar objects with other Python HTTP clients, such as
 :code:`requests`, often requires writing boilerplate code and layers of
-abstraction. Uplink handles those tedious parts for you.
+abstraction. Uplink handles those cumbersome parts for you.
 
 **Method Annotations**: Static Request Handling
 ===============================================
@@ -25,11 +25,9 @@ For instance, consider the following GitHub API consumer:
        def get_repos(self):
            """Dump every public repository."""
 
-
 Annotated with :py:class:`timeout`, the method :py:meth:`get_repos` will build
 HTTP requests that wait an allotted number of seconds -- 60, in this case --
 for the server to respond before giving up.
-
 
 Applying Multiple Method Annotations
 ------------------------------------
@@ -66,7 +64,6 @@ annotate the class rather than each method individually:
         def get_organizations(self):
             """List all organizations."""
 
-
 Hence, the consumer defined above is equivalent to the following,
 slightly more verbose one:
 
@@ -82,7 +79,6 @@ slightly more verbose one:
         @uplink.get("/organizations")
         def get_organizations(self):
             """List all organizations."""
-
 
 **Arguments Annotations**: Dynamic Request Handling
 ===================================================
@@ -177,7 +173,6 @@ their corresponding function arguments (again, ignore :py:attr:`self`):
         @uplink.args(uplink.Url, uplink.Path)
         @uplink.get
         def get_commit(self, commits_url, sha): pass
-
 
 Function Annotations (Python 3 only)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

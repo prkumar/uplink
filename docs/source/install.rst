@@ -4,7 +4,7 @@ Installation
 Using :program:`pip`
 --------------------
 
-With :program:`pip` or :program:`pipenv` installed, you can install Uplink simply by
+With :program:`pip` (or :program:`pipenv`), you can install Uplink simply by
 typing:
 
 ::

@@ -95,21 +95,21 @@ Follow this guide to get up and running with Uplink.
    introduction.rst
    getting_started.rst
 
-The Public API
---------------
+..
+   The Public API
+   --------------
 
-.. todo::
+   .. todo::
 
-   Most of this guide is unfinished and completing it is a planned
-   deliverable for the ``v0.2.0`` release. At the least, this work will
-   necessitate adding docstrings to the classes enumerated below.
+      Most of this guide is unfinished and completing it is a planned
+      deliverable for the ``v0.2.0`` release. At the least, this work will
+      necessitate adding docstrings to the classes enumerated below.
 
+   .. toctree::
+      :maxdepth: 3
 
-.. toctree::
-   :maxdepth: 3
-
-   decorators.rst
-   types.rst
+      decorators.rst
+      types.rst
 
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master

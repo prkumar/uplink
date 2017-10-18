@@ -1,7 +1,6 @@
 Argument Annotations
 ********************
 
-
 Replace URI ``Path`` Variables
 ==============================
 
