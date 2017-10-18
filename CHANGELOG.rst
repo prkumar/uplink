@@ -11,8 +11,7 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 
 Added
 -----
-- Python ports for almost all method and argument annotations in `Retrofit
-  <http://square.github.io/retrofit/>`__.
+- Python ports for almost all method and argument annotations in Retrofit_.
 - Adherence to the variation of the semantic versioning scheme outlined in
   the official Python package distribution tutorial.
 - MIT License
@@ -23,5 +22,6 @@ Added
   ``pip``, and link to online documentation.
 
 
+.. _Retrofit: http://square.github.io/retrofit/
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
