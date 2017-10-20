@@ -6,12 +6,14 @@ HTTP webservices, with minimal code and user pain.
 
 Defining similar objects with other Python HTTP clients, such as
 :code:`requests`, often requires writing boilerplate code and layers of
-abstraction. Uplink handles those cumbersome parts for you.
+abstraction. With Uplink, simply define your consumers using
+decorators and function annotations, and we'll handle the REST for you! (Pun
+intended, obviously.) 😎
 
 **Method Annotations**: Static Request Handling
 ===============================================
 
-Essentially, method annotations describe Request properties that are relevant
+Essentially, method annotations describe request properties that are relevant
 to all invocations of a consumer method.
 
 For instance, consider the following GitHub API consumer:

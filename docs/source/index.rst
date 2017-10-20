@@ -5,7 +5,7 @@
 
 Uplink 📡
 ==========
-A Declarative HTTP Client for Python, inspired by `Retrofit
+A Declarative HTTP Client for Python. Inspired by `Retrofit
 <http://square.github.io/retrofit/>`__.
 
 |Release| |Python Version| |License| |Coverage Status|
