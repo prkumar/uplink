@@ -19,6 +19,8 @@ __all__ = [
     "HeaderMap",
     "Field",
     "FieldMap",
+    "Part",
+    "PartMap",
     "Body",
     "Url"
 ]
@@ -220,26 +222,39 @@ class NamedArgument(TypedArgument):
 
 class Path(NamedArgument):
     """
-    Substitution of a URL path parameter.
+    Substitution of a path variable in a `URI template
+    <https://tools.ietf.org/html/rfc6570>`__.
 
-    Here's a simple example:
-
-    .. code-block:: python
-
-        @get("todos{/id}")
-        def get_todo(self, todo_id: Path("id")): pass
-
-    Then, calling :code:`todo_service.get_todo(100)` would produce the
-    path :code:`"todos/100"`.
-
-    `uplink` will try to match unannotated function arguments with
-    URL path parameters. For example, we can rewrite the previous
-    example as:
+    URI template parameters are enclosed in braces (e.g.,
+    :code:`{name}`). To map an argument to a declared URI parameter, use
+    the :py:class:`Path` annotation:
 
     .. code-block:: python
 
-        @get("todos{/todo_id}")
-        def get_todo(self, todo_id): pass
+        class TodoService(object):
+            @get("todos{/id}")
+            def get_todo(self, todo_id: Path("id")): pass
+
+    Then, invoking :code:`get_todo` with a consumer instance:
+
+    .. code-block:: python
+
+        todo_service.get_todo(100)
+
+    creates an HTTP request with a URL ending in :code:`todos/100`.
+
+    Note:
+        When building the consumer instance, :py:func:`uplink.build` will try
+        match unannotated function arguments with URL path parameters. See
+        :ref:`implicit_path_annotations` for details.
+
+        For example, we could rewrite the method from the previous
+        example as:
+
+        .. code-block:: python
+
+            @get("todos{/id}")
+            def get_todo(self, id): pass
     """
 
     @property
@@ -254,11 +269,6 @@ class Path(NamedArgument):
 
 
 class Query(NamedArgument):
-    """
-    A URL query parameter.
-
-
-    """
 
     @staticmethod
     def convert_to_string(value):
@@ -279,9 +289,6 @@ class Query(NamedArgument):
 
 
 class QueryMap(TypedArgument):
-    """
-    Mapping of URL query parameters.
-    """
 
     @property
     def converter_type(self):
@@ -327,7 +334,7 @@ class Field(NamedArgument):
 
     @property
     def converter_type(self):
-        return converter.CONVERT_TO_REQUEST_BODY
+        return converter.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
         try:
@@ -348,7 +355,7 @@ class FieldMap(TypedArgument):
 
     @property
     def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+        return converter.Map(converter.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
         try:

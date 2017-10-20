@@ -247,7 +247,7 @@ class TestHeaderMap(ArgumentTestCase):
 
 class TestField(ArgumentTestCase):
     type_cls = types.Field
-    expected_converter_type = converter.CONVERT_TO_REQUEST_BODY
+    expected_converter_type = converter.CONVERT_TO_STRING
 
     def test_modify_request(self, request_builder):
         types.Field("hello").modify_request(request_builder, "world")
@@ -261,7 +261,7 @@ class TestField(ArgumentTestCase):
 
 class TestFieldMap(ArgumentTestCase):
     type_cls = types.FieldMap
-    expected_converter_type = converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+    expected_converter_type = converter.Map(converter.CONVERT_TO_STRING)
 
     def test_modify_request(self, request_builder):
         types.FieldMap().modify_request(request_builder, {"hello": "world"})
