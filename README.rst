@@ -5,10 +5,12 @@ Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
 
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
-**A Quick Walkthrough, with GitHub API v3**
+A Quick Walkthrough, with GitHub API v3
+---------------------------------------
 
 Using decorators and function annotations, you can turn any plain old Python
-class into an HTTP API consumer:
+class into a self-describing consumer of your favorite HTTP webservice:
+
 
 .. code-block:: python
 
@@ -17,7 +19,7 @@ class into an HTTP API consumer:
     # To register entities that are common to all API requests, you can
     # decorate the enclosing class rather than each method separately:
     @headers({"Accept": "application/vnd.github.v3.full+json"})
-    class GitHubService(object):
+    class GitHub(object):
 
         @get("/users/{username}")
         def get_user(self, username):
@@ -32,11 +34,11 @@ To construct a consumer instance, use the helper function ``uplink.build``:
 
 .. code-block:: python
 
-    github = build(GitHubService, base_url="https://api.github.com/")
+    github = build(GitHub, base_url="https://api.github.com/")
 
 To access the GitHub API with this instance, we simply invoke any of the methods
 that we defined in the interface above. To illustrate, let's update my GitHub
-user's bio:
+profile bio:
 
 .. code-block:: python
 
@@ -52,8 +54,8 @@ sends that synchronously over the network. Furthermore, the returned
 
     print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
-In essence, **Uplink** delivers API consumers that are self-describing,
-reusable, and fairly compact, with minimal user effort.
+In essence, Uplink delivers reusable and self-sufficient objects for
+accessing HTTP webservices, with minimal code and user pain ☺️.
 
 Installation
 ------------

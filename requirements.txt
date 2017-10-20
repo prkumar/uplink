@@ -10,3 +10,4 @@ tox==2.7.0
 
 # Documentation
 Sphinx==1.6.3
+sphinx-autobuild==0.7.1
