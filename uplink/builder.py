@@ -85,9 +85,16 @@ class Call(object):
 
 class Builder(interfaces.AbstractUplinkBuilder):
 
-    def __init__(self, service_cls):
+    def __init__(self, service_stub):
+        """
+        Creates a Builder.
+
+        :param object service_stub: An initiated instance of the class being built, with
+                                    no functions or fields
+        """
+
         self._base_url = ""
-        self._service_cls = service_cls
+        self._service_stub = service_stub
         self._client = client.HttpClient()
         self._converter_factories = collections.deque()
         self._converter_factories.append(converter.StandardConverterFactory())
@@ -128,8 +135,11 @@ class Builder(interfaces.AbstractUplinkBuilder):
         setattr(instance, attribute_name, call_factory)
 
     def build(self, *args, **kwargs):
-        service = self._service_cls(*args, **kwargs)
-        definition_builders = helpers.get_api_definitions(self._service_cls)
+        """ Modifies the internal service stub by binding functions to it, and
+        returns the modified stub
+        """
+
+        definition_builders = helpers.get_api_definitions(self._service_stub.__class__)
 
         # Build and bind API definitions to service instance.
         for attribute_name, builder in definition_builders:
@@ -138,14 +148,24 @@ class Builder(interfaces.AbstractUplinkBuilder):
             except exceptions.InvalidRequestDefinition as error:
                 # TODO: Find a Python 2.7 compatible way to reraise
                 raise exceptions.UplinkBuilderError(
-                    self._service_cls, attribute_name, error)
-            call_factory = self._make_call_factory(service, definition)
-            self._bind_to_instance(service, attribute_name, call_factory)
-        return service
+                    self._service_stub.__class__, attribute_name, error)
+            call_factory = self._make_call_factory(self._service_stub, definition)
+            self._bind_to_instance(self._service_stub, attribute_name, call_factory)
+        return self._service_stub
+
+class Consumer(object):
+
+    def __init__(self, base_url="", converter_factories=(), http_client=None):
+        builder = Builder(self)
+        builder.base_url = base_url
+        builder.add_converter_factory(*converter_factories)
+        if http_client is not None:
+            builder.client = http_client
+        builder.build()
 
 
 def build(service_cls, base_url="", converter_factories=(), http_client=None):
-    builder = Builder(service_cls)
+    builder = Builder(service_cls())
     builder.base_url = base_url
     builder.add_converter_factory(*converter_factories)
     if http_client is not None:

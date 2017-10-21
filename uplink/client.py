@@ -83,3 +83,4 @@ class HttpClientDecorator(BaseHttpClient):
 
     def handle_response(self, response):
         return self._connection.handle_response(response)
+
