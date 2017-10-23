@@ -85,7 +85,7 @@ Contributing
 ------------
 
 Looking to report a bug, request a feature, or contribute code to Uplink?
-Checkout the `Contribution Guide <CONTRIBUTING.rst>`_ ! Thanks for taking
+Checkout the `Contribution Guide <CONTRIBUTING.rst>`_! Thanks for taking
 the time to improve an open source project!
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
