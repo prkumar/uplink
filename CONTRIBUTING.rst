@@ -28,14 +28,14 @@ Making Changes to the Source
 
 Changes to the source code typically address one of the following:
 
-* `Feature enhancement or non-critical bug fix`_
+* `Feature enhancement or minor bug fix`_
 * `Critical bug fix`_
 
 And, a unit of development typically follows this workflow:
 
 1. Fork the repository if you don't have write-access.
 2. Make your changes, adhering to the `style guide`_.
-3. Add or update tests_.
+3. Add or update testing_.
 4. Update documentation, if necessary.
 5. Add yourself to AUTHORS.rst.
 6. When your changes are ready for review, open a `pull request`_.
@@ -72,17 +72,17 @@ You can read about the `develop branch
 <http://nviecom/posts/a-successful-git-branching -model/#the-main-branches>`_
 in the linked GitFlow article..
 
-Feature Enhancement/Non-Critical Bug Fix
-----------------------------------------
+Feature Enhancement or Minor Bug Fix
+------------------------------------
 
 Subject to inclusion in some future release, features are logically cohesive
 units of work that add value to Uplink. In like manner, a
 non-critical bug fix adds value in that it addresses a value destroying
-characteristic of the code, a defect. Further, a non-critical bug is a
+characteristic of the code, a defect. Further, a minor bug is a
 defect that we can wait to patch in a different version. A defect that
 requires immediate attention needs a `critical bug fix`_.
 
-Development of a feature or a non-critical bug fix should happen on a
+Development of a feature or a minor bug fix should happen on a
 feature branch, which contains work for the next or some distant
 release. Feature development typically looks like:
 
@@ -94,7 +94,7 @@ release. Feature development typically looks like:
    on the feature branch until the release branch is cut (see releases_).
 4. Once you're done making changes, it's time to merge into develop:
 
- - Substantial changes require `opening a pull request`_.
+ - Substantial changes require opening a `pull request`_.
  - Always **squash and merge**.
 
 5. If the ``develop`` branch fails the Travis CI or Coveralls builds that run
@@ -149,8 +149,8 @@ the version number on ``develop``.
 
 .. _`pull request`:
 
-Opening a Pull Request
-======================
+Pull Request
+============
 
 Depending on the type of change you are making, the branching model may
 require merging your work into one or two target branches (typically one is
