@@ -2,24 +2,44 @@ How to Contribute to Uplink
 ***************************
 
 The following is a guide for contributing to Uplink. Thanks for taking the
-time and putting that work in!
+time to improve an open source project!
 
-Making changes to the source
+This guide is a work in progress. So, if you have suggestions for
+improving the contributors' experience, the release process, or really
+anything concerning the source code's management, please feel free to
+contact `@prkumar <https://github.com/prkumar>`_ directly.
+
+Reporting Bugs and Making Feature Requests
+==========================================
+
+We use the GitHub issue tracker for wrangling bug reports and feature requests.
+Before you open an issue, please do a quick search against both **closed and
+open** issues to ensure that the defect or feature request has not been
+reported already.
+
+Feature Requests
+----------------
+As the project is in initial development, we are accepting feature request!
+To request a feature, open a GitHub issue, summarize the enhancement, and add
+the "feature request" label!
+
+Making Changes to the Source
 ============================
 
-A unit of development typically looks like the following:
+Changes to the source code typically address one of the following:
+
+* `Feature enhancement or non-critical bug fix`_
+* `Critical bug fix`_
+
+And, a unit of development typically follows this workflow:
 
 1. Fork the repository if you don't have write-access.
 2. Make your changes, adhering to the `style guide`_.
 3. Add or update tests_.
 4. Update documentation, if necessary.
-5. When your changes are ready for review, open a `pull request`_.
-6. Merge and pat back.
-
-Changes to the source code typically address one of the following:
-
-* `Feature enhancement/non-critical bug fix`_
-* `Critical bug fix`_
+5. Add yourself to AUTHORS.rst.
+6. When your changes are ready for review, open a `pull request`_.
+7. Merge changes.
 
 Development Process
 ===================
