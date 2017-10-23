@@ -23,13 +23,11 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
    opening a GitHub issue when you notice a missing feature, latent defect,
    documentation oversight, etc.
 
-   Moreover, for those interested in contributing, I plan to publish a
-   contribution guide soon, but in the meantime, please feel free to fork
-   the `repository on GitHub <https://github.com/prkumar/uplink>`__ and open
-   a pull request ('tis
-   `Hacktoberfest <https://hacktoberfest.digitalocean.com/>`__, after all)!
+   Moreover, for those interested in contributing, checkout the `Contribution
+   Guide on GitHub`_ ('tis `Hacktoberfest`__, after all)!
 
-----
+.. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
+.. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
 
 A Quick Walkthrough, with GitHub API v3:
 ----------------------------------------
