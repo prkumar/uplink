@@ -4,3 +4,4 @@ Maintainers
 
 Contributors
 ************
+- Kareem Moussa `@itstehkman <https://github.com/itstehkman>`_
