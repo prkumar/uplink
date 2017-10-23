@@ -147,8 +147,6 @@ need to merge the branch into ``develop`` to incorporate commits made after the
 release branch was cut. Moreover, once a release branch is cut, we need to bump
 the version number on ``develop``.
 
-.. _`pull request`:
-
 Pull Request
 ============
 
@@ -167,8 +165,6 @@ require merging your work into one or two target branches (typically one is
    locally, then update the candidate branch.
 5. Once all checks have passed and the assigned reviewers have approved,
    your changes will be **squashed and merged** into the target branch.
-
-.. _tests:
 
 Testing
 =======
@@ -193,4 +189,4 @@ style. Checkout `this page
 <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
 for examples of Google Python Style Guide docstrings.
 
-.. _`Google Python Style Guide`: https://google.github.io/styleguide/pygu
+.. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide

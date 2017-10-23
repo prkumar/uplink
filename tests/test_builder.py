@@ -102,18 +102,18 @@ class TestBuilder(object):
         assert factory == converter_factory_mock
 
     def test_build(self, fake_service_cls):
-        service = builder.Builder(fake_service_cls).build()
+        service = builder.Builder(fake_service_cls()).build()
         assert isinstance(service, fake_service_cls)
 
     def test_build_failure(self, fake_service_cls):
         exception = exceptions.InvalidRequestDefinition()
         fake_service_cls.builder.build.side_effect = exception
-        uplink = builder.Builder(fake_service_cls)
+        uplink = builder.Builder(fake_service_cls())
         with pytest.raises(exceptions.UplinkBuilderError):
             uplink.build()
 
 
-def test_build(mocker, http_client_mock):
+def test_build(mocker, http_client_mock, fake_service_cls):
     builder_cls_mock = mocker.Mock()
     builder_mock = mocker.Mock(spec=builder.Builder)
     builder_cls_mock.return_value = builder_mock
