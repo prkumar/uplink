@@ -60,17 +60,33 @@ accessing HTTP webservices, with minimal code and user pain ☺️.
 Installation
 ------------
 
-``uplink`` supports Python 2.7 & 3.3-3.7. To install the package, you can use
-``pip``:
+``uplink`` supports Python 2.7 & 3.3-3.7.
+
+To install the latest stable release, you can use ``pip``:
 
 ::
 
     $ pip install uplink
 
+
+Interested in the cutting-edge? You can install the work-in-progress for the
+upcoming release with:
+
+::
+
+   $ pip install https://github.com/prkumar/uplink/archive/develop.zip
+
 Documentation
 -------------
 
 For more details, check out the documentation at http://uplink.readthedocs.io/.
+
+Contributing
+------------
+
+Looking to report a bug, request a feature, or contribute code to Uplink?
+Checkout the `Contribution Guide <CONTRIBUTING.rst>`_ ! Thanks for taking
+the time to improve an open source project!
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
