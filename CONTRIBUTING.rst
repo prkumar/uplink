@@ -29,8 +29,8 @@ add the **feature request** label.
 Making Changes to the Source
 ============================
 To find a feature or bug to work on, checkout the open GitHub issues with the
-label `**help wanted**
-<https://github.com/prkumar/uplink/labels/help%20wanted>`_.
+label "`help wanted
+<https://github.com/prkumar/uplink/labels/help%20wanted>`_".
 Once you have found an issue that you'd like to work on, add a comment to the
 issue expressing your interest in developing the feature or fixing the bug, and
 mention `@prkumar <https://github.com/prkumar>`_ in your comment.
@@ -100,9 +100,9 @@ Critical Bug Fix
 ----------------
 Critical bugs are defects affecting the latest released version of Uplink and
 require immediate action (i.e., we can't wait and patch the defect in a coming
-major or minor release). For critical bugs, we assign the label
-`**critical <https://github.com/prkumar/uplink/labels/critical>**`_ to their
-tracking GitHub issue.
+major or minor release). We assign the label
+"`critical <https://github.com/prkumar/uplink/labels/critical>`_" to GitHub
+issues tracking critical bugs.
 
 To address a critical bug, we need to:
 
