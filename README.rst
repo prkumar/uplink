@@ -74,7 +74,7 @@ upcoming release with:
 
 ::
 
-   $ pip install https://github.com/prkumar/uplink/archive/develop.zip
+   $ pip install https://github.com/prkumar/uplink/archive/master.zip
 
 Documentation
 -------------
