@@ -6,6 +6,18 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+Unreleased_
+===========
+Changed
+-------
+- In the contribution guide, promote ``--no-ff`` merge instead of **squash
+  and merge**, and clarify feature development and bug fix workflow, pull
+  request model, and how to start working on a feature or bug.
+
+Fixed
+-----
+- Header link for version 0.1.1 in changelog.
+
 0.1.1_ - 2017-10-21
 ===================
 Added
@@ -36,9 +48,9 @@ Added
 - README that contains GitHub API v3 example, installation instructions with
   ``pip``, and link to online documentation.
 
-
 .. _Retrofit: http://square.github.io/retrofit/
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
-.. _0.1.1: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.0...v0.1.1
+.. _Unreleased: https://github.com/prkumar/uplink/compare/v0.1.1...HEAD
+.. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1
