@@ -4,7 +4,7 @@ import collections
 # Local imports
 from uplink import client, converter, interfaces, exceptions, helpers, utils
 
-__all__ = ["Builder", "build"]
+__all__ = ["Builder", "build", "Consumer"]
 
 
 class ResponseConverter(client.HttpClientDecorator):
@@ -89,8 +89,9 @@ class Builder(interfaces.AbstractUplinkBuilder):
         """
         Creates a Builder.
 
-        :param object service_stub: An initiated instance of the class being built, with
-                                    no functions or fields
+        Args:
+            service_stub: An initiated instance of the class being built, with
+                no functions or fields.
         """
 
         self._base_url = ""
@@ -134,9 +135,10 @@ class Builder(interfaces.AbstractUplinkBuilder):
     def _bind_to_instance(instance, attribute_name, call_factory):
         setattr(instance, attribute_name, call_factory)
 
-    def build(self, *args, **kwargs):
-        """ Modifies the internal service stub by binding functions to it, and
-        returns the modified stub
+    def build(self):
+        """
+        Modifies the internal service stub by binding functions to it,
+        and returns the modified stub
         """
 
         definition_builders = helpers.get_api_definitions(self._service_stub.__class__)
@@ -152,6 +154,7 @@ class Builder(interfaces.AbstractUplinkBuilder):
             call_factory = self._make_call_factory(self._service_stub, definition)
             self._bind_to_instance(self._service_stub, attribute_name, call_factory)
         return self._service_stub
+
 
 class Consumer(object):
 
