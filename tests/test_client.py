@@ -12,22 +12,39 @@ def http_client_mock(mocker):
 
 class TestPreparedRequest(object):
 
-    def test_send(self, mocker):
-        sender = mocker.stub(name="sender")
-        sender.return_value = "hello"
-        prepared = client.PreparedRequest(sender, "arg1", "arg2")
-        response = prepared.send()
-        sender.assert_called_with("arg1", "arg2")
-        assert response is sender.return_value
+    def test_execute(self, mocker):
+        backend_factory = mocker.Mock(spec=client.BackendFactory)
+        backend_factory.sync_backend.send_request.return_value = True
+        prepared = client.PreparedRequest(backend_factory, "request")
+        response = prepared.execute()
+        backend_factory.sync_backend.send_request.assert_called_with("request")
+        assert response
+
+    def test_enqueue(self, mocker):
+        backend_factory = mocker.Mock(spec=client.BackendFactory)
+        backend_factory.async_backend.send_request.return_value = True
+        prepared = client.PreparedRequest(backend_factory, "request")
+        response = prepared.enqueue()
+        backend_factory.async_backend.send_request.assert_called_with("request")
+        assert response
+
+
+class TestRequest(object):
+
+    def test_enter(self, http_client_mock):
+        args = [1, 2, 3]
+        request = client.Request(http_client_mock, args)
+        with request as metadata:
+            http_client_mock.audit_request.assert_called_with(*args)
+            assert list(metadata) == args
+
+    def test_fulfill(self, http_client_mock):
+        request = client.Request(http_client_mock, ())
+        request.fulfill(1)
+        http_client_mock.handle_response.assert_called_with(1)
 
 
 class TestBaseHttpClient(object):
-
-    def test_wrap_request(self, mocker):
-        request = mocker.stub(name="request")
-        connection = client.BaseHttpClient()
-        connection.wrap_request(request)
-        assert request.called
 
     def test_handle_response(self):
         response = {}
@@ -41,17 +58,16 @@ class TestHttpClientDecorator(object):
         connection.audit_request("method", "url", {})
         http_client_mock.audit_request.assert_called_with("method", "url", {})
 
-    def test_delegate_wrap_request(self, mocker, http_client_mock):
-        request_mock = mocker.stub(name="request")
+    def test_delegate_handle_exception_request(self, http_client_mock):
         connection = client.HttpClientDecorator(http_client_mock)
-        connection.wrap_request(request_mock)
-        http_client_mock.wrap_request.assert_called_with(request_mock)
+        connection.handle_exception(1, 2, 3)
+        http_client_mock.handle_exception.assert_called_with(1, 2, 3)
 
     def test_delegate_handle_response(self, http_client_mock):
         connection = client.HttpClientDecorator(http_client_mock)
         connection.handle_response({})
         http_client_mock.handle_response.assert_called_with({})
 
-    def test_delegate_request_sender(self, http_client_mock):
+    def test_delegate_backend(self, http_client_mock):
         connection = client.HttpClientDecorator(http_client_mock)
-        assert connection._request_sender == http_client_mock._request_sender
+        assert connection._backend is http_client_mock._backend

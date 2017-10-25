@@ -47,8 +47,7 @@ class RequestPreparer(object):
         url = self._join_uri_with_base(request.uri)
         convert = self._get_converter(request)
         client_ = ResponseConverter(self._client, convert)
-        request = client_.build_request(request.method, url, request.info)
-        return request
+        return client_.build_request(request.method, url, request.info)
 
     def create_request_builder(self):
         return helpers.RequestBuilder(self._converter_registry)
@@ -65,22 +64,7 @@ class CallFactory(object):
         builder = self._request_preparer.create_request_builder()
         self._request_definition.define_request(builder, args, kwargs)
         request = builder.build()
-        prepared_request = self._request_preparer.prepare_request(request)
-        return Call(prepared_request, request.return_type)
-
-
-class Call(object):
-
-    def __init__(self, prepared_request, return_type):
-        self._prepared_request = prepared_request
-        self._return_type = return_type
-
-    @property
-    def return_type(self):
-        return self._return_type
-
-    def execute(self):
-        return self._prepared_request.send()
+        return self._request_preparer.prepare_request(request)
 
 
 class Builder(interfaces.AbstractUplinkBuilder):

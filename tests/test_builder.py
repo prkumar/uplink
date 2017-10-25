@@ -40,10 +40,12 @@ class TestRequestPreparer(object):
         request_preparer = builder.RequestPreparer(
             uplink_builder, request_definition
         )
-        return_value = request_preparer.prepare_request(request)
-        assert return_value[0] == "METHOD"
-        assert return_value[1] == "https://example.com/example/path"
-        assert return_value[2] == {}
+        request_preparer.prepare_request(request)
+        http_client_mock.build_request.assert_called_with(
+            "METHOD",
+            "https://example.com/example/path",
+            {}
+        )
 
 
 class TestCallFactory(object):
@@ -57,23 +59,11 @@ class TestCallFactory(object):
             instance,
             request_preparer,
             request_definition)
-        assert isinstance(factory(*args, **kwargs), builder.Call)
+        assert factory(*args, **kwargs) is request_preparer.prepare_request.return_value
         request_definition.define_request.assert_called_with(
             request_builder, (instance,) + args, kwargs
         )
         assert request_builder.build.called
-
-
-class TestCall(object):
-    def test_return_type(self):
-        call = builder.Call(None, str)
-        assert call.return_type is str
-
-    def test_execute(self, mocker):
-        prepared_request = mocker.Mock(spec=client.PreparedRequest)
-        call = builder.Call(prepared_request, None)
-        call.execute()
-        prepared_request.send.assert_called_with()
 
 
 class TestBuilder(object):
