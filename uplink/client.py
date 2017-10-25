@@ -51,7 +51,9 @@ class BaseHttpClient(object):
 
 
 class HttpClient(BaseHttpClient):
-    _backend = backend.RequestsBackend()
+
+    def __init__(self):
+        self._backend = backend.RequestsBackend()
 
     @property
     def _request_sender(self):
