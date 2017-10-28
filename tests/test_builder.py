@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import builder, converter, client, exceptions, utils
+from uplink import builder, converter, hooks, exceptions, utils
 
 
 @pytest.fixture
@@ -47,7 +47,7 @@ class TestPreparedRequest(object):
 class TestRequestHandler(object):
 
     def test_fulfill(self, mocker, request_mock):
-        hook = mocker.Mock(spec=client.BaseTransactionHook)
+        hook = mocker.Mock(spec=hooks.BaseTransactionHook)
         request_mock.send.return_value = 1
 
         request_handler = builder.RequestHandler(hook, 1, 2, 3)

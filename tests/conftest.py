@@ -5,7 +5,7 @@ import collections
 import pytest
 
 # Local imports
-from uplink import backend, client, interfaces, helpers
+from uplink import backend, hooks, interfaces, helpers
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def backend_mock(mocker):
 
 @pytest.fixture
 def transaction_hook_mock(mocker):
-    return mocker.Mock(spec=client.BaseTransactionHook)
+    return mocker.Mock(spec=hooks.BaseTransactionHook)
 
 
 @pytest.fixture

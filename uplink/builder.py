@@ -2,12 +2,12 @@
 import collections
 
 # Local imports
-from uplink import client, backend, converter, interfaces, exceptions, helpers, utils
+from uplink import hooks, backend, converter, interfaces, exceptions, helpers, utils
 
 __all__ = ["Builder", "build", "Consumer"]
 
 
-class ResponseConverter(client.TransactionHookDecorator):
+class ResponseConverter(hooks.TransactionHookDecorator):
     # TODO: Override `audit_request` to log request details
 
     def __init__(self, connection, convert):
@@ -108,7 +108,7 @@ class Builder(interfaces.AbstractUplinkBuilder):
 
         self._base_url = ""
         self._service_stub = service_stub
-        self._hook = client.TransactionHook()
+        self._hook = hooks.TransactionHook()
         self._client = backend.RequestsAdapter() & backend.AsyncioAdapter()
         self._converter_factories = collections.deque()
         self._converter_factories.append(converter.StandardConverterFactory())
@@ -128,7 +128,7 @@ class Builder(interfaces.AbstractUplinkBuilder):
 
     @hook.setter
     def hook(self, hook):
-        assert isinstance(hook, client.BaseTransactionHook)
+        assert isinstance(hook, hooks.BaseTransactionHook)
         self._hook = hook
 
     @property
