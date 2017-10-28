@@ -12,20 +12,23 @@ Note:
     they can create custom adapters.
 """
 
-from uplink.backend.requests_ import RequestsBackend
+from uplink.backend.requests_ import RequestsAdapter
 
 try:
-    from uplink.backend.asyncio_ import AsyncioBackend
+    from uplink.backend.asyncio_ import AsyncioAdapter
 except (SyntaxError, ImportError) as error:
     from uplink.backend import interfaces
 
-    class AsyncioBackend(interfaces.Backend):
+    class AsyncioAdapter(interfaces.HttpClientAdapter):
         error_message = str(error)
+
+        def is_synchronous(self):
+            return False
 
         def __init__(self, *args, **kwargs):
             pass
 
-        def send_request(self, request):
+        def create_request(self):
             raise NotImplementedError(
                 "Failed to load `asyncio` client: %s" % self.error_message
             )

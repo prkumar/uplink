@@ -5,12 +5,29 @@ import collections
 import pytest
 
 # Local imports
-from uplink import client, interfaces, helpers
+from uplink import backend, client, interfaces, helpers
 
 
 @pytest.fixture
 def http_client_mock(mocker):
-    return mocker.Mock(spec=client.BaseHttpClient)
+    return mocker.Mock(spec=backend.interfaces.HttpClientAdapter)
+
+
+@pytest.fixture
+def request_mock(mocker):
+    return mocker.Mock(spec=backend.interfaces.Request)
+
+
+@pytest.fixture
+def backend_mock(mocker):
+    mock = mocker.Mock(spec=backend.interfaces.Backend)
+    mock.make_backend.return_value = mock
+    return mock
+
+
+@pytest.fixture
+def transaction_hook_mock(mocker):
+    return mocker.Mock(spec=client.BaseTransactionHook)
 
 
 @pytest.fixture

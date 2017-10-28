@@ -19,29 +19,63 @@ def uplink_builder():
 
 
 class TestResponseConverter(object):
-    def test_handle_response(self, mocker, http_client_mock):
+    def test_handle_response(self, mocker, transaction_hook_mock):
         converter_ = mocker.Mock()
         input_value = "converted"
         converter_.return_value = input_value
-        rc = builder.ResponseConverter(http_client_mock, converter_)
+        rc = builder.ResponseConverter(transaction_hook_mock, converter_)
         assert rc.handle_response(None) is input_value
 
 
+class TestPreparedRequest(object):
+
+    def test_execute(self, backend_mock):
+        backend_mock.send_synchronous_request.return_value = True
+        prepared = builder.PreparedRequest(backend_mock, "request")
+        response = prepared.execute()
+        backend_mock.send_synchronous_request.assert_called_with("request")
+        assert response
+
+    def test_enqueue(self, backend_mock):
+        backend_mock.send_asynchronous_request.return_value = True
+        prepared = builder.PreparedRequest(backend_mock, "request")
+        response = prepared.enqueue()
+        backend_mock.send_asynchronous_request.assert_called_with("request")
+        assert response
+
+
+class TestRequestHandler(object):
+
+    def test_fulfill(self, mocker, request_mock):
+        hook = mocker.Mock(spec=client.BaseTransactionHook)
+        request_mock.send.return_value = 1
+
+        request_handler = builder.RequestHandler(hook, 1, 2, 3)
+        value = request_handler.fulfill(request_mock)
+
+        hook.audit_request(1, 2, 3)
+        request_mock.add_callback.assert_called_with(hook.handle_response)
+        assert value == 1
+
+
 class TestRequestPreparer(object):
+    # TODO: Refactor uplink builder to be a prepared request builder
+
     def test_prepare_request(
             self,
             http_client_mock,
             request_definition,
-            uplink_builder
+            uplink_builder,
+            transaction_hook_mock
     ):
         request = utils.Request("METHOD", "/example/path", {}, None)
-        uplink_builder.client = http_client_mock
+        uplink_builder.hook = transaction_hook_mock
         uplink_builder.base_url = "https://example.com"
         request_preparer = builder.RequestPreparer(
             uplink_builder, request_definition
         )
-        request_preparer.prepare_request(request)
-        http_client_mock.build_request.assert_called_with(
+        request_preparer.prepare_request(request).execute()
+        transaction_hook_mock.audit_request.assert_called_with(
             "METHOD",
             "https://example.com/example/path",
             {}
@@ -73,8 +107,9 @@ class TestBuilder(object):
             converter.StandardConverterFactory
         )
 
-    def test_client_getter(self, uplink_builder):
-        assert isinstance(uplink_builder.client, client.BaseHttpClient)
+    def test_client_getter(self, uplink_builder, http_client_mock):
+        uplink_builder.client = http_client_mock
+        assert uplink_builder.client is http_client_mock
 
     def test_client_setter(self, uplink_builder, http_client_mock):
         uplink_builder.client = http_client_mock

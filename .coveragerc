@@ -11,6 +11,8 @@ source = uplink
 omit =
     uplink/__about__.py
     uplink/interfaces.py
+    uplink/backend/interfaces.py
+    uplink/backend/asyncio_.py
 
 [report]
 # When running a summary report, show missing lines.

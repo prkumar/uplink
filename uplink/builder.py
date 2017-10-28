@@ -2,12 +2,12 @@
 import collections
 
 # Local imports
-from uplink import client, converter, interfaces, exceptions, helpers, utils
+from uplink import client, backend, converter, interfaces, exceptions, helpers, utils
 
 __all__ = ["Builder", "build", "Consumer"]
 
 
-class ResponseConverter(client.HttpClientDecorator):
+class ResponseConverter(client.TransactionHookDecorator):
     # TODO: Override `audit_request` to log request details
 
     def __init__(self, connection, convert):
@@ -19,11 +19,37 @@ class ResponseConverter(client.HttpClientDecorator):
         return self._convert(response)
 
 
+class RequestHandler(backend.interfaces.RequestHandler):
+
+    def __init__(self, hook, method, url, extras):
+        self._args = (method, url, extras)
+        self._hook = hook
+
+    def fulfill(self, request):
+        self._hook.audit_request(*self._args)
+        request.add_callback(self._hook.handle_response)
+        return request.send(*self._args)
+
+
+class PreparedRequest(object):
+
+    def __init__(self, backend_, request_handler):
+        self._backend = backend_
+        self._request_handler = request_handler
+
+    def execute(self):
+        return self._backend.send_synchronous_request(self._request_handler)
+
+    def enqueue(self):
+        return self._backend.send_asynchronous_request(self._request_handler)
+
+
 class RequestPreparer(object):
 
     def __init__(self, uplink_builder, definition):
-        self._client = uplink_builder.client
-        self._base_url = uplink_builder.base_url
+        self._hook = uplink_builder.hook
+        self._backend = uplink_builder.client.make_backend()
+        self._base_url = str(uplink_builder.base_url)
         self._converter_registry = self._make_converter_registry(
             uplink_builder, definition
         )
@@ -46,8 +72,10 @@ class RequestPreparer(object):
     def prepare_request(self, request):
         url = self._join_uri_with_base(request.uri)
         convert = self._get_converter(request)
-        client_ = ResponseConverter(self._client, convert)
-        return client_.build_request(request.method, url, request.info)
+        hook = ResponseConverter(self._hook, convert)
+        request_handler = RequestHandler(
+            hook, request.method, url, request.info)
+        return PreparedRequest(self._backend, request_handler)
 
     def create_request_builder(self):
         return helpers.RequestBuilder(self._converter_registry)
@@ -80,7 +108,8 @@ class Builder(interfaces.AbstractUplinkBuilder):
 
         self._base_url = ""
         self._service_stub = service_stub
-        self._client = client.HttpClient()
+        self._hook = client.TransactionHook()
+        self._client = backend.RequestsAdapter() & backend.AsyncioAdapter()
         self._converter_factories = collections.deque()
         self._converter_factories.append(converter.StandardConverterFactory())
 
@@ -90,8 +119,17 @@ class Builder(interfaces.AbstractUplinkBuilder):
 
     @client.setter
     def client(self, new_client):
-        assert isinstance(new_client, client.BaseHttpClient)
+        assert isinstance(new_client, backend.interfaces.BackendFactory)
         self._client = new_client
+
+    @property
+    def hook(self):
+        return self._hook
+
+    @hook.setter
+    def hook(self, hook):
+        assert isinstance(hook, client.BaseTransactionHook)
+        self._hook = hook
 
     @property
     def base_url(self):
@@ -142,16 +180,25 @@ class Builder(interfaces.AbstractUplinkBuilder):
 
 class Consumer(object):
 
-    def __init__(self, base_url="", converter_factories=(), http_client=None):
+    def __init__(
+            self,
+            base_url="",
+            converter_factories=(),
+            http_client=None,
+            hook=None
+    ):
         builder = Builder(self)
         builder.base_url = base_url
         builder.add_converter_factory(*converter_factories)
         if http_client is not None:
             builder.client = http_client
+        if hook is not None:
+            builder.hook = hook
         builder.build()
 
 
 def build(service_cls, base_url="", converter_factories=(), http_client=None):
+    # TODO: DEPRECATE!
     builder = Builder(service_cls())
     builder.base_url = base_url
     builder.add_converter_factory(*converter_factories)

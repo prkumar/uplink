@@ -9,9 +9,7 @@ import aiohttp
 from uplink.backend import interfaces
 
 
-# TODO: Is there a way to decorate this co-routine so we can still await it?
-
-class AsyncioBackend(interfaces.Backend):
+class AsyncioAdapter(interfaces.HttpClientAdapter):
     def __init__(self, *args, **kwargs):
         # TODO: Remove hardcoded connector initialization.
         self._args = args
@@ -20,8 +18,26 @@ class AsyncioBackend(interfaces.Backend):
         self._session = aiohttp.ClientSession(*args, **kwargs)
         atexit.register(self._session.close)
 
+    @property
+    def is_synchronous(self):
+        return False
+
+    def create_request(self):
+        return Request(self._session)
+
+
+class Request(interfaces.Request):
+
+    def __init__(self, session):
+        self._session = session
+        self._callback = None
+
     @asyncio.coroutine
-    def send_request(self, request):
-        with request as (method, url, extras):
-            resp = yield from self._session.request(method, url, **extras)
-            return request.fulfill(resp)
+    def send(self, method, url, extras):
+        response = yield from self._session.request(method, url, **extras)
+        if self._callback is not None:
+            response = self._callback(response)
+        return response
+
+    def add_callback(self, callback):
+        self._callback = callback
