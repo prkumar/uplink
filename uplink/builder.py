@@ -2,7 +2,9 @@
 import collections
 
 # Local imports
-from uplink import hooks, backend, converter, interfaces, exceptions, helpers, utils
+from uplink import (
+    hooks, backend, converter, interfaces, exceptions, helpers, utils
+)
 
 __all__ = ["Builder", "build", "Consumer"]
 
@@ -97,17 +99,12 @@ class CallFactory(object):
 
 class Builder(interfaces.AbstractUplinkBuilder):
 
-    def __init__(self, service_stub):
+    def __init__(self):
         """
         Creates a Builder.
-
-        Args:
-            service_stub: An initiated instance of the class being built, with
-                no functions or fields.
         """
 
         self._base_url = ""
-        self._service_stub = service_stub
         self._hook = hooks.TransactionHook()
         self._client = backend.RequestsAdapter() & backend.AsyncioAdapter()
         self._converter_factories = collections.deque()
@@ -146,36 +143,24 @@ class Builder(interfaces.AbstractUplinkBuilder):
     def add_converter_factory(self, *converter_factories):
         self._converter_factories.extendleft(converter_factories)
 
-    def _make_call_factory(self, service, definition):
-        return CallFactory(
-            service,
-            RequestPreparer(self, definition),
-            definition,
-        )
-
-    @staticmethod
-    def _bind_to_instance(instance, attribute_name, call_factory):
-        setattr(instance, attribute_name, call_factory)
-
-    def build(self):
+    def build(self, consumer, definition):
         """
         Modifies the internal service stub by binding functions to it,
         and returns the modified stub
         """
 
-        definition_builders = helpers.get_api_definitions(self._service_stub.__class__)
+        try:
+            definition = definition.build()
+        except exceptions.InvalidRequestDefinition as error:
+            # TODO: Find a Python 2.7 compatible way to reraise
+            raise exceptions.UplinkBuilderError(
+                consumer.__class__, definition.__name__, error)
 
-        # Build and bind API definitions to service instance.
-        for attribute_name, builder in definition_builders:
-            try:
-                definition = builder.build(self)
-            except exceptions.InvalidRequestDefinition as error:
-                # TODO: Find a Python 2.7 compatible way to reraise
-                raise exceptions.UplinkBuilderError(
-                    self._service_stub.__class__, attribute_name, error)
-            call_factory = self._make_call_factory(self._service_stub, definition)
-            self._bind_to_instance(self._service_stub, attribute_name, call_factory)
-        return self._service_stub
+        return CallFactory(
+            consumer,
+            RequestPreparer(self, definition),
+            definition
+        )
 
 
 class Consumer(object):
@@ -183,25 +168,25 @@ class Consumer(object):
     def __init__(
             self,
             base_url="",
-            converter_factories=(),
             http_client=None,
-            hook=None
+            hook=None,
+            converter_factories=()
     ):
-        builder = Builder(self)
+        builder = Builder()
         builder.base_url = base_url
         builder.add_converter_factory(*converter_factories)
         if http_client is not None:
             builder.client = http_client
         if hook is not None:
             builder.hook = hook
-        builder.build()
+
+        definition_builders = helpers.get_api_definitions(self)
+        for attribute_name, definition_builder in definition_builders:
+            caller = builder.build(self, definition_builder)
+            setattr(self, attribute_name, caller)
 
 
-def build(service_cls, base_url="", converter_factories=(), http_client=None):
+def build(service_cls, *args, **kwargs):
     # TODO: DEPRECATE!
-    builder = Builder(service_cls())
-    builder.base_url = base_url
-    builder.add_converter_factory(*converter_factories)
-    if http_client is not None:
-        builder.client = http_client
-    return builder.build()
+    consumer_cls = type(service_cls.__name__, (service_cls, Consumer), {})
+    return consumer_cls(*args, **kwargs)

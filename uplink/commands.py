@@ -121,7 +121,7 @@ class RequestDefinitionBuilder(interfaces.AbstractRequestDefinitionBuilder):
     def method_handler_builder(self):
         return self._method_handler_builder
 
-    def build(self, uplink_builder):
+    def build(self):
         argument_handler = self._argument_handler_builder.build()
         method_handler = self._method_handler_builder.build()
         uri = self._uri.build()

@@ -15,7 +15,7 @@ def fake_service_cls(request_definition_builder, request_definition):
 
 @pytest.fixture
 def uplink_builder():
-    return builder.Builder(None)
+    return builder.Builder()
 
 
 class TestResponseConverter(object):
@@ -63,7 +63,6 @@ class TestRequestPreparer(object):
 
     def test_prepare_request(
             self,
-            http_client_mock,
             request_definition,
             uplink_builder,
             transaction_hook_mock
@@ -126,16 +125,13 @@ class TestBuilder(object):
         factory = list(uplink_builder.converter_factories)[0]
         assert factory == converter_factory_mock
 
-    def test_build(self, fake_service_cls):
-        service = builder.Builder(fake_service_cls()).build()
-        assert isinstance(service, fake_service_cls)
-
     def test_build_failure(self, fake_service_cls):
         exception = exceptions.InvalidRequestDefinition()
         fake_service_cls.builder.build.side_effect = exception
-        uplink = builder.Builder(fake_service_cls())
+        fake_service_cls.builder.__name__ = "builder"
+        uplink = builder.Builder()
         with pytest.raises(exceptions.UplinkBuilderError):
-            uplink.build()
+            uplink.build(fake_service_cls(), fake_service_cls.builder)
 
 
 def test_build(mocker, http_client_mock, fake_service_cls):

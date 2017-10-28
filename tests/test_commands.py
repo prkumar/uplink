@@ -101,7 +101,6 @@ class TestRequestDefinitionBuilder(object):
     def test_build(self,
                    mocker,
                    annotation_handler_builder_mock,
-                   uplink_builder_mock
         ):
         argument_handler_builder = type(annotation_handler_builder_mock)()
         method_handler_builder = annotation_handler_builder_mock
@@ -112,7 +111,7 @@ class TestRequestDefinitionBuilder(object):
             argument_handler_builder,
             method_handler_builder
         )
-        definition = builder.build(uplink_builder_mock)
+        definition = builder.build()
         assert isinstance(definition, commands.RequestDefinition)
         assert uri_definition_builder.build.called
         assert argument_handler_builder.build.called

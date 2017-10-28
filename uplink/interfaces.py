@@ -105,7 +105,7 @@ class AbstractRequestDefinitionBuilder(object):
     def method_handler_builder(self):
         raise NotImplementedError
 
-    def build(self, uplink_builder):
+    def build(self):
         raise NotImplementedError
 
 
