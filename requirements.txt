@@ -2,6 +2,11 @@
 requests==2.18.1
 uritemplate==3.0.0
 
+# Asyncio Support
+# Note: Only for Python 3.4+ since `aiohttp` removed Python 3.3
+# support (see https://github.com/aio-libs/aiohttp/issues/537)
+aiohttp==2.3.0; python_version >= '3.4'
+
 # Testing
 pytest==3.2.1
 pytest-mock==1.6.2

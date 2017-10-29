@@ -32,6 +32,7 @@ class Request(interfaces.Request):
         self._session = session
         self._callback = None
 
+    # noinspection Annotator
     @asyncio.coroutine
     def send(self, method, url, extras):
         response = yield from self._session.request(method, url, **extras)
