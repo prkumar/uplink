@@ -106,7 +106,7 @@ class Builder(interfaces.AbstractUplinkBuilder):
 
         self._base_url = ""
         self._hook = hooks.TransactionHook()
-        self._client = backend.RequestsAdapter() & backend.AsyncioAdapter()
+        self._client = backend.DEFAULT_BACKEND
         self._converter_factories = collections.deque()
         self._converter_factories.append(converter.StandardConverterFactory())
 

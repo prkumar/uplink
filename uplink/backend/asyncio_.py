@@ -9,7 +9,7 @@ import aiohttp
 from uplink.backend import interfaces
 
 
-class AsyncioAdapter(interfaces.HttpClientAdapter):
+class AsyncioClient(interfaces.HttpClientAdapter):
     def __init__(self, *args, **kwargs):
         # TODO: Remove hardcoded connector initialization.
         self._args = args
