@@ -1,22 +1,27 @@
 # Third party imports
-from twisted.internet import threads
+
+try:
+    from twisted.internet import threads
+except ImportError:
+    threads = None
 
 # Local imports
-from uplink.backend import requests_
-from uplink.backend import interfaces
+from uplink.clients import requests_
+from uplink.clients import interfaces
 
 
-class TwistedClient(interfaces.HttpClientAdapter):
+class Twisted(interfaces.HttpClientAdapter):
 
     def __init__(self, client=None):
         if client is None:
-            client = requests_.RequestsClient()
+            client = requests_.Requests()
         self._requests = client
 
-    def is_synchronous(self):
-        return False
-
     def create_request(self):
+        if threads is None:
+            raise NotImplementedError(
+                "Twisted is not installed."
+            )
         return Request(self._requests.create_request())
 
 

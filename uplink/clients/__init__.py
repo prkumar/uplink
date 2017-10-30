@@ -11,19 +11,16 @@ Note:
     At some point, we may want to expose this layer to the user, so
     they can create custom adapters.
 """
-
-from uplink.backend.requests_ import RequestsClient
+from uplink.clients.requests_ import Requests
+from uplink.clients.twisted_ import Twisted
 
 try:
-    from uplink.backend.asyncio_ import AsyncioClient
+    from uplink.clients.aiohttp_ import Aiohttp
 except (SyntaxError, ImportError) as error:
-    from uplink.backend import interfaces
+    from uplink.clients import interfaces
 
-    class AsyncioClient(interfaces.HttpClientAdapter):
+    class Aiohttp(interfaces.HttpClientAdapter):
         error_message = str(error)
-
-        def is_synchronous(self):
-            return False
 
         def __init__(self, *args, **kwargs):
             pass
@@ -33,8 +30,10 @@ except (SyntaxError, ImportError) as error:
                 "Failed to load `asyncio` client: %s" % self.error_message
             )
 
+__all__ = [
+    "Requests",
+    "Aiohttp",
+    "Twisted",
+]
 
-DEFAULT_BACKEND = interfaces.Backend(
-    RequestsClient(),
-    AsyncioClient()
-)
+DEFAULT_CLIENT = Requests

@@ -7,7 +7,7 @@ from uplink import interfaces, utils
 
 
 def get_api_definitions(service):
-    predicate = interfaces.AbstractRequestDefinitionBuilder.__instancecheck__
+    predicate = interfaces.RequestDefinitionBuilder.__instancecheck__
     return inspect.getmembers(service, predicate)
 
 

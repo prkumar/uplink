@@ -30,7 +30,7 @@ def github_service_and_client(transaction_hook_mock):
 
 def test_list_repo(github_service_and_client):
     service, transaction_hook_mock = github_service_and_client
-    service.list_repos("prkumar").execute()
+    service.list_repos("prkumar")
     transaction_hook_mock.audit_request.assert_called_with(
         "GET", _get_url("/users/prkumar/repos"), {
             "headers": {

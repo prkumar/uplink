@@ -6,21 +6,18 @@ import asyncio
 import aiohttp
 
 # Local imports
-from uplink.backend import interfaces
+from uplink.clients import interfaces
 
 
-class AsyncioClient(interfaces.HttpClientAdapter):
-    def __init__(self, *args, **kwargs):
+class Aiohttp(interfaces.HttpClientAdapter):
+
+    def __init__(self, session=None):
         # TODO: Remove hardcoded connector initialization.
-        self._args = args
-        self._kwargs = kwargs
-        self._kwargs["connector"] = aiohttp.TCPConnector(verify_ssl=False)
-        self._session = aiohttp.ClientSession(*args, **kwargs)
-        atexit.register(self._session.close)
-
-    @property
-    def is_synchronous(self):
-        return False
+        if session is None:
+            connector = aiohttp.TCPConnector(verify_ssl=False)
+            session = aiohttp.ClientSession(connector=connector)
+            atexit.register(session.close)
+        self._session = session
 
     def create_request(self):
         return Request(self._session)

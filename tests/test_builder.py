@@ -27,23 +27,6 @@ class TestResponseConverter(object):
         assert rc.handle_response(None) is input_value
 
 
-class TestPreparedRequest(object):
-
-    def test_execute(self, backend_mock):
-        backend_mock.send_synchronous_request.return_value = True
-        prepared = builder.PreparedRequest(backend_mock, "request")
-        response = prepared.execute()
-        backend_mock.send_synchronous_request.assert_called_with("request")
-        assert response
-
-    def test_enqueue(self, backend_mock):
-        backend_mock.send_asynchronous_request.return_value = True
-        prepared = builder.PreparedRequest(backend_mock, "request")
-        response = prepared.enqueue()
-        backend_mock.send_asynchronous_request.assert_called_with("request")
-        assert response
-
-
 class TestRequestHandler(object):
 
     def test_fulfill(self, mocker, request_mock):
@@ -59,7 +42,6 @@ class TestRequestHandler(object):
 
 
 class TestRequestPreparer(object):
-    # TODO: Refactor uplink builder to be a prepared request builder
 
     def test_prepare_request(
             self,
@@ -73,7 +55,7 @@ class TestRequestPreparer(object):
         request_preparer = builder.RequestPreparer(
             uplink_builder, request_definition
         )
-        request_preparer.prepare_request(request).execute()
+        request_preparer.prepare_request(request)
         transaction_hook_mock.audit_request.assert_called_with(
             "METHOD",
             "https://example.com/example/path",
@@ -135,14 +117,16 @@ class TestBuilder(object):
 
 
 def test_build(mocker, http_client_mock, fake_service_cls):
+    # Monkey-patch the Builder class.
     builder_cls_mock = mocker.Mock()
     builder_mock = mocker.Mock(spec=builder.Builder)
     builder_cls_mock.return_value = builder_mock
     mocker.patch.object(builder, "Builder", builder_cls_mock)
+
     builder.build(
         fake_service_cls,
         base_url="example.com",
-        http_client=http_client_mock
+        client=http_client_mock
     )
     assert builder_mock.base_url == "example.com"
     builder_mock.add_converter_factory.assert_called_with()

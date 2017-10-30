@@ -52,7 +52,7 @@ class HttpMethod(object):
         return builder
 
 
-class URIDefinitionBuilder(interfaces.AbstractUriDefinitionBuilder):
+class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
 
     def __init__(self, uri):
         self._uri = uri
@@ -93,7 +93,7 @@ class URIDefinitionBuilder(interfaces.AbstractUriDefinitionBuilder):
         return self._uri
 
 
-class RequestDefinitionBuilder(interfaces.AbstractRequestDefinitionBuilder):
+class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
     def __init__(self, method, uri, argument_handler_builder,
                  method_handler_builder):
@@ -133,7 +133,7 @@ class RequestDefinitionBuilder(interfaces.AbstractRequestDefinitionBuilder):
         )
 
 
-class RequestDefinition(interfaces.AbstractRequestDefinition):
+class RequestDefinition(interfaces.RequestDefinition):
 
     def __init__(self, method, uri, argument_handler, method_handler):
         self._method = method
