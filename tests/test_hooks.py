@@ -1,5 +1,4 @@
 # Third party imports
-import pytest
 
 # Local imports
 from uplink import hooks

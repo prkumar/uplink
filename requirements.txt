@@ -2,6 +2,9 @@
 requests==2.18.1
 uritemplate==3.0.0
 
+# Twisted Support
+twisted==17.1.0
+
 # Asyncio Support
 # Note: Only for Python 3.4+ since `aiohttp` removed Python 3.3
 # support (see https://github.com/aio-libs/aiohttp/issues/537)
