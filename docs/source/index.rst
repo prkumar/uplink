@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Uplink 📡
-==========
+*********
 A Declarative HTTP Client for Python. Inspired by `Retrofit
 <http://square.github.io/retrofit/>`__.
 
@@ -30,7 +30,7 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 .. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
 
 A Quick Walkthrough, with GitHub API v3:
-----------------------------------------
+========================================
 Using decorators and function annotations, turn your Python class into a
 self-describing consumer of your favorite HTTP webservice:
 
@@ -66,10 +66,10 @@ let's update my GitHub profile bio with :py:meth:`update_user`:
     response = github.update_user(token, bio="Beam me up, Scotty!")
 
 *Voila*, the method seamlessly builds the request (using the decorators
-and annotations from the method's definition) and executes it in the same call.
+and annotations from the method's definition) and executes it in the same call!
 
-By default, Uplink uses the `Requests
-<http://docs.python-requests.org/en/master/>`_ library to make requests.
+By default, Uplink uses the powerful `Requests
+<http://docs.python-requests.org/en/master/>`_ library.
 So, the :py:obj:`response` returned above is simply a
 :py:class:`requests.Response` (`documentation
 <http://docs.python-requests.org/en/master/api/#requests.Response>`__):
@@ -78,29 +78,35 @@ So, the :py:obj:`response` returned above is simply a
 
     print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
 
-For non-blocking requests, Uplink comes with support for asyncio (for
-Python 3.4+) and Twisted (for all supported Python versions). For
-example, given several GitHub :py:obj:`usernames`, we can use our
-consumer to fetch the corresponding users concurrently:
+In essence, Uplink delivers reusable and self-sufficient objects for
+accessing HTTP webservices, with minimal code and user pain ☺️ .
+
+
+Asynchronous Requests
+---------------------
+Uplink includes support for non-blocking requests with asyncio (for Python 3.4+)
+and Twisted (for all supported Python versions). For example, let's use our
+consumer to fetch GitHub users concurrently given their :py:obj:`usernames`:
 
 .. code-block:: python
-   :emphasize-lines: 1
+   :emphasize-lines: 1,2
 
+   # Create a consumer that returns awaitable responses
    github = GitHub("https://api.github.com/", client=clients.Aiohttp)
+
+   # Fetch the users concurrently:
    futures = map(github.get_user, usernames)
    loop = asyncio.get_event_loop()
    print(loop.run_until_complete(asyncio.gather(*futures)))
 
-To learn more about Uplink's support for non-blocking IO, checkout the
-documentation. Further, `this Gist
+To learn more about Uplink's support for concurrent requests, see
+:ref:`non-blocking requests`. Also, `this Gist
 <https://gist.github.com/prkumar/4e905edb988bc3d3d95e680ef043f934>`_
-provides another quick example.
+provides short examples for using Uplink with asyncio and Twisted.
 
-In essence, Uplink delivers reusable and self-sufficient objects for
-accessing HTTP webservices, with minimal code and user pain ☺️ .
 
 The User Manual
----------------
+===============
 
 Follow this guide to get up and running with Uplink.
 
@@ -114,7 +120,7 @@ Follow this guide to get up and running with Uplink.
 
 ..
    The Public API
-   --------------
+   ==============
 
    .. todo::
 
@@ -128,7 +134,6 @@ Follow this guide to get up and running with Uplink.
       decorators.rst
       types.rst
       changes.rst
-
 
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master

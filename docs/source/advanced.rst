@@ -1,10 +1,6 @@
 Advanced Usage
 **************
 
-
-.. _`non-blocking requests`:
-
-
 Swapping out the Requests Library
 =================================
 
@@ -16,6 +12,7 @@ parameter :py:attr:`client`:
 
     github = GitHub(base_url="...", client=...)
 
+.. _`non-blocking requests`:
 
 Making Non-Blocking Requests
 ============================
