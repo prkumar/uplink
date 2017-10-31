@@ -1,13 +1,16 @@
 # Standard library imports
 import collections
+import warnings
 
 # Local imports
-from uplink import client, converter, interfaces, exceptions, helpers, utils
+from uplink import (
+    hooks, clients, converter, interfaces, exceptions, helpers, utils
+)
 
-__all__ = ["Builder", "build", "Consumer"]
+__all__ = ["build", "Consumer"]
 
 
-class ResponseConverter(client.HttpClientDecorator):
+class ResponseConverter(hooks.TransactionHookDecorator):
     # TODO: Override `audit_request` to log request details
 
     def __init__(self, connection, convert):
@@ -19,11 +22,26 @@ class ResponseConverter(client.HttpClientDecorator):
         return self._convert(response)
 
 
+class RequestHandler(object):
+
+    def __init__(self, hook, method, url, extras):
+        self._args = (method, url, extras)
+        self._hook = hook
+
+    def fulfill(self, request):
+        self._hook.audit_request(*self._args)
+        request.add_callback(self._hook.handle_response)
+        return request.send(*self._args)
+
+
 class RequestPreparer(object):
 
     def __init__(self, uplink_builder, definition):
+        self._hook = uplink_builder.hook
         self._client = uplink_builder.client
-        self._base_url = uplink_builder.base_url
+        if issubclass(self._client, clients.interfaces.HttpClientAdapter):
+            self._client = self._client()
+        self._base_url = str(uplink_builder.base_url)
         self._converter_registry = self._make_converter_registry(
             uplink_builder, definition
         )
@@ -46,9 +64,10 @@ class RequestPreparer(object):
     def prepare_request(self, request):
         url = self._join_uri_with_base(request.uri)
         convert = self._get_converter(request)
-        client_ = ResponseConverter(self._client, convert)
-        request = client_.build_request(request.method, url, request.info)
-        return request
+        hook = ResponseConverter(self._hook, convert)
+        request_handler = RequestHandler(
+            hook, request.method, url, request.info)
+        return request_handler.fulfill(self._client.create_request())
 
     def create_request_builder(self):
         return helpers.RequestBuilder(self._converter_registry)
@@ -65,38 +84,19 @@ class CallFactory(object):
         builder = self._request_preparer.create_request_builder()
         self._request_definition.define_request(builder, args, kwargs)
         request = builder.build()
-        prepared_request = self._request_preparer.prepare_request(request)
-        return Call(prepared_request, request.return_type)
+        return self._request_preparer.prepare_request(request)
 
 
-class Call(object):
+class Builder(interfaces.CallBuilder):
 
-    def __init__(self, prepared_request, return_type):
-        self._prepared_request = prepared_request
-        self._return_type = return_type
-
-    @property
-    def return_type(self):
-        return self._return_type
-
-    def execute(self):
-        return self._prepared_request.send()
-
-
-class Builder(interfaces.AbstractUplinkBuilder):
-
-    def __init__(self, service_stub):
+    def __init__(self):
         """
-        Creates a Builder.
-
-        Args:
-            service_stub: An initiated instance of the class being built, with
-                no functions or fields.
+        Construct a Call builder
         """
 
         self._base_url = ""
-        self._service_stub = service_stub
-        self._client = client.HttpClient()
+        self._hook = hooks.TransactionHook()
+        self._client = clients.DEFAULT_CLIENT
         self._converter_factories = collections.deque()
         self._converter_factories.append(converter.StandardConverterFactory())
 
@@ -105,9 +105,16 @@ class Builder(interfaces.AbstractUplinkBuilder):
         return self._client
 
     @client.setter
-    def client(self, new_client):
-        assert isinstance(new_client, client.BaseHttpClient)
-        self._client = new_client
+    def client(self, client):
+        self._client = client
+
+    @property
+    def hook(self):
+        return self._hook
+
+    @hook.setter
+    def hook(self, hook):
+        self._hook = hook
 
     @property
     def base_url(self):
@@ -124,53 +131,58 @@ class Builder(interfaces.AbstractUplinkBuilder):
     def add_converter_factory(self, *converter_factories):
         self._converter_factories.extendleft(converter_factories)
 
-    def _make_call_factory(self, service, definition):
+    def build(self, consumer, definition):
+        """
+        Returns a callable to replace the definition on the given
+        consumer instance.
+        """
+
+        try:
+            definition = definition.build()
+        except exceptions.InvalidRequestDefinition as error:
+            # TODO: Find a Python 2.7 compatible way to reraise
+            raise exceptions.UplinkBuilderError(
+                consumer.__class__, definition.__name__, error)
+
         return CallFactory(
-            service,
+            consumer,
             RequestPreparer(self, definition),
-            definition,
+            definition
         )
-
-    @staticmethod
-    def _bind_to_instance(instance, attribute_name, call_factory):
-        setattr(instance, attribute_name, call_factory)
-
-    def build(self):
-        """
-        Modifies the internal service stub by binding functions to it,
-        and returns the modified stub
-        """
-
-        definition_builders = helpers.get_api_definitions(self._service_stub.__class__)
-
-        # Build and bind API definitions to service instance.
-        for attribute_name, builder in definition_builders:
-            try:
-                definition = builder.build(self)
-            except exceptions.InvalidRequestDefinition as error:
-                # TODO: Find a Python 2.7 compatible way to reraise
-                raise exceptions.UplinkBuilderError(
-                    self._service_stub.__class__, attribute_name, error)
-            call_factory = self._make_call_factory(self._service_stub, definition)
-            self._bind_to_instance(self._service_stub, attribute_name, call_factory)
-        return self._service_stub
 
 
 class Consumer(object):
 
-    def __init__(self, base_url="", converter_factories=(), http_client=None):
-        builder = Builder(self)
+    def __init__(
+            self,
+            base_url="",
+            client=None,
+            hook=None,
+            converter_factories=()
+    ):
+        builder = Builder()
         builder.base_url = base_url
         builder.add_converter_factory(*converter_factories)
-        if http_client is not None:
-            builder.client = http_client
-        builder.build()
+        if client is not None:
+            builder.client = client
+        if hook is not None:
+            builder.hook = hook
+        self._build(builder)
+
+    def _build(self, call_builder):
+        definition_builders = helpers.get_api_definitions(self)
+        for attribute_name, definition_builder in definition_builders:
+            caller = call_builder.build(self, definition_builder)
+            setattr(self, attribute_name, caller)
 
 
-def build(service_cls, base_url="", converter_factories=(), http_client=None):
-    builder = Builder(service_cls())
-    builder.base_url = base_url
-    builder.add_converter_factory(*converter_factories)
-    if http_client is not None:
-        builder.client = http_client
-    return builder.build()
+def build(service_cls, *args, **kwargs):
+    warnings.warn(
+        "`uplink.build` is deprecated and will be removed in v1.0.0. "
+        "To construct a consumer instance, have `{0}` inherit "
+        "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(
+            service_cls.__name__),
+        DeprecationWarning
+    )
+    consumer_cls = type(service_cls.__name__, (service_cls, Consumer), {})
+    return consumer_cls(*args, **kwargs)

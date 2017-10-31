@@ -8,11 +8,22 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 
 Unreleased_
 ===========
+Added
+-----
+- The class ``uplink.Consumer``. Consumer classes should inherit this base
+  class, and creating consumer instances happens through instantiation.
+- Support for ``asyncio`` for Python 3.4 and above.
+- Support for ``twisted`` for all supported Python versions.
+
 Changed
 -------
-- In the contribution guide, promote ``--no-ff`` merge instead of **squash
-  and merge**, and clarify feature development and bug fix workflow, pull
-  request model, and how to start working on a feature or bug.
+- **BREAKING**: Invoking a consumer method now builds and executes the request,
+  removing the extra step of calling the ``execute`` method.
+
+Deprecated
+----------
+- Building consumer instances with ``uplink.build``. Instead, Consumer classes
+  should inherit ``uplink.Consumer``.
 
 Fixed
 -----

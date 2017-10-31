@@ -197,4 +197,7 @@ Experienced users of `Kenneth Reitz's <https://github.com/kennethreitz>`__
 well-established `Requests library <https://github
 .com/requests/requests>`__ might be happy to read that Uplink uses
 :code:`requests` behind-the-scenes and bubbles :code:`requests.Response`
-instances back up to the user.
+objects back up to the user.
+
+Notably, Requests makes blocking calls. Checkout :ref:`non-blocking
+requests` to learn more about Uplink's support for asynchronous requests.

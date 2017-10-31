@@ -13,7 +13,7 @@ CONVERT_FROM_RESPONSE_BODY = 2
 Map = collections.namedtuple("Map", "converter_key")
 
 
-class Cast(interfaces.AbstractConverter):
+class Cast(interfaces.Converter):
     def __init__(self, caster, converter):
         self._cast = caster
         self._converter = converter
@@ -24,12 +24,12 @@ class Cast(interfaces.AbstractConverter):
         return self._converter.convert(value)
 
 
-class ResponseBodyConverter(interfaces.AbstractConverter):
+class ResponseBodyConverter(interfaces.Converter):
     def convert(self, response):
         return response
 
 
-class RequestBodyConverter(interfaces.AbstractConverter):
+class RequestBodyConverter(interfaces.Converter):
     def convert(self, value):
         if isinstance(value, str):
             return value
@@ -39,12 +39,12 @@ class RequestBodyConverter(interfaces.AbstractConverter):
             )
 
 
-class StringConverter(interfaces.AbstractConverter):
+class StringConverter(interfaces.Converter):
     def convert(self, value):
         return str(value)
 
 
-class StandardConverterFactory(interfaces.AbstractConverterFactory):
+class StandardConverterFactory(interfaces.ConverterFactory):
     def make_response_body_converter(self, type_, *args, **kwargs):
         return ResponseBodyConverter()  # pragma: no cover
 
@@ -55,7 +55,7 @@ class StandardConverterFactory(interfaces.AbstractConverterFactory):
         return Cast(type_, StringConverter())  # pragma: no cover
 
 
-class MappingConverterDecorator(interfaces.AbstractConverter):
+class MappingConverterDecorator(interfaces.Converter):
 
     def __init__(self, converter):
         self._converter = converter

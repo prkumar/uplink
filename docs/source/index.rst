@@ -31,18 +31,15 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 
 A Quick Walkthrough, with GitHub API v3:
 ----------------------------------------
-
-Using decorators and function annotations, you can turn any plain old Python
-class into a self-describing consumer of your favorite HTTP webservice:
+Using decorators and function annotations, turn your Python class into a
+self-describing consumer of your favorite HTTP webservice:
 
 .. code-block:: python
 
     from uplink import *
 
-    # To register entities that are common to all API requests, you can
-    # decorate the enclosing class rather than each method separately:
     @headers({"Accept": "application/vnd.github.v3.full+json"})
-    class GitHub(object):
+    class GitHub(Consumer):
 
         @get("/users/{username}")
         def get_user(self, username):
@@ -53,33 +50,54 @@ class into a self-describing consumer of your favorite HTTP webservice:
         def update_user(self, access_token: Query, **info: Body):
             """Update an authenticated user."""
 
-To construct a consumer instance, use the helper function :py:func:`uplink.build`:
+To construct a consumer object, simply instantiate the
+:py:class:`uplink.Consumer` subclass:
 
 .. code-block:: python
 
-    github = build(GitHub, base_url="https://api.github.com/")
+    github = GitHub(base_url="https://api.github.com/")
 
-To access the GitHub API with this instance, we simply invoke any of the methods
-that we defined in the interface above. To illustrate, let's update my GitHub
-profile bio:
+To access the GitHub API with this instance, we can invoke any of the
+methods that we defined in our class definition above. To illustrate,
+let's update my GitHub profile bio with :py:meth:`update_user`:
 
 .. code-block:: python
 
-    r = github.update_user(token, bio="Beam me up, Scotty!").execute()
+    response = github.update_user(token, bio="Beam me up, Scotty!")
 
-*Voila*, :py:meth:`update_user` builds the request seamlessly (using the
-decorators and annotations from the method's definition), and
-:py:meth:`execute` sends that synchronously over the network. Furthermore,
-the returned response :py:obj:`r` is simply a :py:class:`requests.Response`
-(`documentation
+*Voila*, the method seamlessly builds the request (using the decorators
+and annotations from the method's definition) and executes it in the same call.
+
+By default, Uplink uses the `Requests
+<http://docs.python-requests.org/en/master/>`_ library to make requests.
+So, the :py:obj:`response` returned above is simply a
+:py:class:`requests.Response` (`documentation
 <http://docs.python-requests.org/en/master/api/#requests.Response>`__):
 
 .. code-block:: python
 
-    print(r.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
+    print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
+
+For non-blocking requests, Uplink comes with support for asyncio (for
+Python 3.4+) and Twisted (for all supported Python versions). For
+example, given several GitHub :py:obj:`usernames`, we can use our
+consumer to fetch the corresponding users concurrently:
+
+.. code-block:: python
+   :emphasize-lines: 1
+
+   github = GitHub("https://api.github.com/", client=clients.Aiohttp)
+   futures = map(github.get_user, usernames)
+   loop = asyncio.get_event_loop()
+   print(loop.run_until_complete(asyncio.gather(*futures)))
+
+To learn more about Uplink's support for non-blocking IO, checkout the
+documentation. Further, `this Gist
+<https://gist.github.com/prkumar/4e905edb988bc3d3d95e680ef043f934>`_
+provides another quick example.
 
 In essence, Uplink delivers reusable and self-sufficient objects for
-accessing HTTP webservices, with minimal code and user pain ☺️.
+accessing HTTP webservices, with minimal code and user pain ☺️ .
 
 The User Manual
 ---------------
@@ -92,6 +110,7 @@ Follow this guide to get up and running with Uplink.
    install.rst
    introduction.rst
    getting_started.rst
+   advanced.rst
 
 ..
    The Public API
@@ -100,14 +119,16 @@ Follow this guide to get up and running with Uplink.
    .. todo::
 
       Most of this guide is unfinished and completing it is a planned
-      deliverable for the ``v0.2.0`` release. At the least, this work will
+      deliverable for the ``v0.3.0`` release. At the least, this work will
       necessitate adding docstrings to the classes enumerated below.
 
    .. toctree::
-      :maxdepth: 3
+      :maxdepth: 2
 
       decorators.rst
       types.rst
+      changes.rst
+
 
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master

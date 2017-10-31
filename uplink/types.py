@@ -55,7 +55,7 @@ class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
 
 
 class ArgumentAnnotationHandlerBuilder(
-    interfaces.AbstractAnnotationHandlerBuilder
+    interfaces.AnnotationHandlerBuilder
 ):
     def __init__(self, func, arguments, func_is_method=True):
         self._arguments = arguments[func_is_method:]
@@ -123,7 +123,7 @@ class ArgumentAnnotationHandlerBuilder(
         )
 
 
-class ArgumentAnnotationHandler(interfaces.AbstractAnnotationHandler):
+class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
 
     def __init__(self, func, arguments):
         self._func = func
@@ -155,7 +155,7 @@ class ArgumentAnnotationHandler(interfaces.AbstractAnnotationHandler):
         argument.modify_request(request_builder, value)
 
 
-class ArgumentAnnotation(interfaces.AbstractAnnotation):
+class ArgumentAnnotation(interfaces.Annotation):
     can_be_static = True
 
     def __call__(self, request_definition_builder):

@@ -1,5 +1,6 @@
 # Local imports
 from uplink.__about__ import __version__
+from uplink import clients
 from uplink.builder import *
 from uplink.commands import *
 from uplink.exceptions import *
