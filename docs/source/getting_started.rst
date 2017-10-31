@@ -18,7 +18,7 @@ public repositories hosted on the site:
 
     import uplink
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("/repositories")
         def get_repos(self): pass
 
@@ -27,7 +27,7 @@ we simply invoke the :py:meth:`get_repos` with a consumer instance:
 
 .. code-block:: python
 
-    github = uplink.build(GitHub, base_url="https://api.github.com")
+    github = GitHub(base_url="https://api.github.com")
     response = github.get_repos().execute()
     print(response.json()) # [{u'issues_url': u'https://api.github.com/repos/mojombo/grit/issues{/number}', ...
 
@@ -39,11 +39,11 @@ Further, Uplink currently supports :py:class:`~uplink.get`,
 :py:class:`~uplink.post`, :py:class:`~uplink.put`, :py:class:`~uplink.patch`,
 and :py:class:`~uplink.delete`.
 
-Creating Consumer Instances with :code:`uplink.build`
------------------------------------------------------
+Creating Consumer Instances
+---------------------------
 
-As illustrated in the previous example, to create consumer instances, use the
-:py:func:`uplink.build` function. Notably, this helper function affords us
+As illustrated in the previous example, to define a consumer, simply inherit
+the base class :py:class:`uplink.Consumer`. Notably, the constructor affords us
 the ability to reuse consumers in different contexts.
 
 For instance, by simply changing the function's :py:attr:`base_url`
@@ -60,7 +60,7 @@ of the HTTP method decorator:
 .. code-block:: python
    :emphasize-lines: 2
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("/repositories")
         def get_repos(self): pass
 
@@ -72,7 +72,7 @@ and annotate the corresponding method argument with
 .. code-block:: python
    :emphasize-lines: 3
 
-    class GitHub(object);
+    class GitHub(uplink.Consumer);
         @uplink.get
         def get_commit(self, commit_url: uplink.Url): pass
 
@@ -94,7 +94,7 @@ method to query any GitHub user's metadata by declaring the
 
 .. code-block:: python
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @get("users{/username}")
         def get_user(self, username: Path("username")): pass
 
@@ -112,8 +112,9 @@ to create an HTTP request with a URL ending in :code:`users/prkumar`.
 Implicit :code:`Path` Annotations
 ----------------------------------
 
-When building the consumer instance, :py:func:`uplink.build` will try to resolve
-unannotated method arguments by matching their names with URI path parameters.
+When building the consumer instance, Uplink will try to resolve
+unannotated method arguments by matching their names with URI path
+parameters.
 
 For example, consider the consumer defined below, in which the method
 :py:meth:`get_user` has an unannotated argument, :py:attr:`username`.
@@ -123,7 +124,7 @@ for us:
 
 .. code-block:: python
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("users{/username}")
         def get_user(self, username): pass
 
@@ -141,7 +142,7 @@ that queries all GitHub repositories written in Python:
 .. code-block:: python
    :emphasize-lines: 2
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("/search/repositories?q=language:python")
         def search_python_repos(self): pass
 
@@ -158,7 +159,7 @@ provide a method argument annotated with :py:class:`uplink.Query`:
 .. code-block:: python
    :emphasize-lines: 3
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("/search/repositories")
         def search_repos(self, q: uplink.Query)
 
@@ -169,7 +170,7 @@ annotation to transform keyword arguments into query parameters:
 .. code-block:: python
    :emphasize-lines: 3
 
-   class GitHub(object):
+   class GitHub(uplink.Consumer):
        @uplink.get("/search/repositories")
        def search_repos(self, **params: uplink.QueryMap)
 
@@ -198,7 +199,7 @@ which has accepts the input parameters as :py:class:`dict`:
 .. code-block:: python
    :emphasize-lines: 2,3
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         # This header explicitly requests version v3 of the GitHub API.
         @uplink.headers({"Accept": "application/vnd.github.v3.full+json"})
         @uplink.get("/repositories")
@@ -210,7 +211,7 @@ pass a header as a method argument at runtime:
 .. code-block:: python
    :emphasize-lines: 6
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("/users{/username}")
         def get_user(
             self,
@@ -238,7 +239,7 @@ let's provide a method for reacting to a specific GitHub issue:
 .. code-block:: python
    :emphasize-lines: 2,7
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.form_url_encoded
         @uplink.patch("/user")
         def update_blog_url(
@@ -289,7 +290,7 @@ often enables concise method signatures:
 .. code-block:: python
    :emphasize-lines: 2,7
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.json
         @uplink.patch("/user")
         def update_user(
