@@ -14,8 +14,7 @@ class Aiohttp(interfaces.HttpClientAdapter):
     def __init__(self, session=None):
         # TODO: Remove hardcoded connector initialization.
         if session is None:
-            connector = aiohttp.TCPConnector(verify_ssl=False)
-            session = aiohttp.ClientSession(connector=connector)
+            session = aiohttp.ClientSession()
             atexit.register(session.close)
         self._session = session
 

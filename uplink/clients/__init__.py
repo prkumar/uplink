@@ -16,7 +16,7 @@ from uplink.clients.twisted_ import Twisted
 
 try:
     from uplink.clients.aiohttp_ import Aiohttp
-except (SyntaxError, ImportError) as error:
+except (SyntaxError, ImportError) as error:  # pragma: no cover
     from uplink.clients import interfaces
 
     class Aiohttp(interfaces.HttpClientAdapter):

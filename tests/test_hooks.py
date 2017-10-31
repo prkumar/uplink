@@ -1,5 +1,3 @@
-# Third party imports
-
 # Local imports
 from uplink import hooks
 
