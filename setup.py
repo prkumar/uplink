@@ -24,7 +24,7 @@ install_requires = [
 ]
 
 extras_require = {
-    ":python_version>=3.4.2": ["aiohttp>=2.3.0"]
+    ":python_version>='3.4.2'": ["aiohttp>=2.3.0"]
 }
 
 metadata = dict({
