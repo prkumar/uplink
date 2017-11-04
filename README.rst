@@ -1,5 +1,5 @@
 Uplink
-*****
+******
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
 - Builds Reusable Objects for Consuming Web APIs.
