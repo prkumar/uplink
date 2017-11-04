@@ -1,20 +1,22 @@
 Uplink
-******
-Python HTTP Made Expressive. Inspired by `Retrofit <http://square.github
-.io/retrofit/>`__.
-
+*****
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
+
+- Builds Reusable Objects for Consuming Web APIs.
+- Works with Requests, asyncio, and Twisted.
+- Inspired by `Retrofit <http://square.github io/retrofit/>`__.
 
 A Quick Walkthrough, with GitHub API v3
 =======================================
-Using Uplink's method decorators and function annotations, turn your
-Python class into a self-describing consumer of your favorite HTTP
-webservice:
+Turn a Python class into a self-describing consumer of your favorite HTTP
+webservice, using method decorators and function annotations:
 
 .. code-block:: python
 
     from uplink import *
 
+    # To define common request metadata, you can decorate the class
+    # rather than each method separately.
     @headers({"Accept": "application/vnd.github.v3.full+json"})
     class GitHub(Consumer):
 
@@ -27,8 +29,9 @@ webservice:
         def update_user(self, access_token: Query, **info: Body):
             """Update an authenticated user."""
 
-To construct a consumer object, simply instantiate the ``Consumer``
-subclass:
+Let's build an instance of this GitHub API consumer for the main site!
+(Notice that I can use this same consumer class to also access any
+GitHub Enterprise instance by simply changing the ``base_url``.):
 
 .. code-block:: python
 
@@ -44,11 +47,9 @@ let's update my GitHub profile bio with ``update_user``:
 
 *Voila*, the method seamlessly builds the request (using the decorators
 and annotations from the method's definition) and executes it in the same call.
-
-By default, Uplink uses the powerful `Requests
-<http://docs.python-requests.org/en/master/>`_ library. So, the ``response``
-returned above is
-simply a ``requests.Response`` (`documentation
+And, by default, Uplink uses the powerful `Requests
+<http://docs.python-requests.org/en/master/>`_ library. So, the
+returned ``response`` is simply a ``requests.Response`` (`documentation
 <http://docs.python-requests.org/en/master/api/#requests.Response>`__):
 
 .. code-block:: python
@@ -60,16 +61,21 @@ accessing HTTP webservices, with minimal code and user pain ☺️.
 
 Asynchronous Requests
 ---------------------
-Uplink includes support for non-blocking requests with asyncio (for Python 3
-.4+) and Twisted (for all supported Python versions). For example, let's use
-our consumer to fetch GitHub users concurrently given their ``usernames``:
+Uplink includes support for concurrent requests with asyncio (for Python 3.4+)
+and Twisted (for all supported Python versions).
+
+For example, let's create an instance of our GitHub API consumer that
+returns awaitable responses using ``aiohttp``:
 
 .. code-block:: python
 
-   # Create a consumer that returns awaitable responses
-   github = GitHub("https://api.github.com/", client=clients.Aiohttp)
+   github = GitHub("https://api.github.com/", client=uplink.AiohttpClient())
 
-   # Fetch the users concurrently:
+Then, given a list of GitHub ``usernames``, we can use the ``get_user`` method
+to fetch users concurrently with an ``asyncio`` event loop:
+
+.. code-block:: python
+
    futures = map(github.get_user, usernames)
    loop = asyncio.get_event_loop()
    print(loop.run_until_complete(asyncio.gather(*futures)))

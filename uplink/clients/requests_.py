@@ -8,7 +8,7 @@ from uplink.clients import interfaces
 import requests
 
 
-class Requests(interfaces.HttpClientAdapter):
+class RequestsClient(interfaces.HttpClientAdapter):
     def __init__(self, session=None):
         if session is None:
             session = requests.Session()

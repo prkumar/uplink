@@ -10,17 +10,17 @@ from uplink.clients import requests_
 from uplink.clients import interfaces
 
 
-class Twisted(interfaces.HttpClientAdapter):
+class TwistedClient(interfaces.HttpClientAdapter):
 
     def __init__(self, client=None):
         if client is None:
-            client = requests_.Requests()
+            client = requests_.RequestsClient()
         self._requests = client
 
     def create_request(self):
         if threads is None:
             raise NotImplementedError(
-                "Twisted is not installed."
+                "TwistedClient is not installed."
             )
         return Request(self._requests.create_request())
 
