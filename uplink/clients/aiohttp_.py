@@ -9,7 +9,7 @@ import aiohttp
 from uplink.clients import interfaces
 
 
-class Aiohttp(interfaces.HttpClientAdapter):
+class AiohttpClient(interfaces.HttpClientAdapter):
 
     def __init__(self, session=None):
         # TODO: Remove hardcoded connector initialization.

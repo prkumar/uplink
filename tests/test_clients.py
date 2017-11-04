@@ -21,7 +21,7 @@ requires_aiohttp = pytest.mark.skipif(
 class TestTwisted(object):
 
     def test_create_requests(self, http_client_mock):
-        twisted = twisted_.Twisted(http_client_mock)
+        twisted = twisted_.TwistedClient(http_client_mock)
         request = twisted.create_request()
         assert request._proxy is http_client_mock.create_request()
         assert isinstance(request, twisted_.Request)
@@ -42,7 +42,7 @@ class TestAiohttp(object):
 
     @requires_aiohttp
     def test_create_request(self, aiohttp_session_mock):
-        aiohttp = aiohttp_.Aiohttp(aiohttp_session_mock)
+        aiohttp = aiohttp_.AiohttpClient(aiohttp_session_mock)
         assert isinstance(aiohttp.create_request(), aiohttp_.Request)
 
     @requires_aiohttp

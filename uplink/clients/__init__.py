@@ -11,15 +11,15 @@ Note:
     At some point, we may want to expose this layer to the user, so
     they can create custom adapters.
 """
-from uplink.clients.requests_ import Requests
-from uplink.clients.twisted_ import Twisted
+from uplink.clients.requests_ import RequestsClient
+from uplink.clients.twisted_ import TwistedClient
 
 try:
-    from uplink.clients.aiohttp_ import Aiohttp
+    from uplink.clients.aiohttp_ import AiohttpClient
 except (SyntaxError, ImportError) as error:  # pragma: no cover
     from uplink.clients import interfaces
 
-    class Aiohttp(interfaces.HttpClientAdapter):
+    class AiohttpClient(interfaces.HttpClientAdapter):
         error_message = str(error)
 
         def __init__(self, *args, **kwargs):
@@ -31,9 +31,9 @@ except (SyntaxError, ImportError) as error:  # pragma: no cover
             )
 
 __all__ = [
-    "Requests",
-    "Aiohttp",
-    "Twisted",
+    "RequestsClient",
+    "AiohttpClient",
+    "TwistedClient",
 ]
 
-DEFAULT_CLIENT = Requests
+DEFAULT_CLIENT = RequestsClient

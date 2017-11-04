@@ -15,10 +15,8 @@ webservice, using method decorators and function annotations:
 
     from uplink import *
 
-    # To define common request metadata, you can decorate the class rather
-    # than each method individually. Here, we add a header to indicate that
-    # all requests made by this consumer should target version v3 of the
-    # GitHub API.
+    # To define common request metadata, you can decorate the class
+    # rather than each method separately.
     @headers({"Accept": "application/vnd.github.v3.full+json"})
     class GitHub(Consumer):
 
@@ -50,9 +48,8 @@ let's update my GitHub profile bio with ``update_user``:
 *Voila*, the method seamlessly builds the request (using the decorators
 and annotations from the method's definition) and executes it in the same call.
 And, by default, Uplink uses the powerful `Requests
-<http://docs.python-requests.org/en/master/>`_ library. So, the ``response``
-returned above is
-simply a ``requests.Response`` (`documentation
+<http://docs.python-requests.org/en/master/>`_ library. So, the
+returned ``response`` is simply a ``requests.Response`` (`documentation
 <http://docs.python-requests.org/en/master/api/#requests.Response>`__):
 
 .. code-block:: python
@@ -72,7 +69,7 @@ returns awaitable responses using ``aiohttp``:
 
 .. code-block:: python
 
-   github = GitHub("https://api.github.com/", client=uplink.AiohttpAdapter())
+   github = GitHub("https://api.github.com/", client=uplink.AiohttpClient())
 
 Then, given a list of GitHub ``usernames``, we can use the ``get_user`` method
 to fetch users concurrently with an ``asyncio`` event loop:
