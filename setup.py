@@ -16,15 +16,16 @@ with open(os.path.join("uplink", "__about__.py")) as fp:
     exec(fp.read(), about)
     about = dict((k.strip("_"), about[k]) for k in about)
 
-# TODO: Should Twisted and aiohttp be optional dependencies?
+# TODO: Should Twisted and aiohttp be conditional dependencies?
 install_requires = [
     "requests>=2.18.0",
     "uritemplate>=3.0.0",
     "twisted>=17.1.0"
 ]
 
-if sys.version_info >= (3, 4):
-    install_requires.append("aiohttp>=2.3.0")
+extras_require = {
+    ":python_version>=3.4.2": ["aiohttp>=2.3.0"]
+}
 
 metadata = dict({
     "name": "uplink",
@@ -49,7 +50,8 @@ metadata = dict({
     ],
     "keywords": "http api rest client retrofit",
     "packages": find_packages(exclude=("tests",)),
-    "install_requires": install_requires
+    "install_requires": install_requires,
+    "extras_require": extras_require
 }, **about)
 
 if __name__ == "__main__":

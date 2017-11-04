@@ -21,8 +21,5 @@ deploy:
     secure: 2Gbn5BKdn4VovYg/iQTvVWndfzKm8941aF7mPcZ+Ped4Y1asDW8EEqhBP3Ocknive4HOwe22B4phIqnZ31/g2p/20lo5z/ywULwOCCuoRGTz5lMCFQt4MkJp3fvJwVUShOPJHPW4450UUOqmCoylaXFZsgq5+HLuplCMUgWro7ZiM8mfq6X45iCrHRGXSUh1SSmgSMLYZ7cM80bjvGjP0SlSsh+5ZUS6srDlUxFilH6Cc7+y0CjrnOxk1YIEhk+usLccaewpn0tpdhQf5gLQ6Q+3hj/o/ovnUiPyy4kYeCHjOgcv50JKPWNzM8Ie+9iWNZycs3tvwwZyWRueRMGAjnIO+AigQjuzIoaN8QEt3GyU0Rxxt1qU+KMgBvgSXV66l6w8Q5htpCD1fxIQxdElx+7gZQ1FUm9sHP7BVNVHgKPDP0etO+k5nx9d/1dXVw1CxSO/4zwfJ6VfxFIkIzOleoT7lydzdKsFY/5PlCD2WjErQfbdO8HIqinBwTFG+gfqZnblp64sRNMAcmzkqxN9GocltctRwmPHRbhUP960akeqbKlfQsAXrB2cxMIwYsX8AG21MQ+4hAOgQinAc5AiZ4Gmy7Nq0dxC126uAC9t8Y+4sq2Cwft7xzy/iSMM2hmPOlQx0kWbI7T1eI3FcXvz2aUdLhOz2o5L6VGfie7/RNo=
   on:
     tags: true
-    # Must create separate wheels since aiohttp is a required dependency.
-    # The library requires Python 3.4.2 or above.
-    # TODO: Consider making aiohttp and Twisted optional dependencies.
-    # python: '3.6'
+    python: '3.6'
   distributions: "sdist bdist_wheel"
