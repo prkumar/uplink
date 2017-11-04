@@ -21,7 +21,7 @@ For instance, consider the following GitHub API consumer:
 .. code-block:: python
    :emphasize-lines: 2
 
-   class GitHub(object):
+   class GitHub(uplink.Consumer):
        @uplink.timeout(60)
        @uplink.get("/repositories")
        def get_repos(self):
@@ -40,7 +40,7 @@ for chaining:
 .. code-block:: python
    :emphasize-lines: 2,3
 
-   class GitHub(object):
+   class GitHub(uplink.Consumer):
        @uplink.headers({"Accept": "application/vnd.github.v3.full+json"})
        @uplink.timeout(60)
        @uplink.get("/repositories")
@@ -57,7 +57,7 @@ annotate the class rather than each method individually:
    :emphasize-lines: 1,2
 
     @uplink.timeout(60)
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("/repositories")
         def get_repos(self):
             """Dump every public repository."""
@@ -71,7 +71,7 @@ slightly more verbose one:
 
 .. code-block:: python
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.timeout(60)
         @uplink.get("/repositories")
         def get_repos(self):
@@ -97,7 +97,7 @@ placeholder replacement using the :py:class:`~uplink.Path` annotation:
 
 .. code-block:: python
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("users/{username}")
         def get_user(self, username: uplink.Path("username")): pass
 
@@ -130,7 +130,7 @@ name, :py:attr:`username`, matches the intended URI path parameter:
 
 .. code-block:: python
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get("users/{username}")
         def get_user(self, username: uplink.Path): pass
 
@@ -155,7 +155,7 @@ annotation corresponds to :py:attr:`commits_url`, and
 .. code-block:: python
    :emphasize-lines: 2,3
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.Path
         @uplink.Url
         @uplink.get
@@ -171,7 +171,7 @@ their corresponding function arguments (again, ignore :py:attr:`self`):
 .. code-block:: python
    :emphasize-lines: 2
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.args(uplink.Url, uplink.Path)
         @uplink.get
         def get_commit(self, commits_url, sha): pass
@@ -185,7 +185,7 @@ annotations (:pep:`3107`):
 .. code-block:: python
    :emphasize-lines: 3
 
-    class GitHub(object):
+    class GitHub(uplink.Consumer):
         @uplink.get
         def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
             pass
@@ -197,4 +197,7 @@ Experienced users of `Kenneth Reitz's <https://github.com/kennethreitz>`__
 well-established `Requests library <https://github
 .com/requests/requests>`__ might be happy to read that Uplink uses
 :code:`requests` behind-the-scenes and bubbles :code:`requests.Response`
-instances back up to the user.
+objects back up to the user.
+
+Notably, Requests makes blocking calls. Checkout :ref:`non-blocking
+requests` to learn more about Uplink's support for asynchronous requests.

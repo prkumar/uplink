@@ -9,7 +9,7 @@ class AnnotationMeta(type):
             return super(AnnotationMeta, cls).__call__(*args, **kwargs)
 
 
-class _AbstractAnnotation(object):
+class _Annotation(object):
     can_be_static = False
 
     def modify_request_definition(self, request_definition_builder):
@@ -18,19 +18,19 @@ class _AbstractAnnotation(object):
     @classmethod
     def is_static_call(cls, *args, **kwargs):
         try:
-            is_builder = isinstance(args[0], AbstractRequestDefinitionBuilder)
+            is_builder = isinstance(args[0], RequestDefinitionBuilder)
         except IndexError:
             return False
         else:
             return is_builder and not (kwargs or args[1:])
 
 
-AbstractAnnotation = AnnotationMeta(
-    "AbstractAnnotation", (_AbstractAnnotation,), {}
+Annotation = AnnotationMeta(
+    "Annotation", (_Annotation,), {}
 )
 
 
-class AbstractAnnotationHandlerBuilder(object):
+class AnnotationHandlerBuilder(object):
     __request_definition_builder = None
 
     def set_annotations(self, *annotations, **kwargs):
@@ -55,14 +55,14 @@ class AbstractAnnotationHandlerBuilder(object):
         raise NotImplementedError
 
 
-class AbstractAnnotationHandler(object):
+class AnnotationHandler(object):
 
     @property
     def annotations(self):
         raise NotImplementedError
 
 
-class AbstractUriDefinitionBuilder(object):
+class UriDefinitionBuilder(object):
 
     @property
     def is_static(self):
@@ -87,7 +87,7 @@ class AbstractUriDefinitionBuilder(object):
         raise NotImplementedError
 
 
-class AbstractRequestDefinitionBuilder(object):
+class RequestDefinitionBuilder(object):
 
     @property
     def method(self):
@@ -105,11 +105,11 @@ class AbstractRequestDefinitionBuilder(object):
     def method_handler_builder(self):
         raise NotImplementedError
 
-    def build(self, uplink_builder):
+    def build(self):
         raise NotImplementedError
 
 
-class AbstractRequestDefinition(object):
+class RequestDefinition(object):
 
     @property
     def argument_annotations(self):
@@ -123,7 +123,7 @@ class AbstractRequestDefinition(object):
         raise NotImplementedError
 
 
-class AbstractUplinkBuilder(object):
+class CallBuilder(object):
 
     @property
     def client(self):
@@ -146,13 +146,13 @@ class AbstractUplinkBuilder(object):
         raise NotImplementedError
 
 
-class AbstractConverter(object):
+class Converter(object):
 
     def convert(self, value):
         raise NotImplementedError
 
 
-class AbstractConverterFactory(object):
+class ConverterFactory(object):
 
     def make_response_body_converter(self, type_, argument_annotations,
                                      method_annotations):

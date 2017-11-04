@@ -6,6 +6,29 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.2.0_ - 2017-11-03
+===================
+Added
+-----
+- The class ``uplink.Consumer``. Consumer classes should inherit this base
+  class, and creating consumer instances happens through instantiation.
+- Support for ``asyncio`` for Python 3.4 and above.
+- Support for ``twisted`` for all supported Python versions.
+
+Changed
+-------
+- **BREAKING**: Invoking a consumer method now builds and executes the request,
+  removing the extra step of calling the ``execute`` method.
+
+Deprecated
+----------
+- Building consumer instances with ``uplink.build``. Instead, Consumer classes
+  should inherit ``uplink.Consumer``.
+
+Fixed
+-----
+- Header link for version 0.1.1 in changelog.
+
 0.1.1_ - 2017-10-21
 ===================
 Added
@@ -36,9 +59,9 @@ Added
 - README that contains GitHub API v3 example, installation instructions with
   ``pip``, and link to online documentation.
 
-
 .. _Retrofit: http://square.github.io/retrofit/
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
-.. _0.1.1: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.0...v0.1.1
+.. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
+.. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1

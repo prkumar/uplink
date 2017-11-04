@@ -31,7 +31,7 @@ class HttpMethodNotSupport(exceptions.AnnotationError):
 
 
 class MethodAnnotationHandlerBuilder(
-    interfaces.AbstractAnnotationHandlerBuilder
+    interfaces.AnnotationHandlerBuilder
 ):
 
     def __init__(self):
@@ -45,7 +45,7 @@ class MethodAnnotationHandlerBuilder(
         return MethodAnnotationHandler(self._method_annotations)
 
 
-class MethodAnnotationHandler(interfaces.AbstractAnnotationHandler):
+class MethodAnnotationHandler(interfaces.AnnotationHandler):
 
     def __init__(self, method_annotations):
         self._method_annotations = list(method_annotations)
@@ -59,7 +59,7 @@ class MethodAnnotationHandler(interfaces.AbstractAnnotationHandler):
             annotation.modify_request(request_builder)
 
 
-class MethodAnnotation(interfaces.AbstractAnnotation):
+class MethodAnnotation(interfaces.Annotation):
     http_method_whitelist = None
 
     @classmethod
