@@ -1,8 +1,8 @@
 Uplink
 *****
 Builds Reusable Objects for Consuming Web APIs.
-Inspired by `Retrofit <http://square.github io/retrofit/>`__.
 Works with Requests, asyncio, and Twisted.
+Inspired by `Retrofit <http://square.github io/retrofit/>`__.
 
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
 
