@@ -24,7 +24,7 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
    documentation oversight, etc.
 
    Moreover, for those interested in contributing, checkout the `Contribution
-   Guide on GitHub`_ ('tis `Hacktoberfest`_, after all)!
+   Guide on GitHub`_!
 
 .. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
 .. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
