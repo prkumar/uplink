@@ -1,6 +1,7 @@
 Uplink
 ******
 |PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
+|Gitter|
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with Requests, asyncio, and Twisted.
@@ -121,6 +122,9 @@ Thank you for taking the time to improve an open source project 💜
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+.. |Gitter| image:: https://badges.gitter.im/python-uplink/Lobby.svg
+   :target: https://gitter.im/python-uplink/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+   :alt: Join the chat at https://gitter.im/python-uplink/Lobby
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |PyPI Version| image:: https://img.shields.io/github/release/prkumar/uplink/all.svg

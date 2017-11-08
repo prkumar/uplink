@@ -8,7 +8,7 @@ Uplink 📡
 A Declarative HTTP Client for Python. Inspired by `Retrofit
 <http://square.github.io/retrofit/>`__.
 
-|Release| |Python Version| |License| |Coverage Status|
+|Release| |Python Version| |License| |Coverage Status| |Gitter|
 
 .. note::
 
@@ -121,6 +121,9 @@ Follow this guide to get up and running with Uplink.
 
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
+.. |Gitter| image:: https://badges.gitter.im/python-uplink/Lobby.svg
+   :target: https://gitter.im/python-uplink/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+   :alt: Join the chat at https://gitter.im/python-uplink/Lobby
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
