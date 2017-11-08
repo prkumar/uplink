@@ -82,6 +82,11 @@ And, by default, Uplink uses the powerful `Requests
 In essence, Uplink delivers reusable and self-sufficient objects for
 accessing HTTP webservices, with minimal code and user pain ☺️ .
 
+Asynchronous Requests
+---------------------
+Uplink includes support for concurrent requests with asyncio (for Python 3.4+)
+and Twisted (for all supported Python versions). Checkout
+:ref:`non-blocking requests` for more.
 
 The User Manual
 ===============
