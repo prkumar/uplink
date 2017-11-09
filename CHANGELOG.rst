@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+Unreleased_
+===========
+
 0.2.0_ - 2017-11-03
 ===================
 Added
@@ -63,5 +66,6 @@ Added
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
+.. _Unreleased: https://github.com/prkumar/uplink/compare/v0.2.0...HEAD
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
 .. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1
