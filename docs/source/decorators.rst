@@ -1,25 +1,33 @@
 Method Annotations
 ******************
 
-Assign HTTP :code:`headers`
-===========================
+HTTP ``headers``
+================
 
-Format POST/PUT/PATCH Request Body
-==================================
+.. autoclass:: uplink.headers
 
-``form_url_encoded``
---------------------
+``json`` Requests
+=================
 
-``multipart``
--------------
+.. autoclass:: uplink.json
 
-``json``
---------
+``form_url_encoded`` Request Body
+=================================
 
-Apply :code:`timeout` on Request
+.. autoclass:: uplink.form_url_encoded
+
+``multipart`` Form Data
+=======================
+
+.. autoclass:: uplink.multipart
+
+Response ``timeout``
+====================
+
+.. autoclass:: uplink.timeout
+
+Annotate ``args`` for Python 2.7
 ================================
 
-Annotate Arguments with :code:`args`
-====================================
-
+.. autoclass:: uplink.args
 
