@@ -101,10 +101,12 @@ html_theme_options = {
     "description": "A Declarative HTTP Client for Python, inspired by Retrofit.",
     "github_user": "prkumar",
     "github_repo": "uplink",
-    "github_button": "false",
+    "github_button": "true",
     "github_banner": "true",
     "travis_button": "true",
-    "show_powered_by": "false"
+    "show_powered_by": "false",
+    "fixed_sidebar": "true",
+    "github_type": "star"
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
