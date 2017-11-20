@@ -4,7 +4,8 @@ import functools
 # Local imports
 from uplink import decorators, exceptions, interfaces, types, utils
 
-__all__ = ["get", "put", "post", "patch", "delete"]
+__all__ = ["get", "head", "put", "post", "patch", "delete"]
+
 
 
 class MissingUriVariables(exceptions.InvalidRequestDefinition):
@@ -158,6 +159,7 @@ class RequestDefinition(interfaces.RequestDefinition):
 
 
 get = HttpMethodFactory("GET").__call__
+head = HttpMethodFactory("HEAD").__call__
 put = HttpMethodFactory("PUT").__call__
 post = HttpMethodFactory("POST").__call__
 patch = HttpMethodFactory("PATCH").__call__
