@@ -199,7 +199,7 @@ well-established `Requests library <https://github
 :py:mod:`requests` behind-the-scenes and bubbles :py:class:`requests.Response`
 objects back up to the user.
 
-Notably, A shortcoming of Requests is that it makes blocking calls. Users can
-swap out Requests for an HTTP client library that supports asynchronous
-requests. Checkout :ref:`non-blocking requests` to learn more about Uplink's
-support for asynchronous requests.
+Notably, Requests makes blocking calls. Users can swap out Requests for
+an HTTP client library that supports asynchronous requests. Checkout
+:ref:`non-blocking requests` to learn more about Uplink's support for
+asynchronous requests.
