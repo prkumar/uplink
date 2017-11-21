@@ -1,6 +1,8 @@
 class Error(Exception):
     """Base exception for this package"""
-    message = None
+    def __init__(self, message=None):
+        super(Error, self).__init__()
+        self.message = message
 
     def __str__(self):
         return str(self.message)
