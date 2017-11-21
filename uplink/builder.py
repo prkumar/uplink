@@ -160,21 +160,13 @@ class Consumer(object):
             hook=None,
             converter_factories=()
     ):
-        builder = Builder()
-        builder.base_url = base_url
-        builder.add_converter_factory(*converter_factories)
+        self.builder = Builder()
+        self.builder.base_url = base_url
+        self.builder.add_converter_factory(*converter_factories)
         if client is not None:
-            builder.client = client
+            self.builder.client = client
         if hook is not None:
-            builder.hook = hook
-        self._build(builder)
-
-    def _build(self, call_builder):
-        definition_builders = helpers.get_api_definitions(self)
-        for attribute_name, definition_builder in definition_builders:
-            caller = call_builder.build(self, definition_builder)
-            setattr(self, attribute_name, caller)
-
+            self.builder.hook = hook
 
 def build(service_cls, *args, **kwargs):
     warnings.warn(
