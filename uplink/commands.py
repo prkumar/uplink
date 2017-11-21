@@ -113,7 +113,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         if not instance:
             return self
 
-        return instance.builder.build(instance, self)
+        return instance._builder.build(instance, self)
 
     @property
     def method(self):

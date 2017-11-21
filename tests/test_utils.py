@@ -7,6 +7,28 @@ from uplink import utils
 is_py2 = sys.version_info[0] == 2
 
 
+def test_memoization():
+    ''' Test memoization. Create a memoized function that depends on
+    another function. Call the memoized function once. Then, change the
+    underlying function and assert that the memoized function returns
+    the old memoized response '''
+
+    @utils.memoize()
+    def foo(arg):
+        # Returns whatever bar returns.
+        return bar(arg)
+
+    def bar(arg):
+        return arg
+
+    assert bar(5) == 5
+    assert foo(5) == 5
+
+    bar = lambda arg: arg * 2
+
+    assert bar(5) == 10
+    assert foo(5) == 5
+
 def test_get_arg_spec():
     if is_py2:
         code = "def func(pos1, *args, **kwargs): pass"
