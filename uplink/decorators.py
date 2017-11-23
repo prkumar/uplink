@@ -94,9 +94,11 @@ class MethodAnnotation(interfaces.Annotation):
 
 # noinspection PyPep8Naming
 class headers(MethodAnnotation):
-    """
-    You can apply this decorator on a class to add headers to all of
-    its API definitions.
+    """Use as a decorator on a class to add Headers to all API calls.
+
+    Args:
+        arg: A dict containing header input parameters
+        kwargs: A dict containing header input parameters
     """
 
     def __init__(self, arg, **kwargs):
@@ -106,11 +108,21 @@ class headers(MethodAnnotation):
         self._headers = dict(arg, **kwargs)
 
     def modify_request(self, request_builder):
+        """Updates header contents."""
         request_builder.info["headers"].update(self._headers)
 
 
 # noinspection PyPep8Naming
 class form_url_encoded(MethodAnnotation):
+    """URL-encodes the request body.
+
+    Used on POST/PUT/PATCH request. It url-encodes the body of the message
+    and sets the header to: `Content-Type:application/x-www-form-urlencoded`
+
+    Attributes:
+        can_be_static: A boolean value indicating that this annotation can be
+            used as a decorator without any arguments passed.
+    """
     can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
@@ -122,6 +134,14 @@ class form_url_encoded(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class multipart(MethodAnnotation):
+    """Sends multipart form data.
+
+    Multipart requests are commonly used to upload files to a server.
+
+    Attributes:
+        can_be_static: A boolean value indicating that this annotation can be
+            used as a decorator without any arguments passed.
+    """
     can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
@@ -133,9 +153,20 @@ class multipart(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class json(MethodAnnotation):
+    """Use as a decorator to make JSON requests.
+
+    You should annotate a method argument with `uplink.Body` which indicates
+    that the argument's value should become the request's body.
+    `uplink.Bodyhas to be either a dict or a subclass of `uplink.Mapping`.
+
+    Attributes:
+        can_be_static: A boolean value indicating that this annotation can be
+            used as a decorator without any arguments passed.
+    """
     can_be_static = True
 
     def modify_request(self, request_builder):
+        """Modifies JSON request."""
         try:
             request_builder.info["json"] = request_builder.info.pop("data")
         except KeyError:
@@ -144,10 +175,20 @@ class json(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class timeout(MethodAnnotation):
+    """Time to wait for a server response before giving up.
+
+    When used on other decorators it specifies how long (in secs)
+    a decorator should wait before giving up.
+
+    Args:
+        seconds: An integer used to indicate how long should the
+            request wait.
+    """
     def __init__(self, seconds):
         self._seconds = seconds
 
     def modify_request(self, request_builder):
+        """Modifies request timeout."""
         request_builder.info["timeout"] = self._seconds
 
 
@@ -162,11 +203,21 @@ class returns(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class args(MethodAnnotation):
+    """Handles dynamic requests by using method annotations.
+
+    Arranges annotations in the same order as their
+    corresponding function arguments.
+
+    Args:
+        *annotations: Any number of function arguments
+        **more_annotations: Any number of function arguments
+    """
     def __init__(self, *annotations, **more_annotations):
         self._annotations = annotations
         self._more_annotations = more_annotations
 
     def modify_request_definition(self, request_definition_builder):
+        """Modifies dynamic requests with given annotations"""
         request_definition_builder.argument_handler_builder.set_annotations(
             self._annotations, **self._more_annotations
         )
