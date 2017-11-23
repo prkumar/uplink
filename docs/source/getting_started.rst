@@ -282,7 +282,7 @@ When using this decorator, you should annotate a method argument with
 :py:class:`uplink.Body`, which indicates that the argument's value
 should become the request's body. Moreover, this value is expected to be
 an instance of :py:class:`dict` or a subclass of
-:py:class:`uplink.Mapping`.
+:py:class:`collections.Mapping`.
 
 Note that :py:class:`uplink.Body` can annotate the keyword argument, which
 often enables concise method signatures:

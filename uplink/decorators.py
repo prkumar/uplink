@@ -157,7 +157,8 @@ class json(MethodAnnotation):
 
     You should annotate a method argument with `uplink.Body` which indicates
     that the argument's value should become the request's body.
-    `uplink.Bodyhas to be either a dict or a subclass of `uplink.Mapping`.
+    `uplink.Body` has to be either a dict or a subclass of
+    `collections.Mapping`.
 
     Attributes:
         can_be_static: A boolean value indicating that this annotation can be
