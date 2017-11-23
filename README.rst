@@ -127,7 +127,5 @@ Thank you for taking the time to improve an open source project 💜
    :alt: Join the chat at https://gitter.im/python-uplink/Lobby
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
-.. |PyPI Version| image:: https://img.shields.io/github/release/prkumar/uplink/all.svg
-   :target: https://pypi.python.org/pypi/uplink
-.. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
