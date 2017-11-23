@@ -9,6 +9,13 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 Unreleased_
 ===========
 
+0.2.2_ - 2017-11-23
+===================
+Fixed
+-----
+- Fix error raised when an object that is not a class is passed into the 
+  ``client`` parameter of the ``Consumer`` constructor.
+
 0.2.0_ - 2017-11-03
 ===================
 Added
@@ -66,6 +73,7 @@ Added
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
-.. _Unreleased: https://github.com/prkumar/uplink/compare/v0.2.0...HEAD
+.. _Unreleased: https://github.com/prkumar/uplink/compare/v0.2.2...HEAD
+.. _0.2.2: https://github.com/prkumar/uplink/compare/v0.2.0...v0.2.2
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
 .. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1

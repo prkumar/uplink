@@ -39,7 +39,7 @@ class RequestPreparer(object):
     def __init__(self, uplink_builder, definition):
         self._hook = uplink_builder.hook
         self._client = uplink_builder.client
-        if issubclass(self._client, clients.interfaces.HttpClientAdapter):
+        if not isinstance(self._client, clients.interfaces.HttpClientAdapter):
             self._client = self._client()
         self._base_url = str(uplink_builder.base_url)
         self._converter_registry = self._make_converter_registry(
