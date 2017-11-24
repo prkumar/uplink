@@ -112,7 +112,7 @@ For more details, check out the documentation at http://uplink.readthedocs.io/.
 Contributing
 ============
 Want to report a bug, request a feature, or contribute code to Uplink?
-Checkout the `Contribution Guide <https://github.com/prkumar/uplink/CONTRIBUTING.rst>`_ for where to start.
+Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
@@ -129,3 +129,5 @@ Thank you for taking the time to improve an open source project 💜
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
+
+.. _`Contribution Guide`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
