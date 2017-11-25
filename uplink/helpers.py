@@ -20,12 +20,8 @@ def get_api_definitions(service):
         service: A class object.
     """
     predicate = interfaces.RequestDefinitionBuilder.__instancecheck__
-    try:
-        local_members = service.__dict__
-    except AttributeError:
-        return []
-    else:
-        return [(k, v) for k, v in local_members.items() if predicate(v)]
+    local_members = service.__dict__
+    return [(k, v) for k, v in local_members.items() if predicate(v)]
 
 
 class RequestBuilder(object):
