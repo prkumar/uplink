@@ -1,14 +1,31 @@
 # Standard library imports
 import collections
-import inspect
 
 # Local imports
 from uplink import interfaces, utils
 
 
 def get_api_definitions(service):
+    """
+    Returns all attributes with type
+    `uplink.interfaces.RequestDefinitionBuilder` defined on the given
+    class.
+
+    Note:
+        Only attributes defined directly on the class are considered. In
+        other words, inherited `RequestDefinitionBuilder` attributes
+        are ignored.
+
+    Args:
+        service: A class object.
+    """
     predicate = interfaces.RequestDefinitionBuilder.__instancecheck__
-    return inspect.getmembers(service, predicate)
+    try:
+        local_members = service.__dict__
+    except AttributeError:
+        return []
+    else:
+        return [(k, v) for k, v in local_members.items() if predicate(v)]
 
 
 class RequestBuilder(object):
