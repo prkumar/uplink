@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+import inspect
 
 # Local imports
 from uplink import interfaces, utils
@@ -20,8 +21,9 @@ def get_api_definitions(service):
         service: A class object.
     """
     predicate = interfaces.RequestDefinitionBuilder.__instancecheck__
+    definitions = inspect.getmembers(service, predicate)
     local_members = service.__dict__
-    return [(k, v) for k, v in local_members.items() if predicate(v)]
+    return [(k, v) for k, v in definitions if k in local_members]
 
 
 class RequestBuilder(object):

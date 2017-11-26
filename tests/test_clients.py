@@ -67,6 +67,3 @@ class TestAiohttp(object):
             err.value == 2
         else:
             assert False
-
-
-
