@@ -1,6 +1,5 @@
 # Standard library imports
 import collections
-import inspect
 
 # Local imports
 from uplink import interfaces, utils
@@ -20,10 +19,18 @@ def get_api_definitions(service):
     Args:
         service: A class object.
     """
-    predicate = interfaces.RequestDefinitionBuilder.__instancecheck__
-    definitions = inspect.getmembers(service, predicate)
-    local_members = service.__dict__
-    return [(k, v) for k, v in definitions if k in local_members]
+    # In Python 3.3, `inspect.getmembers` doesn't respect the descriptor
+    # protocol when the first argument is a class. In other words, the
+    # function includes any descriptors bound to `service` as is rather
+    # than calling the descriptor's __get__ method. This is seemingly
+    # fixed in Python 2.7 and 3.4+ (TODO: locate corresponding bug
+    # report in Python issue tracker). Directly invoking `getattr` to
+    # force Python's attribute lookup protocol is a decent workaround to
+    # ensure parity:
+    class_attributes = ((k, getattr(service, k)) for k in service.__dict__)
+
+    is_definition = interfaces.RequestDefinitionBuilder.__instancecheck__
+    return [(k, v) for k, v in class_attributes if is_definition(v)]
 
 
 class RequestBuilder(object):
