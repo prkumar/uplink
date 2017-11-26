@@ -131,19 +131,12 @@ class Builder(interfaces.CallBuilder):
     def add_converter_factory(self, *converter_factories):
         self._converter_factories.extendleft(converter_factories)
 
+    @utils.memoize()
     def build(self, consumer, definition):
         """
         Returns a callable to replace the definition on the given
         consumer instance.
         """
-
-        try:
-            definition = definition.build()
-        except exceptions.InvalidRequestDefinition as error:
-            # TODO: Find a Python 2.7 compatible way to reraise
-            raise exceptions.UplinkBuilderError(
-                consumer.__class__, definition.__name__, error)
-
         return CallFactory(
             consumer,
             RequestPreparer(self, definition),
@@ -151,7 +144,51 @@ class Builder(interfaces.CallBuilder):
         )
 
 
-class Consumer(object):
+class ConsumerMethod(object):
+
+    def __init__(self, owner_name, attr_name, request_definition_builder):
+        self._request_definition_builder = request_definition_builder
+        self._owner_name = owner_name
+        self._attr_name = attr_name
+        self._request_definition = self._build_request_definition()
+
+    def _build_request_definition(self):
+        try:
+            return self._request_definition_builder.build()
+        except exceptions.InvalidRequestDefinition as error:
+            # TODO: Find a Python 2.7 compatible way to reraise
+            raise exceptions.UplinkBuilderError(
+                self._owner_name,
+                self._attr_name,
+                error)
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self._request_definition_builder
+        else:
+            return instance._builder.build(instance, self._request_definition)
+
+
+class ConsumerMeta(type):
+
+    def __new__(mcs, name, bases, namespace):
+        for attr_name, attr in namespace.items():
+            if isinstance(attr, interfaces.RequestDefinitionBuilder):
+                namespace[attr_name] = ConsumerMethod(name, attr_name, attr)
+
+        return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
+
+    def __setattr__(cls, key, value):
+        if isinstance(value, interfaces.RequestDefinitionBuilder):
+            setattr(cls, key, ConsumerMethod(cls.__name__, key, value))
+        else:
+            super(ConsumerMeta, cls).__setattr__(key, value)
+
+
+_Consumer = ConsumerMeta("_Consumer", (), {})
+
+
+class Consumer(_Consumer):
 
     def __init__(
             self,
@@ -168,13 +205,14 @@ class Consumer(object):
         if hook is not None:
             self._builder.hook = hook
 
+
 def build(service_cls, *args, **kwargs):
+    name = service_cls.__name__
     warnings.warn(
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
         "To construct a consumer instance, have `{0}` inherit "
-        "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(
-            service_cls.__name__),
+        "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(name),
         DeprecationWarning
     )
-    consumer_cls = type(service_cls.__name__, (service_cls, Consumer), {})
-    return consumer_cls(*args, **kwargs)
+    consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
+    return consumer(*args, **kwargs)

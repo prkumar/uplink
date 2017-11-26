@@ -7,7 +7,6 @@ from uplink import decorators, exceptions, interfaces, types, utils
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
 
-
 class MissingUriVariables(exceptions.InvalidRequestDefinition):
     message = "On uri template %s, some variables are not handled: %s"
 
@@ -105,16 +104,6 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
         argument_handler_builder.set_request_definition_builder(self)
         method_handler_builder.set_request_definition_builder(self)
-
-    @utils.memoize()
-    def __get__(self, instance, owner):
-        ''' Get an attribute of the builder (will be called upon access)
-        :param instance: CallFactory
-        '''
-        if not instance:
-            return self
-
-        return instance._builder.build(instance, self)
 
     @property
     def method(self):
