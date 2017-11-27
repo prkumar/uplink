@@ -114,13 +114,13 @@ class TestBuilder(object):
         factory = list(uplink_builder.converter_factories)[0]
         assert factory == converter_factory_mock
 
-    # def test_build_failure(self, fake_service_cls):
-    #     exception = exceptions.InvalidRequestDefinition()
-    #     fake_service_cls.builder.build.side_effect = exception
-    #     fake_service_cls.builder.__name__ = "builder"
-    #     uplink = builder.Builder()
-    #     with pytest.raises(exceptions.UplinkBuilderError):
-    #         uplink.build(fake_service_cls(), fake_service_cls.builder.build())
+
+def test_build_failure(fake_service_cls):
+    exception = exceptions.InvalidRequestDefinition()
+    fake_service_cls.builder.build.side_effect = exception
+    fake_service_cls.builder.__name__ = "builder"
+    with pytest.raises(exceptions.UplinkBuilderError):
+        builder.build(fake_service_cls, base_url="example.com")
 
 
 def test_build(mocker, http_client_mock, fake_service_cls):
