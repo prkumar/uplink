@@ -12,7 +12,7 @@ before_script:
 script:
   - tox -e py
 after_success:
-  - pip install python-coveralls
+  - pip install coveralls
   - coveralls
 deploy:
   provider: pypi
