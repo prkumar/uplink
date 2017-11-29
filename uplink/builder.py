@@ -131,7 +131,6 @@ class Builder(interfaces.CallBuilder):
     def add_converter_factory(self, *converter_factories):
         self._converter_factories.extendleft(converter_factories)
 
-    @utils.memoize()
     def build(self, consumer, definition):
         """
         Returns a callable to replace the definition on the given
@@ -146,15 +145,14 @@ class Builder(interfaces.CallBuilder):
 
 class ConsumerMethod(object):
 
-    def __init__(self, owner_name, attr_name, request_definition_builder):
-        self._request_definition_builder = request_definition_builder
+    def __init__(self, owner_name, attr_name, definition_builder):
         self._owner_name = owner_name
         self._attr_name = attr_name
-        self._request_definition = self._build_request_definition()
+        self._builder = self._run_builder_method(definition_builder.prepare)
 
-    def _build_request_definition(self):
+    def _run_builder_method(self, method):
         try:
-            return self._request_definition_builder.build()
+            return method()
         except exceptions.InvalidRequestDefinition as error:
             # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
@@ -162,11 +160,13 @@ class ConsumerMethod(object):
                 self._attr_name,
                 error)
 
+    @utils.memoize()
     def __get__(self, instance, owner):
         if instance is None:
-            return self._request_definition_builder
+            return self._builder
         else:
-            return instance._builder.build(instance, self._request_definition)
+            definition = self._run_builder_method(self._builder.build)
+            return instance._builder.build(instance, definition)
 
 
 class ConsumerMeta(type):
@@ -175,15 +175,7 @@ class ConsumerMeta(type):
         for attr_name, attr in namespace.items():
             if isinstance(attr, interfaces.RequestDefinitionBuilder):
                 namespace[attr_name] = ConsumerMethod(name, attr_name, attr)
-
         return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
-
-    def __setattr__(cls, key, value):
-        if isinstance(value, interfaces.RequestDefinitionBuilder):
-            setattr(cls, key, ConsumerMethod(cls.__name__, key, value))
-        else:
-            super(ConsumerMeta, cls).__setattr__(key, value)
-
 
 _Consumer = ConsumerMeta("_Consumer", (), {})
 

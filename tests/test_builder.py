@@ -117,7 +117,7 @@ class TestBuilder(object):
 
 def test_build_failure(fake_service_cls):
     exception = exceptions.InvalidRequestDefinition()
-    fake_service_cls.builder.build.side_effect = exception
+    fake_service_cls.builder.prepare.side_effect = exception
     fake_service_cls.builder.__name__ = "builder"
     with pytest.raises(exceptions.UplinkBuilderError):
         builder.build(fake_service_cls, base_url="example.com")
