@@ -211,7 +211,7 @@ class NamedArgument(TypedArgument):
             self._arg_name = name
         else:
             raise AttributeError("Name is already set.")
-
+    
     @property
     def converter_type(self):
         raise NotImplementedError
