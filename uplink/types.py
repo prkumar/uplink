@@ -269,6 +269,20 @@ class Path(NamedArgument):
 
 
 class Query(NamedArgument):
+    """Sets one dynamic query parameter.
+
+    This annotation turns argument values into URL query
+    parameters. You can include it in your function method
+    by using the format: <query argument>:uplink.Query.
+
+    If the API you are trying to query uses `q` as a query
+    parameter, you can add `q:uplinkQuery` to a function
+    method to set the `q` search term at runtime.
+
+    Args:
+        param: A query argument using the format
+            `<query argument>:uplink.Query`
+    """
 
     @staticmethod
     def convert_to_string(value):
@@ -281,49 +295,96 @@ class Query(NamedArgument):
 
     @property
     def converter_type(self):
+        """Converts query parameters to the request body."""
         return converter.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
+        """Updates request body with the query parameter."""
         value = self.convert_to_string(value)
         request_builder.info["params"][self.name] = value
 
 
 class QueryMap(TypedArgument):
+    """Sets a mapping of query arguments.
+
+    If the API you are using accepts multiple query arguments,
+    you can include them all in your function method by using the
+    format: `<query argument>:uplink.QueryMap`
+
+    Args:
+        **params: A mapping of query argument accepted by the API.
+            using the format `<query argument>:uplinkQueryMap`
+    """
 
     @property
     def converter_type(self):
+        """Converts query mapping to request body."""
         return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
 
     @classmethod
     def modify_request(cls, request_builder, value):
+        """Updates request body with the mapping of query args."""
         value = dict((k, Query.convert_to_string(value[k])) for k in value)
         request_builder.info["params"].update(value)
 
 
 class Header(NamedArgument):
+    """Pass a header as a method argument at runtime.
+
+    While decorator.headers are meant to be used as a decorator,
+    this argument (uplink.Header) is meant to be passed as a method
+    argument on a function created by you.
+
+    Used as: uplink.Header("<header key>")
+
+    Args:
+        arg: A string that's a header parameter that will be used
+            as a method argument of a function.
+    """
 
     @property
     def converter_type(self):
+        """Converts passed argument to string."""
         return converter.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
+        """Updates request header contents."""
         request_builder.info["headers"][self.name] = value
 
 
 class HeaderMap(TypedArgument):
+    """Pass a mapping of header fields at runtime.
+
+    Args:
+        arg: A mapping of string that are header parameters.
+            They will be used as a method argument of a function.
+    """
 
     @property
     def converter_type(self):
+        """Converts every header field to string"""
         return converter.Map(converter.CONVERT_TO_STRING)
 
     @classmethod
     def modify_request(cls, request_builder, value):
+        """Updates request header contents."""
         request_builder.info["headers"].update(value)
 
 
 class Field(NamedArgument):
+    """Defines a field to the request body.
+
+    Use together with the decorator `uplink.form_url_encoded`
+    and annotate each argument accepting a form field with
+    `uplink.Field`
+
+    Args:
+        name: The field name. Defaults to None
+        type: The field type. Defaults to None
+    """
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
+        """Used if the field chosen failed to be defined."""
         message = (
             "Failed to define field '%s' to request body. Another argument "
             "annotation might have overwritten the body entirely."
@@ -334,9 +395,11 @@ class Field(NamedArgument):
 
     @property
     def converter_type(self):
+        """Converts type to string."""
         return converter.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
+        """Updates the request body with chosen field."""
         try:
             request_builder.info["data"][self.name] = value
         except TypeError:
@@ -346,8 +409,18 @@ class Field(NamedArgument):
 
 
 class FieldMap(TypedArgument):
+    """Defines a mapping of fields to the request body.
+
+    Use together with the decorator `uplink.form_url_encoded`
+    and annotate each argument accepting a form field with
+    `uplink.FieldMap`
+
+    Args:
+        type: The field type. Defaults to None
+    """
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
+        """Use when the attempt to update the request body failed."""
         message = (
             "Failed to update request body with field map. Another argument "
             "annotation might have overwritten the body entirely."
@@ -355,9 +428,11 @@ class FieldMap(TypedArgument):
 
     @property
     def converter_type(self):
+        """Converts type to string."""
         return converter.Map(converter.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
+        """Updates request body with chosen field mapping."""
         try:
             request_builder.info["data"].update(value)
         except AttributeError:
@@ -366,38 +441,77 @@ class FieldMap(TypedArgument):
 
 
 class Part(NamedArgument):
+    """Marks an argument as a form part.
+
+    Use together with the decorator `uplink.multipart`
+    and annotate each form part with `uplink.Part`
+
+    Args:
+        name: The field name. Defaults to None
+        type: The field type. Defaults to None
+    """
 
     @property
     def converter_type(self):
+        """Converts part to the request body."""
         return converter.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
+        """Updates the request body with the form part."""
         request_builder.info["files"][self.name] = value
 
 
 class PartMap(TypedArgument):
+    """A mapping of form field parts.
+
+    Use together with the decorator `uplink.multipart`
+    and annotate each part of form parts with `uplink.PartMap`
+
+    Args:
+        type: The field type. Defaults to None
+    """
 
     @property
     def converter_type(self):
+        """Converts each part to the request body."""
         return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
 
     def modify_request(self, request_builder, value):
+        """Updaytes request body to with the form parts."""
         request_builder.info["files"].update(value)
 
 
 class Body(TypedArgument):
+    """Changes the request's body.
 
+    Use together with the decorator `uplink.json`. The method
+    argument value will become the request's body when annotated
+    with `uplink.Body`.
+
+    Args:
+        type: The body type. Should be either a dict or a subclass
+            of collections.Mapping
+    """
     @property
     def converter_type(self):
+        """Converts request body."""
         return converter.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
+        """Updates request body data."""
         request_builder.info["data"] = value
 
 
 class Url(ArgumentAnnotation):
+    """Sets a dynamic URL.
+
+    Provides the URL at runtime as a method argument. Drop the
+    decorator parameter path from `uplink.get` and annotate the
+    corresponding argument with `uplink.Url`
+    """
 
     class DynamicUrlAssignmentFailed(exceptions.AnnotationError):
+        """Raised when the attempt to set dynamic url fails."""
         message = "Failed to set dynamic url annotation on `%s`. "
 
         def __init__(self, request_definition_builder):
@@ -405,9 +519,11 @@ class Url(ArgumentAnnotation):
 
     @property
     def converter_type(self):
+        """Converts url type to string."""
         return converter.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
+        """Sets dynamic url."""
         try:
             request_definition_builder.uri.is_dynamic = True
         except ValueError:
@@ -416,4 +532,5 @@ class Url(ArgumentAnnotation):
 
     @classmethod
     def modify_request(cls, request_builder, value):
+        """Updates request url."""
         request_builder.uri = value
