@@ -32,10 +32,14 @@ class TestTwisted(object):
         request.send(1, 2, 3)
         deferToThread.assert_called_with(request_mock.send, 1, 2, 3)
 
-
 @pytest.fixture
 def aiohttp_session_mock(mocker):
     return mocker.Mock()
+
+
+@pytest.fixture
+def aiohttp_client_mock(mocker):
+    return mocker.Mock(spec=aiohttp_.AiohttpClient)
 
 
 class TestAiohttp(object):
@@ -48,19 +52,27 @@ class TestAiohttp(object):
     @requires_aiohttp
     def test_request_send(self, aiohttp_session_mock):
         aiohttp_session_mock.request.return_value = [0]
-        request = aiohttp_.Request(aiohttp_session_mock)
+        client = aiohttp_.AiohttpClient(aiohttp_session_mock)
+        request = aiohttp_.Request(client)
         response = request.send(1, 2, {})
         assert inspect.isgenerator(response)
         assert list(response) == [0]
 
     @requires_aiohttp
-    def test_callback(self, aiohttp_session_mock):
-        aiohttp_session_mock.request.return_value = [0]
-        request = aiohttp_.Request(aiohttp_session_mock)
+    def test_callback(self, mocker, aiohttp_session_mock):
+        import asyncio
+
+        @asyncio.coroutine
+        def request(*args, **kwargs):
+            return 2
+
+        aiohttp_session_mock.request = request
+        client = aiohttp_.AiohttpClient(aiohttp_session_mock, asyncio.coroutine)
+        request = aiohttp_.Request(client)
         request.add_callback(lambda x: 2)
         response = request.send(1, 2, {})
         assert inspect.isgenerator(response)
-        assert list(response) == [0]
+        list(response)
         try:
             next(response)
         except StopIteration as err:
