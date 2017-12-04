@@ -7,7 +7,6 @@ from uplink import decorators, exceptions, interfaces, types, utils
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
 
-
 class MissingUriVariables(exceptions.InvalidRequestDefinition):
     message = "On uri template %s, some variables are not handled: %s"
 

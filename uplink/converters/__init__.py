@@ -4,7 +4,10 @@ import functools
 import json
 
 # Local imports
-from uplink import interfaces
+from uplink.converters import interfaces
+from uplink.converters.marshmallow_ import MarshmallowConverter
+
+__all__ = ["StandardConverter", "MarshmallowConverter"]
 
 # Constants
 CONVERT_TO_STRING = 0
@@ -44,7 +47,7 @@ class StringConverter(interfaces.Converter):
         return str(value)
 
 
-class StandardConverterFactory(interfaces.ConverterFactory):
+class StandardConverter(interfaces.ConverterFactory):
     def make_response_body_converter(self, type_, *args, **kwargs):
         return ResponseBodyConverter()  # pragma: no cover
 
