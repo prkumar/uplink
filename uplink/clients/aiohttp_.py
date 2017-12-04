@@ -1,3 +1,7 @@
+"""
+This module defines an :py:class:`aiohttp.ClientSession` adapter
+that sends awaitable requests.
+"""
 # Standard library imports
 import atexit
 import asyncio
@@ -29,6 +33,16 @@ def threaded_callback(callback):
 
 
 class AiohttpClient(interfaces.HttpClientAdapter):
+    """
+    An :py:mod:`aiohttp` client adapter that creates awaitable
+    responses.
+
+    Args:
+        session (:py:class:`aiohttp.ClientSession`, optional):
+            A :py:mod:`aiohttp` client session that should handle
+            sending requests. If this argument is not explicitly
+            set, a new session will created automatically.
+    """
 
     def __init__(self, session=None, _sync_callback_adapter=threaded_callback):
         self._session = session
@@ -39,9 +53,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
 
     @asyncio.coroutine
     def session(self):
-        """
-        Returns a `aiohttp.ClientSession` to send awaitable requests.
-        """
+        """Returns a `aiohttp.ClientSession` to send awaitable requests."""
         if self._session is None:
             self._session = aiohttp.ClientSession()
             atexit.register(self._session.close)
