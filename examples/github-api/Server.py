@@ -1,8 +1,10 @@
 import sys
 # add uplink directory to path
 sys.path.insert(0, '../../')
+import uplink
 from uplink import *
 
+import asyncio
 import json
 import os
 
@@ -30,22 +32,23 @@ class Github(Consumer):
     """ Get a list of commits in a repo since some start date """
     pass
 
-github = Github(BASE_URL)
+github = Github(BASE_URL, client=uplink.AiohttpClient())
+loop = asyncio.get_event_loop()
 
 # Helpers
 
-def _repos_for_keyword(keyword):
+async def _repos_for_keyword(keyword):
   """ Get repos which match the keyword search """
+  r = await github.repos_for_keyword(keyword)
+  r_json = await r.json()
+  return [item['full_name'] for item in r_json['items']]
 
-  r = github.repos_for_keyword(keyword)
-  return [item['full_name'] for item in r.json()['items']]
-
-def _users_for_repo(user, repo_name, oldest_age=55):
+async def _users_for_repo(user, repo_name, oldest_age=55):
   """ Returns users that have commited in a repo in the last N weeks """
 
   since = (datetime.now() - timedelta(weeks=oldest_age)).isoformat()
-  r = github.commits_for_repo(user, repo_name, since=since)
-  r_json = r.json()
+  r = await github.commits_for_repo(user, repo_name, since=since)
+  r_json = await r.json()
   users = set()
   for commit in r_json:
     if 'author' in commit and commit['author'] is not None:
@@ -66,7 +69,9 @@ def repos_for_keyword():
     return '', 400
 
   keyword = request.args['keyword']
-  return jsonify(_repos_for_keyword(keyword))
+  future = _repos_for_keyword(keyword)
+  repos = loop.run_until_complete(future)
+  return jsonify(repos)
 
 @app.route('/users/<user>/repo/<repo_name>', methods=['GET'])
 def users_for_repo(user, repo_name):
@@ -77,7 +82,8 @@ def users_for_repo(user, repo_name):
   weeks """
 
   oldest_age = 55 if 'oldest-age' not in request.args else request.args['oldest-age']
-  users = _users_for_repo(user, repo_name, oldest_age=oldest_age)
+  future = _users_for_repo(user, repo_name, oldest_age=oldest_age)
+  users = loop.run_until_complete(future)
   return jsonify(users)
 
 @app.route('/users', methods=['GET'])
@@ -91,13 +97,26 @@ def users_for_keyword():
 
   keyword = request.args['keyword']
   oldest_age = 55 if 'oldest-age' not in request.args else request.args['oldest-age']
-  repos = _repos_for_keyword(keyword)
+
+  repos_future = _repos_for_keyword(keyword)
+  repos = loop.run_until_complete(repos_future)
+
+  # gather futures for getting users from each repo
+  users_futures = []
   users = set()
   for repo in repos:
     user, repo_name = repo.split('/')
-    users_list = _users_for_repo(user, repo_name, oldest_age=oldest_age)
-    for user in users_list:
-      users.add(tuple(user))
+    users_futures.append(_users_for_repo(user, repo_name, oldest_age=oldest_age))
+
+  # barrier on all the users futures
+  users_results = loop.run_until_complete(asyncio.wait(users_futures))
+
+  # gather the results
+  for users_result in users_results:
+    for task in users_result:
+      if task.result():
+        users.update(set(task.result()))
+
   return jsonify(list(users))
 
-app.run('0.0.0.0', debug=True)
+app.run('0.0.0.0')
