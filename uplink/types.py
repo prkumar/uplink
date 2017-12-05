@@ -9,7 +9,8 @@ import collections
 import inspect
 
 # Local imports
-from uplink import converters, exceptions, interfaces, utils
+from uplink import exceptions, interfaces, utils
+from uplink.converters import keys
 
 __all__ = [
     "Path",
@@ -259,7 +260,7 @@ class Path(NamedArgument):
 
     @property
     def converter_type(self):
-        return converters.CONVERT_TO_STRING
+        return keys.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
         request_definition_builder.uri.add_variable(self.name)
@@ -283,24 +284,13 @@ class Query(NamedArgument):
         param: A query argument using the format
             `<query argument>:uplink.Query`
     """
-
-    @staticmethod
-    def convert_to_string(value):
-        # TODO: Move this responsibility to the `converter`
-        # Convert to string or list of strings.
-        if isinstance(value, (list, tuple)):
-            return list(map(str, value))
-        else:
-            return str(value)
-
     @property
     def converter_type(self):
         """Converts query parameters to the request body."""
-        return converters.CONVERT_TO_REQUEST_BODY
+        return keys.Sequence(keys.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
-        value = self.convert_to_string(value)
         request_builder.info["params"][self.name] = value
 
 
@@ -319,12 +309,11 @@ class QueryMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts query mapping to request body."""
-        return converters.Map(converters.CONVERT_TO_REQUEST_BODY)
+        return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
     @classmethod
     def modify_request(cls, request_builder, value):
         """Updates request body with the mapping of query args."""
-        value = dict((k, Query.convert_to_string(value[k])) for k in value)
         request_builder.info["params"].update(value)
 
 
@@ -345,7 +334,7 @@ class Header(NamedArgument):
     @property
     def converter_type(self):
         """Converts passed argument to string."""
-        return converters.CONVERT_TO_STRING
+        return keys.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
         """Updates request header contents."""
@@ -363,7 +352,7 @@ class HeaderMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts every header field to string"""
-        return converters.Map(converters.CONVERT_TO_STRING)
+        return keys.Map(keys.CONVERT_TO_STRING)
 
     @classmethod
     def modify_request(cls, request_builder, value):
@@ -396,7 +385,7 @@ class Field(NamedArgument):
     @property
     def converter_type(self):
         """Converts type to string."""
-        return converters.CONVERT_TO_STRING
+        return keys.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
         """Updates the request body with chosen field."""
@@ -429,7 +418,7 @@ class FieldMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts type to string."""
-        return converters.Map(converters.CONVERT_TO_STRING)
+        return keys.Map(keys.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
         """Updates request body with chosen field mapping."""
@@ -454,7 +443,7 @@ class Part(NamedArgument):
     @property
     def converter_type(self):
         """Converts part to the request body."""
-        return converters.CONVERT_TO_REQUEST_BODY
+        return keys.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
         """Updates the request body with the form part."""
@@ -474,7 +463,7 @@ class PartMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts each part to the request body."""
-        return converters.Map(converters.CONVERT_TO_REQUEST_BODY)
+        return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
     def modify_request(self, request_builder, value):
         """Updaytes request body to with the form parts."""
@@ -495,7 +484,7 @@ class Body(TypedArgument):
     @property
     def converter_type(self):
         """Converts request body."""
-        return converters.CONVERT_TO_REQUEST_BODY
+        return keys.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
         """Updates request body data."""
@@ -520,7 +509,7 @@ class Url(ArgumentAnnotation):
     @property
     def converter_type(self):
         """Converts url type to string."""
-        return converters.CONVERT_TO_STRING
+        return keys.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
         """Sets dynamic url."""

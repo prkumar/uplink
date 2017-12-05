@@ -64,8 +64,8 @@ class RequestPreparer(object):
         return utils.urlparse.urljoin(self._base_url, url)
 
     def _get_converter(self, request):
-        fact = self._converter_registry[converters.CONVERT_FROM_RESPONSE_BODY]
-        return fact(request.return_type).convert
+        f = self._converter_registry[converters.keys.CONVERT_FROM_RESPONSE_BODY]
+        return f(request.return_type).convert
 
     def prepare_request(self, request):
         url = self._join_uri_with_base(request.uri)
