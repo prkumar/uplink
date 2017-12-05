@@ -35,7 +35,7 @@ class MarshmallowConverter(interfaces.ConverterFactory):
     """
     try:
         import marshmallow
-    except ImportError:
+    except ImportError:  # pragma: no cover
         marshmallow = None
 
     def __init__(self):
