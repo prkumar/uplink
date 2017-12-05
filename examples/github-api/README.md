@@ -1,8 +1,8 @@
-This is an example of using the uplink client. This is an API written in flask that gets the top <br>
-users who have commited in repositories matching a given keyword (in the name, readme, or description <br>
+This is an example of using the uplink client. This is an API written in flask that gets the top
+users who have commited in repositories matching a given keyword (in the name, readme, or description
 in the last month.
 
-To try this out, first fill out keys.sh with your github api client id and client secret so that <br>
+To try this out, first fill out keys.sh with your github api client id and client secret so that
 you can use the API.
 
 Then run
