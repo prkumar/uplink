@@ -148,9 +148,9 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
 
     @staticmethod
     def handle_argument(request_builder, argument, value):
-        argument_type, converter_key = argument.type, argument.converter_type
-        converter_ = request_builder.get_converter(converter_key, argument_type)
-        value = converter_.convert(value)
+        argument_type, converter_key = argument.type, argument.converter_key
+        converter = request_builder.get_converter(converter_key, argument_type)
+        value = converter.convert(value)
 
         # TODO: Catch Annotation errors and chain them here + provide context.
         argument.modify_request(request_builder, value)
@@ -174,7 +174,7 @@ class ArgumentAnnotation(interfaces.Annotation):
         return None
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         raise NotImplementedError
 
 
@@ -188,7 +188,7 @@ class TypedArgument(ArgumentAnnotation):
         return self._type
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         raise NotImplementedError
 
     def modify_request(self, request_builder, value):
@@ -214,7 +214,7 @@ class NamedArgument(TypedArgument):
             raise AttributeError("Name is already set.")
     
     @property
-    def converter_type(self):
+    def converter_key(self):
         raise NotImplementedError
 
     def modify_request(self, request_builder, value):
@@ -259,7 +259,7 @@ class Path(NamedArgument):
     """
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         return keys.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
@@ -285,7 +285,7 @@ class Query(NamedArgument):
             `<query argument>:uplink.Query`
     """
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts query parameters to the request body."""
         return keys.Sequence(keys.CONVERT_TO_STRING)
 
@@ -307,7 +307,7 @@ class QueryMap(TypedArgument):
     """
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts query mapping to request body."""
         return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
@@ -332,7 +332,7 @@ class Header(NamedArgument):
     """
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts passed argument to string."""
         return keys.CONVERT_TO_STRING
 
@@ -350,7 +350,7 @@ class HeaderMap(TypedArgument):
     """
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts every header field to string"""
         return keys.Map(keys.CONVERT_TO_STRING)
 
@@ -383,7 +383,7 @@ class Field(NamedArgument):
             self.message = self.message % field.name
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts type to string."""
         return keys.CONVERT_TO_STRING
 
@@ -416,7 +416,7 @@ class FieldMap(TypedArgument):
         )
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts type to string."""
         return keys.Map(keys.CONVERT_TO_STRING)
 
@@ -441,7 +441,7 @@ class Part(NamedArgument):
     """
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts part to the request body."""
         return keys.CONVERT_TO_REQUEST_BODY
 
@@ -461,7 +461,7 @@ class PartMap(TypedArgument):
     """
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts each part to the request body."""
         return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
@@ -482,7 +482,7 @@ class Body(TypedArgument):
             of collections.Mapping
     """
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts request body."""
         return keys.CONVERT_TO_REQUEST_BODY
 
@@ -507,7 +507,7 @@ class Url(ArgumentAnnotation):
             self.message = self.message % request_definition_builder.__name__
 
     @property
-    def converter_type(self):
+    def converter_key(self):
         """Converts url type to string."""
         return keys.CONVERT_TO_STRING
 

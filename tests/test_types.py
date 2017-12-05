@@ -27,7 +27,7 @@ class ArgumentTestCase(object):
         raise NotImplementedError
 
     @property
-    def expected_converter_type(self):
+    def expected_converter_key(self):
         raise NotImplementedError
 
     @property
@@ -35,7 +35,7 @@ class ArgumentTestCase(object):
         return True
 
     def test_converter_type(self):
-        assert self.type_cls().converter_type == self.expected_converter_type
+        assert self.type_cls().converter_key == self.expected_converter_key
 
     def test_is_static(self):
         assert self.type_cls.can_be_static == self.expected_can_be_static
@@ -199,7 +199,7 @@ class TestNamedArgument(object):
 
 class TestPath(ArgumentTestCase):
     type_cls = types.Path
-    expected_converter_type = keys.CONVERT_TO_STRING
+    expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request_definition(self, request_definition_builder):
         types.Path("name").modify_request_definition(request_definition_builder)
@@ -212,7 +212,7 @@ class TestPath(ArgumentTestCase):
 
 class TestQuery(ArgumentTestCase):
     type_cls = types.Query
-    expected_converter_type = keys.Sequence(keys.CONVERT_TO_STRING)
+    expected_converter_key = keys.Sequence(keys.CONVERT_TO_STRING)
 
     def test_modify_request(self, request_builder):
         types.Query("name").modify_request(request_builder, "value")
@@ -221,7 +221,7 @@ class TestQuery(ArgumentTestCase):
 
 class TestQueryMap(ArgumentTestCase):
     type_cls = types.QueryMap
-    expected_converter_type = keys.Map(TestQuery.expected_converter_type)
+    expected_converter_key = keys.Map(TestQuery.expected_converter_key)
 
     def test_modify_request(self, request_builder):
         types.QueryMap().modify_request(request_builder, {"hello": "world"})
@@ -230,7 +230,7 @@ class TestQueryMap(ArgumentTestCase):
 
 class TestHeader(ArgumentTestCase):
     type_cls = types.Header
-    expected_converter_type = keys.CONVERT_TO_STRING
+    expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request(self, request_builder):
         types.Header("hello").modify_request(request_builder, "world")
@@ -239,7 +239,7 @@ class TestHeader(ArgumentTestCase):
 
 class TestHeaderMap(ArgumentTestCase):
     type_cls = types.HeaderMap
-    expected_converter_type = keys.Map(TestHeader.expected_converter_type)
+    expected_converter_key = keys.Map(TestHeader.expected_converter_key)
 
     def test_modify_request(self, request_builder):
         types.HeaderMap().modify_request(request_builder, {"hello": "world"})
@@ -248,7 +248,7 @@ class TestHeaderMap(ArgumentTestCase):
 
 class TestField(ArgumentTestCase):
     type_cls = types.Field
-    expected_converter_type = keys.CONVERT_TO_STRING
+    expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request(self, request_builder):
         types.Field("hello").modify_request(request_builder, "world")
@@ -262,7 +262,7 @@ class TestField(ArgumentTestCase):
 
 class TestFieldMap(ArgumentTestCase):
     type_cls = types.FieldMap
-    expected_converter_type = keys.Map(TestField.expected_converter_type)
+    expected_converter_key = keys.Map(TestField.expected_converter_key)
 
     def test_modify_request(self, request_builder):
         types.FieldMap().modify_request(request_builder, {"hello": "world"})
@@ -276,7 +276,7 @@ class TestFieldMap(ArgumentTestCase):
 
 class TestPart(ArgumentTestCase):
     type_cls = types.Part
-    expected_converter_type = keys.CONVERT_TO_REQUEST_BODY
+    expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
         types.Part("hello").modify_request(request_builder, "world")
@@ -285,7 +285,7 @@ class TestPart(ArgumentTestCase):
 
 class TestPartMap(ArgumentTestCase):
     type_cls = types.PartMap
-    expected_converter_type = keys.Map(TestPart.expected_converter_type)
+    expected_converter_key = keys.Map(TestPart.expected_converter_key)
 
     def test_modify_request(self, request_builder):
         types.PartMap().modify_request(request_builder, {"hello": "world"})
@@ -294,7 +294,7 @@ class TestPartMap(ArgumentTestCase):
 
 class TestBody(ArgumentTestCase):
     type_cls = types.Body
-    expected_converter_type = keys.CONVERT_TO_REQUEST_BODY
+    expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
         types.Body().modify_request(request_builder, {"hello": "world"})
@@ -303,7 +303,7 @@ class TestBody(ArgumentTestCase):
 
 class TestUrl(ArgumentTestCase):
     type_cls = types.Url
-    expected_converter_type = keys.CONVERT_TO_STRING
+    expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request_definition(self, request_definition_builder):
         types.Url().modify_request_definition(request_definition_builder)
