@@ -284,14 +284,31 @@ class Query(NamedArgument):
         param: A query argument using the format
             `<query argument>:uplink.Query`
     """
+
+    def __init__(self, name=None, encoded=None, type=None):
+        super(Query, self).__init__(name, type)
+        self._encoded = encoded
+
+    @staticmethod
+    def join_encoded_params(params):
+        # TODO: I think we can move this to the client backend.
+        return "&".join("%s=%s" % (n, params[n]) for n in params)
+
     @property
     def converter_key(self):
         """Converts query parameters to the request body."""
-        return keys.Sequence(keys.CONVERT_TO_STRING)
+        if self._encoded:
+            return keys.CONVERT_TO_STRING
+        else:
+            return keys.Sequence(keys.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
-        request_builder.info["params"][self.name] = value
+        if self._encoded:
+            value = self.join_encoded_params({self.name: value})
+            request_builder.info["params"] = value
+        else:
+            request_builder.info["params"][self.name] = value
 
 
 class QueryMap(TypedArgument):
@@ -305,16 +322,25 @@ class QueryMap(TypedArgument):
         **params: A mapping of query argument accepted by the API.
             using the format `<query argument>:uplinkQueryMap`
     """
+    
+    def __init__(self, encoded=None, type=None):
+        super(QueryMap, self).__init__(type)
+        self._encoded = encoded
 
     @property
     def converter_key(self):
         """Converts query mapping to request body."""
-        return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
+        if self._encoded:
+            return keys.Map(keys.CONVERT_TO_STRING)
+        else:
+            return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
-    @classmethod
-    def modify_request(cls, request_builder, value):
+    def modify_request(self, request_builder, value):
         """Updates request body with the mapping of query args."""
-        request_builder.info["params"].update(value)
+        if self._encoded:
+            request_builder.info["params"] = Query.join_encoded_params(value)
+        else:
+            request_builder.info["params"].update(value)
 
 
 class Header(NamedArgument):
