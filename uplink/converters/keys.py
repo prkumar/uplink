@@ -1,3 +1,4 @@
+# TODO: Write module docstring.
 # Standard library imports
 import functools
 
@@ -12,21 +13,30 @@ __all__ = [
     "Sequence"
 ]
 
-# Constants
+#: Object to string conversion.
 CONVERT_TO_STRING = 0
+
+#: Object to request body conversion.
 CONVERT_TO_REQUEST_BODY = 1
+
+# Response body to object conversion.
 CONVERT_FROM_RESPONSE_BODY = 2
 
 
-class ConverterFunction(interfaces.Converter):
-    def __init__(self, convert_function):
-        self._convert = convert_function
-
-    def convert(self, value):
-        return self._convert(value)
-
-
 class CompositeKey(object):
+    """
+    A utility class for defining composable converter keys.
+
+    Arguments:
+        converter_key: The enveloped converter key.
+    """
+    class ConverterUsingFunction(interfaces.Converter):
+        def __init__(self, convert_function):
+            self._convert = convert_function
+
+        def convert(self, value):
+            return self._convert(value)
+
     def __init__(self, converter_key):
         self._converter_key = converter_key
 
@@ -44,18 +54,37 @@ class CompositeKey(object):
         def factory_wrapper(*args, **kwargs):
             converter = factory(*args, **kwargs)
             convert_func = functools.partial(self.convert, converter)
-            return ConverterFunction(convert_func)
+            return self.ConverterUsingFunction(convert_func)
 
         return factory_wrapper
 
 
 class Map(CompositeKey):
+    """
+    Object to mapping conversion.
+
+    The constructor argument :py:data:`converter_key` details the type
+    for the values in the mapping. For instance::
+
+        # Key for conversion of an object to a mapping of strings.
+        Map(CONVERT_TO_STRING)
+    """
     def convert(self, converter, value):
         return dict((k, converter.convert(value[k])) for k in value)
 
 
 class Sequence(CompositeKey):
+    """
+    Object to sequence conversion.
+
+    The constructor argument :py:data:`converter_key` details the type
+    for the elements in the sequence. For instance::
+
+        # Key for conversion of an object to a sequence of strings.
+        Sequence(CONVERT_TO_STRING)
+    """
     def convert(self, converter, value):
+        print(value)
         if isinstance(value, (list, tuple)):
             return list(map(converter.convert, value))
         else:
