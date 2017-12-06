@@ -4,7 +4,13 @@ import warnings
 
 # Local imports
 from uplink import (
-    hooks, clients, converter, interfaces, exceptions, helpers, utils
+    hooks,
+    clients,
+    converters,
+    interfaces,
+    exceptions,
+    helpers,
+    utils
 )
 
 __all__ = ["build", "Consumer"]
@@ -48,8 +54,8 @@ class RequestPreparer(object):
 
     @staticmethod
     def _make_converter_registry(uplink_builder, request_definition):
-        return converter.ConverterFactoryRegistry(
-            uplink_builder.converter_factories,
+        return converters.ConverterFactoryRegistry(
+            uplink_builder.converters,
             argument_annotations=request_definition.argument_annotations,
             request_annotations=request_definition.method_annotations
         )
@@ -58,8 +64,8 @@ class RequestPreparer(object):
         return utils.urlparse.urljoin(self._base_url, url)
 
     def _get_converter(self, request):
-        factory = self._converter_registry[converter.CONVERT_FROM_RESPONSE_BODY]
-        return factory(request.return_type).convert
+        f = self._converter_registry[converters.keys.CONVERT_FROM_RESPONSE_BODY]
+        return f(request.return_type).convert
 
     def prepare_request(self, request):
         url = self._join_uri_with_base(request.uri)
@@ -97,8 +103,8 @@ class Builder(interfaces.CallBuilder):
         self._base_url = ""
         self._hook = hooks.TransactionHook()
         self._client = clients.DEFAULT_CLIENT
-        self._converter_factories = collections.deque()
-        self._converter_factories.append(converter.StandardConverterFactory())
+        self._converters = collections.deque()
+        self._converters.append(converters.StandardConverter())
 
     @property
     def client(self):
@@ -125,11 +131,11 @@ class Builder(interfaces.CallBuilder):
         self._base_url = base_url
 
     @property
-    def converter_factories(self):
-        return iter(self._converter_factories)
+    def converters(self):
+        return iter(self._converters)
 
-    def add_converter_factory(self, *converter_factories):
-        self._converter_factories.extendleft(converter_factories)
+    def add_converter(self, *converters_):
+        self._converters.extendleft(converters_)
 
     def build(self, consumer, definition):
         """
@@ -158,15 +164,18 @@ class Consumer(object):
             base_url="",
             client=None,
             hook=None,
-            converter_factories=()
+            converter=()
     ):
         self._builder = Builder()
         self._builder.base_url = base_url
-        self._builder.add_converter_factory(*converter_factories)
+        if isinstance(converter, converters.interfaces.ConverterFactory):
+            converter = (converter,)
+        self._builder.add_converter(*converter)
         if client is not None:
             self._builder.client = client
         if hook is not None:
             self._builder.hook = hook
+
 
 def build(service_cls, *args, **kwargs):
     warnings.warn(
