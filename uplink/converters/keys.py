@@ -1,4 +1,8 @@
-# TODO: Write module docstring.
+"""
+This module defines common converter keys, used by consumers of the
+converter layer to identify the desired conversion type when querying a
+:py:class:`uplink.converters.ConverterFactoryRegistry`.
+"""
 # Standard library imports
 import functools
 
