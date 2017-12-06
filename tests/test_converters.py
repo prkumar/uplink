@@ -49,17 +49,6 @@ class TestStringConverter(object):
         assert converter_.convert(2) == "2"
 
 
-class TestMappingConverterDecorator(object):
-    def test_convert(self, mocker, converter_mock):
-        mapping = {"key1": "value1", "key2": "value2"}
-        converter_mock.convert.return_value = "converted"
-        mapping_converter = converters.MappingConverterDecorator(converter_mock)
-        converted_value = mapping_converter.convert(mapping)
-        calls = map(mocker.call, mapping.values())
-        assert converter_mock.convert.mock_calls == list(calls)
-        assert converted_value == {"key1": "converted", "key2": "converted"}
-
-
 class TestConverterFactoryRegistry(object):
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
@@ -69,17 +58,11 @@ class TestConverterFactoryRegistry(object):
         converter_factory_mock.make_string_converter.return_value = "test"
         registry = converters.ConverterFactoryRegistry(
             (converter_factory_mock,), *args, **kwargs)
-        return_value = registry[converters.CONVERT_TO_STRING]()
+        return_value = registry[converters.keys.CONVERT_TO_STRING]()
         converter_factory_mock.make_string_converter.assert_called_with(
             *args, **kwargs
         )
         assert return_value == "test"
-
-    def test_with_converter_map(self, converter_factory_mock):
-        registry = converters.ConverterFactoryRegistry(
-            (converter_factory_mock,))
-        converter_ = registry[converters.Map(converters.CONVERT_TO_STRING)]()
-        assert isinstance(converter_, converters.MappingConverterDecorator)
 
     def test_len(self):
         registry = converters.ConverterFactoryRegistry(())
@@ -193,3 +176,49 @@ class TestMarshmallowConverter(object):
 
         # Verify
         assert c is None
+
+
+class TestMap(object):
+    def test_convert(self):
+        # Setup
+        registry = converters.ConverterFactoryRegistry(
+            (converters.StandardConverter(),)
+        )
+        key = converters.keys.Map(converters.keys.CONVERT_TO_STRING)
+
+        # Run
+        converter = registry[key](None)
+        value = converter.convert({"hello": 1})
+
+        # Verify
+        assert value == {"hello": "1"}
+
+
+class TestSequence(object):
+    def test_convert_with_sequence(self):
+        # Setup
+        registry = converters.ConverterFactoryRegistry(
+            (converters.StandardConverter(),)
+        )
+        key = converters.keys.Sequence(converters.keys.CONVERT_TO_STRING)
+
+        # Run
+        converter = registry[key](None)
+        value = converter.convert([1, 2, 3])
+
+        # Verify
+        assert value == ["1", "2", "3"]
+
+    def test_convert_not_sequence(self):
+        # Setup
+        registry = converters.ConverterFactoryRegistry(
+            (converters.StandardConverter(),)
+        )
+        key = converters.keys.Sequence(converters.keys.CONVERT_TO_STRING)
+
+        # Run
+        converter = registry[key](None)
+        value = converter.convert("1")
+
+        # Verify
+        assert value == "1"
