@@ -10,6 +10,9 @@ twisted==17.1.0
 # support (see https://github.com/aio-libs/aiohttp/issues/537)
 aiohttp==2.3.0; python_version >= '3.4'
 
+# Marshmallow Support
+marshmallow==2.15.0
+
 # Testing
 pytest==3.2.1
 pytest-mock==1.6.2

@@ -9,7 +9,7 @@ import collections
 import inspect
 
 # Local imports
-from uplink import converter, exceptions, interfaces, utils
+from uplink import converters, exceptions, interfaces, utils
 
 __all__ = [
     "Path",
@@ -259,7 +259,7 @@ class Path(NamedArgument):
 
     @property
     def converter_type(self):
-        return converter.CONVERT_TO_STRING
+        return converters.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
         request_definition_builder.uri.add_variable(self.name)
@@ -296,7 +296,7 @@ class Query(NamedArgument):
     @property
     def converter_type(self):
         """Converts query parameters to the request body."""
-        return converter.CONVERT_TO_REQUEST_BODY
+        return converters.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
@@ -319,7 +319,7 @@ class QueryMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts query mapping to request body."""
-        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+        return converters.Map(converters.CONVERT_TO_REQUEST_BODY)
 
     @classmethod
     def modify_request(cls, request_builder, value):
@@ -345,7 +345,7 @@ class Header(NamedArgument):
     @property
     def converter_type(self):
         """Converts passed argument to string."""
-        return converter.CONVERT_TO_STRING
+        return converters.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
         """Updates request header contents."""
@@ -363,7 +363,7 @@ class HeaderMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts every header field to string"""
-        return converter.Map(converter.CONVERT_TO_STRING)
+        return converters.Map(converters.CONVERT_TO_STRING)
 
     @classmethod
     def modify_request(cls, request_builder, value):
@@ -396,7 +396,7 @@ class Field(NamedArgument):
     @property
     def converter_type(self):
         """Converts type to string."""
-        return converter.CONVERT_TO_STRING
+        return converters.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
         """Updates the request body with chosen field."""
@@ -429,7 +429,7 @@ class FieldMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts type to string."""
-        return converter.Map(converter.CONVERT_TO_STRING)
+        return converters.Map(converters.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
         """Updates request body with chosen field mapping."""
@@ -454,7 +454,7 @@ class Part(NamedArgument):
     @property
     def converter_type(self):
         """Converts part to the request body."""
-        return converter.CONVERT_TO_REQUEST_BODY
+        return converters.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
         """Updates the request body with the form part."""
@@ -474,7 +474,7 @@ class PartMap(TypedArgument):
     @property
     def converter_type(self):
         """Converts each part to the request body."""
-        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+        return converters.Map(converters.CONVERT_TO_REQUEST_BODY)
 
     def modify_request(self, request_builder, value):
         """Updaytes request body to with the form parts."""
@@ -495,7 +495,7 @@ class Body(TypedArgument):
     @property
     def converter_type(self):
         """Converts request body."""
-        return converter.CONVERT_TO_REQUEST_BODY
+        return converters.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
         """Updates request body data."""
@@ -520,7 +520,7 @@ class Url(ArgumentAnnotation):
     @property
     def converter_type(self):
         """Converts url type to string."""
-        return converter.CONVERT_TO_STRING
+        return converters.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
         """Sets dynamic url."""
