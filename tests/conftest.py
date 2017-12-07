@@ -5,7 +5,7 @@ import collections
 import pytest
 
 # Local imports
-from uplink import clients, hooks, interfaces, helpers
+from uplink import clients, converters, hooks, interfaces, helpers
 
 
 @pytest.fixture
@@ -25,12 +25,12 @@ def transaction_hook_mock(mocker):
 
 @pytest.fixture
 def converter_mock(mocker):
-    return mocker.Mock(spec=interfaces.Converter)
+    return mocker.Mock(spec=converters.interfaces.Converter)
 
 
 @pytest.fixture
 def converter_factory_mock(mocker):
-    return mocker.Mock(spec=interfaces.ConverterFactory)
+    return mocker.Mock(spec=converters.interfaces.ConverterFactory)
 
 
 @pytest.fixture
