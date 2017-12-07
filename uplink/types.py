@@ -164,17 +164,18 @@ class ArgumentAnnotation(interfaces.Annotation):
         return request_definition_builder
 
     def modify_request_definition(self, request_definition_builder):
+        # pragma: no cover
         pass
 
-    def modify_request(self, request_builder, value):
+    def modify_request(self, request_builder, value):  # pragma: no cover
         raise NotImplementedError
 
     @property
-    def type(self):
+    def type(self):  # pragma: no cover
         return None
 
     @property
-    def converter_key(self):
+    def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -188,10 +189,10 @@ class TypedArgument(ArgumentAnnotation):
         return self._type
 
     @property
-    def converter_key(self):
+    def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
-    def modify_request(self, request_builder, value):
+    def modify_request(self, request_builder, value):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -214,10 +215,10 @@ class NamedArgument(TypedArgument):
             raise AttributeError("Name is already set.")
     
     @property
-    def converter_key(self):
+    def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
-    def modify_request(self, request_builder, value):
+    def modify_request(self, request_builder, value):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -270,7 +271,8 @@ class Path(NamedArgument):
 
 
 class Query(NamedArgument):
-    """Sets one dynamic query parameter.
+    """
+    Sets one dynamic query parameter.
 
     This annotation turns argument values into URL query
     parameters. You can include it in your function method
@@ -281,18 +283,32 @@ class Query(NamedArgument):
     method to set the `q` search term at runtime.
 
     Args:
-        param: A query argument using the format
-            `<query argument>:uplink.Query`
+        encoded (:obj:`bool`, optional): Specifies whether the parameter
+            :py:obj:`name` and value are already URL encoded.
     """
 
-    def __init__(self, name=None, encoded=None, type=None):
+    class QueryStringEncodingError(exceptions.AnnotationError):
+        message = (
+            "Failed to join encoded and unencoded query parameters."
+        )
+
+    def __init__(self, name=None, encoded=False, type=None):
         super(Query, self).__init__(name, type)
         self._encoded = encoded
 
     @staticmethod
-    def join_encoded_params(params):
-        # TODO: I think we can move this to the client backend.
-        return "&".join("%s=%s" % (n, params[n]) for n in params)
+    def update_params(info, new_params, encoded):
+        existing = info.setdefault("params", None if encoded else dict())
+        if encoded == isinstance(existing, collections.Mapping):
+            raise Query.QueryStringEncodingError()
+
+        # TODO: Consider moving some of this to the client backend.
+        if encoded:
+            params = [] if existing is None else [str(existing)]
+            params.extend("%s=%s" % (n, new_params[n]) for n in new_params)
+            info["params"] = "&".join(params)
+        else:
+            info["params"].update(new_params)
 
     @property
     def converter_key(self):
@@ -304,26 +320,27 @@ class Query(NamedArgument):
 
     def modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
-        if self._encoded:
-            value = self.join_encoded_params({self.name: value})
-            request_builder.info["params"] = value
-        else:
-            request_builder.info["params"][self.name] = value
+        self.update_params(
+            request_builder.info,
+            {self.name: value},
+            self._encoded
+        )
 
 
 class QueryMap(TypedArgument):
-    """Sets a mapping of query arguments.
+    """
+    Sets a mapping of query arguments.
 
     If the API you are using accepts multiple query arguments,
     you can include them all in your function method by using the
     format: `<query argument>:uplink.QueryMap`
 
     Args:
-        **params: A mapping of query argument accepted by the API.
-            using the format `<query argument>:uplinkQueryMap`
+        encoded (:obj:`bool`, optional): Specifies whether the parameter
+            :py:obj:`name` and value are already URL encoded.
     """
     
-    def __init__(self, encoded=None, type=None):
+    def __init__(self, encoded=False, type=None):
         super(QueryMap, self).__init__(type)
         self._encoded = encoded
 
@@ -337,24 +354,18 @@ class QueryMap(TypedArgument):
 
     def modify_request(self, request_builder, value):
         """Updates request body with the mapping of query args."""
-        if self._encoded:
-            request_builder.info["params"] = Query.join_encoded_params(value)
-        else:
-            request_builder.info["params"].update(value)
+        Query.update_params(request_builder.info, value, self._encoded)
 
 
 class Header(NamedArgument):
-    """Pass a header as a method argument at runtime.
+    """
+    Pass a header as a method argument at runtime.
 
     While decorator.headers are meant to be used as a decorator,
     this argument (uplink.Header) is meant to be passed as a method
     argument on a function created by you.
 
     Used as: uplink.Header("<header key>")
-
-    Args:
-        arg: A string that's a header parameter that will be used
-            as a method argument of a function.
     """
 
     @property
@@ -368,12 +379,7 @@ class Header(NamedArgument):
 
 
 class HeaderMap(TypedArgument):
-    """Pass a mapping of header fields at runtime.
-
-    Args:
-        arg: A mapping of string that are header parameters.
-            They will be used as a method argument of a function.
-    """
+    """Pass a mapping of header fields at runtime."""
 
     @property
     def converter_key(self):
@@ -387,15 +393,12 @@ class HeaderMap(TypedArgument):
 
 
 class Field(NamedArgument):
-    """Defines a field to the request body.
+    """
+    Defines a field to the request body.
 
     Use together with the decorator `uplink.form_url_encoded`
     and annotate each argument accepting a form field with
     `uplink.Field`
-
-    Args:
-        name: The field name. Defaults to None
-        type: The field type. Defaults to None
     """
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
@@ -424,14 +427,12 @@ class Field(NamedArgument):
 
 
 class FieldMap(TypedArgument):
-    """Defines a mapping of fields to the request body.
+    """
+    Defines a mapping of fields to the request body.
 
     Use together with the decorator `uplink.form_url_encoded`
     and annotate each argument accepting a form field with
     `uplink.FieldMap`
-
-    Args:
-        type: The field type. Defaults to None
     """
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
@@ -456,14 +457,11 @@ class FieldMap(TypedArgument):
 
 
 class Part(NamedArgument):
-    """Marks an argument as a form part.
+    """
+    Marks an argument as a form part.
 
     Use together with the decorator `uplink.multipart`
     and annotate each form part with `uplink.Part`
-
-    Args:
-        name: The field name. Defaults to None
-        type: The field type. Defaults to None
     """
 
     @property
@@ -477,13 +475,11 @@ class Part(NamedArgument):
 
 
 class PartMap(TypedArgument):
-    """A mapping of form field parts.
+    """
+    A mapping of form field parts.
 
     Use together with the decorator `uplink.multipart`
     and annotate each part of form parts with `uplink.PartMap`
-
-    Args:
-        type: The field type. Defaults to None
     """
 
     @property
@@ -497,15 +493,12 @@ class PartMap(TypedArgument):
 
 
 class Body(TypedArgument):
-    """Changes the request's body.
+    """
+    Changes the request's body.
 
     Use together with the decorator `uplink.json`. The method
     argument value will become the request's body when annotated
     with `uplink.Body`.
-
-    Args:
-        type: The body type. Should be either a dict or a subclass
-            of collections.Mapping
     """
     @property
     def converter_key(self):
@@ -518,7 +511,8 @@ class Body(TypedArgument):
 
 
 class Url(ArgumentAnnotation):
-    """Sets a dynamic URL.
+    """
+    Sets a dynamic URL.
 
     Provides the URL at runtime as a method argument. Drop the
     decorator parameter path from `uplink.get` and annotate the

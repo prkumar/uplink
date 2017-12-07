@@ -218,6 +218,19 @@ class TestQuery(ArgumentTestCase):
         types.Query("name").modify_request(request_builder, "value")
         assert request_builder.info["params"] == {"name": "value"}
 
+    def test_modify_request_with_encoded(self, request_builder):
+        types.Query("name", encoded=True).modify_request(
+            request_builder, "value")
+        assert request_builder.info["params"] == "name=value"
+
+    def test_modify_request_with_mismatched_encoding(self, request_builder):
+        types.Query("name", encoded=True).modify_request(
+            request_builder, "value")
+        with pytest.raises(types.Query.QueryStringEncodingError):
+            types.Query("name2", encoded=False).modify_request(
+                request_builder, "value2"
+            )
+
 
 class TestQueryMap(ArgumentTestCase):
     type_cls = types.QueryMap
@@ -226,6 +239,11 @@ class TestQueryMap(ArgumentTestCase):
     def test_modify_request(self, request_builder):
         types.QueryMap().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["params"] == {"hello": "world"}
+
+    def test_modify_request_with_encoded(self, request_builder):
+        types.QueryMap(encoded=True).modify_request(
+            request_builder, {"name": "value"})
+        assert request_builder.info["params"] == "name=value"
 
 
 class TestHeader(ArgumentTestCase):
