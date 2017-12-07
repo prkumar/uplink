@@ -150,15 +150,20 @@ class Builder(interfaces.CallBuilder):
 
 
 class ConsumerMethod(object):
+    """
+    A wrapper around a :py:class`interfaces.RequestDefinitionBuilder`
+    instance bound to a :py:class:`Consumer` subclass, mainly responsible
+    for controlling access to the instance.
+    """
 
     def __init__(self, owner_name, attr_name, definition_builder):
         self._owner_name = owner_name
         self._attr_name = attr_name
         self._builder = self._run_builder_method(definition_builder.prepare)
 
-    def _run_builder_method(self, method):
+    def _run_builder_method(self, method, *args, **kwargs):
         try:
-            return method()
+            return method(*args, **kwargs)
         except exceptions.InvalidRequestDefinition as error:
             # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
@@ -178,10 +183,13 @@ class ConsumerMethod(object):
 class ConsumerMeta(type):
 
     def __new__(mcs, name, bases, namespace):
+        # Wrap all definition builders with a special descriptor that
+        # handles attribute access behavior.
         for attr_name, attr in namespace.items():
             if isinstance(attr, interfaces.RequestDefinitionBuilder):
                 namespace[attr_name] = ConsumerMethod(name, attr_name, attr)
         return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
+
 
 _Consumer = ConsumerMeta("_Consumer", (), {})
 
