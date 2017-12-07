@@ -1,6 +1,6 @@
 Uplink
 ******
-|PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
+|PyPI Version| |Build Status| |Coverage Status| |Code Climate| |Documentation Status|
 |Gitter|
 
 - Builds Reusable Objects for Consuming Web APIs.
@@ -117,6 +117,9 @@ Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
+.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability
+   :target: https://codeclimate.com/github/prkumar/uplink/maintainability
+   :alt: Maintainability
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
