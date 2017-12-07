@@ -117,7 +117,7 @@ Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
-.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability
+.. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
    :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
 .. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
