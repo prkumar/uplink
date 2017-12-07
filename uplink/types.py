@@ -297,11 +297,7 @@ class Query(NamedArgument):
         self._encoded = encoded
 
     @staticmethod
-    def update_params(info, new_params, encoded):
-        existing = info.setdefault("params", None if encoded else dict())
-        if encoded == isinstance(existing, collections.Mapping):
-            raise Query.QueryStringEncodingError()
-
+    def _update_params(info, existing, new_params, encoded):
         # TODO: Consider moving some of this to the client backend.
         if encoded:
             params = [] if existing is None else [str(existing)]
@@ -309,6 +305,13 @@ class Query(NamedArgument):
             info["params"] = "&".join(params)
         else:
             info["params"].update(new_params)
+
+    @staticmethod
+    def update_params(info, new_params, encoded):
+        existing = info.setdefault("params", None if encoded else dict())
+        if encoded == isinstance(existing, collections.Mapping):
+            raise Query.QueryStringEncodingError()
+        Query._update_params(info, existing, new_params, encoded)
 
     @property
     def converter_key(self):
