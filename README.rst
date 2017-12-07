@@ -117,7 +117,7 @@ Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
-.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
+.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
