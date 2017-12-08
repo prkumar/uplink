@@ -2,13 +2,13 @@
 import atexit
 
 # Local imports
-from uplink.clients import registrar, interfaces
+from uplink.clients import register, interfaces
 
 # Third party imports
 import requests
 
 
-@registrar.handler
+@register.handler
 def _requests_handler(client):
     if isinstance(client, requests.Session):
         return RequestsClient(session=client)

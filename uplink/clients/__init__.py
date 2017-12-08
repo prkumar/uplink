@@ -11,7 +11,7 @@ Note:
     they can create custom adapters.
 """
 # Local imports
-from uplink.clients import registrar
+from uplink.clients.register import get_client
 from uplink.clients.requests_ import RequestsClient
 from uplink.clients.twisted_ import TwistedClient
 
@@ -37,14 +37,4 @@ __all__ = [
     "TwistedClient",
 ]
 
-DEFAULT_CLIENT = RequestsClient
-
-
-def get_client(client):
-    if client is None:
-        return DEFAULT_CLIENT()
-    elif isinstance(client, interfaces.HttpClientAdapter):
-        return client
-    else:
-        # Try handlers
-        return registrar.find_client_in_handler_chain(client)
+register.set_default_client(RequestsClient)
