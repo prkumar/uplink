@@ -33,6 +33,10 @@ def get_api_definitions(service):
     return [(k, v) for k, v in class_attributes if is_definition(v)]
 
 
+def set_api_definition(service, name, definition):
+    setattr(service, name, definition)
+
+
 class RequestBuilder(object):
     def __init__(self, converter_registry):
         self._method = None
