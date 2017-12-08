@@ -13,15 +13,10 @@ def fake_service_cls(request_definition_builder, request_definition):
     return Service
 
 
-@pytest.fixture(params=[None, 'client_class', 'client_instance'])
-def uplink_builder(request, http_client_mock):
+@pytest.fixture
+def uplink_builder(http_client_mock):
     b = builder.Builder()
-
-    if request.param == 'client_class':
-        b.client = http_client_mock
-    elif request.param == 'client_instance':
-        b.client = http_client_mock()
-
+    b.client = http_client_mock
     return b
 
 

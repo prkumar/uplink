@@ -13,7 +13,7 @@ from concurrent import futures
 import aiohttp
 
 # Local imports
-from uplink.clients import interfaces
+from uplink.clients import interfaces, register
 
 
 def threaded_callback(callback):
@@ -30,6 +30,12 @@ def threaded_callback(callback):
             return response
 
     return new_callback
+
+
+@register.handler
+def _aiohttp_handler(client):
+    if isinstance(client, aiohttp.ClientSession):
+        return AiohttpClient(session=client)
 
 
 class AiohttpClient(interfaces.HttpClientAdapter):
