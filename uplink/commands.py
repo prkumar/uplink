@@ -98,11 +98,9 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def __init__(self, method, uri, argument_handler_builder,
                  method_handler_builder):
         self._method = method
-        self._uri_builder = uri
+        self._uri = uri
         self._argument_handler_builder = argument_handler_builder
         self._method_handler_builder = method_handler_builder
-        self._argument_handler = None
-        self._uri = None
 
         argument_handler_builder.set_request_definition_builder(self)
         method_handler_builder.set_request_definition_builder(self)
@@ -113,7 +111,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
     @property
     def uri(self):
-        return self._uri_builder
+        return self._uri
 
     @property
     def argument_handler_builder(self):
@@ -123,23 +121,15 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def method_handler_builder(self):
         return self._method_handler_builder
 
-    @property
-    def is_prepared(self):
-        return not (self._uri is None or self._argument_handler is None)
-
-    def prepare(self):
-        if not self.is_prepared:
-            self._argument_handler = self._argument_handler_builder.build()
-            self._uri = self._uri_builder.build()
-        return self
-
     def build(self):
-        self.prepare()
+        argument_handler = self._argument_handler_builder.build()
+        method_handler = self._method_handler_builder.build()
+        uri = self._uri.build()
         return RequestDefinition(
             self._method,
-            self._uri,
-            self._argument_handler,
-            self._method_handler_builder.build()
+            uri,
+            argument_handler,
+            method_handler
         )
 
 
