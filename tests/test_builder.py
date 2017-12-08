@@ -118,18 +118,24 @@ class TestBuilder(object):
             uplink.build(fake_service_cls(), fake_service_cls.builder)
 
 
-def test_build(mocker, http_client_mock, fake_service_cls):
+def test_build(
+        mocker,
+        http_client_mock,
+        converter_factory_mock,
+        fake_service_cls
+):
     # Monkey-patch the Builder class.
     builder_cls_mock = mocker.Mock()
-    builder_mock = mocker.Mock(spec=builder.Builder)
+    builder_mock = builder.Builder()
     builder_cls_mock.return_value = builder_mock
     mocker.patch.object(builder, "Builder", builder_cls_mock)
 
     builder.build(
         fake_service_cls,
         base_url="example.com",
-        client=http_client_mock
+        client=http_client_mock,
+        converter=converter_factory_mock
     )
     assert builder_mock.base_url == "example.com"
-    builder_mock.add_converter.assert_called_with()
     assert builder_mock.client is http_client_mock
+    assert list(builder_mock.converters)[0] is converter_factory_mock
