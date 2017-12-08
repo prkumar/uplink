@@ -1,12 +1,9 @@
-# Standard library imports
-import sys
-
 # Third party imports
 import pytest
 import inspect
 
 # Local imports
-from uplink.clients import requests_, twisted_
+from uplink.clients import requests_, twisted_, get_client
 
 try:
     from uplink.clients import aiohttp_
@@ -16,6 +13,15 @@ except (ImportError, SyntaxError):
 
 requires_aiohttp = pytest.mark.skipif(
     not aiohttp_, reason="Requires Python 3.4 or above")
+
+
+class TestRequests(object):
+
+    def test_get_client(self, mocker):
+        import requests
+        session_mock = mocker.Mock(spec=requests.Session)
+        client = get_client(session_mock)
+        assert isinstance(client, requests_.RequestsClient)
 
 
 class TestTwisted(object):
@@ -64,10 +70,16 @@ class TestTwisted(object):
 
 @pytest.fixture
 def aiohttp_session_mock(mocker):
-    return mocker.Mock()
+    import aiohttp
+    return mocker.Mock(spec=aiohttp.ClientSession)
 
 
 class TestAiohttp(object):
+
+    @requires_aiohttp
+    def test_get_client(self, aiohttp_session_mock):
+        client = get_client(aiohttp_session_mock)
+        assert isinstance(client, aiohttp_.AiohttpClient)
 
     @requires_aiohttp
     def test_create_request(self, aiohttp_session_mock):

@@ -44,9 +44,7 @@ class RequestPreparer(object):
 
     def __init__(self, uplink_builder, definition):
         self._hook = uplink_builder.hook
-        self._client = uplink_builder.client
-        if not isinstance(self._client, clients.interfaces.HttpClientAdapter):
-            self._client = self._client()
+        self._client = clients.get_client(uplink_builder.client)
         self._base_url = str(uplink_builder.base_url)
         self._converter_registry = self._make_converter_registry(
             uplink_builder, definition
@@ -102,7 +100,7 @@ class Builder(interfaces.CallBuilder):
 
         self._base_url = ""
         self._hook = hooks.TransactionHook()
-        self._client = clients.DEFAULT_CLIENT
+        self._client = None
         self._converters = collections.deque()
         self._converters.append(converters.StandardConverter())
 

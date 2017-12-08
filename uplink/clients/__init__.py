@@ -10,6 +10,8 @@ Note:
     At some point, we may want to expose this layer to the user, so
     they can create custom adapters.
 """
+# Local imports
+from uplink.clients import registrar
 from uplink.clients.requests_ import RequestsClient
 from uplink.clients.twisted_ import TwistedClient
 
@@ -36,3 +38,13 @@ __all__ = [
 ]
 
 DEFAULT_CLIENT = RequestsClient
+
+
+def get_client(client):
+    if client is None:
+        return DEFAULT_CLIENT()
+    elif isinstance(client, interfaces.HttpClientAdapter):
+        return client
+    else:
+        # Try handlers
+        return registrar.find_client_in_handler_chain(client)
