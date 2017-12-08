@@ -3,7 +3,7 @@ import pytest
 import inspect
 
 # Local imports
-from uplink.clients import requests_, twisted_, get_client
+from uplink.clients import interfaces, requests_, twisted_, get_client
 
 try:
     from uplink.clients import aiohttp_
@@ -13,6 +13,15 @@ except (ImportError, SyntaxError):
 
 requires_aiohttp = pytest.mark.skipif(
     not aiohttp_, reason="Requires Python 3.4 or above")
+
+
+def test_get_client_with_http_client_adapter_subclass():
+    class HttpClientAdapterMock(interfaces.HttpClientAdapter):
+        def create_request(self):
+            pass
+
+    client = get_client(HttpClientAdapterMock)
+    assert isinstance(client, HttpClientAdapterMock)
 
 
 class TestRequests(object):
