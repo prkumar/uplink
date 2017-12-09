@@ -1,6 +1,6 @@
 Uplink
 ******
-|PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
+|PyPI Version| |Build Status| |Coverage Status| |Code Climate| |Documentation Status|
 |Gitter|
 
 - Builds Reusable Objects for Consuming Web APIs.
@@ -112,12 +112,15 @@ For more details, check out the documentation at http://uplink.readthedocs.io/.
 Contributing
 ============
 Want to report a bug, request a feature, or contribute code to Uplink?
-Checkout the `Contribution Guide <CONTRIBUTING.rst>`_ for where to start.
+Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
-.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
+.. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
+   :target: https://codeclimate.com/github/prkumar/uplink/maintainability
+   :alt: Maintainability
+.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
@@ -127,7 +130,7 @@ Thank you for taking the time to improve an open source project 💜
    :alt: Join the chat at https://gitter.im/python-uplink/Lobby
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
-.. |PyPI Version| image:: https://img.shields.io/github/release/prkumar/uplink/all.svg
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
-.. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
-   :target: https://pypi.python.org/pypi/uplink
+
+.. _`Contribution Guide`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst

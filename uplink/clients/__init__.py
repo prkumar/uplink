@@ -1,18 +1,30 @@
 """
-This package defines an adapter for consuming requests built
-by Uplink's high-level, declarative API with existing HTTP clients
+This package defines an adapter layer for handling requests built by
+Uplink's high-level, declarative API with existing HTTP clients
 (`requests`, `asyncio`, etc.).
 
 We refer to this layer as the backend, as these adapters handle the
-actual client behavior (i.e., making a request to a server), and
-thus, we refer to this layer as the backend.
+actual client behavior (i.e., making a request to a server).
 
 Note:
     At some point, we may want to expose this layer to the user, so
     they can create custom adapters.
 """
+# Standard library imports
+import inspect
+
+# Local imports
+from uplink.clients import interfaces, register
+from uplink.clients.register import get_client
 from uplink.clients.requests_ import RequestsClient
 from uplink.clients.twisted_ import TwistedClient
+
+
+@register.handler
+def _client_class_handler(key):
+    if inspect.isclass(key) and issubclass(key, interfaces.HttpClientAdapter):
+        return key()
+
 
 try:
     from uplink.clients.aiohttp_ import AiohttpClient
@@ -36,4 +48,4 @@ __all__ = [
     "TwistedClient",
 ]
 
-DEFAULT_CLIENT = RequestsClient
+register.set_default_client(RequestsClient)

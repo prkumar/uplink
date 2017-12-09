@@ -4,7 +4,7 @@ import functools
 # Local imports
 from uplink import decorators, exceptions, interfaces, types, utils
 
-__all__ = ["get", "put", "post", "patch", "delete"]
+__all__ = ["get", "head", "put", "post", "patch", "delete"]
 
 
 class MissingUriVariables(exceptions.InvalidRequestDefinition):
@@ -105,6 +105,16 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         argument_handler_builder.set_request_definition_builder(self)
         method_handler_builder.set_request_definition_builder(self)
 
+    @utils.memoize()
+    def __get__(self, instance, owner):
+        ''' Get an attribute of the builder (will be called upon access)
+        :param instance: CallFactory
+        '''
+        if not instance:
+            return self
+
+        return instance._builder.build(instance, self)
+
     @property
     def method(self):
         return self._method
@@ -158,6 +168,7 @@ class RequestDefinition(interfaces.RequestDefinition):
 
 
 get = HttpMethodFactory("GET").__call__
+head = HttpMethodFactory("HEAD").__call__
 put = HttpMethodFactory("PUT").__call__
 post = HttpMethodFactory("POST").__call__
 patch = HttpMethodFactory("PATCH").__call__

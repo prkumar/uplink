@@ -72,8 +72,7 @@ let's update my GitHub profile bio with :py:meth:`update_user`:
 and annotations from the method's definition) and executes it in the same call.
 And, by default, Uplink uses the powerful `Requests
 <http://docs.python-requests.org/en/master/>`_ library. So, the returned
-:py:obj:`response` is simply a :py:class:`requests.Response` (`documentation
-<http://docs.python-requests.org/en/master/api/#requests.Response>`__):
+:py:obj:`response` is simply a :py:class:`requests.Response`:
 
 .. code-block:: python
 

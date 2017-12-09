@@ -196,8 +196,10 @@ Integration with :code:`python-requests`
 Experienced users of `Kenneth Reitz's <https://github.com/kennethreitz>`__
 well-established `Requests library <https://github
 .com/requests/requests>`__ might be happy to read that Uplink uses
-:code:`requests` behind-the-scenes and bubbles :code:`requests.Response`
+:py:mod:`requests` behind-the-scenes and bubbles :py:class:`requests.Response`
 objects back up to the user.
 
-Notably, Requests makes blocking calls. Checkout :ref:`non-blocking
-requests` to learn more about Uplink's support for asynchronous requests.
+Notably, Requests makes blocking calls. Users can swap out Requests for
+an HTTP client library that supports asynchronous requests. Checkout
+:ref:`non-blocking requests` to learn more about Uplink's support for
+asynchronous requests.

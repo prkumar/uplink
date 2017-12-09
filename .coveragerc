@@ -12,6 +12,7 @@ omit =
     uplink/__about__.py
     uplink/interfaces.py
     uplink/clients/interfaces.py
+    uplink/converters/interfaces.py
 
 [report]
 # When running a summary report, show missing lines.
