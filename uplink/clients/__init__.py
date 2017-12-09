@@ -35,12 +35,12 @@ except (SyntaxError, ImportError) as error:  # pragma: no cover
         error_message = str(error)
 
         def __init__(self, *args, **kwargs):
-            pass
-
-        def create_request(self):
             raise NotImplementedError(
                 "Failed to load `asyncio` client: %s" % self.error_message
             )
+
+        def create_request(self):
+            pass
 
 __all__ = [
     "RequestsClient",
