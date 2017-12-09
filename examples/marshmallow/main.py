@@ -1,4 +1,3 @@
-import pprint
 import uplink
 
 # Local imports

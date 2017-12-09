@@ -1,17 +1,15 @@
-import uplink
+from uplink import Consumer, get, headers
 
 # Local imports
-import schemas
+from schemas import RepoSchema, ContributorSchema
 
 
-@uplink.headers({"Accept": "application/vnd.github.v3.full+json"})
-class GitHub(uplink.Consumer):
-    @uplink.returns(schemas.RepoSchema(many=True))
-    @uplink.get("/repositories")
-    def get_repos(self):
-        """Gets all public repositories."""
+@headers({"Accept": "application/vnd.github.v3.full+json"})
+class GitHub(Consumer):
+    @get("/repositories")
+    def get_repos(self) -> RepoSchema(many=True):
+        """Lists all public repositories."""
 
-    @uplink.returns(schemas.ContributorSchema(many=True))
-    @uplink.get("/repos/{owner}/{repo}/contributors")
-    def get_contributors(self, owner, repo):
+    @get("/repos/{owner}/{repo}/contributors")
+    def get_contributors(self, owner, repo) -> ContributorSchema(many=True):
         """Lists contributors for the specified repository."""
