@@ -7,7 +7,22 @@ resource using well-defined methods and attributes.
 
 This example illustrates how to use Uplink with
 [`marshmallow`](https://marshmallow.readthedocs.io/en/latest/) to
-have a JSON API return Python objects.
+have your JSON API return Python objects.
+
+
+## Requirements
+
+Uplink's integration with `marshmallow` is an optional feature. You
+can either install `marshmallow` separately or declare the extra when
+installing Uplink:
+
+```
+$ pip install uplink[marshmallow]
+```
+
+This makes available the class `uplink.MarshmallowConverter`.
+
+## Overview
 
 This example includes three files:
 
