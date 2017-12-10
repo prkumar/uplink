@@ -1,33 +1,33 @@
-Method Annotations
-******************
+Decorators
+**********
 
-HTTP ``headers``
-================
+headers
+=======
 
 .. autoclass:: uplink.headers
 
-``json`` Requests
-=================
+json
+====
 
 .. autoclass:: uplink.json
 
-``form_url_encoded`` Request Body
-=================================
+form_url_encoded
+================
 
 .. autoclass:: uplink.form_url_encoded
 
-``multipart`` Form Data
-=======================
+multipart
+=========
 
 .. autoclass:: uplink.multipart
 
-Response ``timeout``
-====================
+timeout
+=======
 
 .. autoclass:: uplink.timeout
 
-Annotate ``args`` for Python 2.7
-================================
+args
+====
 
 .. autoclass:: uplink.args
 

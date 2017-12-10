@@ -1,46 +1,59 @@
-Argument Annotations
+Function Annotations
 ********************
 
-URI ``Path`` Variable
-======================
+Path
+====
 
 .. autoclass:: uplink.Path
 
-URL ``Query`` Parameter
-=======================
+Query
+=====
 
 .. autoclass:: uplink.Query
 
+QueryMap
+========
+
 .. autoclass:: uplink.QueryMap
 
-HTTP ``Header`` Field
-=====================
+Header
+======
 
 .. autoclass:: uplink.Header
+
+HeaderMap
+=========
 
 .. autoclass:: uplink.HeaderMap
 
 
-URL-Encoded Form ``Field``
-==========================
+Field
+=====
 
 .. autoclass:: uplink.Field
 
+
+FieldMap
+========
+
 .. autoclass:: uplink.FieldMap
 
-Form Data ``Part``
-==================
+Part
+====
 
 .. autoclass:: uplink.Part
 
+PartMap
+=======
+
 .. autoclass:: uplink.PartMap
 
-Controlling the Request ``Body``
-================================
+Body
+====
 
 .. autoclass:: uplink.Body
 
-Assign a ``Url`` at Runtime
-===========================
+Url
+===
 
 .. autoclass:: uplink.Url
