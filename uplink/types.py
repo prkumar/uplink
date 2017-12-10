@@ -277,9 +277,9 @@ class Query(NamedArgument):
     parameters. You can include it as function argument
     annotation, in the format: ``<query argument>: uplink.Query``.
 
-    If the API endpoint you are trying to query uses `q` as a query
-    parameter, you can add `q: uplink.Query` to the consumer method to
-    set the `q` search term at runtime.
+    If the API endpoint you are trying to query uses ``q`` as a query
+    parameter, you can add ``q: uplink.Query`` to the consumer method to
+    set the ``q`` search term at runtime.
 
     Example:
         .. code-block:: python
@@ -295,7 +295,7 @@ class Query(NamedArgument):
 
             @get("/search/commits")
             def search(self, search_term: Query("q", encoded=True)):
-                '''Search all commits with the given search term.'''
+                \"""Search all commits with the given search term.\"""
 
     Args:
         encoded (:obj:`bool`, optional): Specifies whether the parameter
@@ -351,14 +351,14 @@ class QueryMap(TypedArgument):
 
     If the API you are using accepts multiple query arguments, you can
     include them all in your function method by using the format:
-    `<query argument>: uplink.QueryMap`
+    ``<query argument>: uplink.QueryMap``
 
     Example:
         .. code-block:: python
 
             @get("/search/users")
             def search(self, **params: QueryMap):
-                '''Search all users.'''
+                \"""Search all users.\"""
 
     Args:
         encoded (:obj:`bool`, optional): Specifies whether the parameter
@@ -395,7 +395,7 @@ class Header(NamedArgument):
 
             @get("/user")
             def (self, session_id: Header("Authorization")):
-                '''Get the authenticated user'''
+                \"""Get the authenticated user\"""
     """
 
     @property
@@ -430,13 +430,13 @@ class Field(NamedArgument):
     and annotate each argument accepting a form field with
     :py:class:`uplink.Field`.
 
-    Example:
+    Example::
         .. code-block:: python
 
             @form_url_encoded
             @post("/users/edit")
             def update_user(self, first_name: Field, last_name: Field):
-                '''Update the current user.'''
+                \"""Update the current user.\"""
     """
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
@@ -478,7 +478,7 @@ class FieldMap(TypedArgument):
             @form_url_encoded
             @post("/user/edit")
             def create_post(self, **user_info: FieldMap):
-                '''Update the current user.'''
+                \"""Update the current user.\"""
     """
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
@@ -515,7 +515,7 @@ class Part(NamedArgument):
             @multipart
             @put(/user/photo")
             def update_user(self, photo: Part, description: Part):
-                '''Upload a user profile photo.'''
+                \"""Upload a user profile photo.\"""
     """
 
     @property
@@ -535,13 +535,13 @@ class PartMap(TypedArgument):
     Use together with the decorator :py:class:`uplink.multipart` and
     annotate each part of form parts with :py:class:`uplink.PartMap`
 
-     Example:
+    Example:
         .. code-block:: python
 
             @multipart
             @put(/user/photo")
             def update_user(self, photo: Part, description: Part):
-                '''Upload a user profile photo.'''
+                \"""Upload a user profile photo.\"""
     """
 
     @property
@@ -568,7 +568,7 @@ class Body(TypedArgument):
             @json
             @patch(/user")
             def update_user(self, **info: Body):
-                '''Update the current user.'''
+                \"""Update the current user.\"""
     """
     @property
     def converter_key(self):
@@ -593,7 +593,7 @@ class Url(ArgumentAnnotation):
 
             @get
             def get(self, endpoint: Url):
-                '''Execute a GET requests against the given endpoint'''
+                \"""Execute a GET requests against the given endpoint\"""
     """
 
     class DynamicUrlAssignmentFailed(exceptions.AnnotationError):
