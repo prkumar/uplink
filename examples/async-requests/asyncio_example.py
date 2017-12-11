@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # This consumer instance uses Requests to make blocking requests.
     gh_sync = GitHub(base_url=BASE_URL)
 
-    # This uses an aiohttp, an HTTP client for asyncio.
+    # This uses aiohttp, an HTTP client for asyncio.
     gh_async = GitHub(base_url=BASE_URL, client=uplink.AiohttpClient())
 
     # First, let's fetch a list of all public repositories.

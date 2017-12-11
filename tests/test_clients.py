@@ -1,6 +1,8 @@
+# Standard library imports
+import contextlib
+
 # Third party imports
 import pytest
-import inspect
 
 # Local imports
 from uplink.clients import interfaces, requests_, twisted_, get_client
@@ -45,14 +47,18 @@ class TestTwisted(object):
         assert request._proxy is http_client_mock.create_request()
         assert isinstance(request, twisted_.Request)
 
-    def test_create_requests_no_twisted(self, mocker, http_client_mock):
-        twisted = twisted_.TwistedClient(http_client_mock)
-
+    @staticmethod
+    @contextlib.contextmanager
+    def patch_threads(threads):
         old_threads = twisted_.threads
-        twisted_.threads = None
-        with pytest.raises(NotImplementedError):
-            twisted.create_request()
+        twisted_.threads = threads
+        yield
         twisted_.threads = old_threads
+
+    def test_create_requests_no_twisted(self, http_client_mock):
+        with self.patch_threads(None):
+            with pytest.raises(NotImplementedError):
+                twisted_.TwistedClient(http_client_mock)
 
     def test_request_send(self, mocker,  request_mock):
         deferToThread = mocker.patch.object(twisted_.threads, "deferToThread")
@@ -97,15 +103,28 @@ class TestAiohttp(object):
 
     @requires_aiohttp
     def test_request_send(self, aiohttp_session_mock):
-        aiohttp_session_mock.request.return_value = [0]
+        # Setup
+        import asyncio
+
+        @asyncio.coroutine
+        def request(*args, **kwargs):
+            return 0
+
+        aiohttp_session_mock.request = request
         client = aiohttp_.AiohttpClient(aiohttp_session_mock)
         request = aiohttp_.Request(client)
+
+        # Run
         response = request.send(1, 2, {})
-        assert inspect.isgenerator(response)
-        assert list(response) == [0]
+        loop = asyncio.get_event_loop()
+        value = loop.run_until_complete(asyncio.ensure_future(response))
+
+        # Verify
+        assert value == 0
 
     @requires_aiohttp
     def test_callback(self, aiohttp_session_mock):
+        # Setup
         import asyncio
 
         @asyncio.coroutine
@@ -115,16 +134,15 @@ class TestAiohttp(object):
         aiohttp_session_mock.request = request
         client = aiohttp_.AiohttpClient(aiohttp_session_mock, asyncio.coroutine)
         request = aiohttp_.Request(client)
+
+        # Run
         request.add_callback(lambda x: 2)
         response = request.send(1, 2, {})
-        assert inspect.isgenerator(response)
-        list(response)
-        try:
-            next(response)
-        except StopIteration as err:
-            err.value == 2
-        else:
-            assert False
+        loop = asyncio.get_event_loop()
+        value = loop.run_until_complete(asyncio.ensure_future(response))
+
+        # Verify
+        assert value == 2
 
     @requires_aiohttp
     def test_threaded_callback(self, mocker):
@@ -133,27 +151,19 @@ class TestAiohttp(object):
         def callback(response):
             return response
 
-        @asyncio.coroutine
-        def response_text():
-            pass
-
         # Mock response.
         response = mocker.Mock()
-        response.text = mocker.stub(response_text)
+        response.text = asyncio.coroutine(mocker.stub())
 
         # Run
         new_callback = aiohttp_.threaded_callback(callback)
         return_value = new_callback(response)
-        list(return_value)
+        loop = asyncio.get_event_loop()
+        value = loop.run_until_complete(asyncio.ensure_future(return_value))
 
         # Verify
         response.text.assert_called_with()
-        try:
-            next(return_value)
-        except StopIteration as err:
-            err.value == 2
-        else:
-            assert False
+        assert value == response
 
     @requires_aiohttp
     def test_threaded_coroutine(self):
@@ -193,8 +203,24 @@ class TestAiohttp(object):
         assert isinstance(threaded_coroutine, aiohttp_.ThreadedCoroutine)
         assert return_value == 1
 
+    @requires_aiohttp
+    def test_create(self, mocker):
+        # Setup
+        import asyncio
 
+        session_cls_mock = mocker.patch("aiohttp.ClientSession")
+        positionals = [1]
+        keywords = {"keyword": 2}
 
+        # Run: Create client
+        client = aiohttp_.AiohttpClient.create(*positionals, **keywords)
 
+        # Verify: session hasn't been created yet.
+        assert not session_cls_mock.called
 
+        # Run: Get session
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.ensure_future(client.session()))
 
+        # Verify: session created with args
+        session_cls_mock.assert_called_with(*positionals, **keywords)
