@@ -1,5 +1,6 @@
 # Standard library imports
 import contextlib
+import sys
 
 # Third party imports
 import pytest
@@ -15,8 +16,9 @@ except SyntaxError:
     aiohttp_ = None
 
 
-requires_aiohttp = pytest.mark.skipif(
-    not aiohttp_, reason="Requires Python 3.4 or above")
+requires_python34 = pytest.mark.skipif(
+    sys.version_info[:2] < (3, 4),
+    reason="Requires Python 3.4 or above")
 
 
 @contextlib.contextmanager
@@ -100,17 +102,17 @@ class TestAiohttp(object):
             with pytest.raises(NotImplementedError):
                 AiohttpClient()
 
-    @requires_aiohttp
+    @requires_python34
     def test_get_client(self, aiohttp_session_mock):
         client = get_client(aiohttp_session_mock)
         assert isinstance(client, aiohttp_.AiohttpClient)
 
-    @requires_aiohttp
+    @requires_python34
     def test_create_request(self, aiohttp_session_mock):
         aiohttp = aiohttp_.AiohttpClient(aiohttp_session_mock)
         assert isinstance(aiohttp.create_request(), aiohttp_.Request)
 
-    @requires_aiohttp
+    @requires_python34
     def test_request_send(self, aiohttp_session_mock):
         # Setup
         import asyncio
@@ -131,7 +133,7 @@ class TestAiohttp(object):
         # Verify
         assert value == 0
 
-    @requires_aiohttp
+    @requires_python34
     def test_callback(self, aiohttp_session_mock):
         # Setup
         import asyncio
@@ -153,7 +155,7 @@ class TestAiohttp(object):
         # Verify
         assert value == 2
 
-    @requires_aiohttp
+    @requires_python34
     def test_threaded_callback(self, mocker):
         import asyncio
 
@@ -174,7 +176,7 @@ class TestAiohttp(object):
         response.text.assert_called_with()
         assert value == response
 
-    @requires_aiohttp
+    @requires_python34
     def test_threaded_coroutine(self):
         # Setup
         import asyncio
@@ -191,7 +193,7 @@ class TestAiohttp(object):
         # Verify
         assert response == 1
 
-    @requires_aiohttp
+    @requires_python34
     def test_threaded_response(self, mocker):
         # Setup
         import asyncio
@@ -212,7 +214,7 @@ class TestAiohttp(object):
         assert isinstance(threaded_coroutine, aiohttp_.ThreadedCoroutine)
         assert return_value == 1
 
-    @requires_aiohttp
+    @requires_python34
     def test_create(self, mocker):
         # Setup
         import asyncio
