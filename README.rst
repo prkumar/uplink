@@ -111,7 +111,7 @@ Further, uplink has optional integrations and features, such as
 `sending non-blocking requests with <examples/async-requests>`__
 ``aiohttp`` and `deserializing JSON responses using <examples/marshmallow>`__
 ``marshmallow``. You can view a full list of available extras `here
-<http://uplink.readthedocs.io/latest/install.html#extras>`_.
+<http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
 
 When installing Uplink with ``pip``, you can also install the required
 dependencies for any extra by using the following format:
