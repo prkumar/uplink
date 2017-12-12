@@ -5,25 +5,37 @@ Uplink turns your HTTP API into a Python class.
 
 .. code:: python
 
-    class GitHub(Consumer): 
-        
-        @get("users/{user}/repos")
+    import uplink
+
+    class GitHub(uplink.Consumer):
+        @uplink.get("users/{user}/repos")
         def list_repos(self, user):
             """Get a user's public repositories."""
 
-Instantiating a consumer.
+To interact with your Web API, simply instantiate the class.
 
 .. code:: python
 
-    service = GitHub("https://api.github.com/")
+    github = GitHub(base_url="https://api.github.com/")
 
-Execute the HTTP request to the remote webserver
+Then, invoke any decorated method to execute the HTTP request to the
+remote webserver.
 
 .. code:: python
 
-    repos = service.list_repos("octocat")
+    repos = github.list_repos("octocat")
 
-TODO: Note about using requests and making asynchronous requests.
+Uplink uses the powerful `Requests
+<http://docs.python-requests.org/en/master/>`_ library. So, the returned
+list of :py:obj:`repos` is simply a :py:class:`requests.Response`:
+
+.. code-block:: python
+
+    print(repos.json()) # [{'id': 18221276, 'name': 'git-consortium', ...
+
+For non-blocking requests, Uplink comes with support for :py:mod:`aiohttp` and
+:py:mod:`twisted`.
+
 
 API Declaration
 ---------------
