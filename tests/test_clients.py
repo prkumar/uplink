@@ -1,6 +1,5 @@
 # Standard library imports
 import contextlib
-import sys
 
 # Third party imports
 import pytest
@@ -12,12 +11,12 @@ from uplink.clients import (
 
 try:
     from uplink.clients import aiohttp_
-except SyntaxError:
+except (ImportError, SyntaxError):
     aiohttp_ = None
 
 
 requires_python34 = pytest.mark.skipif(
-    sys.version_info[:2] < (3, 4),
+    not aiohttp_,
     reason="Requires Python 3.4 or above")
 
 
