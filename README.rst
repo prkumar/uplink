@@ -110,10 +110,12 @@ Extra! Extra!
 Further, uplink has optional dependencies, such as ``aiohttp`` (`for sending
 non-blocking requests <examples/async-requests>`__) and ``marshmallow`` (`for
 deserializing JSON responses <examples/marshmallow>`__). You can view a full
-list of all available extras here.
+list of all available extras `here
+<http://uplink.readthedocs.io/latest/install.html#extras>`_.
 
 
-To install any of these extras along with ``uplink``, use the format:
+When installing Uplink with ``pip``, you can install specify any of these
+extras using the format:
 
 ::
 
