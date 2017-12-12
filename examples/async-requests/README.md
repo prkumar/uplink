@@ -3,6 +3,27 @@
 This example details how you can use the same Uplink consumer with different
 HTTP clients, with an emphasis on performing non-blocking HTTP requests. 
 
+## Requirements
+
+Support for `twisted` and `aiohttp` are optional features. To enable these 
+extras, you'll need to specify them during installation:
+
+```
+# Install both clients (requires Python 3.4+)
+$ pip install uplink[twisted, aiohttp]
+
+# Or, install support for twisted only (requires Python 2.7+):
+$ pip install uplink[twisted]
+
+# Or, install support for aiohttp only (requires Python 3.4+):
+$ pip install uplink[aiohttp]
+```
+
+Notably, while `twisted` features should work on all versions of Python that 
+Uplink supports, the `aiohttp` library requires Python 3.4 or above. 
+
+## Overview
+
 The example includes three Python scripts:
 
 - `github.py`: Defines a `GitHub` API with two methods:

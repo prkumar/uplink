@@ -5,16 +5,28 @@ import contextlib
 import pytest
 
 # Local imports
-from uplink.clients import interfaces, requests_, twisted_, get_client
+from uplink.clients import (
+    AiohttpClient, interfaces, requests_, twisted_, get_client
+)
 
 try:
     from uplink.clients import aiohttp_
-except (ImportError, SyntaxError):
+except SyntaxError:
     aiohttp_ = None
 
 
 requires_aiohttp = pytest.mark.skipif(
     not aiohttp_, reason="Requires Python 3.4 or above")
+
+
+@contextlib.contextmanager
+def _patch(obj, attr, value):
+    if obj is not None:
+        old_value = getattr(obj, attr)
+        setattr(obj, attr, value)
+    yield
+    if obj is not None:
+        setattr(obj, attr, old_value)
 
 
 def test_get_client_with_http_client_adapter_subclass():
@@ -47,16 +59,8 @@ class TestTwisted(object):
         assert request._proxy is http_client_mock.create_request()
         assert isinstance(request, twisted_.Request)
 
-    @staticmethod
-    @contextlib.contextmanager
-    def patch_threads(threads):
-        old_threads = twisted_.threads
-        twisted_.threads = threads
-        yield
-        twisted_.threads = old_threads
-
     def test_create_requests_no_twisted(self, http_client_mock):
-        with self.patch_threads(None):
+        with _patch(twisted_, "threads", None):
             with pytest.raises(NotImplementedError):
                 twisted_.TwistedClient(http_client_mock)
 
@@ -90,6 +94,11 @@ def aiohttp_session_mock(mocker):
 
 
 class TestAiohttp(object):
+
+    def test_init_when_aiohttp_is_not_installed(self):
+        with _patch(aiohttp_, "aiohttp", None):
+            with pytest.raises(NotImplementedError):
+                AiohttpClient()
 
     @requires_aiohttp
     def test_get_client(self, aiohttp_session_mock):
