@@ -36,20 +36,23 @@ Extras
 ------
 
 These are optional integrations and features that extend the library's core
-functionality. When installing Uplink with ``pip``, you can specify any of
-the following extras:
+functionality and typically require an additional dependency.
+
+When installing Uplink with ``pip``, you can specify any of the following
+extras, to add their respective dependencies to your installation:
 
 ===============  =============================================================
-Extra Name       Description
+Extra            Description
 ===============  =============================================================
 ``aiohttp``      Enables :py:class:`uplink.AiohttpClient`,
-                 for sending non-blocking requests and receiving awaitable
-                 responses.
+                 for `sending non-blocking requests <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
+                 and receiving awaitable responses.
 ``marshmallow``  Enables :py:class:`uplink.MarshmallowConverter`,
-                 for converting JSON responses directly into Python objects
+                 for `converting JSON responses directly into Python objects
+                 <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_
                  using :py:class:`marshmallow.Schema`.
 ``twisted``      Enables :py:class:`uplink.TwistedClient`,
-                 for sending non-blocking requests and receiving
+                 for `sending non-blocking requests <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_ and receiving
                  :py:class:`~twisted.internet.defer.Deferred` responses.
 ===============  =============================================================
 
@@ -57,4 +60,5 @@ To download all available features, run
 
 ::
 
-    $ pip install uplink[aiohttp, marshmallow, twisted]
+    $ pip install -U uplink[aiohttp, marshmallow, twisted]
+
