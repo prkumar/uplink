@@ -9,7 +9,7 @@ typing:
 
 ::
 
-    $ pip install uplink
+    $ pip install -U uplink
 
 
 Download the Source Code

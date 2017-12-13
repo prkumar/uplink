@@ -6,17 +6,17 @@ HTTP clients, with an emphasis on performing non-blocking HTTP requests.
 ## Requirements
 
 Support for `twisted` and `aiohttp` are optional features. To enable these 
-extras, you'll need to specify them during installation:
+extras, you can declare them when installing Uplink with ``pip``:
 
 ```
 # Install both clients (requires Python 3.4+)
-$ pip install uplink[twisted, aiohttp]
+$ pip install -U uplink[twisted, aiohttp]
 
 # Or, install support for twisted only (requires Python 2.7+):
-$ pip install uplink[twisted]
+$ pip install -U uplink[twisted]
 
 # Or, install support for aiohttp only (requires Python 3.4+):
-$ pip install uplink[aiohttp]
+$ pip install -U uplink[aiohttp]
 ```
 
 Notably, while `twisted` features should work on all versions of Python that 
