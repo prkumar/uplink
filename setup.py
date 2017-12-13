@@ -16,7 +16,6 @@ with open(os.path.join("uplink", "__about__.py")) as fp:
     exec(fp.read(), about)
     about = dict((k.strip("_"), about[k]) for k in about)
 
-# TODO: Should Twisted and aiohttp be conditional dependencies?
 install_requires = [
     "requests>=2.18.0",
     "uritemplate>=3.0.0",
