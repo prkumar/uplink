@@ -113,8 +113,8 @@ Further, uplink has optional integrations and features, such as
 ``marshmallow``. You can view a full list of available extras `here
 <http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
 
-When installing Uplink with ``pip``, you can also install the required
-dependencies for any extra by using the following format:
+When installing Uplink with ``pip``, you can specify any of number of extras
+using the format:
 
 ::
 
