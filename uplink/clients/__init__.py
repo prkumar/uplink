@@ -15,7 +15,7 @@ import inspect
 
 # Local imports
 from uplink.clients import interfaces, register
-from uplink.clients.register import get_client
+from uplink.clients.register import DEFAULT_CLIENT, get_client
 from uplink.clients.requests_ import RequestsClient
 from uplink.clients.twisted_ import TwistedClient
 

@@ -1,6 +1,10 @@
 # Local imports
 from uplink.clients import interfaces
 
+#: Provide this flag to :py:func:`get_client` to create an instance of
+#: the default HTTP client adapter.
+DEFAULT_CLIENT = None
+
 # (default client, handlers)
 _registrar = [None, []]
 
@@ -32,7 +36,7 @@ def get_default_client():
 
 
 def get_client(client):
-    if client is None:
+    if client is DEFAULT_CLIENT:
         client = get_default_client()
 
     if isinstance(client, interfaces.HttpClientAdapter):
