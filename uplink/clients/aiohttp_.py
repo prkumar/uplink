@@ -5,6 +5,7 @@ that sends awaitable requests.
 # Standard library imports
 import atexit
 import asyncio
+import collections
 import threading
 
 from concurrent import futures
@@ -13,7 +14,7 @@ from concurrent import futures
 import aiohttp
 
 # Local imports
-from uplink.clients import interfaces
+from uplink.clients import interfaces, register
 
 
 def threaded_callback(callback):
@@ -34,17 +35,20 @@ def threaded_callback(callback):
 
 class AiohttpClient(interfaces.HttpClientAdapter):
     """
-    An :py:mod:`aiohttp` client adapter that creates awaitable
-    responses.
+    An :py:mod:`aiohttp` client that creates awaitable responses.
 
     Args:
         session (:py:class:`aiohttp.ClientSession`, optional):
-            A :py:mod:`aiohttp` client session that should handle
-            sending requests. If this argument is not explicitly
-            set, a new session will created automatically.
+            The session that should handle sending requests. If this
+            argument is omitted or set to :py:obj:`None`, a new session
+            will be created.
     """
 
+    __ARG_SPEC = collections.namedtuple("__ARG_SPEC", "args kwargs")
+
     def __init__(self, session=None, _sync_callback_adapter=threaded_callback):
+        if session is None:
+            session = self.__ARG_SPEC((), {})
         self._session = session
         self._sync_callback_adapter = _sync_callback_adapter
 
@@ -53,9 +57,10 @@ class AiohttpClient(interfaces.HttpClientAdapter):
 
     @asyncio.coroutine
     def session(self):
-        """Returns a `aiohttp.ClientSession` to send awaitable requests."""
-        if self._session is None:
-            self._session = aiohttp.ClientSession()
+        """Returns the underlying `aiohttp.ClientSession`."""
+        if isinstance(self._session, self.__ARG_SPEC):
+            args, kwargs = self._session
+            self._session = aiohttp.ClientSession(*args, **kwargs)
             atexit.register(self._session.close)
         return self._session
 
@@ -63,6 +68,37 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         if not asyncio.iscoroutinefunction(callback):
             callback = self._sync_callback_adapter(callback)
         return callback
+
+    @staticmethod
+    @register.handler
+    def with_session(session, *args, **kwargs):
+        """
+        Builds a client instance if the first argument is a
+        :py:class:`aiohttp.ClientSession`. Otherwise, return :py:obj:`None`.
+        """
+        if isinstance(session, aiohttp.ClientSession):
+            return AiohttpClient(session, *args, **kwargs)
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        """
+        Builds a client instance with
+        :py:class:`aiohttp.ClientSession` arguments.
+
+        Instead of directly initializing this class with a
+        :py:class:`aiohttp.ClientSession`, use this method to have the
+        client lazily construct a session when sending the first
+        request. Hence, this method guarantees that the creation of the
+        underlying session happens inside of a coroutine.
+
+        Args:
+            *args: positional arguments that
+                :py:class:`aiohttp.ClientSession` takes.
+            **kwargs: keyword arguments that
+                :py:class:`aiohttp.ClientSession` takes.
+        """
+        session_build_args = cls.__ARG_SPEC(args, kwargs)
+        return AiohttpClient(session=session_build_args)
 
 
 class Request(interfaces.Request):
@@ -76,15 +112,11 @@ class Request(interfaces.Request):
         session = yield from self._client.session()
         response = yield from session.request(method, url, **extras)
         if self._callback is not None:
-            response = yield from self._execute_callback(response)
+            response = yield from self._callback(response)
         return response
 
     def add_callback(self, callback):
-        self._callback = callback
-
-    @asyncio.coroutine
-    def _execute_callback(self, response):
-        return (yield from self._client.wrap_callback(self._callback)(response))
+        self._callback = self._client.wrap_callback(callback)
 
 
 class ThreadedCoroutine(object):
