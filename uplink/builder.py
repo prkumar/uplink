@@ -181,18 +181,21 @@ class ConsumerMethod(object):
 
 
 class ConsumerMeta(type):
+    @staticmethod
+    def _wrap_if_definition(cls_name, key, value):
+        if isinstance(value, interfaces.RequestDefinitionBuilder):
+            value = ConsumerMethod(cls_name, key, value)
+        return value
 
     def __new__(mcs, name, bases, namespace):
         # Wrap all definition builders with a special descriptor that
         # handles attribute access behavior.
-        for attr_name, attr in namespace.items():
-            if isinstance(attr, interfaces.RequestDefinitionBuilder):
-                namespace[attr_name] = ConsumerMethod(name, attr_name, attr)
+        for key, value in namespace.items():
+            namespace[key] = mcs._wrap_if_definition(name, key, value)
         return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
 
     def __setattr__(cls, key, value):
-        if isinstance(value, interfaces.RequestDefinitionBuilder):
-            value = ConsumerMethod(cls.__name__, key, value)
+        value = cls._wrap_if_definition(cls.__name__, key, value)
         super(ConsumerMeta, cls).__setattr__(key, value)
 
 
