@@ -92,15 +92,12 @@ class CallFactory(object):
 
 
 class Builder(interfaces.CallBuilder):
+    """The default callable builder."""
 
     def __init__(self):
-        """
-        Construct a Call builder
-        """
-
         self._base_url = ""
         self._hook = hooks.TransactionHook()
-        self._client = None
+        self._client = clients.DEFAULT_CLIENT
         self._converters = collections.deque()
         self._converters.append(converters.StandardConverter())
 
@@ -137,8 +134,8 @@ class Builder(interfaces.CallBuilder):
 
     def build(self, consumer, definition):
         """
-        Returns a callable to replace the definition on the given
-        consumer instance.
+        Creates a callable that uses the provided definition to execute
+        HTTP requests when invoked.
         """
 
         try:
