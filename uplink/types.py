@@ -137,8 +137,8 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
     def get_relevant_arguments(self, call_args):
         return filter(call_args.__contains__, self._arguments)
 
-    def handle_call(self, request_builder, func_args, func_kwargs):
-        call_args = utils.get_call_args(self._func, *func_args, **func_kwargs)
+    def handle_call(self, request_builder, args, kwargs):
+        call_args = utils.get_call_args(self._func, None, *args, **kwargs)
         for name in self.get_relevant_arguments(call_args):
             self.handle_argument(
                 request_builder,

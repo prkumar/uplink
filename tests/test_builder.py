@@ -67,18 +67,16 @@ class TestRequestPreparer(object):
 
 class TestCallFactory(object):
     def test_call(self, mocker, request_definition, request_builder):
-        instance = object()
         args = ()
         kwargs = {}
         request_preparer = mocker.Mock(spec=builder.RequestPreparer)
         request_preparer.create_request_builder.return_value = request_builder
         factory = builder.CallFactory(
-            instance,
             request_preparer,
             request_definition)
         assert factory(*args, **kwargs) is request_preparer.prepare_request.return_value
         request_definition.define_request.assert_called_with(
-            request_builder, (instance,) + args, kwargs
+            request_builder, args, kwargs
         )
         assert request_builder.build.called
 

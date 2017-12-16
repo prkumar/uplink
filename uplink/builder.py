@@ -78,13 +78,11 @@ class RequestPreparer(object):
 
 
 class CallFactory(object):
-    def __init__(self, instance, request_preparer, request_definition):
-        self._instance = instance
+    def __init__(self, request_preparer, request_definition):
         self._request_preparer = request_preparer
         self._request_definition = request_definition
 
     def __call__(self, *args, **kwargs):
-        args = (self._instance,) + args
         builder = self._request_preparer.create_request_builder()
         self._request_definition.define_request(builder, args, kwargs)
         request = builder.build()
@@ -133,16 +131,12 @@ class Builder(interfaces.CallBuilder):
         self._converters.extendleft(converters_)
 
     @utils.memoize()
-    def build(self, consumer, definition):
+    def build(self, definition):
         """
         Creates a callable that uses the provided definition to execute
         HTTP requests when invoked.
         """
-        return CallFactory(
-            consumer,
-            RequestPreparer(self, definition),
-            definition
-        )
+        return CallFactory(RequestPreparer(self, definition), definition)
 
 
 class ConsumerMethod(object):
@@ -172,7 +166,7 @@ class ConsumerMethod(object):
         if instance is None:
             return self._request_definition_builder
         else:
-            return instance._builder.build(instance, self._request_definition)
+            return instance._builder.build(self._request_definition)
 
 
 class ConsumerMeta(type):
