@@ -12,23 +12,15 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 
 .. note::
 
-   Uplink is currently in initial development. Up until the :code:`v1.0.0`
-   release, the public API should be considered provisional, meaning that
-   minor versions
-   code may run in one minor version and not the other. may not be compatabl
-   between minor
-   versions (e.g.,
-:code:`0.2
-      .0` to
-:code:`0.3.0`)
-    may
-   break compatability. Therefore, the library is not production ready at
-   the moment.
+   Uplink is currently in initial development. Until the official
+   release (``v1.0.0``), the public API should be considered provisional,
+   Although we don't expect any considerable changes to the API at this point,
+   please avoid using the code in production, for now.
 
-   However, while Uplink is under construction, we invite eager users
-   to install early and provide open feedback, which can be as simple as
-   opening a GitHub issue when you notice a missing feature, latent defect,
-   documentation oversight, etc.
+   However, while Uplink is under construction, we invite eager users to
+   install early and provide open feedback, which can be as simple as
+   opening a GitHub issue when you notice a missing feature, latent
+   defect, documentation oversight, etc.
 
    Moreover, for those interested in contributing, checkout the `Contribution
    Guide on GitHub`_!
@@ -36,66 +28,32 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 .. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
 .. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
 
-A Quick Walkthrough, with GitHub API v3:
-========================================
-
-Uplink turns your HTTP API into a Python class. Here's how it looks like:
-
-.. code:: python
-
-   import uplink
-
-   class GitHub(uplink.Consumer):
-      @uplink.get("user/{user}/repos")
-      def list_repos(self, user):
-         """List all public repositories for the given user."""
-
-
-   # Instantiate an object to interact with the webserver
-   github = GitHub(base_url="https://api.github.com/"))
-
-   # Invoke the decorated class method to execute an HTTP request.
-   repos = github.list_repos("octocat")
-
-Uplink uses the powerful `Requests
-<http://docs.python-requests.org/en/master/>`_ library by default. So, the
-returned list of :py:obj:`repos` is simply a :py:class:`requests.Response`:
-
-.. code-block:: python
-
-   >>> repos.json()
-   [{'id': 18221276, 'name': 'git-consortium', ...
-
-For sending non-blocking requests, Uplink comes with support for
-:py:mod:`aiohttp` and :py:mod:`twisted`.
-
 Uplink turns your HTTP API into a Python class.
 
 .. code:: python
 
-    import uplink
+   from uplink import Consumer, get, headers, Path, Query
 
-    class GitHub(uplink.Consumer):
-        @uplink.get("users/{user}/repos")
-        def list_repos(self, user):
-            """Get a user's public repositories."""
+   @headers({"Accept": "application/vnd.github.v3.full+json"})
+   class GitHub(Consumer):
 
-Instantiate the class to begin interact with the webservice
+      @get("users/{user}/repos")
+      def list_repos(self, user: Path, sort_by: Query("sort")):
+         """Get user's public repositories."""
 
-.. code:: python
+Build an instance to interact with the webservice.
 
-    github = GitHub(base_url="https://api.github.com/")
+::
 
-Then, invoke the class method to execute an HTTP request to the remote
-webserver.
+   github = GitHub(base_url="https://api.github.com/")
 
-.. code:: python
+Then, executing an HTTP request is as simply as invoking a method.
 
-    repos = github.list_repos("octocat")
+::
 
-Uplink uses the powerful `Requests
-<http://docs.python-requests.org/en/master/>`_ library by default. So, the
-returned list of :py:obj:`repos` is simply a :py:class:`requests.Response`:
+   repos = github.list_repos("octocat", sort_by="created")
+
+The returned object is a friendly :py:class:`requests.Response`:
 
 .. code-block:: python
 
@@ -103,7 +61,8 @@ returned list of :py:obj:`repos` is simply a :py:class:`requests.Response`:
    # Output: [{'id': 18221276, 'name': 'git-consortium', ...
 
 For sending non-blocking requests, Uplink comes with support for
-:py:mod:`aiohttp` and :py:mod:`twisted`.
+:py:mod:`aiohttp` and :py:mod:`twisted` (`example
+<https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_).
 
 Use decorators and function annotations to describe the HTTP request:
 
