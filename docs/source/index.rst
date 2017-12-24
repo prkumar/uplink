@@ -30,7 +30,7 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 
 Uplink turns your HTTP API into a Python class.
 
-.. code:: python
+.. code-block:: python
 
    from uplink import Consumer, get, headers, Path, Query
 
@@ -43,13 +43,13 @@ Uplink turns your HTTP API into a Python class.
 
 Build an instance to interact with the webservice.
 
-::
+.. code-block:: python
 
    github = GitHub(base_url="https://api.github.com/")
 
 Then, executing an HTTP request is as simply as invoking a method.
 
-::
+.. code-block:: python
 
    repos = github.list_repos("octocat", sort_by="created")
 
@@ -58,7 +58,7 @@ The returned object is a friendly :py:class:`requests.Response`:
 .. code-block:: python
 
    print(repos.json())
-   # Output: [{'id': 18221276, 'name': 'git-consortium', ...
+   # Output: [{'id': 64778136, 'name': 'linguist', ...
 
 For sending non-blocking requests, Uplink comes with support for
 :py:mod:`aiohttp` and :py:mod:`twisted` (`example
@@ -70,63 +70,6 @@ Use decorators and function annotations to describe the HTTP request:
 * Convert responses into Python objects (e.g., using :py:mod:`marshmallow`)
 * JSON, URL-encoded, and multipart request body and file upload
 
-..
-   Turn a Python class into a self-describing consumer of your favorite HTTP
-   webservice, using method decorators and function annotations:
-
-   .. code-block:: python
-
-       from uplink import *
-
-       # To define common request metadata, you can decorate the class
-       # rather than each method separately.
-       @headers({"Accept": "application/vnd.github.v3.full+json"})
-       class GitHub(Consumer):
-
-           @get("/users/{username}")
-           def get_user(self, username):
-               """Get a single user."""
-
-           @json
-           @patch("/user")
-           def update_user(self, access_token: Query, **info: Body):
-               """Update an authenticated user."""
-
-   Let's build an instance of this GitHub API consumer for the main site!
-   (Notice that I can use this same consumer class to also access any
-   GitHub Enterprise instance by simply changing the :py:attr:`base_url`.):
-
-   .. code-block:: python
-
-       github = GitHub(base_url="https://api.github.com/")
-
-   To access the GitHub API with this instance, we can invoke any of the
-   methods that we defined in our class definition above. To illustrate,
-   let's update my GitHub profile bio with :py:meth:`update_user`:
-
-   .. code-block:: python
-
-       response = github.update_user(token, bio="Beam me up, Scotty!")
-
-   *Voila*, the method seamlessly builds the request (using the decorators
-   and annotations from the method's definition) and executes it in the same call.
-   And, by default, Uplink uses the powerful `Requests
-   <http://docs.python-requests.org/en/master/>`_ library. So, the returned
-   :py:obj:`response` is simply a :py:class:`requests.Response`:
-
-   .. code-block:: python
-
-       print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
-
-   In essence, Uplink delivers reusable and self-sufficient objects for
-   accessing HTTP webservices, with minimal code and user pain ☺️ .
-
-   Asynchronous Requests
-   ---------------------
-   Uplink includes support for concurrent requests with asyncio (for Python 3.4+)
-   and Twisted (for all supported Python versions). Checkout
-   :ref:`non-blocking requests` for more.
-
 The User Manual
 ===============
 
@@ -137,8 +80,10 @@ Follow this guide to get up and running with Uplink.
 
    install.rst
    introduction.rst
+   quickstart.rst
    getting_started.rst
    advanced.rst
+   tips.rst
 
 The Public API
 ==============

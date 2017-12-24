@@ -42,7 +42,7 @@ The returned object is a friendly |requests.Response|_:
 .. code-block:: python
 
    print(repos.json())
-   # Output: [{'id': 18221276, 'name': 'git-consortium', ...
+   # Output: [{'id': 64778136, 'name': 'linguist', ...
 
 For sending non-blocking requests, Uplink comes with support for
 |aiohttp and twisted|_.
