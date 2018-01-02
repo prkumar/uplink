@@ -110,6 +110,14 @@ def test_headers(request_builder):
     headers.modify_request(request_builder)
     assert request_builder.info["headers"] == {"key_1": "value_1"}
 
+    headers_str = decorators.headers("key_1: value_1")
+    headers_str.modify_request(request_builder)
+    assert request_builder.info["headers"] == {"key_1": "value_1"}
+
+    headers_lst = decorators.headers(["key_1", "value_1"])
+    headers_lst.modify_request(request_builder)
+    assert request_builder.info["headers"] == {"key_1": "value_1"}
+
 
 def test_form_url_encoded(request_builder):
     form_url_encoded = decorators.form_url_encoded()

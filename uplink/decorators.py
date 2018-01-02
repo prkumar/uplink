@@ -103,10 +103,13 @@ class headers(MethodAnnotation):
     """
 
     def __init__(self, arg, **kwargs):
-        # TODO: allow the first argument to be a list or str, in
-        # which case you would split the strings by a colon delimiter
-        # to identify the headers.
-        self._headers = dict(arg, **kwargs)
+        if isinstance(arg, str):
+            header = arg.replace(":", "").split(" ")
+            self._headers = {header[0]: header[1]}
+        elif isinstance(arg, list):
+            self._headers = {arg[0].replace(":", ""): arg[1]}
+        else:
+            self._headers = dict(arg, **kwargs)
 
     def modify_request(self, request_builder):
         """Updates header contents."""
