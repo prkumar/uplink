@@ -6,7 +6,7 @@ import pytest
 
 # Local imports
 from uplink.clients import (
-    AiohttpClient, interfaces, requests_, twisted_, get_client
+    AiohttpClient, interfaces, requests_, twisted_, register
 )
 
 try:
@@ -30,7 +30,7 @@ def _patch(obj, attr, value):
         setattr(obj, attr, old_value)
 
 
-def test_get_default_client_with_non_callable(mocker):
+def test_get_default_client_with_non_callable():
     # Setup
     old_default = register.get_default_client()
     register.set_default_client("client")
@@ -107,6 +107,7 @@ def aiohttp_session_mock(mocker):
 
 class TestAiohttp(object):
 
+    @requires_python34
     def test_init_when_aiohttp_is_not_installed(self):
         with _patch(aiohttp_, "aiohttp", None):
             with pytest.raises(NotImplementedError):
