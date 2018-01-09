@@ -190,7 +190,7 @@ texinfo_documents = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/', None),
     'requests': ('http://docs.python-requests.org/en/master/', None),
-    'aiohttp': ('https://aiohttp.readthedocs.io/en/stable/toc.html', None),
+    'aiohttp': ('https://aiohttp.readthedocs.io/en/stable/', None),
     'marshmallow': ('https://marshmallow.readthedocs.io/en/latest/', None),
     'twisted': ('http://twistedmatrix.com/documents/current/api/', None)
 }

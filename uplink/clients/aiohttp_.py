@@ -46,11 +46,11 @@ class AiohttpClient(interfaces.HttpClientAdapter):
 
     __ARG_SPEC = collections.namedtuple("__ARG_SPEC", "args kwargs")
 
-    def __init__(self, session=None, _sync_callback_adapter=threaded_callback):
+    def __init__(self, session=None):
         if session is None:
             session = self.__ARG_SPEC((), {})
         self._session = session
-        self._sync_callback_adapter = _sync_callback_adapter
+        self._sync_callback_adapter = threaded_callback
 
     def create_request(self):
         return Request(self)

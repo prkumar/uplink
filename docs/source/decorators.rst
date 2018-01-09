@@ -1,25 +1,36 @@
-Method Annotations
-******************
+Decorators
+**********
 
-Assign HTTP :code:`headers`
-===========================
+The method decorators detailed in this section describe request properties that
+are relevant to all invocations of a consumer method.
 
-Format POST/PUT/PATCH Request Body
-==================================
+headers
+=======
 
-``form_url_encoded``
---------------------
+.. autoclass:: uplink.headers
 
-``multipart``
--------------
+json
+====
 
-``json``
---------
+.. autoclass:: uplink.json
 
-Apply :code:`timeout` on Request
-================================
+form_url_encoded
+================
 
-Annotate Arguments with :code:`args`
-====================================
+.. autoclass:: uplink.form_url_encoded
 
+multipart
+=========
+
+.. autoclass:: uplink.multipart
+
+timeout
+=======
+
+.. autoclass:: uplink.timeout
+
+args
+====
+
+.. autoclass:: uplink.args
 
