@@ -88,12 +88,6 @@ The Public API
 
 This guide details the classes and methods in Uplink's public API.
 
-.. todo::
-
-   Most of this guide is unfinished and completing it is a planned
-   deliverable for the ``v0.3.0`` release. At the least, this work will
-   necessitate adding docstrings to the classes enumerated below.
-
 .. toctree::
    :maxdepth: 2
 
