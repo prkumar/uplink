@@ -59,11 +59,6 @@ Use decorators and function annotations to describe the HTTP request:
 .. |using marshmallow| replace:: using ``marshmallow``
 .. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 
-Ready to try it out? We recommend starting with
-`this tutorial <https://uplink.readthedocs.io/>`_. Also, checkout
-`these examples <https://github.com/prkumar/uplink/tree/master/examples/`_
-for more!
-
 Installation
 ============
 ``uplink`` supports Python 2.7 & 3.3-3.7.
