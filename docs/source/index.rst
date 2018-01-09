@@ -86,6 +86,8 @@ Follow this guide to get up and running with Uplink.
 The Public API
 ==============
 
+This guide details the classes and methods in Uplink's public API.
+
 .. todo::
 
    Most of this guide is unfinished and completing it is a planned
