@@ -14,10 +14,10 @@ have your JSON API return Python objects.
 
 Uplink's integration with `marshmallow` is an optional feature. You
 can either install `marshmallow` separately or declare the extra when
-installing Uplink:
+installing Uplink with ``pip``:
 
 ```
-$ pip install uplink[marshmallow]
+$ pip install -U uplink[marshmallow]
 ```
 
 This makes available the class `uplink.MarshmallowConverter`.

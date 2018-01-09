@@ -1,6 +1,6 @@
 """
 This module defines an :py:class:`aiohttp.ClientSession` adapter
-that sends awaitable requests.
+that returns awaitable responses.
 """
 # Standard library imports
 import atexit
@@ -11,7 +11,10 @@ import threading
 from concurrent import futures
 
 # Third party imports
-import aiohttp
+try:
+    import aiohttp
+except ImportError:  # pragma: no cover
+    aiohttp = None
 
 # Local imports
 from uplink.clients import interfaces, register
@@ -37,6 +40,12 @@ class AiohttpClient(interfaces.HttpClientAdapter):
     """
     An :py:mod:`aiohttp` client that creates awaitable responses.
 
+    Note:
+        This client is an optional feature and requires the :py:mod:`aiohttp`
+        package. For example, here's how to install this extra using pip::
+
+            $ pip install uplink[aiohttp]
+
     Args:
         session (:py:class:`aiohttp.ClientSession`, optional):
             The session that should handle sending requests. If this
@@ -47,6 +56,9 @@ class AiohttpClient(interfaces.HttpClientAdapter):
     __ARG_SPEC = collections.namedtuple("__ARG_SPEC", "args kwargs")
 
     def __init__(self, session=None):
+        if aiohttp is None:
+            raise NotImplementedError("aiohttp is not installed.")
+
         if session is None:
             session = self.__ARG_SPEC((), {})
         self._session = session

@@ -5,7 +5,9 @@ import contextlib
 import pytest
 
 # Local imports
-from uplink.clients import interfaces, requests_, twisted_, register
+from uplink.clients import (
+    AiohttpClient, interfaces, requests_, twisted_, register
+)
 
 try:
     from uplink.clients import aiohttp_
@@ -13,11 +15,22 @@ except (ImportError, SyntaxError):
     aiohttp_ = None
 
 
-requires_aiohttp = pytest.mark.skipif(
-    not aiohttp_, reason="Requires Python 3.4 or above")
+requires_python34 = pytest.mark.skipif(
+    not aiohttp_,
+    reason="Requires Python 3.4 or above")
 
 
-def test_get_default_client_with_non_callable(mocker):
+@contextlib.contextmanager
+def _patch(obj, attr, value):
+    if obj is not None:
+        old_value = getattr(obj, attr)
+        setattr(obj, attr, value)
+    yield
+    if obj is not None:
+        setattr(obj, attr, old_value)
+
+
+def test_get_default_client_with_non_callable():
     # Setup
     old_default = register.get_default_client()
     register.set_default_client("client")
@@ -58,16 +71,8 @@ class TestTwisted(object):
         assert request._proxy is http_client_mock.create_request()
         assert isinstance(request, twisted_.Request)
 
-    @staticmethod
-    @contextlib.contextmanager
-    def patch_threads(threads):
-        old_threads = twisted_.threads
-        twisted_.threads = threads
-        yield
-        twisted_.threads = old_threads
-
     def test_create_requests_no_twisted(self, http_client_mock):
-        with self.patch_threads(None):
+        with _patch(twisted_, "threads", None):
             with pytest.raises(NotImplementedError):
                 twisted_.TwistedClient(http_client_mock)
 
@@ -102,17 +107,23 @@ def aiohttp_session_mock(mocker):
 
 class TestAiohttp(object):
 
-    @requires_aiohttp
+    @requires_python34
+    def test_init_when_aiohttp_is_not_installed(self):
+        with _patch(aiohttp_, "aiohttp", None):
+            with pytest.raises(NotImplementedError):
+                AiohttpClient()
+
+    @requires_python34
     def test_get_client(self, aiohttp_session_mock):
         client = register.get_client(aiohttp_session_mock)
         assert isinstance(client, aiohttp_.AiohttpClient)
 
-    @requires_aiohttp
+    @requires_python34
     def test_create_request(self, aiohttp_session_mock):
         aiohttp = aiohttp_.AiohttpClient(aiohttp_session_mock)
         assert isinstance(aiohttp.create_request(), aiohttp_.Request)
 
-    @requires_aiohttp
+    @requires_python34
     def test_request_send(self, aiohttp_session_mock):
         # Setup
         import asyncio
@@ -133,7 +144,7 @@ class TestAiohttp(object):
         # Verify
         assert value == 0
 
-    @requires_aiohttp
+    @requires_python34
     def test_callback(self, aiohttp_session_mock):
         # Setup
         import asyncio
@@ -156,7 +167,7 @@ class TestAiohttp(object):
         # Verify
         assert value == 2
 
-    @requires_aiohttp
+    @requires_python34
     def test_threaded_callback(self, mocker):
         import asyncio
 
@@ -177,7 +188,7 @@ class TestAiohttp(object):
         response.text.assert_called_with()
         assert value == response
 
-    @requires_aiohttp
+    @requires_python34
     def test_threaded_coroutine(self):
         # Setup
         import asyncio
@@ -194,7 +205,7 @@ class TestAiohttp(object):
         # Verify
         assert response == 1
 
-    @requires_aiohttp
+    @requires_python34
     def test_threaded_response(self, mocker):
         # Setup
         import asyncio
@@ -215,7 +226,7 @@ class TestAiohttp(object):
         assert isinstance(threaded_coroutine, aiohttp_.ThreadedCoroutine)
         assert return_value == 1
 
-    @requires_aiohttp
+    @requires_python34
     def test_create(self, mocker):
         # Setup
         import asyncio

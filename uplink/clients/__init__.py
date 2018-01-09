@@ -28,15 +28,14 @@ def _client_class_handler(key):
 
 try:
     from uplink.clients.aiohttp_ import AiohttpClient
-except (SyntaxError, ImportError) as error:  # pragma: no cover
+except (ImportError, SyntaxError) as error:  # pragma: no cover
     from uplink.clients import interfaces
 
     class AiohttpClient(interfaces.HttpClientAdapter):
-        error_message = str(error)
-
         def __init__(self, *args, **kwargs):
             raise NotImplementedError(
-                "Failed to load `asyncio` client: %s" % self.error_message
+                "Failed to load `aiohttp` client: you may be using a version "
+                "of Python below 3.3. `aiohttp` requires Python 3.4+."
             )
 
         def create_request(self):

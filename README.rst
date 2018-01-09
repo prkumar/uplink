@@ -67,14 +67,37 @@ To install the latest stable release, you can use ``pip``:
 
 ::
 
-    $ pip install uplink
-
+    $ pip install -U uplink
 
 If you are interested in the cutting-edge, preview the upcoming release with:
 
 ::
 
    $ pip install https://github.com/prkumar/uplink/archive/master.zip
+
+Extra! Extra!
+-------------
+
+Further, uplink has optional integrations and features, such as
+`sending non-blocking requests with <examples/async-requests>`__
+``aiohttp`` and `deserializing JSON responses using <examples/marshmallow>`__
+``marshmallow``. You can view a full list of available extras `here
+<http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
+
+When installing Uplink with ``pip``, you can specify any of number of extras
+using the format:
+
+::
+
+   $ pip install -U uplink[extra1, extra2, ..., extraN]
+
+
+For instance, to install ``aiohttp`` and ``marshmallow`` support:
+
+::
+
+   $ pip install -U uplink[aiohttp, marshmallow]
+
 
 Documentation
 =============

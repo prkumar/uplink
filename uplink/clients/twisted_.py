@@ -1,3 +1,8 @@
+"""
+This module defines an :py:class:`aiohttp.ClientSession` adapter that
+returns :py:class:`twisted.internet.defer.Deferred` responses.
+"""
+
 # Third party imports
 try:
     from twisted.internet import threads
@@ -13,6 +18,12 @@ class TwistedClient(interfaces.HttpClientAdapter):
     Client that returns :py:class:`twisted.internet.defer.Deferred`
     responses.
 
+    Note:
+        This client is an optional feature and requires the :py:mod:`twisted`
+        package. For example, here's how to install this extra using pip::
+
+            $ pip install uplink[twisted]
+
     Args:
         session (:py:class:`requests.Session`, optional): The session
             that should handle sending requests. If this argument is
@@ -22,7 +33,7 @@ class TwistedClient(interfaces.HttpClientAdapter):
 
     def __init__(self, session=None):
         if threads is None:
-            raise NotImplementedError("TwistedClient is not installed.")
+            raise NotImplementedError("twisted is not installed.")
         self._requests = register.get_client(session)
 
     def create_request(self):
