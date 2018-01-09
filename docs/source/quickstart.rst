@@ -33,7 +33,6 @@ subclass.
         def list_users(self):
             """List all users."""
 
-
 URL Manipulation
 ================
 
@@ -158,7 +157,6 @@ function parameter annotation:
     def get_user(self, authorization: Header):
         """Get an authenticated user."""
 
-
 Synchronous vs. Asynchronous
 ============================
 
@@ -179,4 +177,14 @@ for more.
 Deserializing the Response
 ==========================
 
-By default, Uplink comes with support
+The ``converter`` parameter of the :py:class:`~uplink.Consumer` constructor
+accepts an adapter class that handles deserialization of HTTP response objects.
+
+.. code-block:: python
+
+    github = GitHub(BASE_URL, converter=...)
+
+For instance, the :py:class:`~uplink.MarshmallowConverter` adapter turns JSON
+HTTP responses into Python objects using the :py:class:`marshmallow.Schema`
+object. Checkout `this example on GitHub
+<https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_ for more.

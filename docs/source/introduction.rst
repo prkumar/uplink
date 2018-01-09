@@ -1,6 +1,11 @@
 Introduction
 ************
 
+Uplink delivers reusable and self-sufficient objects for accessing HTTP
+webservices, with minimal code and user pain. Simply define your consumers
+using decorators and function annotations, and we’ll handle
+the rest for you... pun intended, obviously 😎
+
 Static Request Handling
 =======================
 

@@ -1,6 +1,9 @@
 Decorators
 **********
 
+The method decorators detailed in this section describe request properties that
+are relevant to all invocations of a consumer method.
+
 headers
 =======
 

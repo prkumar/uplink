@@ -1,6 +1,12 @@
 Function Annotations
 ********************
 
+For programming in general, function parameters drive a function's
+dynamic behavior; a function's output depends normally on its inputs.
+With :py:mod:`uplink`, function arguments parametrize an HTTP request,
+and you indicate the dynamic parts of the request by appropriately
+annotating those arguments with the classes detailed in this section.
+
 Path
 ====
 

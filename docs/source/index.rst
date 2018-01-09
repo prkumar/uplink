@@ -81,8 +81,6 @@ Follow this guide to get up and running with Uplink.
    install.rst
    introduction.rst
    quickstart.rst
-   getting_started.rst
-   advanced.rst
    tips.rst
 
 The Public API
@@ -99,6 +97,8 @@ The Public API
 
    decorators.rst
    types.rst
+   clients.rst
+   converters.rst
    changes.rst
 
 
