@@ -153,7 +153,8 @@ class TestAiohttp(object):
             return 2
 
         aiohttp_session_mock.request = request
-        client = aiohttp_.AiohttpClient(aiohttp_session_mock, asyncio.coroutine)
+        client = aiohttp_.AiohttpClient(aiohttp_session_mock)
+        client._sync_callback_adapter = asyncio.coroutine
         request = aiohttp_.Request(client)
 
         # Run

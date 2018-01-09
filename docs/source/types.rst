@@ -1,55 +1,65 @@
-Argument Annotations
+Function Annotations
 ********************
 
-Replace URI ``Path`` Variables
-==============================
+For programming in general, function parameters drive a function's
+dynamic behavior; a function's output depends normally on its inputs.
+With :py:mod:`uplink`, function arguments parametrize an HTTP request,
+and you indicate the dynamic parts of the request by appropriately
+annotating those arguments with the classes detailed in this section.
+
+Path
+====
 
 .. autoclass:: uplink.Path
-   :members:
 
-Append a URL ``Query`` Parameter
-================================
+Query
+=====
 
 .. autoclass:: uplink.Query
 
+QueryMap
+========
+
 .. autoclass:: uplink.QueryMap
 
-Set HTTP ``Header`` Field
-=========================
+Header
+======
 
 .. autoclass:: uplink.Header
-   :members:
+
+HeaderMap
+=========
 
 .. autoclass:: uplink.HeaderMap
-   :members:
 
 
-Add URL-Encoded Form ``Field``
-==============================
+Field
+=====
 
 .. autoclass:: uplink.Field
-   :members:
+
+
+FieldMap
+========
 
 .. autoclass:: uplink.FieldMap
-   :members:
 
-Submit Form Data ``Part``
-=========================
+Part
+====
 
 .. autoclass:: uplink.Part
-   :members:
+
+PartMap
+=======
 
 .. autoclass:: uplink.PartMap
-   :members:
 
-Control the Request ``Body``
-============================
+Body
+====
 
 .. autoclass:: uplink.Body
-   :members:
 
-Assign a ``Url`` at Runtime
-===========================
+Url
+===
 
 .. autoclass:: uplink.Url
-   :members:

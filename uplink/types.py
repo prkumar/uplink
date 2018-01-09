@@ -2,8 +2,6 @@
 This module implements the built-in argument annotations and their
 handling classes.
 """
-
-
 # Standard library imports
 import collections
 import inspect
@@ -234,7 +232,7 @@ class Path(NamedArgument):
     .. code-block:: python
 
         class TodoService(object):
-            @get("todos{/id}")
+            @get("/todos{/id}")
             def get_todo(self, todo_id: Path("id")): pass
 
     Then, invoking :code:`get_todo` with a consumer instance:
@@ -243,19 +241,20 @@ class Path(NamedArgument):
 
         todo_service.get_todo(100)
 
-    creates an HTTP request with a URL ending in :code:`todos/100`.
+    creates an HTTP request with a URL ending in :code:`/todos/100`.
 
     Note:
         When building the consumer instance, :py:func:`uplink.build` will try
         match unannotated function arguments with URL path parameters. See
         :ref:`implicit_path_annotations` for details.
 
-        For example, we could rewrite the method from the previous
+        For example, since the path variable and method argument share
+        identical names, we could rewrite the method from the previous
         example as:
 
         .. code-block:: python
 
-            @get("todos{/id}")
+            @get("/todos{/id}")
             def get_todo(self, id): pass
     """
 
@@ -272,15 +271,31 @@ class Path(NamedArgument):
 
 class Query(NamedArgument):
     """
-    Sets one dynamic query parameter.
+    Set a dynamic query parameter.
 
     This annotation turns argument values into URL query
-    parameters. You can include it in your function method
-    by using the format: <query argument>:uplink.Query.
+    parameters. You can include it as function argument
+    annotation, in the format: ``<query argument>: uplink.Query``.
 
-    If the API you are trying to query uses `q` as a query
-    parameter, you can add `q:uplinkQuery` to a function
-    method to set the `q` search term at runtime.
+    If the API endpoint you are trying to query uses ``q`` as a query
+    parameter, you can add ``q: uplink.Query`` to the consumer method to
+    set the ``q`` search term at runtime.
+
+    Example:
+        .. code-block:: python
+
+            @get("/search/commits")
+            def search(self, search_term: Query("q")):
+                '''Search all commits with the given search term.'''
+
+        To specify whether or not the query parameter is already URL encoded,
+        use the optional :py:obj:`encoded` argument:
+
+        .. code-block:: python
+
+            @get("/search/commits")
+            def search(self, search_term: Query("q", encoded=True)):
+                \"""Search all commits with the given search term.\"""
 
     Args:
         encoded (:obj:`bool`, optional): Specifies whether the parameter
@@ -332,11 +347,18 @@ class Query(NamedArgument):
 
 class QueryMap(TypedArgument):
     """
-    Sets a mapping of query arguments.
+    A mapping of query arguments.
 
-    If the API you are using accepts multiple query arguments,
-    you can include them all in your function method by using the
-    format: `<query argument>:uplink.QueryMap`
+    If the API you are using accepts multiple query arguments, you can
+    include them all in your function method by using the format:
+    ``<query argument>: uplink.QueryMap``
+
+    Example:
+        .. code-block:: python
+
+            @get("/search/users")
+            def search(self, **params: QueryMap):
+                \"""Search all users.\"""
 
     Args:
         encoded (:obj:`bool`, optional): Specifies whether the parameter
@@ -364,11 +386,16 @@ class Header(NamedArgument):
     """
     Pass a header as a method argument at runtime.
 
-    While decorator.headers are meant to be used as a decorator,
-    this argument (uplink.Header) is meant to be passed as a method
-    argument on a function created by you.
+    While :py:class:`uplink.headers` attaches static headers
+    that define all requests sent from a consumer method, this
+    class turns a method argument into a dynamic header value.
 
-    Used as: uplink.Header("<header key>")
+    Example:
+        .. code-block:: python
+
+            @get("/user")
+            def (self, session_id: Header("Authorization")):
+                \"""Get the authenticated user\"""
     """
 
     @property
@@ -397,11 +424,19 @@ class HeaderMap(TypedArgument):
 
 class Field(NamedArgument):
     """
-    Defines a field to the request body.
+    Defines a form field to the request body.
 
-    Use together with the decorator `uplink.form_url_encoded`
+    Use together with the decorator :py:class:`uplink.form_url_encoded`
     and annotate each argument accepting a form field with
-    `uplink.Field`
+    :py:class:`uplink.Field`.
+
+    Example::
+        .. code-block:: python
+
+            @form_url_encoded
+            @post("/users/edit")
+            def update_user(self, first_name: Field, last_name: Field):
+                \"""Update the current user.\"""
     """
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
@@ -431,11 +466,19 @@ class Field(NamedArgument):
 
 class FieldMap(TypedArgument):
     """
-    Defines a mapping of fields to the request body.
+    Defines a mapping of form fields to the request body.
 
-    Use together with the decorator `uplink.form_url_encoded`
+    Use together with the decorator :py:class:`uplink.form_url_encoded`
     and annotate each argument accepting a form field with
-    `uplink.FieldMap`
+    :py:class:`uplink.FieldMap`.
+
+    Example:
+        .. code-block:: python
+
+            @form_url_encoded
+            @post("/user/edit")
+            def create_post(self, **user_info: FieldMap):
+                \"""Update the current user.\"""
     """
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
@@ -463,8 +506,16 @@ class Part(NamedArgument):
     """
     Marks an argument as a form part.
 
-    Use together with the decorator `uplink.multipart`
-    and annotate each form part with `uplink.Part`
+    Use together with the decorator :py:class:`uplink.multipart` and
+    annotate each form part with :py:class:`uplink.Part`.
+
+    Example:
+        .. code-block:: python
+
+            @multipart
+            @put(/user/photo")
+            def update_user(self, photo: Part, description: Part):
+                \"""Upload a user profile photo.\"""
     """
 
     @property
@@ -481,8 +532,16 @@ class PartMap(TypedArgument):
     """
     A mapping of form field parts.
 
-    Use together with the decorator `uplink.multipart`
-    and annotate each part of form parts with `uplink.PartMap`
+    Use together with the decorator :py:class:`uplink.multipart` and
+    annotate each part of form parts with :py:class:`uplink.PartMap`
+
+    Example:
+        .. code-block:: python
+
+            @multipart
+            @put(/user/photo")
+            def update_user(self, photo: Part, description: Part):
+                \"""Upload a user profile photo.\"""
     """
 
     @property
@@ -497,11 +556,19 @@ class PartMap(TypedArgument):
 
 class Body(TypedArgument):
     """
-    Changes the request's body.
+    Set the request body at runtime.
 
-    Use together with the decorator `uplink.json`. The method
+    Use together with the decorator :py:class:`uplink.json`. The method
     argument value will become the request's body when annotated
-    with `uplink.Body`.
+    with :py:class:`uplink.Body`.
+
+    Example:
+        .. code-block:: python
+
+            @json
+            @patch(/user")
+            def update_user(self, **info: Body):
+                \"""Update the current user.\"""
     """
     @property
     def converter_key(self):
@@ -517,9 +584,16 @@ class Url(ArgumentAnnotation):
     """
     Sets a dynamic URL.
 
-    Provides the URL at runtime as a method argument. Drop the
-    decorator parameter path from `uplink.get` and annotate the
-    corresponding argument with `uplink.Url`
+    Provides the URL at runtime as a method argument. Drop the decorator
+    parameter path from :py:class:`uplink.get` and annotate the
+    corresponding argument with :py:class:`uplink.Url`
+
+    Example:
+        .. code-block:: python
+
+            @get
+            def get(self, endpoint: Url):
+                \"""Execute a GET requests against the given endpoint\"""
     """
 
     class DynamicUrlAssignmentFailed(exceptions.AnnotationError):
