@@ -67,18 +67,16 @@ class TestRequestPreparer(object):
 
 class TestCallFactory(object):
     def test_call(self, mocker, request_definition, request_builder):
-        instance = object()
         args = ()
         kwargs = {}
         request_preparer = mocker.Mock(spec=builder.RequestPreparer)
         request_preparer.create_request_builder.return_value = request_builder
         factory = builder.CallFactory(
-            instance,
             request_preparer,
             request_definition)
         assert factory(*args, **kwargs) is request_preparer.prepare_request.return_value
         request_definition.define_request.assert_called_with(
-            request_builder, (instance,) + args, kwargs
+            request_builder, args, kwargs
         )
         assert request_builder.build.called
 
@@ -109,13 +107,13 @@ class TestBuilder(object):
         factory = list(uplink_builder.converters)[0]
         assert factory == converter_factory_mock
 
-    def test_build_failure(self, fake_service_cls):
-        exception = exceptions.InvalidRequestDefinition()
-        fake_service_cls.builder.build.side_effect = exception
-        fake_service_cls.builder.__name__ = "builder"
-        uplink = builder.Builder()
-        with pytest.raises(exceptions.UplinkBuilderError):
-            uplink.build(fake_service_cls(), fake_service_cls.builder)
+
+def test_build_failure(fake_service_cls):
+    exception = exceptions.InvalidRequestDefinition()
+    fake_service_cls.builder.build.side_effect = exception
+    fake_service_cls.builder.__name__ = "builder"
+    with pytest.raises(exceptions.UplinkBuilderError):
+        builder.build(fake_service_cls, base_url="example.com")
 
 
 def test_build(

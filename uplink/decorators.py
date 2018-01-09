@@ -76,8 +76,9 @@ class MethodAnnotation(interfaces.Annotation):
     def __call__(self, class_or_builder):
         if inspect.isclass(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
-            for _, builder in builders:
+            for name, builder in builders:
                 builder.method_handler_builder.add_annotation(self)
+                helpers.set_api_definition(class_or_builder, name, builder)
         else:
             class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder

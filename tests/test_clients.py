@@ -30,12 +30,23 @@ def _patch(obj, attr, value):
         setattr(obj, attr, old_value)
 
 
+def test_get_default_client_with_non_callable(mocker):
+    # Setup
+    old_default = register.get_default_client()
+    register.set_default_client("client")
+    default_client = register.get_default_client()
+    register.set_default_client(old_default)
+
+    # Verify: an object that is not callable should be returned as set.
+    assert default_client == "client"
+
+
 def test_get_client_with_http_client_adapter_subclass():
     class HttpClientAdapterMock(interfaces.HttpClientAdapter):
         def create_request(self):
             pass
 
-    client = get_client(HttpClientAdapterMock)
+    client = register.get_client(HttpClientAdapterMock)
     assert isinstance(client, HttpClientAdapterMock)
 
 
@@ -44,7 +55,7 @@ class TestRequests(object):
     def test_get_client(self, mocker):
         import requests
         session_mock = mocker.Mock(spec=requests.Session)
-        client = get_client(session_mock)
+        client = register.get_client(session_mock)
         assert isinstance(client, requests_.RequestsClient)
 
 
@@ -103,7 +114,7 @@ class TestAiohttp(object):
 
     @requires_python34
     def test_get_client(self, aiohttp_session_mock):
-        client = get_client(aiohttp_session_mock)
+        client = register.get_client(aiohttp_session_mock)
         assert isinstance(client, aiohttp_.AiohttpClient)
 
     @requires_python34

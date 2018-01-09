@@ -78,13 +78,11 @@ class RequestPreparer(object):
 
 
 class CallFactory(object):
-    def __init__(self, instance, request_preparer, request_definition):
-        self._instance = instance
+    def __init__(self, request_preparer, request_definition):
         self._request_preparer = request_preparer
         self._request_definition = request_definition
 
     def __call__(self, *args, **kwargs):
-        args = (self._instance,) + args
         builder = self._request_preparer.create_request_builder()
         self._request_definition.define_request(builder, args, kwargs)
         request = builder.build()
@@ -92,15 +90,12 @@ class CallFactory(object):
 
 
 class Builder(interfaces.CallBuilder):
+    """The default callable builder."""
 
     def __init__(self):
-        """
-        Construct a Call builder
-        """
-
         self._base_url = ""
         self._hook = hooks.TransactionHook()
-        self._client = None
+        self._client = clients.DEFAULT_CLIENT
         self._converters = collections.deque()
         self._converters.append(converters.StandardConverter())
 
@@ -135,27 +130,68 @@ class Builder(interfaces.CallBuilder):
     def add_converter(self, *converters_):
         self._converters.extendleft(converters_)
 
-    def build(self, consumer, definition):
+    @utils.memoize()
+    def build(self, definition):
         """
-        Returns a callable to replace the definition on the given
-        consumer instance.
+        Creates a callable that uses the provided definition to execute
+        HTTP requests when invoked.
         """
+        return CallFactory(RequestPreparer(self, definition), definition)
 
+
+class ConsumerMethod(object):
+    """
+    A wrapper around a :py:class`interfaces.RequestDefinitionBuilder`
+    instance bound to a :py:class:`Consumer` subclass, mainly responsible
+    for controlling access to the instance.
+    """
+
+    def __init__(self, owner_name, attr_name, request_definition_builder):
+        self._request_definition_builder = request_definition_builder
+        self._owner_name = owner_name
+        self._attr_name = attr_name
+        self._request_definition = self._build_definition()
+
+    def _build_definition(self):
         try:
-            definition = definition.build()
+            return self._request_definition_builder.build()
         except exceptions.InvalidRequestDefinition as error:
             # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
-                consumer.__class__, definition.__name__, error)
+                self._owner_name,
+                self._attr_name,
+                error)
 
-        return CallFactory(
-            consumer,
-            RequestPreparer(self, definition),
-            definition
-        )
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self._request_definition_builder
+        else:
+            return instance._builder.build(self._request_definition)
 
 
-class Consumer(object):
+class ConsumerMeta(type):
+    @staticmethod
+    def _wrap_if_definition(cls_name, key, value):
+        if isinstance(value, interfaces.RequestDefinitionBuilder):
+            value = ConsumerMethod(cls_name, key, value)
+        return value
+
+    def __new__(mcs, name, bases, namespace):
+        # Wrap all definition builders with a special descriptor that
+        # handles attribute access behavior.
+        for key, value in namespace.items():
+            namespace[key] = mcs._wrap_if_definition(name, key, value)
+        return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
+
+    def __setattr__(cls, key, value):
+        value = cls._wrap_if_definition(cls.__name__, key, value)
+        super(ConsumerMeta, cls).__setattr__(key, value)
+
+
+_Consumer = ConsumerMeta("_Consumer", (), {})
+
+
+class Consumer(_Consumer):
 
     def __init__(
             self,
@@ -176,12 +212,12 @@ class Consumer(object):
 
 
 def build(service_cls, *args, **kwargs):
+    name = service_cls.__name__
     warnings.warn(
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
         "To construct a consumer instance, have `{0}` inherit "
-        "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(
-            service_cls.__name__),
+        "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(name),
         DeprecationWarning
     )
-    consumer_cls = type(service_cls.__name__, (service_cls, Consumer), {})
-    return consumer_cls(*args, **kwargs)
+    consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
+    return consumer(*args, **kwargs)
