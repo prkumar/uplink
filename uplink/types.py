@@ -244,13 +244,11 @@ class Path(NamedArgument):
     creates an HTTP request with a URL ending in :code:`/todos/100`.
 
     Note:
-        When building the consumer instance, :py:func:`uplink.build` will try
-        match unannotated function arguments with URL path parameters. See
-        :ref:`implicit_path_annotations` for details.
+        Any unannotated function argument that shares a name with a URL path
+        parameter is implicitly annotated with this class at runtime.
 
-        For example, since the path variable and method argument share
-        identical names, we could rewrite the method from the previous
-        example as:
+        For example, we could simplify the method from the previous
+        example by matching the path variable and method argument names:
 
         .. code-block:: python
 
