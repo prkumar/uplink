@@ -16,7 +16,8 @@ Added
 - Constructor parameter for ``uplink.Query`` and ``uplink.QueryMap`` to
   support already encoded URL parameters
 - Support for using ``requests.Session`` and ``aiohttp.ClientSession``
-  instances with the ``client`` parameter of the ``uplink.Consumer`` constructor.
+  instances with the ``client`` parameter of the ``uplink.Consumer`` 
+  constructor.
 
 Changed
 -------
@@ -24,7 +25,7 @@ Changed
 
 Fixed
 -----
-- Fix issue with calling a request method with ``super``.
+- Fix for calling a request method with ``super``, by `@brandonio21`_.
 - Fix issue where method decorators would incorrectly decorate inherited
   request methods.
 
@@ -32,14 +33,15 @@ Fixed
 ===================
 Fixed
 -----
-- Fix error raised when an object that is not a class is passed into the 
-  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_.
+- Fix for error raised when an object that is not a class is passed into the
+  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_
 
 0.2.0_ - 2017-11-03
 ===================
 Added
 -----
-- The class ``uplink.Consumer``. Consumer classes should inherit this base
+- The class ``uplink.Consumer`` by `@itstehkman`_. Consumer classes should
+  inherit this base.
   class, and creating consumer instances happens through instantiation.
 - Support for ``asyncio`` for Python 3.4 and above.
 - Support for ``twisted`` for all supported Python versions.
@@ -101,4 +103,5 @@ Added
 
 .. Contributors
 .. _@brandonio21: https://github.com/brandonio21
+.. _@itstehkman: https://github.com/itstehkman
 .. _@kadrach: https://github.com/kadrach
