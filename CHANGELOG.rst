@@ -10,11 +10,11 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 ==================
 Added
 -----
-- HTTP HEAD request decorator by `@brandonio21`_
+- HTTP HEAD request decorator by `@brandonio21`_.
 - Support for returning deserialized response objects using ``marshmallow``
   schemas.
 - Constructor parameter for ``uplink.Query`` and ``uplink.QueryMap`` to
-  support already encoded URL parameters
+  support already encoded URL parameters.
 - Support for using ``requests.Session`` and ``aiohttp.ClientSession``
   instances with the ``client`` parameter of the ``uplink.Consumer`` 
   constructor.
@@ -34,7 +34,7 @@ Fixed
 Fixed
 -----
 - Fix for error raised when an object that is not a class is passed into the
-  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_
+  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_.
 
 0.2.0_ - 2017-11-03
 ===================
