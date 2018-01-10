@@ -16,7 +16,7 @@ Added
 - Constructor parameter for ``uplink.Query`` and ``uplink.QueryMap`` to
   support already encoded URL parameters
 - Support for using ``requests.Session`` and ``aiohttp.ClientSession``
-  instances with the ``client`` parameter of the ``uplink.Consumer``constructor.
+  instances with the ``client`` parameter of the ``uplink.Consumer`` constructor.
 
 Changed
 -------
@@ -33,7 +33,7 @@ Fixed
 Fixed
 -----
 - Fix error raised when an object that is not a class is passed into the 
-  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_
+  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_.
 
 0.2.0_ - 2017-11-03
 ===================
