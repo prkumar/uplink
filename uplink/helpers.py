@@ -1,14 +1,40 @@
 # Standard library imports
 import collections
-import inspect
 
 # Local imports
 from uplink import interfaces, utils
 
 
 def get_api_definitions(service):
-    predicate = interfaces.RequestDefinitionBuilder.__instancecheck__
-    return inspect.getmembers(service, predicate)
+    """
+    Returns all attributes with type
+    `uplink.interfaces.RequestDefinitionBuilder` defined on the given
+    class.
+
+    Note:
+        Only attributes defined directly on the class are considered. In
+        other words, inherited `RequestDefinitionBuilder` attributes
+        are ignored.
+
+    Args:
+        service: A class object.
+    """
+    # In Python 3.3, `inspect.getmembers` doesn't respect the descriptor
+    # protocol when the first argument is a class. In other words, the
+    # function includes any descriptors bound to `service` as is rather
+    # than calling the descriptor's __get__ method. This is seemingly
+    # fixed in Python 2.7 and 3.4+ (TODO: locate corresponding bug
+    # report in Python issue tracker). Directly invoking `getattr` to
+    # force Python's attribute lookup protocol is a decent workaround to
+    # ensure parity:
+    class_attributes = ((k, getattr(service, k)) for k in service.__dict__)
+
+    is_definition = interfaces.RequestDefinitionBuilder.__instancecheck__
+    return [(k, v) for k, v in class_attributes if is_definition(v)]
+
+
+def set_api_definition(service, name, definition):
+    setattr(service, name, definition)
 
 
 class RequestBuilder(object):

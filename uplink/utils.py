@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+from functools import wraps
 
 try:
     # Python 3.2+
@@ -57,6 +58,19 @@ try:
     import urllib.parse as urlparse
 except ImportError:
     import urlparse
+
+try:
+    from functools import lru_cache as memoize
+except ImportError:
+    def memoize():
+
+        def wrapper(func):
+            memo = {}
+            @wraps(func)
+            def wrapped(*args):
+                return memo.setdefault(args, func(*args))
+            return wrapped
+        return wrapper
 
 # Third party imports
 import uritemplate

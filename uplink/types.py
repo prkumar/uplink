@@ -2,14 +2,13 @@
 This module implements the built-in argument annotations and their
 handling classes.
 """
-
-
 # Standard library imports
 import collections
 import inspect
 
 # Local imports
-from uplink import converter, exceptions, interfaces, utils
+from uplink import exceptions, interfaces, utils
+from uplink.converters import keys
 
 __all__ = [
     "Path",
@@ -136,8 +135,8 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
     def get_relevant_arguments(self, call_args):
         return filter(call_args.__contains__, self._arguments)
 
-    def handle_call(self, request_builder, func_args, func_kwargs):
-        call_args = utils.get_call_args(self._func, *func_args, **func_kwargs)
+    def handle_call(self, request_builder, args, kwargs):
+        call_args = utils.get_call_args(self._func, None, *args, **kwargs)
         for name in self.get_relevant_arguments(call_args):
             self.handle_argument(
                 request_builder,
@@ -147,9 +146,9 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
 
     @staticmethod
     def handle_argument(request_builder, argument, value):
-        argument_type, converter_key = argument.type, argument.converter_type
-        converter_ = request_builder.get_converter(converter_key, argument_type)
-        value = converter_.convert(value)
+        argument_type, converter_key = argument.type, argument.converter_key
+        converter = request_builder.get_converter(converter_key, argument_type)
+        value = converter.convert(value)
 
         # TODO: Catch Annotation errors and chain them here + provide context.
         argument.modify_request(request_builder, value)
@@ -163,17 +162,18 @@ class ArgumentAnnotation(interfaces.Annotation):
         return request_definition_builder
 
     def modify_request_definition(self, request_definition_builder):
+        # pragma: no cover
         pass
 
-    def modify_request(self, request_builder, value):
+    def modify_request(self, request_builder, value):  # pragma: no cover
         raise NotImplementedError
 
     @property
-    def type(self):
+    def type(self):  # pragma: no cover
         return None
 
     @property
-    def converter_type(self):
+    def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -187,10 +187,10 @@ class TypedArgument(ArgumentAnnotation):
         return self._type
 
     @property
-    def converter_type(self):
+    def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
-    def modify_request(self, request_builder, value):
+    def modify_request(self, request_builder, value):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -213,10 +213,10 @@ class NamedArgument(TypedArgument):
             raise AttributeError("Name is already set.")
     
     @property
-    def converter_type(self):
+    def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
-    def modify_request(self, request_builder, value):
+    def modify_request(self, request_builder, value):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -232,7 +232,7 @@ class Path(NamedArgument):
     .. code-block:: python
 
         class TodoService(object):
-            @get("todos{/id}")
+            @get("/todos{/id}")
             def get_todo(self, todo_id: Path("id")): pass
 
     Then, invoking :code:`get_todo` with a consumer instance:
@@ -241,25 +241,24 @@ class Path(NamedArgument):
 
         todo_service.get_todo(100)
 
-    creates an HTTP request with a URL ending in :code:`todos/100`.
+    creates an HTTP request with a URL ending in :code:`/todos/100`.
 
     Note:
-        When building the consumer instance, :py:func:`uplink.build` will try
-        match unannotated function arguments with URL path parameters. See
-        :ref:`implicit_path_annotations` for details.
+        Any unannotated function argument that shares a name with a URL path
+        parameter is implicitly annotated with this class at runtime.
 
-        For example, we could rewrite the method from the previous
-        example as:
+        For example, we could simplify the method from the previous
+        example by matching the path variable and method argument names:
 
         .. code-block:: python
 
-            @get("todos{/id}")
+            @get("/todos{/id}")
             def get_todo(self, id): pass
     """
 
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_STRING
+    def converter_key(self):
+        return keys.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
         request_definition_builder.uri.add_variable(self.name)
@@ -269,61 +268,177 @@ class Path(NamedArgument):
 
 
 class Query(NamedArgument):
+    """
+    Set a dynamic query parameter.
+
+    This annotation turns argument values into URL query
+    parameters. You can include it as function argument
+    annotation, in the format: ``<query argument>: uplink.Query``.
+
+    If the API endpoint you are trying to query uses ``q`` as a query
+    parameter, you can add ``q: uplink.Query`` to the consumer method to
+    set the ``q`` search term at runtime.
+
+    Example:
+        .. code-block:: python
+
+            @get("/search/commits")
+            def search(self, search_term: Query("q")):
+                '''Search all commits with the given search term.'''
+
+        To specify whether or not the query parameter is already URL encoded,
+        use the optional :py:obj:`encoded` argument:
+
+        .. code-block:: python
+
+            @get("/search/commits")
+            def search(self, search_term: Query("q", encoded=True)):
+                \"""Search all commits with the given search term.\"""
+
+    Args:
+        encoded (:obj:`bool`, optional): Specifies whether the parameter
+            :py:obj:`name` and value are already URL encoded.
+    """
+
+    class QueryStringEncodingError(exceptions.AnnotationError):
+        message = (
+            "Failed to join encoded and unencoded query parameters."
+        )
+
+    def __init__(self, name=None, encoded=False, type=None):
+        super(Query, self).__init__(name, type)
+        self._encoded = encoded
 
     @staticmethod
-    def convert_to_string(value):
-        # TODO: Move this responsibility to the `converter`
-        # Convert to string or list of strings.
-        if isinstance(value, (list, tuple)):
-            return list(map(str, value))
+    def _update_params(info, existing, new_params, encoded):
+        # TODO: Consider moving some of this to the client backend.
+        if encoded:
+            params = [] if existing is None else [str(existing)]
+            params.extend("%s=%s" % (n, new_params[n]) for n in new_params)
+            info["params"] = "&".join(params)
         else:
-            return str(value)
+            info["params"].update(new_params)
+
+    @staticmethod
+    def update_params(info, new_params, encoded):
+        existing = info.setdefault("params", None if encoded else dict())
+        if encoded == isinstance(existing, collections.Mapping):
+            raise Query.QueryStringEncodingError()
+        Query._update_params(info, existing, new_params, encoded)
 
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_REQUEST_BODY
+    def converter_key(self):
+        """Converts query parameters to the request body."""
+        if self._encoded:
+            return keys.CONVERT_TO_STRING
+        else:
+            return keys.Sequence(keys.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
-        value = self.convert_to_string(value)
-        request_builder.info["params"][self.name] = value
+        """Updates request body with the query parameter."""
+        self.update_params(
+            request_builder.info,
+            {self.name: value},
+            self._encoded
+        )
 
 
 class QueryMap(TypedArgument):
+    """
+    A mapping of query arguments.
+
+    If the API you are using accepts multiple query arguments, you can
+    include them all in your function method by using the format:
+    ``<query argument>: uplink.QueryMap``
+
+    Example:
+        .. code-block:: python
+
+            @get("/search/users")
+            def search(self, **params: QueryMap):
+                \"""Search all users.\"""
+
+    Args:
+        encoded (:obj:`bool`, optional): Specifies whether the parameter
+            :py:obj:`name` and value are already URL encoded.
+    """
+    
+    def __init__(self, encoded=False, type=None):
+        super(QueryMap, self).__init__(type)
+        self._encoded = encoded
 
     @property
-    def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+    def converter_key(self):
+        """Converts query mapping to request body."""
+        if self._encoded:
+            return keys.Map(keys.CONVERT_TO_STRING)
+        else:
+            return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
-    @classmethod
-    def modify_request(cls, request_builder, value):
-        value = dict((k, Query.convert_to_string(value[k])) for k in value)
-        request_builder.info["params"].update(value)
+    def modify_request(self, request_builder, value):
+        """Updates request body with the mapping of query args."""
+        Query.update_params(request_builder.info, value, self._encoded)
 
 
 class Header(NamedArgument):
+    """
+    Pass a header as a method argument at runtime.
+
+    While :py:class:`uplink.headers` attaches static headers
+    that define all requests sent from a consumer method, this
+    class turns a method argument into a dynamic header value.
+
+    Example:
+        .. code-block:: python
+
+            @get("/user")
+            def (self, session_id: Header("Authorization")):
+                \"""Get the authenticated user\"""
+    """
 
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_STRING
+    def converter_key(self):
+        """Converts passed argument to string."""
+        return keys.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
+        """Updates request header contents."""
         request_builder.info["headers"][self.name] = value
 
 
 class HeaderMap(TypedArgument):
+    """Pass a mapping of header fields at runtime."""
 
     @property
-    def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_STRING)
+    def converter_key(self):
+        """Converts every header field to string"""
+        return keys.Map(keys.CONVERT_TO_STRING)
 
     @classmethod
     def modify_request(cls, request_builder, value):
+        """Updates request header contents."""
         request_builder.info["headers"].update(value)
 
 
 class Field(NamedArgument):
+    """
+    Defines a form field to the request body.
+
+    Use together with the decorator :py:class:`uplink.form_url_encoded`
+    and annotate each argument accepting a form field with
+    :py:class:`uplink.Field`.
+
+    Example::
+        .. code-block:: python
+
+            @form_url_encoded
+            @post("/users/edit")
+            def update_user(self, first_name: Field, last_name: Field):
+                \"""Update the current user.\"""
+    """
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
+        """Used if the field chosen failed to be defined."""
         message = (
             "Failed to define field '%s' to request body. Another argument "
             "annotation might have overwritten the body entirely."
@@ -333,10 +448,12 @@ class Field(NamedArgument):
             self.message = self.message % field.name
 
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_STRING
+    def converter_key(self):
+        """Converts type to string."""
+        return keys.CONVERT_TO_STRING
 
     def modify_request(self, request_builder, value):
+        """Updates the request body with chosen field."""
         try:
             request_builder.info["data"][self.name] = value
         except TypeError:
@@ -346,18 +463,36 @@ class Field(NamedArgument):
 
 
 class FieldMap(TypedArgument):
+    """
+    Defines a mapping of form fields to the request body.
+
+    Use together with the decorator :py:class:`uplink.form_url_encoded`
+    and annotate each argument accepting a form field with
+    :py:class:`uplink.FieldMap`.
+
+    Example:
+        .. code-block:: python
+
+            @form_url_encoded
+            @post("/user/edit")
+            def create_post(self, **user_info: FieldMap):
+                \"""Update the current user.\"""
+    """
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
+        """Use when the attempt to update the request body failed."""
         message = (
             "Failed to update request body with field map. Another argument "
             "annotation might have overwritten the body entirely."
         )
 
     @property
-    def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_STRING)
+    def converter_key(self):
+        """Converts type to string."""
+        return keys.Map(keys.CONVERT_TO_STRING)
 
     def modify_request(self, request_builder, value):
+        """Updates request body with chosen field mapping."""
         try:
             request_builder.info["data"].update(value)
         except AttributeError:
@@ -366,48 +501,113 @@ class FieldMap(TypedArgument):
 
 
 class Part(NamedArgument):
+    """
+    Marks an argument as a form part.
+
+    Use together with the decorator :py:class:`uplink.multipart` and
+    annotate each form part with :py:class:`uplink.Part`.
+
+    Example:
+        .. code-block:: python
+
+            @multipart
+            @put(/user/photo")
+            def update_user(self, photo: Part, description: Part):
+                \"""Upload a user profile photo.\"""
+    """
 
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_REQUEST_BODY
+    def converter_key(self):
+        """Converts part to the request body."""
+        return keys.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
+        """Updates the request body with the form part."""
         request_builder.info["files"][self.name] = value
 
 
 class PartMap(TypedArgument):
+    """
+    A mapping of form field parts.
+
+    Use together with the decorator :py:class:`uplink.multipart` and
+    annotate each part of form parts with :py:class:`uplink.PartMap`
+
+    Example:
+        .. code-block:: python
+
+            @multipart
+            @put(/user/photo")
+            def update_user(self, photo: Part, description: Part):
+                \"""Upload a user profile photo.\"""
+    """
 
     @property
-    def converter_type(self):
-        return converter.Map(converter.CONVERT_TO_REQUEST_BODY)
+    def converter_key(self):
+        """Converts each part to the request body."""
+        return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
     def modify_request(self, request_builder, value):
+        """Updaytes request body to with the form parts."""
         request_builder.info["files"].update(value)
 
 
 class Body(TypedArgument):
+    """
+    Set the request body at runtime.
 
+    Use together with the decorator :py:class:`uplink.json`. The method
+    argument value will become the request's body when annotated
+    with :py:class:`uplink.Body`.
+
+    Example:
+        .. code-block:: python
+
+            @json
+            @patch(/user")
+            def update_user(self, **info: Body):
+                \"""Update the current user.\"""
+    """
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_REQUEST_BODY
+    def converter_key(self):
+        """Converts request body."""
+        return keys.CONVERT_TO_REQUEST_BODY
 
     def modify_request(self, request_builder, value):
+        """Updates request body data."""
         request_builder.info["data"] = value
 
 
 class Url(ArgumentAnnotation):
+    """
+    Sets a dynamic URL.
+
+    Provides the URL at runtime as a method argument. Drop the decorator
+    parameter path from :py:class:`uplink.get` and annotate the
+    corresponding argument with :py:class:`uplink.Url`
+
+    Example:
+        .. code-block:: python
+
+            @get
+            def get(self, endpoint: Url):
+                \"""Execute a GET requests against the given endpoint\"""
+    """
 
     class DynamicUrlAssignmentFailed(exceptions.AnnotationError):
+        """Raised when the attempt to set dynamic url fails."""
         message = "Failed to set dynamic url annotation on `%s`. "
 
         def __init__(self, request_definition_builder):
             self.message = self.message % request_definition_builder.__name__
 
     @property
-    def converter_type(self):
-        return converter.CONVERT_TO_STRING
+    def converter_key(self):
+        """Converts url type to string."""
+        return keys.CONVERT_TO_STRING
 
     def modify_request_definition(self, request_definition_builder):
+        """Sets dynamic url."""
         try:
             request_definition_builder.uri.is_dynamic = True
         except ValueError:
@@ -416,4 +616,5 @@ class Url(ArgumentAnnotation):
 
     @classmethod
     def modify_request(cls, request_builder, value):
+        """Updates request url."""
         request_builder.uri = value

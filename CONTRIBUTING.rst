@@ -87,7 +87,8 @@ feature branch, which contains work for the next or some distant
 release. To start a feature branch, branch off of ``master``. Preferably,
 prefix the branch name with ``feature/`` (or ``feature/v{version}/``, where
 {version} is the feature's target release version -- e.g., ``feature/v1.0
-.0/*``) for clarity. Make your changes on this branch.
+.0/*``) for clarity. Make your changes on this branch, then when ready
+to merge, open a `pull request`_ against ``master``.
 
 Importantly, if your changes are not targeted for the next immediate
 release, keep them on the feature branch until ``master`` is bumped to

@@ -89,6 +89,21 @@ class TestMethodAnnotation(object):
                 request_definition_builder
             )
 
+    def test_call_with_child_class(self,
+                                   method_annotation,
+                                   request_definition_builder):
+        class Parent(object):
+            builder = request_definition_builder
+
+        class Child(Parent):
+            pass
+
+        # Method annotation should not decorate RequestDefinitionBuilder
+        # attribute of parent class (e.g., `Parent.builder`).
+        method_annotation(Child)
+        builder = request_definition_builder.method_handler_builder
+        assert not builder.add_annotation.called
+
 
 def test_headers(request_builder):
     headers = decorators.headers({"key_1": "value_1"})

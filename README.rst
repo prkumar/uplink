@@ -1,91 +1,63 @@
 Uplink
 ******
-|PyPI Version| |Build Status| |Coverage Status| |Documentation Status|
+|PyPI Version| |Build Status| |Coverage Status| |Code Climate| |Documentation Status|
+|Gitter|
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with Requests, asyncio, and Twisted.
-- Inspired by `Retrofit <http://square.github io/retrofit/>`__.
+- Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
 A Quick Walkthrough, with GitHub API v3
 =======================================
-Turn a Python class into a self-describing consumer of your favorite HTTP
-webservice, using method decorators and function annotations:
+Uplink turns your HTTP API into a Python class.
 
 .. code-block:: python
 
-    from uplink import *
+   from uplink import Consumer, get, headers, Path, Query
 
-    # To define common request metadata, you can decorate the class
-    # rather than each method separately.
-    @headers({"Accept": "application/vnd.github.v3.full+json"})
-    class GitHub(Consumer):
+   @headers({"Accept": "application/vnd.github.v3.full+json"})
+   class GitHub(Consumer):
 
-        @get("/users/{username}")
-        def get_user(self, username):
-            """Get a single user."""
+      @get("users/{user}/repos")
+      def list_repos(self, user: Path, sort_by: Query("sort")):
+         """Get user's public repositories."""
 
-        @json
-        @patch("/user")
-        def update_user(self, access_token: Query, **info: Body):
-            """Update an authenticated user."""
-
-Let's build an instance of this GitHub API consumer for the main site!
-(Notice that I can use this same consumer class to also access any
-GitHub Enterprise instance by simply changing the ``base_url``.):
+Build an instance to interact with the webservice.
 
 .. code-block:: python
 
-    github = GitHub(base_url="https://api.github.com/")
+   github = GitHub(base_url="https://api.github.com/")
 
-To access the GitHub API with this instance, we can invoke any of the
-methods that we defined in our class definition above. To illustrate,
-let's update my GitHub profile bio with ``update_user``:
+Then, executing an HTTP request is as simply as invoking a method.
 
 .. code-block:: python
 
-    response = github.update_user(oauth_token, bio="Beam me up, Scotty!")
+   repos = github.list_repos("octocat", sort_by="created")
 
-*Voila*, the method seamlessly builds the request (using the decorators
-and annotations from the method's definition) and executes it in the same call.
-And, by default, Uplink uses the powerful `Requests
-<http://docs.python-requests.org/en/master/>`_ library. So, the
-returned ``response`` is simply a ``requests.Response`` (`documentation
-<http://docs.python-requests.org/en/master/api/#requests.Response>`__):
+The returned object is a friendly |requests.Response|_:
+
+.. |requests.Response| replace:: ``requests.Response``
+.. _requests.Response: http://docs.python-requests.org/en/master/api/#requests.Response
 
 .. code-block:: python
 
-    print(response.json()) # {u'disk_usage': 216141, u'private_gists': 0, ...
+   print(repos.json())
+   # Output: [{'id': 64778136, 'name': 'linguist', ...
 
-In essence, Uplink delivers reusable and self-sufficient objects for
-accessing HTTP webservices, with minimal code and user pain ☺️.
+For sending non-blocking requests, Uplink comes with support for
+|aiohttp and twisted|_.
 
-Asynchronous Requests
----------------------
-Uplink includes support for concurrent requests with asyncio (for Python 3.4+)
-and Twisted (for all supported Python versions).
+.. |aiohttp and twisted| replace:: ``aiohttp`` and ``twisted``
+.. _`aiohttp and twisted`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 
-For example, let's create an instance of our GitHub API consumer that
-returns awaitable responses using ``aiohttp``:
+Use decorators and function annotations to describe the HTTP request:
 
-.. code-block:: python
+* URL parameter replacement and query parameter support
+* Convert responses into Python objects (e.g., |using marshmallow|_)
+* JSON, URL-encoded, and multipart request body and file upload
 
-   github = GitHub("https://api.github.com/", client=uplink.AiohttpClient())
-
-Then, given a list of GitHub ``usernames``, we can use the ``get_user`` method
-to fetch users concurrently with an ``asyncio`` event loop:
-
-.. code-block:: python
-
-   futures = map(github.get_user, usernames)
-   loop = asyncio.get_event_loop()
-   print(loop.run_until_complete(asyncio.gather(*futures)))
-
-To learn more about Uplink's support for asynchronous requests, checkout
-the `documentation
-<http://uplink.readthedocs.io/en/latest/advanced.html#making-non-blocking-requests>`_.
-Also, `this Gist
-<https://gist.github.com/prkumar/4e905edb988bc3d3d95e680ef043f934>`_
-provides short examples for using Uplink with asyncio and Twisted.
+.. |using marshmallow| replace:: using ``marshmallow``
+.. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 
 Installation
 ============
@@ -95,8 +67,7 @@ To install the latest stable release, you can use ``pip``:
 
 ::
 
-    $ pip install uplink
-
+    $ pip install -U uplink
 
 If you are interested in the cutting-edge, preview the upcoming release with:
 
@@ -104,26 +75,56 @@ If you are interested in the cutting-edge, preview the upcoming release with:
 
    $ pip install https://github.com/prkumar/uplink/archive/master.zip
 
+Extra! Extra!
+-------------
+
+Further, uplink has optional integrations and features, such as
+`sending non-blocking requests with <examples/async-requests>`__
+``aiohttp`` and `deserializing JSON responses using <examples/marshmallow>`__
+``marshmallow``. You can view a full list of available extras `here
+<http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
+
+When installing Uplink with ``pip``, you can specify any of number of extras
+using the format:
+
+::
+
+   $ pip install -U uplink[extra1, extra2, ..., extraN]
+
+
+For instance, to install ``aiohttp`` and ``marshmallow`` support:
+
+::
+
+   $ pip install -U uplink[aiohttp, marshmallow]
+
+
 Documentation
 =============
-For more details, check out the documentation at http://uplink.readthedocs.io/.
+For more details, check out the documentation at https://uplink.readthedocs.io/.
 
 Contributing
 ============
 Want to report a bug, request a feature, or contribute code to Uplink?
-Checkout the `Contribution Guide <CONTRIBUTING.rst>`_ for where to start.
+Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
-.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
+.. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
+   :target: https://codeclimate.com/github/prkumar/uplink/maintainability
+   :alt: Maintainability
+.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
    :target: https://coveralls.io/github/prkumar/uplink?branch=master
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
+.. |Gitter| image:: https://badges.gitter.im/python-uplink/Lobby.svg
+   :target: https://gitter.im/python-uplink/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+   :alt: Join the chat at https://gitter.im/python-uplink/Lobby
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |PyPI Version| image:: https://img.shields.io/pypi/v/uplink.svg
    :target: https://pypi.python.org/pypi/uplink
-.. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
-   :target: https://pypi.python.org/pypi/uplink
+
+.. _`Contribution Guide`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst

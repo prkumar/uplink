@@ -2,13 +2,24 @@
 import atexit
 
 # Local imports
-from uplink.clients import interfaces
+from uplink.clients import register, interfaces
 
 # Third party imports
 import requests
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
+    """
+    A :py:mod:`requests` client that returns
+    :py:class:`requests.Response` responses.
+
+    Args:
+        session (:py:class:`requests.Session`, optional): The session
+            that should handle sending requests. If this argument is
+            omitted or set to :py:obj:`None`, a new session will be
+            created.
+    """
+
     def __init__(self, session=None):
         if session is None:
             session = requests.Session()
@@ -17,6 +28,12 @@ class RequestsClient(interfaces.HttpClientAdapter):
 
     def create_request(self):
         return Request(self._session)
+
+    @staticmethod
+    @register.handler
+    def with_session(session, *args, **kwargs):
+        if isinstance(session, requests.Session):
+            return RequestsClient(session, *args, **kwargs)
 
 
 class Request(interfaces.Request):
