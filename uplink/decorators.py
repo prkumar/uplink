@@ -104,10 +104,14 @@ class headers(MethodAnnotation):
 
     def __init__(self, arg, **kwargs):
         if isinstance(arg, str):
-            header = arg.replace(":", "").split(" ")
-            self._headers = {header[0]: header[1]}
+            key, value = map(str.strip, arg.split(":"))
+            self._headers = {key: value}
         elif isinstance(arg, list):
-            self._headers = {arg[0].replace(":", ""): arg[1]}
+            headers = {}
+            for header in arg:
+                key, value = header.split(': ')
+                headers[key] = value
+            self._headers = headers
         else:
             self._headers = dict(arg, **kwargs)
 

@@ -114,9 +114,10 @@ def test_headers(request_builder):
     headers_str.modify_request(request_builder)
     assert request_builder.info["headers"] == {"key_1": "value_1"}
 
-    headers_lst = decorators.headers(["key_1", "value_1"])
+    headers_lst = decorators.headers(["key_1: value_1", "key_2: value_2"])
     headers_lst.modify_request(request_builder)
-    assert request_builder.info["headers"] == {"key_1": "value_1"}
+    header = {"key_1": "value_1", "key_2": "value_2"}
+    assert request_builder.info["headers"] == header
 
 
 def test_form_url_encoded(request_builder):
