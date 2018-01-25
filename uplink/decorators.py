@@ -104,16 +104,15 @@ class headers(MethodAnnotation):
 
     def __init__(self, arg, **kwargs):
         if isinstance(arg, str):
-            key, value = map(str.strip, arg.split(":"))
+            key, value = self._get_header(arg)
             self._headers = {key: value}
         elif isinstance(arg, list):
-            headers = {}
-            for header in arg:
-                key, value = header.split(': ')
-                headers[key] = value
-            self._headers = headers
+            self._headers = dict(self._get_header(a) for a in arg)
         else:
             self._headers = dict(arg, **kwargs)
+
+    def _get_header(self, arg):
+        return map(str.strip, arg.split(":"))
 
     def modify_request(self, request_builder):
         """Updates header contents."""
