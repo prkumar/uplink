@@ -53,7 +53,17 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             will be created.
     """
 
+    # TODO: Update docstrings to include aiohttp constructor parameters.
+
     __ARG_SPEC = collections.namedtuple("__ARG_SPEC", "args kwargs")
+
+    def __new__(cls, *args, **kwargs):
+        # TODO: Add tests
+        can_be_session = len(args) == 1 and len(kwargs) == 0
+        if can_be_session and isinstance(args[0], aiohttp.ClientSession):
+            return cls(args[0])
+        else:
+            return cls.create(*args, **kwargs)
 
     def __init__(self, session=None):
         if aiohttp is None:

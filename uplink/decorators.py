@@ -2,7 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, interfaces
+from uplink import exceptions, helpers, hooks, interfaces
 
 
 __all__ = [
@@ -315,3 +315,12 @@ class args(MethodAnnotation):
         request_definition_builder.argument_handler_builder.set_annotations(
             self._annotations, **self._more_annotations
         )
+
+
+# noinspection PyPep8Naming
+class response_handler(MethodAnnotation):
+    def __init__(self, func):
+        self._hook = hooks.ResponseHandler(func)
+
+    def modify_request(self, request_builder):
+        request_builder.add_transcation_hook(self._hook)

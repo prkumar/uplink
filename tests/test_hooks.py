@@ -2,6 +2,15 @@
 from uplink import hooks
 
 
+class TestResponseHandlerHook(object):
+    def test_handle_response(self, mocker):
+        converter_ = mocker.Mock()
+        input_value = "converted"
+        converter_.return_value = input_value
+        rc = hooks.ResponseHandler(converter_)
+        assert rc.handle_response(None) is input_value
+
+
 class TestBaseHttpClient(object):
 
     def test_handle_response(self):

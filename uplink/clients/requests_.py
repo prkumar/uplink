@@ -19,12 +19,10 @@ class RequestsClient(interfaces.HttpClientAdapter):
             omitted or set to :py:obj:`None`, a new session will be
             created.
     """
-
-    def __init__(self, session=None):
+    def __init__(self, session=None, **kwargs):
         if session is None:
-            session = requests.Session()
-            atexit.register(session.close)
-        self._session = session
+            session = self._create_session(**kwargs)
+        self.__session = session
 
     def create_request(self):
         return Request(self._session)
@@ -34,6 +32,15 @@ class RequestsClient(interfaces.HttpClientAdapter):
     def with_session(session, *args, **kwargs):
         if isinstance(session, requests.Session):
             return RequestsClient(session, *args, **kwargs)
+
+    @staticmethod
+    def _create_session(**kwargs):
+        # TODO: Add docstrings
+        session = requests.Session()
+        atexit.register(session.close)
+        for key in kwargs:
+            setattr(session, key, kwargs[key])
+        return session
 
 
 class Request(interfaces.Request):

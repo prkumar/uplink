@@ -20,15 +20,6 @@ def uplink_builder(http_client_mock):
     return b
 
 
-class TestResponseConverter(object):
-    def test_handle_response(self, mocker, transaction_hook_mock):
-        converter_ = mocker.Mock()
-        input_value = "converted"
-        converter_.return_value = input_value
-        rc = builder.ResponseConverter(transaction_hook_mock, converter_)
-        assert rc.handle_response(None) is input_value
-
-
 class TestRequestHandler(object):
 
     def test_fulfill(self, mocker, request_mock):
