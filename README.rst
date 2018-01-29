@@ -78,11 +78,8 @@ If you are interested in the cutting-edge, preview the upcoming release with:
 Extra! Extra!
 -------------
 
-Further, uplink has optional integrations and features, such as
-`sending non-blocking requests with <examples/async-requests>`__
-``aiohttp`` and `deserializing JSON responses using <examples/marshmallow>`__
-``marshmallow``. You can view a full list of available extras `here
-<http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
+Further, uplink has optional integrations and features. You can view a full list 
+of available extras `here <http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
 
 When installing Uplink with ``pip``, you can specify any of number of extras
 using the format:

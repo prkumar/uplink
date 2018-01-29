@@ -153,6 +153,7 @@ A request header can be updated dynamically using the :py:class:`~uplink.Header`
 function parameter annotation:
 
 .. code:: python
+
     @get("user")
     def get_user(self, authorization: Header):
         """Get an authenticated user."""

@@ -6,21 +6,42 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
-Unreleased_
-===========
+0.3.0_ - 2018-1-09
+==================
+Added
+-----
+- HTTP HEAD request decorator by `@brandonio21`_.
+- Support for returning deserialized response objects using ``marshmallow``
+  schemas.
+- Constructor parameter for ``uplink.Query`` and ``uplink.QueryMap`` to
+  support already encoded URL parameters.
+- Support for using ``requests.Session`` and ``aiohttp.ClientSession``
+  instances with the ``client`` parameter of the ``uplink.Consumer`` 
+  constructor.
+
+Changed
+-------
+- ``aiohttp`` and ``twisted`` are now optional dependencies/extras.
+
+Fixed
+-----
+- Fix for calling a request method with ``super``, by `@brandonio21`_.
+- Fix issue where method decorators would incorrectly decorate inherited
+  request methods.
 
 0.2.2_ - 2017-11-23
 ===================
 Fixed
 -----
-- Fix error raised when an object that is not a class is passed into the 
-  ``client`` parameter of the ``Consumer`` constructor.
+- Fix for error raised when an object that is not a class is passed into the
+  ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_.
 
 0.2.0_ - 2017-11-03
 ===================
 Added
 -----
-- The class ``uplink.Consumer``. Consumer classes should inherit this base
+- The class ``uplink.Consumer`` by `@itstehkman`_. Consumer classes should
+  inherit this base.
   class, and creating consumer instances happens through instantiation.
 - Support for ``asyncio`` for Python 3.4 and above.
 - Support for ``twisted`` for all supported Python versions.
@@ -69,11 +90,18 @@ Added
 - README that contains GitHub API v3 example, installation instructions with
   ``pip``, and link to online documentation.
 
+.. General Links
 .. _Retrofit: http://square.github.io/retrofit/
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
-.. _Unreleased: https://github.com/prkumar/uplink/compare/v0.2.2...HEAD
+.. Releases
+.. _0.3.0: https://github.com/prkumar/uplink/compare/v0.2.2...v0.3.0
 .. _0.2.2: https://github.com/prkumar/uplink/compare/v0.2.0...v0.2.2
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
 .. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1
+
+.. Contributors
+.. _@brandonio21: https://github.com/brandonio21
+.. _@itstehkman: https://github.com/itstehkman
+.. _@kadrach: https://github.com/kadrach
