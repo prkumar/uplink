@@ -6,7 +6,7 @@ Here are a few ways to simplify consumer definitions.
 Decorating All Request Methods in a Class
 =========================================
 
-To apply an decorator across all methods in a class, you can simply
+To apply a decorator across all methods in a class, you can simply
 decorate the class rather than each method individually:
 
 .. code-block:: python
@@ -23,7 +23,7 @@ decorate the class rather than each method individually:
             """List all organizations."""
 
 Hence, the consumer defined above is equivalent to the following,
-slightly more verbose alternative:
+slightly more verbose definition:
 
 .. code-block:: python
 
@@ -42,20 +42,33 @@ slightly more verbose alternative:
 Adopting the Argument's Name
 ============================
 
-When you initialize a named annotation, such as a
-:py:class:`~uplink.Path` or :py:class:`~Field`, without a name (by
-omitting the :py:attr:`name` parameter), it adopts the name of its
-corresponding method argument.
+Several function argument annotations accept a :py:attr:`name` parameter
+on construction. For instance, the :py:class:`~uplink.Path` annotation
+uses the :py:attr:`name` parameter to associate the function argument to
+a URI path parameter:
 
-For example, in the snippet below, we can omit naming the
+.. code-block:: python
+
+    class GitHub(uplink.Consumer):
+        @uplink.get("users/{username}")
+        def get_user(self, username: uplink.Path("username")): pass
+
+For such annotations, you can omit the :py:attr:`name` parameter to have the
+annotation adopt the name of its corresponding method argument.
+
+For instance, from the previous example, we can omit naming the
 :py:class:`~uplink.Path` annotation since the corresponding argument's
-name, :py:attr:`username`, matches the intended URI path parameter:
+name, :py:attr:`username`, matches the intended URI path parameter.
 
 .. code-block:: python
 
     class GitHub(uplink.Consumer):
         @uplink.get("users/{username}")
         def get_user(self, username: uplink.Path): pass
+
+Some annotations that support this behavior include:
+:py:class:`~uplink.Path`, :py:class:`uplink.Field`, :py:class:`~uplink.Part`
+:py:class:`~uplink.Header`, and :py:class:`uplink.Query`.
 
 Annotating Your Arguments For Python 2.7
 ========================================
