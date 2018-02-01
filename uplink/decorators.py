@@ -2,7 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, interfaces
+from uplink import exceptions, helpers, hooks, interfaces
 
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     "timeout",
     "returns",
     "args",
+    "error_handler"
 ]
 
 
@@ -322,4 +323,54 @@ class args(MethodAnnotation):
             self._annotations, **self._more_annotations
         )
 
-# TODO: Add exception handler decorator
+
+# noinspection PyPep8Naming
+class error_handler(MethodAnnotation):
+    """
+    A decorator for creating custom error handlers.
+
+    To register a function as a custom error handler, decorate the
+    function with this class. The decorated function should accept three
+    positional arguments: (1) the type of the exception, (2) the
+    exception instance raised, and (3) a traceback instance.
+
+    Example:
+        .. code-block:: python
+
+            @error_handle
+            def raise_api_error(exc_type, exc_val, exc_tb):
+                # wrap client error with custom API error
+                ...
+
+    Then, to apply custom error handling to a request method, simply
+    decorate the method with the registered error handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_api_error
+            @get("/user/posts")
+            def get_posts(self):
+                \"""Fetch all posts for the current users.\"""
+
+    To apply custom error handling on all request methods of a
+    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    the registered error handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_api_error
+            class GitHub(Consumer):
+               ...
+
+    Args:
+        func (callable): A function that defines some custom error
+            handling.
+    """
+
+    def __init__(self, func):
+        self._handler = hooks.ExceptionHandler(func)
+
+    def modify_request(self, request_builder):
+        request_builder.add_transaction_hook(self._handler)
