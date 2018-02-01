@@ -208,7 +208,7 @@ class Consumer(_Consumer):
         if isinstance(converter, converters.interfaces.ConverterFactory):
             converter = (converter,)
         self._builder.add_converter(*converter)
-        if callable(hook):
+        if isinstance(hook, hooks.TransactionHook):
             hook = (hook,)
         self._builder.add_hook(*hook)
         self._builder.auth = auth
