@@ -6,7 +6,7 @@ import collections
 # Third-party imports
 from requests import auth
 
-__all__ = ["BasicAuth"]
+__all__ = []
 
 
 def _no_auth(*_):
@@ -21,8 +21,9 @@ def get_auth(auth_object=None):
     elif callable(auth_object):
         return auth_object
     else:
-        # TODO: Raise a more explicit error (?)
-        raise ValueError("Invalid auth object: %s" % repr(auth_object))
+        raise ValueError(
+            "Invalid authentication strategy: %s" % auth_object
+        )
 
 
 class BasicAuth(object):
