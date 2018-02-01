@@ -2,7 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, interfaces
+from uplink import exceptions, helpers, hooks, interfaces
 
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     "timeout",
     "returns",
     "args",
+    "response_handler"
 ]
 
 
@@ -321,3 +322,59 @@ class args(MethodAnnotation):
         request_definition_builder.argument_handler_builder.set_annotations(
             self._annotations, **self._more_annotations
         )
+
+
+# noinspection PyPep8Naming
+class response_handler(MethodAnnotation):
+    """
+    A decorator for creating custom response handlers.
+
+    To register a function as a custom response handler, decorate the
+    function with this class. The decorated function should accept a single
+    positional argument, an HTTP response object:
+
+    Example:
+        .. code-block:: python
+
+            @response_handler
+            def raise_for_status(response):
+                response.raise_for_status()
+                return response
+
+    Then, to apply custom response handling to a request method, simply
+    decorate the method with the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            @get("/user/posts")
+            def get_posts(self):
+                \"""Fetch all posts for the current users.\"""
+
+    To apply custom response handling on all request methods of a
+    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            class GitHub(Consumer):
+               ...
+
+    Args:
+        func (callable): A function that defines some custom response
+            handling.
+    """
+
+    def __init__(self, func):
+        self._func = func
+        self._handler = hooks.ResponseHandler(self.__handler)
+
+    def __handler(self, response):
+        new_response = self._func(response)
+        return response if new_response is None else new_response
+
+    def modify_request(self, request_builder):
+        request_builder.add_transaction_hook(self._handler)
