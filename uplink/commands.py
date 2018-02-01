@@ -2,7 +2,7 @@
 import functools
 
 # Local imports
-from uplink import decorators, exceptions, interfaces, types, utils
+from uplink import converters, decorators, exceptions, interfaces, types, utils
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
@@ -133,10 +133,6 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
             method_handler
         )
 
-    def handler(self, handler):
-        decorators.response_handler(handler)(self)
-        return handler
-
 
 class RequestDefinition(interfaces.RequestDefinition):
 
@@ -154,9 +150,9 @@ class RequestDefinition(interfaces.RequestDefinition):
     def method_annotations(self):
         return iter(self._method_handler.annotations)
 
-    def make_converter_registry(self, converters):
+    def make_converter_registry(self, converters_):
         return converters.ConverterFactoryRegistry(
-            converters,
+            converters_,
             argument_annotations=self.argument_annotations,
             request_annotations=self.method_annotations
         )
