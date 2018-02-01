@@ -278,7 +278,7 @@ class returns(MethodAnnotation):
         self._type = type
 
     def modify_request(self, request_builder):
-        request_builder.set_return_type(self._type)
+        request_builder.return_type = self._type
 
 
 # noinspection PyPep8Naming

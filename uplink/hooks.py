@@ -1,44 +1,54 @@
 """
-This module defines an
+This module provides a class for defining custom handling for specific
+points of an HTTP transaction.
 """
 
+__all__ = [
+    "TransactionHook",
+    "RequestAuditor",
+    "ResponseHandler"
+]
 
-class BaseTransactionHook(object):
+
+class TransactionHook(object):
+    """
+    A utility class providing methods that define hooks for specific
+    points of an HTTP transaction.
+    """
 
     def audit_request(self, method, url, extras):  # pragma: no cover
+        """
+        Inspects details of a request before it is sent.
+
+        Args:
+            method (str): The HTTP request method (e.g., "GET").
+            url (str): The URL that identifies the target resource.
+            extras (dict): A mapping of other request metadata
+                (e.g., headers).
+        """
         pass
 
     def handle_response(self, response):
+        """
+        Handles a response object from the server.
+
+        Args:
+            response: The received HTTP response.
+        """
         return response
 
 
-class TransactionHook(BaseTransactionHook):
-    pass
-
-
-class TransactionHookDecorator(BaseTransactionHook):
+class TransactionHookChain(TransactionHook):
     """
-    Decorator pattern for runtime modification of an API client's
-    behavior.
+    A chain that conjoins several transaction hooks into a single
+    object.
+
+    A method call on this composite object invokes the corresponding
+    method on all hooks in the chain.
     """
 
-    def __init__(self, connection):
-        assert isinstance(connection, BaseTransactionHook)
-        self._connection = connection
-
-    def __getattr__(self, item):  # pragma: no cover
-        return getattr(self._connection, item)
-
-    def audit_request(self, *args, **kwargs):
-        self._connection.audit_request(*args, **kwargs)
-
-    def handle_response(self, *args, **kwargs):
-        return self._connection.handle_response(*args, **kwargs)
-
-
-class TransactionHookChain(BaseTransactionHook):
     def __init__(self, *hooks):
-        self._hooks = hooks
+        self._hooks = list(hooks)
 
     def audit_request(self, *args, **kwargs):
         for hook in self._hooks:
@@ -50,7 +60,12 @@ class TransactionHookChain(BaseTransactionHook):
         return response
 
 
-class RequestAuditor(BaseTransactionHook):
+class RequestAuditor(TransactionHook):
+    """
+    Transaction hook that inspects requests using a function provided at
+    time of instantiation.
+    """
+
     def __init__(self, auditor):
         self._audit = auditor
 
@@ -58,7 +73,12 @@ class RequestAuditor(BaseTransactionHook):
         return self._audit(*args, **kwargs)
 
 
-class ResponseHandler(BaseTransactionHook):
+class ResponseHandler(TransactionHook):
+    """
+    Transaction hook that handles responses using a function provided at
+    time of instantiation.
+    """
+
     def __init__(self, handler):
         self._handle = handler
 

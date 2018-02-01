@@ -25,7 +25,7 @@ class RequestsClient(interfaces.HttpClientAdapter):
         self.__session = session
 
     def create_request(self):
-        return Request(self._session)
+        return Request(self.__session)
 
     @staticmethod
     @register.handler

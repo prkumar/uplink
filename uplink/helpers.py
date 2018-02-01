@@ -81,7 +81,12 @@ class RequestBuilder(object):
     def get_converter(self, converter_key, *args, **kwargs):
         return self._converter_registry[converter_key](*args, **kwargs)
 
-    def set_return_type(self, return_type):
+    @property
+    def return_type(self):
+        return self._return_type
+
+    @return_type.setter
+    def return_type(self, return_type):
         self._return_type = return_type
 
     def add_transaction_hook(self, hook):

@@ -149,7 +149,7 @@ def test_timeout(request_builder):
 def test_returns(request_builder):
     returns = decorators.returns(str)
     returns.modify_request(request_builder)
-    request_builder.set_return_type.assert_called_with(str)
+    assert request_builder.return_type is str
 
 
 def test_args(request_definition_builder):
