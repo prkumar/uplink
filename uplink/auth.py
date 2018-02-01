@@ -6,10 +6,18 @@ import collections
 # Third-party imports
 from requests import auth
 
+__all__ = ["BasicAuth"]
 
-def get_auth(auth_object):
-    if isinstance(auth_object, collections.Iterable):
-        return HttpBasicAuth(*auth_object)
+
+def _no_auth(*_):
+    pass
+
+
+def get_auth(auth_object=None):
+    if auth_object is None:
+        return _no_auth
+    elif isinstance(auth_object, collections.Iterable):
+        return BasicAuth(*auth_object)
     elif callable(auth_object):
         return auth_object
     else:
@@ -17,7 +25,7 @@ def get_auth(auth_object):
         raise ValueError("Invalid auth object: %s" % repr(auth_object))
 
 
-class HttpBasicAuth(object):
+class BasicAuth(object):
     """Authorizes requests using HTTP Basic Authentication."""
 
     def __init__(self, username, password):
@@ -35,7 +43,7 @@ class HttpBasicAuth(object):
         request_builder.info["headers"]["Authorization"] = self._auth_str
 
 
-class HttpProxyAuth(HttpBasicAuth):
+class ProxyAuth(BasicAuth):
 
     def __call__(self, request_builder):
         request_builder.info["headers"]["Proxy-Authorization"] = self._auth_str

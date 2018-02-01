@@ -44,10 +44,11 @@ class RequestPreparer(object):
         return utils.urlparse.urljoin(self._base_url, uri)
 
     def _get_hook(self, contract):
-        converter = contract.get_converter(keys.CONVERT_FROM_RESPONSE_BODY)
+        converter = contract.get_converter(
+            keys.CONVERT_FROM_RESPONSE_BODY, contract.return_type)
         converter_hook = hooks.ResponseHandler(converter.convert)
-        hook_chain = [converter_hook] + self._hooks
-        hook_chain += list(contract.transaction_hooks)
+        hook_chain = list(contract.transaction_hooks)
+        hook_chain += [converter_hook] + self._hooks
         return hooks.TransactionHookChain(*hook_chain)
 
     def get_url(self, url):
@@ -86,10 +87,10 @@ class Builder(interfaces.CallBuilder):
     def __init__(self):
         self._base_url = ""
         self._hooks = []
-        self._client = clients.DEFAULT_CLIENT
+        self._client = clients.get_client()
         self._converters = collections.deque()
         self._converters.append(converters.StandardConverter())
-        self._auth = None
+        self._auth = auth_.get_auth()
 
     @property
     def client(self):
@@ -207,6 +208,8 @@ class Consumer(_Consumer):
         if isinstance(converter, converters.interfaces.ConverterFactory):
             converter = (converter,)
         self._builder.add_converter(*converter)
+        if callable(hook):
+            hook = (hook,)
         self._builder.add_hook(*hook)
         self._builder.auth = auth
         self._builder.client = client
