@@ -321,3 +321,5 @@ class args(MethodAnnotation):
         request_definition_builder.argument_handler_builder.set_annotations(
             self._annotations, **self._more_annotations
         )
+
+# TODO: Add exception handler decorator

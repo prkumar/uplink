@@ -17,7 +17,7 @@ except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import interfaces, register
+from uplink.clients import helpers, interfaces, register
 
 
 def threaded_callback(callback):
@@ -123,17 +123,22 @@ class Request(interfaces.Request):
     def __init__(self, client):
         self._client = client
         self._callback = None
+        self._error_handler = helpers.ExceptionHandler()
 
     @asyncio.coroutine
     def send(self, method, url, extras):
         session = yield from self._client.session()
-        response = yield from session.request(method, url, **extras)
+        with self._error_handler:
+            response = yield from session.request(method, url, **extras)
         if self._callback is not None:
             response = yield from self._callback(response)
         return response
 
     def add_callback(self, callback):
         self._callback = self._client.wrap_callback(callback)
+
+    def add_error_handler(self, error_handler):
+        self._error_handler.set_handler(error_handler)
 
 
 class ThreadedCoroutine(object):

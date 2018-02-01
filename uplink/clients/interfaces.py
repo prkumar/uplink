@@ -13,3 +13,7 @@ class Request(object):
 
     def add_callback(self, callback):
         raise NotImplementedError
+
+    # TODO: Consider renaming this to `add_exception_handler`
+    def add_error_handler(self, error_handler):
+        raise NotImplementedError

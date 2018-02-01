@@ -62,6 +62,7 @@ class RequestPreparer(object):
         hook.audit_request(request_builder.method, url, request_builder.info)
         sender = self._client.create_request()
         sender.add_callback(hook.handle_response)
+        sender.add_error_handler(hook.handle_exception)
         return sender.send(request_builder.method, url, request_builder.info)
 
     def create_request_builder(self, definition):

@@ -2,7 +2,7 @@
 import atexit
 
 # Local imports
-from uplink.clients import register, interfaces
+from uplink.clients import helpers, interfaces, register
 
 # Third party imports
 import requests
@@ -48,16 +48,21 @@ class Request(interfaces.Request):
     def __init__(self, session):
         self._session = session
         self._callback = None
+        self._error_handler = helpers.ExceptionHandler()
 
     def send(self, method, url, extras):
-        response = self._session.request(
-            method=method,
-            url=url,
-            **extras
-        )
+        with self._error_handler:
+            response = self._session.request(
+                method=method,
+                url=url,
+                **extras
+            )
         if self._callback is not None:
             response = self._callback(response)
         return response
 
     def add_callback(self, callback):
         self._callback = callback
+
+    def add_error_handler(self, error_handler):
+        self._error_handler.set_handler(error_handler)
