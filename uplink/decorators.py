@@ -325,7 +325,7 @@ class args(MethodAnnotation):
 
 
 # noinspection PyPep8Naming
-class response_handler(MethodAnnotation):
+class response_handler(MethodAnnotation, hooks.ResponseHandler):
     """
     A decorator for creating custom response handlers.
 
@@ -362,19 +362,6 @@ class response_handler(MethodAnnotation):
             @raise_for_status
             class GitHub(Consumer):
                ...
-
-    Args:
-        func (callable): A function that defines some custom response
-            handling.
     """
-
-    def __init__(self, func):
-        self._func = func
-        self._handler = hooks.ResponseHandler(self.__handler)
-
-    def __handler(self, response):
-        new_response = self._func(response)
-        return response if new_response is None else new_response
-
     def modify_request(self, request_builder):
-        request_builder.add_transaction_hook(self._handler)
+        request_builder.add_transaction_hook(self)
