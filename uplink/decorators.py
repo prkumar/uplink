@@ -325,7 +325,7 @@ class args(MethodAnnotation):
 
 
 # noinspection PyPep8Naming
-class error_handler(MethodAnnotation):
+class error_handler(MethodAnnotation, hooks.ExceptionHandler):
     """
     A decorator for creating custom error handlers.
 
@@ -337,7 +337,7 @@ class error_handler(MethodAnnotation):
     Example:
         .. code-block:: python
 
-            @error_handle
+            @error_handler
             def raise_api_error(exc_type, exc_val, exc_tb):
                 # wrap client error with custom API error
                 ...
@@ -363,14 +363,6 @@ class error_handler(MethodAnnotation):
             @raise_api_error
             class GitHub(Consumer):
                ...
-
-    Args:
-        func (callable): A function that defines some custom error
-            handling.
     """
-
-    def __init__(self, func):
-        self._handler = hooks.ExceptionHandler(func)
-
     def modify_request(self, request_builder):
-        request_builder.add_transaction_hook(self._handler)
+        request_builder.add_transaction_hook(self)
