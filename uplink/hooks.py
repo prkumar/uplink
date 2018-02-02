@@ -83,10 +83,7 @@ class RequestAuditor(TransactionHook):
     """
 
     def __init__(self, auditor):
-        self._audit = auditor
-
-    def audit_request(self, *args, **kwargs):
-        return self._audit(*args, **kwargs)
+        self.audit_request = auditor
 
 
 class ResponseHandler(TransactionHook):
@@ -95,11 +92,8 @@ class ResponseHandler(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, response_handler):
-        self._handle = response_handler
-
-    def handle_response(self, *args, **kwargs):
-        return self._handle(*args, **kwargs)
+    def __init__(self, handler):
+        self.handle_response = handler
 
 
 class ExceptionHandler(TransactionHook):
@@ -109,7 +103,4 @@ class ExceptionHandler(TransactionHook):
     """
 
     def __init__(self, exception_handler):
-        self._handle = exception_handler
-
-    def handle_exception(self, *args, **kwargs):
-        return self._handle(*args, **kwargs)
+        self.handle_exception = exception_handler
