@@ -113,16 +113,3 @@ class ExceptionHandler(TransactionHook):
 
     def handle_exception(self, *args, **kwargs):
         return self._handle(*args, **kwargs)
-
-
-class ExceptionHandler(TransactionHook):
-    """
-    Transaction hook that handles an exception thrown while waiting for
-    a response, using the provided function.
-    """
-
-    def __init__(self, exception_handler):
-        self._handle = exception_handler
-
-    def handle_exception(self, *args, **kwargs):
-        return self._handle(*args, **kwargs)
