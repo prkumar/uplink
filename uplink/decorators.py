@@ -13,7 +13,8 @@ __all__ = [
     "timeout",
     "returns",
     "args",
-    "error_handler"
+    "response_handler",
+    "error_handler",
 ]
 
 
@@ -322,6 +323,50 @@ class args(MethodAnnotation):
         request_definition_builder.argument_handler_builder.set_annotations(
             self._annotations, **self._more_annotations
         )
+
+
+# noinspection PyPep8Naming
+class response_handler(MethodAnnotation, hooks.ResponseHandler):
+    """
+    A decorator for creating custom response handlers.
+
+    To register a function as a custom response handler, decorate the
+    function with this class. The decorated function should accept a single
+    positional argument, an HTTP response object:
+
+    Example:
+        .. code-block:: python
+
+            @response_handler
+            def raise_for_status(response):
+                response.raise_for_status()
+                return response
+
+    Then, to apply custom response handling to a request method, simply
+    decorate the method with the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            @get("/user/posts")
+            def get_posts(self):
+                \"""Fetch all posts for the current users.\"""
+
+    To apply custom response handling on all request methods of a
+    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            class GitHub(Consumer):
+               ...
+    """
+
+    def modify_request(self, request_builder):
+        request_builder.add_transaction_hook(self)
 
 
 # noinspection PyPep8Naming

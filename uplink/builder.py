@@ -18,19 +18,6 @@ from uplink.converters import keys
 __all__ = ["build", "Consumer"]
 
 
-class RequestHandler(object):
-    # TODO: Remove this and all tests for it.
-
-    def __init__(self, hook, method, url, extras):
-        self._args = (method, url, extras)
-        self._hook = hook
-
-    def fulfill(self, request):
-        self._hook.audit_request(*self._args)
-        request.add_callback(self._hook.handle_response)
-        return request.send(*self._args)
-
-
 class RequestPreparer(object):
 
     def __init__(self, builder):
@@ -50,9 +37,6 @@ class RequestPreparer(object):
         hook_chain = list(contract.transaction_hooks)
         hook_chain += [converter_hook] + self._hooks
         return hooks.TransactionHookChain(*hook_chain)
-
-    def get_url(self, url):
-        return self._join_uri_with_base(url)
 
     def prepare_request(self, request_builder):
         # TODO: Add tests for this that make sure the client is called?
