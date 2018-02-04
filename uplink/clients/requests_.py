@@ -63,5 +63,5 @@ class Request(interfaces.Request):
     def add_callback(self, callback):
         self._callback = callback
 
-    def add_error_handler(self, error_handler):
-        self._error_handler.set_handler(error_handler)
+    def add_exception_handler(self, exception_handler):
+        self._error_handler.set_handler(exception_handler)

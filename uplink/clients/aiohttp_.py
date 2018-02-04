@@ -137,8 +137,8 @@ class Request(interfaces.Request):
     def add_callback(self, callback):
         self._callback = self._client.wrap_callback(callback)
 
-    def add_error_handler(self, error_handler):
-        self._error_handler.set_handler(error_handler)
+    def add_exception_handler(self, exception_handler):
+        self._error_handler.set_handler(exception_handler)
 
 
 class ThreadedCoroutine(object):
