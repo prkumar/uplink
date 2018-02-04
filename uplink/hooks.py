@@ -16,16 +16,8 @@ class TransactionHook(object):
     points of an HTTP transaction.
     """
 
-    def audit_request(self, method, url, extras):  # pragma: no cover
-        """
-        Inspects details of a request before it is sent.
-
-        Args:
-            method (str): The HTTP request method (e.g., "GET").
-            url (str): The URL that identifies the target resource.
-            extras (dict): A mapping of other request metadata
-                (e.g., headers).
-        """
+    def audit_request(self, request_builder):  # pragma: no cover
+        """Inspects details of a request before it is sent."""
         pass
 
     def handle_response(self, response):

@@ -6,16 +6,15 @@ import collections
 # Third-party imports
 from requests import auth
 
+# Local imports
+from uplink import utils
+
 __all__ = []
-
-
-def _no_auth(*_):
-    pass
 
 
 def get_auth(auth_object=None):
     if auth_object is None:
-        return _no_auth
+        return utils.no_op
     elif isinstance(auth_object, collections.Iterable):
         return BasicAuth(*auth_object)
     elif callable(auth_object):

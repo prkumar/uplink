@@ -22,11 +22,13 @@ def method_handler_builder():
 class TestMethodAnnotationHandlerBuilder(object):
 
     def test_add_annotation(self,
+                            mocker,
                             method_handler_builder,
                             method_annotation_mock):
+        method_handler_builder.listener = mocker.stub()
         method_handler_builder.add_annotation(method_annotation_mock)
-        method_annotation_mock.modify_request_definition.assert_called_with(
-            method_handler_builder.request_definition_builder
+        method_handler_builder.listener.assert_called_with(
+            method_annotation_mock
         )
         annotations = method_handler_builder.build().annotations
         assert list(annotations) == [method_annotation_mock]
@@ -157,3 +159,20 @@ def test_args(request_definition_builder):
     args.modify_request_definition(request_definition_builder)
     builder = request_definition_builder.argument_handler_builder
     builder.set_annotations.assert_called_with((str, str), name=str)
+
+
+def test_args_decorate_function(mocker):
+    handler = mocker.Mock(spec=["set_annotations"])
+
+    @classmethod
+    def patched(*_):
+        return handler
+
+    mocker.patch(
+        "uplink.types.ArgumentAnnotationHandlerBuilder.from_func",
+        patched
+    )
+    args = decorators.args(str, str, name=str)
+    func = mocker.stub()
+    args(func)
+    handler.set_annotations.assert_called_with((str, str), name=str)

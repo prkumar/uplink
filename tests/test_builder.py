@@ -47,11 +47,7 @@ class TestRequestPreparer(object):
         uplink_builder.base_url = "https://example.com"
         request_preparer = builder.RequestPreparer(uplink_builder)
         request_preparer.prepare_request(request_builder)
-        transaction_hook_mock.audit_request.assert_called_with(
-            "METHOD",
-            "https://example.com/example/path",
-            {}
-        )
+        transaction_hook_mock.audit_request.assert_called_with(request_builder)
 
 
 class TestCallFactory(object):

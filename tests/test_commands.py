@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import commands, utils
+from uplink import commands, types, utils
 
 
 class TestHttpMethodFactory(object):
@@ -100,8 +100,7 @@ class TestRequestDefinitionBuilder(object):
 
     def test_build(self,
                    mocker,
-                   annotation_handler_builder_mock,
-        ):
+                   annotation_handler_builder_mock):
         argument_handler_builder = type(annotation_handler_builder_mock)()
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
@@ -116,6 +115,55 @@ class TestRequestDefinitionBuilder(object):
         assert uri_definition_builder.build.called
         assert argument_handler_builder.build.called
         assert method_handler_builder.build.called
+
+    def test_auto_fill_when_not_done(
+            self,
+            mocker,
+            annotation_handler_builder_mock):
+        # Setup
+        argument_handler_builder = mocker.Mock(stub=types.ArgumentAnnotationHandlerBuilder)
+        method_handler_builder = annotation_handler_builder_mock
+        uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
+        builder = commands.RequestDefinitionBuilder(
+            "method",
+            uri_definition_builder,
+            argument_handler_builder,
+            method_handler_builder
+        )
+
+        # Setup success condition
+        argument_handler_builder.is_done.return_value = False
+        argument_handler_builder.missing_arguments = ["arg1"]
+        uri_definition_builder.remaining_variables = ["arg1"]
+
+        # Verify
+        builder.build()
+        argument_handler_builder.set_annotations.assert_called_with(
+            {"arg1": types.Path}
+        )
+
+    def test_auto_fill_when_not_done_fails(self,
+                   mocker,
+                   annotation_handler_builder_mock):
+        # Setup
+        argument_handler_builder = annotation_handler_builder_mock
+        method_handler_builder = annotation_handler_builder_mock
+        uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
+        builder = commands.RequestDefinitionBuilder(
+            "method",
+            uri_definition_builder,
+            argument_handler_builder,
+            method_handler_builder
+        )
+
+        # Setup fail condition: Argument is missing annotation
+        argument_handler_builder.is_done.return_value = False
+        argument_handler_builder.missing_arguments = ["arg1"]
+        uri_definition_builder.remaining_variables = []
+
+        # Verify
+        with pytest.raises(commands.MissingArgumentAnnotations):
+            builder.build()
 
 
 class TestRequestDefinition(object):

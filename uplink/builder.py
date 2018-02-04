@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+import functools
 import warnings
 
 # Local imports
@@ -7,11 +8,12 @@ from uplink import (
     auth as auth_,
     clients,
     converters,
-    hooks,
-    interfaces,
     exceptions,
     helpers,
-    utils
+    hooks,
+    interfaces,
+    utils,
+    types
 )
 from uplink.converters import keys
 
@@ -55,25 +57,17 @@ class RequestPreparer(object):
         return chain
 
     @staticmethod
-    def apply_hooks(chain, request, sender):
+    def apply_hooks(chain, request_builder, sender):
         if len(chain) == 1:
             hook = chain[0]
         else:
             hook = hooks.TransactionHookChain(*chain)
-        hook.audit_request(*request)
+        hook.audit_request(request_builder)
         sender.add_callback(hook.handle_response)
         sender.add_error_handler(hook.handle_exception)
 
     def get_url(self, url):
         return self._join_uri_with_base(url)
-
-    @staticmethod
-    def _build_request(request_builder):
-        return (
-            request_builder.method,
-            request_builder.uri,
-            request_builder.info
-        )
 
     def prepare_request(self, request_builder):
         # TODO: Add tests for this that make sure the client is called?
@@ -82,10 +76,13 @@ class RequestPreparer(object):
         self._auth(request_builder)
         sender = self._client.create_request()
         chain = self._get_hook_chain(request_builder)
-        request = self._build_request(request_builder)
         if chain:
-            self.apply_hooks(chain, request, sender)
-        return sender.send(*request)
+            self.apply_hooks(chain, request_builder, sender)
+        return sender.send(
+            request_builder.method,
+            request_builder.uri,
+            request_builder.info
+        )
 
     def create_request_builder(self, definition):
         registry = definition.make_converter_registry(self._converters)
@@ -195,13 +192,37 @@ class ConsumerMethod(object):
 
 
 class ConsumerMeta(type):
+
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
         if isinstance(value, interfaces.RequestDefinitionBuilder):
             value = ConsumerMethod(cls_name, key, value)
         return value
 
+    @staticmethod
+    def _set_init_handler(namespace):
+        try:
+            init = namespace["__init__"]
+        except KeyError:
+            pass
+        else:
+            builder = types.ArgumentAnnotationHandlerBuilder.from_func(init)
+            handler = builder.build()
+
+            @functools.wraps(init)
+            def new_init(self, *args, **kwargs):
+                init(self, *args, **kwargs)
+                f = functools.partial(
+                    handler.handle_call, args=args, kwargs=kwargs
+                )
+                hook = hooks.RequestAuditor(f)
+                self._builder.add_hook(hook)
+
+            namespace["__init__"] = new_init
+
     def __new__(mcs, name, bases, namespace):
+        mcs._set_init_handler(namespace)
+
         # Wrap all definition builders with a special descriptor that
         # handles attribute access behavior.
         for key, value in namespace.items():
