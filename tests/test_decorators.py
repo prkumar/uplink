@@ -157,3 +157,12 @@ def test_args(request_definition_builder):
     args.modify_request_definition(request_definition_builder)
     builder = request_definition_builder.argument_handler_builder
     builder.set_annotations.assert_called_with((str, str), name=str)
+
+
+def test_response_handler(request_builder):
+    @decorators.response_handler
+    def handler(response):
+        return response
+
+    handler.modify_request(request_builder)
+    request_builder.add_transaction_hook(handler)
