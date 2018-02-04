@@ -51,9 +51,6 @@ class RequestPreparer(object):
         hook_chain += [converter_hook] + self._hooks
         return hooks.TransactionHookChain(*hook_chain)
 
-    def get_url(self, url):
-        return self._join_uri_with_base(url)
-
     def prepare_request(self, request_builder):
         # TODO: Add tests for this that make sure the client is called?
         self._auth(request_builder)

@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import builder, converters, exceptions, helpers
+from uplink import auth, builder, converters, exceptions
 
 
 @pytest.fixture
@@ -120,8 +120,10 @@ def test_build(
         fake_service_cls,
         base_url="example.com",
         client=http_client_mock,
-        converter=converter_factory_mock
+        converter=converter_factory_mock,
+        auth=("username", "password")
     )
     assert builder_mock.base_url == "example.com"
     assert builder_mock.client is http_client_mock
     assert list(builder_mock.converters)[0] is converter_factory_mock
+    assert isinstance(builder_mock.auth, auth.BasicAuth)
