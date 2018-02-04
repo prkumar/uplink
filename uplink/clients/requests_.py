@@ -35,7 +35,6 @@ class RequestsClient(interfaces.HttpClientAdapter):
 
     @staticmethod
     def _create_session(**kwargs):
-        # TODO: Add docstrings
         session = requests.Session()
         atexit.register(session.close)
         for key in kwargs:

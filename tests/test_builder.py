@@ -20,19 +20,6 @@ def uplink_builder(http_client_mock):
     return b
 
 
-class TestRequestHandler(object):
-
-    def test_fulfill(self, request_mock, transaction_hook_mock):
-        request_mock.send.return_value = 1
-
-        request_handler = builder.RequestHandler(transaction_hook_mock, 1, 2, 3)
-        value = request_handler.fulfill(request_mock)
-
-        transaction_hook_mock.audit_request(1, 2, 3)
-        request_mock.add_callback.assert_called_with(transaction_hook_mock.handle_response)
-        assert value == 1
-
-
 class TestRequestPreparer(object):
 
     def test_prepare_request(
