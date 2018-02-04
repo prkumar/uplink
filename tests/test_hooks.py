@@ -27,6 +27,14 @@ class TestRequestAuditor(object):
         auditor.assert_called_with(1, 2, 3)
 
 
+class TestExceptionHandler(object):
+    def test_handle_exception(self, mocker):
+        handler = mocker.stub()
+        eh = hooks.ExceptionHandler(handler)
+        eh.handle_exception(1, 2, 3)
+        handler.assert_called_with(1, 2, 3)
+
+
 class TestTransactionHookChain(object):
 
     def test_delegate_audit_request(self, transaction_hook_mock):
