@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import builder, converters, hooks, exceptions, utils
+from uplink import auth, builder, converters, exceptions
 
 
 @pytest.fixture
@@ -20,44 +20,20 @@ def uplink_builder(http_client_mock):
     return b
 
 
-class TestResponseConverter(object):
-    def test_handle_response(self, mocker, transaction_hook_mock):
-        converter_ = mocker.Mock()
-        input_value = "converted"
-        converter_.return_value = input_value
-        rc = builder.ResponseConverter(transaction_hook_mock, converter_)
-        assert rc.handle_response(None) is input_value
-
-
-class TestRequestHandler(object):
-
-    def test_fulfill(self, mocker, request_mock):
-        hook = mocker.Mock(spec=hooks.BaseTransactionHook)
-        request_mock.send.return_value = 1
-
-        request_handler = builder.RequestHandler(hook, 1, 2, 3)
-        value = request_handler.fulfill(request_mock)
-
-        hook.audit_request(1, 2, 3)
-        request_mock.add_callback.assert_called_with(hook.handle_response)
-        assert value == 1
-
-
 class TestRequestPreparer(object):
 
     def test_prepare_request(
             self,
-            request_definition,
             uplink_builder,
+            request_builder,
             transaction_hook_mock
     ):
-        request = utils.Request("METHOD", "/example/path", {}, None)
-        uplink_builder.hook = transaction_hook_mock
+        request_builder.method = "METHOD"
+        request_builder.uri = "/example/path"
+        uplink_builder.add_hook(transaction_hook_mock)
         uplink_builder.base_url = "https://example.com"
-        request_preparer = builder.RequestPreparer(
-            uplink_builder, request_definition
-        )
-        request_preparer.prepare_request(request)
+        request_preparer = builder.RequestPreparer(uplink_builder)
+        request_preparer.prepare_request(request_builder)
         transaction_hook_mock.audit_request.assert_called_with(
             "METHOD",
             "https://example.com/example/path",
@@ -78,7 +54,6 @@ class TestCallFactory(object):
         request_definition.define_request.assert_called_with(
             request_builder, args, kwargs
         )
-        assert request_builder.build.called
 
 
 class TestBuilder(object):
@@ -132,8 +107,10 @@ def test_build(
         fake_service_cls,
         base_url="example.com",
         client=http_client_mock,
-        converter=converter_factory_mock
+        converter=converter_factory_mock,
+        auth=("username", "password")
     )
     assert builder_mock.base_url == "example.com"
     assert builder_mock.client is http_client_mock
     assert list(builder_mock.converters)[0] is converter_factory_mock
+    assert isinstance(builder_mock.auth, auth.BasicAuth)

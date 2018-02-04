@@ -20,7 +20,7 @@ def request_mock(mocker):
 
 @pytest.fixture
 def transaction_hook_mock(mocker):
-    return mocker.Mock(spec=hooks.BaseTransactionHook)
+    return mocker.Mock(spec=hooks.TransactionHook)
 
 
 @pytest.fixture

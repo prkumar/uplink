@@ -54,7 +54,12 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             self._schema = schema
 
         def convert(self, response):
-            return self._schema.load(response.json()).data
+            try:
+                json = response.json()
+            except AttributeError:
+                return response
+            else:
+                return self._schema.load(json).data
 
     class RequestBodyConverter(interfaces.Converter):
         def __init__(self, schema):

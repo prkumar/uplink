@@ -2,7 +2,7 @@
 import functools
 
 # Local imports
-from uplink import decorators, exceptions, interfaces, types, utils
+from uplink import converters, decorators, exceptions, interfaces, types, utils
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
@@ -101,6 +101,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         self._uri = uri
         self._argument_handler_builder = argument_handler_builder
         self._method_handler_builder = method_handler_builder
+        self._handler = None
 
         argument_handler_builder.set_request_definition_builder(self)
         method_handler_builder.set_request_definition_builder(self)
@@ -149,12 +150,20 @@ class RequestDefinition(interfaces.RequestDefinition):
     def method_annotations(self):
         return iter(self._method_handler.annotations)
 
+    def make_converter_registry(self, converters_):
+        return converters.ConverterFactoryRegistry(
+            converters_,
+            argument_annotations=self.argument_annotations,
+            request_annotations=self.method_annotations
+        )
+
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method
-        request_builder.uri = self._uri
+        request_builder.uri = utils.URIBuilder(self._uri)
         self._argument_handler.handle_call(
             request_builder, func_args, func_kwargs)
         self._method_handler.handle_builder(request_builder)
+        request_builder.uri = request_builder.uri.build()
 
 
 get = HttpMethodFactory("GET").__call__

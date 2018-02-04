@@ -53,14 +53,15 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             will be created.
     """
 
+    # TODO: Update docstrings to include aiohttp constructor parameters.
+
     __ARG_SPEC = collections.namedtuple("__ARG_SPEC", "args kwargs")
 
-    def __init__(self, session=None):
+    def __init__(self, session=None, **kwargs):
         if aiohttp is None:
             raise NotImplementedError("aiohttp is not installed.")
-
         if session is None:
-            session = self.__ARG_SPEC((), {})
+            session = self._create_session(**kwargs)
         self._session = session
         self._sync_callback_adapter = threaded_callback
 
@@ -92,6 +93,10 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             return AiohttpClient(session, *args, **kwargs)
 
     @classmethod
+    def _create_session(cls, *args, **kwargs):
+        return cls.__ARG_SPEC(args, kwargs)
+
+    @classmethod
     def create(cls, *args, **kwargs):
         """
         Builds a client instance with
@@ -109,7 +114,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             **kwargs: keyword arguments that
                 :py:class:`aiohttp.ClientSession` takes.
         """
-        session_build_args = cls.__ARG_SPEC(args, kwargs)
+        session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)
 
 

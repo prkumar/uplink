@@ -111,12 +111,7 @@ class RequestDefinitionBuilder(object):
 
 class RequestDefinition(object):
 
-    @property
-    def argument_annotations(self):
-        raise NotImplementedError
-
-    @property
-    def method_annotations(self):
+    def make_converter_registry(self, converters):
         raise NotImplementedError
 
     def define_request(self, request_builder, func_args, func_kwargs):
@@ -129,18 +124,25 @@ class CallBuilder(object):
     def client(self):
         raise NotImplementedError
 
-    @client.setter
-    def client(self, client):
-        raise NotImplementedError
-
     @property
     def base_url(self):
-        raise NotImplementedError
-
-    @base_url.setter
-    def base_url(self, base_url):
         raise NotImplementedError
 
     @property
     def converters(self):
         raise NotImplementedError
+
+    @property
+    def hooks(self):
+        raise NotImplementedError
+
+    @property
+    def auth(self):
+        raise NotImplementedError
+
+
+class Auth(object):
+
+    def __call__(self, request_builder):
+        raise NotImplementedError
+

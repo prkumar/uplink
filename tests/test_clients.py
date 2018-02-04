@@ -58,6 +58,12 @@ class TestRequests(object):
         client = register.get_client(session_mock)
         assert isinstance(client, requests_.RequestsClient)
 
+    def test_init_with_kwargs(self):
+        session = requests_.RequestsClient._create_session(
+            cred=("username", "password")
+        )
+        assert session.cred == ("username", "password")
+
 
 class TestTwisted(object):
 
