@@ -51,7 +51,7 @@ class RequestPreparer(object):
             hook = hooks.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
         sender.add_callback(hook.handle_response)
-        sender.add_error_handler(hook.handle_exception)
+        sender.add_exception_handler(hook.handle_exception)
 
     def prepare_request(self, request_builder):
         # TODO: Add tests for this that make sure the client is called?
