@@ -40,6 +40,19 @@ class ArgumentTestCase(object):
     def test_is_static(self):
         assert self.type_cls.can_be_static == self.expected_can_be_static
 
+    def test_static_call(self, mocker, request_definition_builder):
+        request_definition_builder = self.type_cls(request_definition_builder)
+        builder = request_definition_builder.argument_handler_builder
+        builder.add_annotation.assert_called_with(mocker.ANY)
+
+
+class FuncDecoratorTestCase(object):
+
+    def test_static_call_with_function(self):
+        def func(a1, a2): return a1, a2
+        output = self.type_cls(func)
+        assert output is func
+
 
 class TestArgumentAnnotationHandlerBuilder(object):
     
@@ -54,41 +67,38 @@ class TestArgumentAnnotationHandlerBuilder(object):
         assert builder.remaining_args_count == len(args)
 
     @inject_args
-    def test_add_annotation_without_name(self, argument_mock, args):
+    def test_add_annotation_without_name(self, mocker, argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder.listener = mocker.stub()
         builder.add_annotation(argument_mock)
-        argument_mock.modify_request_definition.assert_called_with(
-            builder.request_definition_builder
-        )
+        builder.listener.assert_called_with(argument_mock)
         assert args[0] not in builder.missing_arguments
 
     @inject_args
-    def test_add_annotation_with_name(self, argument_mock, args):
+    def test_add_annotation_with_name(self, mocker, argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder.listener = mocker.stub()
         builder.add_annotation(argument_mock, name=args[-1])
-        argument_mock.modify_request_definition.assert_called_with(
-            builder.request_definition_builder
-        )
+        builder.listener.assert_called_with(argument_mock)
         assert args[-1] not in builder.missing_arguments
 
     @inject_args
-    def test_add_named_annotation_without_name(self, named_argument_mock, args):
+    def test_add_named_annotation_without_name(self, mocker,
+                                               named_argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
         named_argument_mock.name = None
+        builder.listener = mocker.stub()
         builder.add_annotation(named_argument_mock)
-        named_argument_mock.modify_request_definition.assert_called_with(
-            builder.request_definition_builder
-        )
+        builder.listener.assert_called_with(named_argument_mock)
         assert named_argument_mock.name == args[0]
         assert args[0] not in builder.missing_arguments
 
     @inject_args
-    def test_add_annotation_class(self, argument_mock, args):
+    def test_add_annotation_class(self, mocker, argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder.listener = mocker.stub()
         argument = builder.add_annotation(type(argument_mock))
-        argument.modify_request_definition.assert_called_with(
-            builder.request_definition_builder
-        )
+        builder.listener.assert_called_with(argument)
         assert args[0] not in builder.missing_arguments
 
     @inject_args
@@ -106,40 +116,20 @@ class TestArgumentAnnotationHandlerBuilder(object):
             builder.add_annotation(argument_mock)
 
     @inject_args
-    def test_set_annotations(self, argument_mock, args):
+    def test_set_annotations(self, mocker, argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder.listener = mocker.stub()
         builder.set_annotations((argument_mock,))
-        argument_mock.modify_request_definition.assert_called_with(
-            builder.request_definition_builder
-        )
+        builder.listener.assert_called_with(argument_mock)
         assert args[0] not in builder.missing_arguments
 
     @inject_args
-    def test_set_annotations_with_dict(self, argument_mock, args):
+    def test_set_annotations_with_dict(self, mocker, argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder.listener = mocker.stub()
         builder.set_annotations(**{args[0]: argument_mock})
-        argument_mock.modify_request_definition.assert_called_with(
-            builder.request_definition_builder
-        )
+        builder.listener.assert_called_with(argument_mock)
         assert args[0] not in builder.missing_arguments
-
-    @inject_args
-    def test_auto_fill_when_not_done(self, request_definition_builder, args):
-        request_definition_builder.uri.remaining_variables = args
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
-        builder.set_request_definition_builder(request_definition_builder)
-        handler = builder.build()
-        types_ = map(type, handler.annotations)
-        assert list(types_) == ([types.Path] * len(args))
-        names = [argument.name for argument in handler.annotations]
-        assert names == args
-
-    def test_auto_fill_when_not_done_fails(self, request_definition_builder):
-        request_definition_builder.uri.remaining_variables = []
-        builder = types.ArgumentAnnotationHandlerBuilder(None, ["arg1"], False)
-        builder.set_request_definition_builder(request_definition_builder)
-        with pytest.raises(types.MissingArgumentAnnotations):
-            builder.build()
 
 
 class TestArgumentAnnotationHandler(object):
@@ -210,7 +200,7 @@ class TestPath(ArgumentTestCase):
         request_builder.uri.set_variable.assert_called_with({"name": "value"})
 
 
-class TestQuery(ArgumentTestCase):
+class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
     type_cls = types.Query
     expected_converter_key = keys.Sequence(keys.CONVERT_TO_STRING)
 
@@ -232,7 +222,7 @@ class TestQuery(ArgumentTestCase):
             )
 
 
-class TestQueryMap(ArgumentTestCase):
+class TestQueryMap(ArgumentTestCase, FuncDecoratorTestCase):
     type_cls = types.QueryMap
     expected_converter_key = keys.Map(TestQuery.expected_converter_key)
 
@@ -246,7 +236,7 @@ class TestQueryMap(ArgumentTestCase):
         assert request_builder.info["params"] == "name=value"
 
 
-class TestHeader(ArgumentTestCase):
+class TestHeader(ArgumentTestCase, FuncDecoratorTestCase):
     type_cls = types.Header
     expected_converter_key = keys.CONVERT_TO_STRING
 
@@ -255,7 +245,7 @@ class TestHeader(ArgumentTestCase):
         assert request_builder.info["headers"] == {"hello": "world"}
 
 
-class TestHeaderMap(ArgumentTestCase):
+class TestHeaderMap(ArgumentTestCase, FuncDecoratorTestCase):
     type_cls = types.HeaderMap
     expected_converter_key = keys.Map(TestHeader.expected_converter_key)
 

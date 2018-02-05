@@ -31,22 +31,19 @@ Annotation = AnnotationMeta(
 
 
 class AnnotationHandlerBuilder(object):
-    __request_definition_builder = None
-
-    def set_annotations(self, *annotations, **kwargs):
-        for annotation in annotations:
-            self.add_annotation(annotation)
-
-    def add_annotation(self, annotation, *args, **kwargs):
-        annotation.modify_request_definition(self.request_definition_builder)
-
-    def set_request_definition_builder(self, request_definition_builder):
-        if self.__request_definition_builder is None:
-            self.__request_definition_builder = request_definition_builder
+    __listener = None
 
     @property
-    def request_definition_builder(self):
-        return self.__request_definition_builder
+    def listener(self):
+        return self.__listener
+
+    @listener.setter
+    def listener(self, listener):
+        self.__listener = listener
+
+    def add_annotation(self, annotation, *args, **kwargs):
+        if self.__listener is not None:
+            self.__listener(annotation)
 
     def is_done(self):
         return True
@@ -145,4 +142,3 @@ class Auth(object):
 
     def __call__(self, request_builder):
         raise NotImplementedError
-

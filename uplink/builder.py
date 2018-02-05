@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+import functools
 import warnings
 
 # Local imports
@@ -7,11 +8,12 @@ from uplink import (
     auth as auth_,
     clients,
     converters,
-    hooks,
-    interfaces,
     exceptions,
     helpers,
-    utils
+    hooks,
+    interfaces,
+    utils,
+    types
 )
 from uplink.converters import keys
 
@@ -30,24 +32,41 @@ class RequestPreparer(object):
     def _join_uri_with_base(self, uri):
         return utils.urlparse.urljoin(self._base_url, uri)
 
-    def _get_hook(self, contract):
+    def _get_hook_chain(self, contract):
+        chain = list(contract.transaction_hooks)
         converter = contract.get_converter(
-            keys.CONVERT_FROM_RESPONSE_BODY, contract.return_type)
-        converter_hook = hooks.ResponseHandler(converter.convert)
-        hook_chain = list(contract.transaction_hooks)
-        hook_chain += [converter_hook] + self._hooks
-        return hooks.TransactionHookChain(*hook_chain)
+            keys.CONVERT_FROM_RESPONSE_BODY,
+            contract.return_type)
+        if converter is not None:
+            # Found a converter that can handle the return type.
+            chain.append(hooks.ResponseHandler(converter.convert))
+        chain.extend(self._hooks)
+        return chain
+
+    @staticmethod
+    def apply_hooks(chain, request_builder, sender):
+        if len(chain) == 1:
+            hook = chain[0]
+        else:
+            hook = hooks.TransactionHookChain(*chain)
+        hook.audit_request(request_builder)
+        sender.add_callback(hook.handle_response)
+        sender.add_error_handler(hook.handle_exception)
 
     def prepare_request(self, request_builder):
         # TODO: Add tests for this that make sure the client is called?
+        # TODO: Rename uri to url
+        request_builder.uri = self._join_uri_with_base(request_builder.uri)
         self._auth(request_builder)
-        url = self._join_uri_with_base(request_builder.uri)
-        hook = self._get_hook(request_builder)
-        hook.audit_request(request_builder.method, url, request_builder.info)
         sender = self._client.create_request()
-        sender.add_callback(hook.handle_response)
-        sender.add_exception_handler(hook.handle_exception)
-        return sender.send(request_builder.method, url, request_builder.info)
+        chain = self._get_hook_chain(request_builder)
+        if chain:
+            self.apply_hooks(chain, request_builder, sender)
+        return sender.send(
+            request_builder.method,
+            request_builder.uri,
+            request_builder.info
+        )
 
     def create_request_builder(self, definition):
         registry = definition.make_converter_registry(self._converters)
@@ -157,13 +176,37 @@ class ConsumerMethod(object):
 
 
 class ConsumerMeta(type):
+
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
         if isinstance(value, interfaces.RequestDefinitionBuilder):
             value = ConsumerMethod(cls_name, key, value)
         return value
 
+    @staticmethod
+    def _set_init_handler(namespace):
+        try:
+            init = namespace["__init__"]
+        except KeyError:
+            pass
+        else:
+            builder = types.ArgumentAnnotationHandlerBuilder.from_func(init)
+            handler = builder.build()
+
+            @functools.wraps(init)
+            def new_init(self, *args, **kwargs):
+                init(self, *args, **kwargs)
+                f = functools.partial(
+                    handler.handle_call, args=args, kwargs=kwargs
+                )
+                hook = hooks.RequestAuditor(f)
+                self._builder.add_hook(hook)
+
+            namespace["__init__"] = new_init
+
     def __new__(mcs, name, bases, namespace):
+        mcs._set_init_handler(namespace)
+
         # Wrap all definition builders with a special descriptor that
         # handles attribute access behavior.
         for key, value in namespace.items():

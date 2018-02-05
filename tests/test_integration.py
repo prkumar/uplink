@@ -21,17 +21,17 @@ class GitHubService(uplink.Consumer):
 
 
 @pytest.fixture
-def github_service_and_client(transaction_hook_mock):
+def github_service_and_client(http_client_mock):
     return (
-        GitHubService(base_url=BASE_URL, hook=transaction_hook_mock),
-        transaction_hook_mock
+        GitHubService(base_url=BASE_URL, client=http_client_mock),
+        http_client_mock
     )
 
 
 def test_list_repo(github_service_and_client):
-    service, transaction_hook_mock = github_service_and_client
+    service, http_client = github_service_and_client
     service.list_repos("prkumar")
-    transaction_hook_mock.audit_request.assert_called_with(
+    http_client.create_request().send.assert_called_with(
         "GET", _get_url("/users/prkumar/repos"), {
             "headers": {
                 "Accept": "application/vnd.github.v3.full+json"

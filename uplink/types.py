@@ -42,25 +42,29 @@ class ArgumentNotFound(exceptions.AnnotationError):
         self.message = self.message % (name, func.__name__)
 
 
-class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
-    message = "Missing annotation for argument(s): '%s'."
-    implicit_message = " (Implicit path variables: '%s')"
+class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
+    __ANNOTATION_BUILDER_KEY = "#ANNOTATION_BUILDER_KEY#"
 
-    def __init__(self, missing, path_variables):
-        missing, path_variables = list(missing), list(path_variables)
-        self.message = self.message % "', '".join(missing)
-        if path_variables:
-            self.message += self.implicit_message % "', '".join(path_variables)
+    @classmethod
+    def from_func(cls, func):
+        if not hasattr(func, cls.__ANNOTATION_BUILDER_KEY):
+            spec = utils.get_arg_spec(func)
+            handler = cls(func, spec.args)
+            setattr(func, cls.__ANNOTATION_BUILDER_KEY, handler)
+            handler.add_annotations_from_spec(spec)
+        return getattr(func, cls.__ANNOTATION_BUILDER_KEY)
 
-
-class ArgumentAnnotationHandlerBuilder(
-    interfaces.AnnotationHandlerBuilder
-):
     def __init__(self, func, arguments, func_is_method=True):
         self._arguments = arguments[func_is_method:]
         self._argument_types = collections.OrderedDict.fromkeys(self._arguments)
         self._defined = 0
         self._func = func
+
+    def add_annotations_from_spec(self, spec):
+        if spec.args:
+            # Ignore `self` instance reference
+            spec.annotations.pop(spec.args[0], None)
+        self.set_annotations(spec.annotations)
 
     @property
     def missing_arguments(self):
@@ -101,24 +105,15 @@ class ArgumentAnnotationHandlerBuilder(
     def is_done(self):
         return self.remaining_args_count == 0
 
-    def _auto_fill_remaining_arguments(self):
-        uri_vars = set(self.request_definition_builder.uri.remaining_variables)
-        missing = list(self.missing_arguments)
-        still_missing = set(missing) - uri_vars
-
-        # Preserve order of function parameters.
-        matching = [p for p in missing if p in uri_vars]
-
-        if still_missing:
-            raise MissingArgumentAnnotations(still_missing, matching)
-        self.set_annotations(dict.fromkeys(matching, Path))
+    @property
+    def _types(self):
+        types = self._argument_types
+        return ((k, types[k]) for k in types if types[k] is not None)
 
     def build(self):
-        if not self.is_done():
-            self._auto_fill_remaining_arguments()
         return ArgumentAnnotationHandler(
             self._func,
-            self._argument_types,
+            collections.OrderedDict(self._types)
         )
 
 
@@ -161,8 +156,7 @@ class ArgumentAnnotation(interfaces.Annotation):
         request_definition_builder.argument_handler_builder.add_annotation(self)
         return request_definition_builder
 
-    def modify_request_definition(self, request_definition_builder):
-        # pragma: no cover
+    def modify_request_definition(self, definition_builder):  # pragma: no cover
         pass
 
     def modify_request(self, request_builder, value):  # pragma: no cover
@@ -220,6 +214,26 @@ class NamedArgument(TypedArgument):
         raise NotImplementedError
 
 
+class FuncDecoratorMixin(object):
+    @classmethod
+    def is_static_call(cls, *args_, **kwargs):
+        if super(FuncDecoratorMixin, cls).is_static_call(*args_, **kwargs):
+            return True
+        try:
+            is_func = inspect.isfunction(args_[0])
+        except IndexError:
+            return False
+        else:
+            return is_func and not (kwargs or args_[1:])
+
+    def __call__(self, obj):
+        if inspect.isfunction(obj):
+            ArgumentAnnotationHandlerBuilder.from_func(obj).add_annotation(self)
+            return obj
+        else:
+            return super(FuncDecoratorMixin, self).__call__(obj)
+
+
 class Path(NamedArgument):
     """
     Substitution of a path variable in a `URI template
@@ -267,7 +281,7 @@ class Path(NamedArgument):
         request_builder.uri.set_variable({self.name: value})
 
 
-class Query(NamedArgument):
+class Query(FuncDecoratorMixin, NamedArgument):
     """
     Set a dynamic query parameter.
 
@@ -343,7 +357,7 @@ class Query(NamedArgument):
         )
 
 
-class QueryMap(TypedArgument):
+class QueryMap(FuncDecoratorMixin, TypedArgument):
     """
     A mapping of query arguments.
 
@@ -380,7 +394,7 @@ class QueryMap(TypedArgument):
         Query.update_params(request_builder.info, value, self._encoded)
 
 
-class Header(NamedArgument):
+class Header(FuncDecoratorMixin, NamedArgument):
     """
     Pass a header as a method argument at runtime.
 
@@ -406,7 +420,7 @@ class Header(NamedArgument):
         request_builder.info["headers"][self.name] = value
 
 
-class HeaderMap(TypedArgument):
+class HeaderMap(FuncDecoratorMixin, TypedArgument):
     """Pass a mapping of header fields at runtime."""
 
     @property
@@ -594,7 +608,7 @@ class Url(ArgumentAnnotation):
                 \"""Execute a GET requests against the given endpoint\"""
     """
 
-    class DynamicUrlAssignmentFailed(exceptions.AnnotationError):
+    class DynamicUrlAssignmentFailed(exceptions.InvalidRequestDefinition):
         """Raised when the attempt to set dynamic url fails."""
         message = "Failed to set dynamic url annotation on `%s`. "
 

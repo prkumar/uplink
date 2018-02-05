@@ -2,7 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, hooks, interfaces
+from uplink import exceptions, helpers, hooks, interfaces, types
 
 
 __all__ = [
@@ -32,16 +32,15 @@ class HttpMethodNotSupport(exceptions.AnnotationError):
         )
 
 
-class MethodAnnotationHandlerBuilder(
-    interfaces.AnnotationHandlerBuilder
-):
+class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     def __init__(self):
         self._method_annotations = list()
 
     def add_annotation(self, annotation, *args_, **kwargs):
-        super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
         self._method_annotations.append(annotation)
+        super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
+        return annotation
 
     def build(self):
         return MethodAnnotationHandler(self._method_annotations)
@@ -318,11 +317,20 @@ class args(MethodAnnotation):
         self._annotations = annotations
         self._more_annotations = more_annotations
 
+    def __call__(self, obj):
+        if inspect.isfunction(obj):
+            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
+            self._helper(handler)
+            return obj
+        else:
+            return super(args, self).__call__(obj)
+
+    def _helper(self, builder):
+        builder.set_annotations(self._annotations, **self._more_annotations)
+
     def modify_request_definition(self, request_definition_builder):
         """Modifies dynamic requests with given annotations"""
-        request_definition_builder.argument_handler_builder.set_annotations(
-            self._annotations, **self._more_annotations
-        )
+        self._helper(request_definition_builder.argument_handler_builder)
 
 
 # noinspection PyPep8Naming

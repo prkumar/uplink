@@ -7,6 +7,17 @@ from uplink import converters, decorators, exceptions, interfaces, types, utils
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
 
+class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
+    message = "Missing annotation for argument(s): '%s'."
+    implicit_message = " (Implicit path variables: '%s')"
+
+    def __init__(self, missing, path_variables):
+        missing, path_variables = list(missing), list(path_variables)
+        self.message = self.message % "', '".join(missing)
+        if path_variables:
+            self.message += self.implicit_message % "', '".join(path_variables)
+
+
 class MissingUriVariables(exceptions.InvalidRequestDefinition):
     message = "On uri template %s, some variables are not handled: %s"
 
@@ -35,17 +46,13 @@ class HttpMethod(object):
     def __call__(self, func):
         spec = utils.get_arg_spec(func)
         arg_handler = types.ArgumentAnnotationHandlerBuilder(func, spec.args)
-        method_handler = decorators.MethodAnnotationHandlerBuilder()
         builder = RequestDefinitionBuilder(
             self._method,
             URIDefinitionBuilder(self._uri),
             arg_handler,
-            method_handler
+            decorators.MethodAnnotationHandlerBuilder()
         )
-        if spec.args:
-            # Ignore `self` instance reference
-            spec.annotations.pop(spec.args[0], None)
-        arg_handler.set_annotations(spec.annotations)
+        arg_handler.add_annotations_from_spec(spec)
         if spec.return_annotation is not None:
             builder = decorators.returns(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
@@ -101,10 +108,12 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         self._uri = uri
         self._argument_handler_builder = argument_handler_builder
         self._method_handler_builder = method_handler_builder
-        self._handler = None
 
-        argument_handler_builder.set_request_definition_builder(self)
-        method_handler_builder.set_request_definition_builder(self)
+        self._argument_handler_builder.listener = self._notify
+        self._method_handler_builder.listener = self._notify
+
+    def _notify(self, annotation):
+        annotation.modify_request_definition(self)
 
     @property
     def method(self):
@@ -122,7 +131,23 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def method_handler_builder(self):
         return self._method_handler_builder
 
+    def _auto_fill_remaining_arguments(self):
+        uri_vars = set(self.uri.remaining_variables)
+        missing = list(self.argument_handler_builder.missing_arguments)
+        still_missing = set(missing) - uri_vars
+
+        # Preserve order of function parameters.
+        matching = [p for p in missing if p in uri_vars]
+
+        if still_missing:
+            raise MissingArgumentAnnotations(still_missing, matching)
+
+        path_vars = dict.fromkeys(matching, types.Path)
+        self.argument_handler_builder.set_annotations(path_vars)
+
     def build(self):
+        if not self._argument_handler_builder.is_done():
+            self._auto_fill_remaining_arguments()
         argument_handler = self._argument_handler_builder.build()
         method_handler = self._method_handler_builder.build()
         uri = self._uri.build()

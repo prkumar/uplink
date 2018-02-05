@@ -64,6 +64,27 @@ class TestRequests(object):
         )
         assert session.cred == ("username", "password")
 
+    def test_create_request(self):
+        client = requests_.RequestsClient()
+        request = client.create_request()
+        assert isinstance(request, requests_.Request)
+
+    def test_request_send(self, mocker):
+        # Setup
+        import requests
+        session_mock = mocker.Mock(spec=requests.Session)
+        session_mock.request.return_value = "response"
+        callback = mocker.stub()
+        client = requests_.Request(session_mock)
+        client.add_callback(callback)
+
+        # Run
+        client.send("method", "url", {})
+
+        # Verify
+        session_mock.request.assert_called_with(method="method", url="url")
+        callback.assert_called_with(session_mock.request.return_value)
+
 
 class TestTwisted(object):
 

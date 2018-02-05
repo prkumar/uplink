@@ -84,6 +84,10 @@ Signature = collections.namedtuple(
 Request = collections.namedtuple("Request", "method uri info return_type")
 
 
+def no_op(*_):
+    pass
+
+
 class URIBuilder(object):
 
     @staticmethod

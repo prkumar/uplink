@@ -24,14 +24,6 @@ class TestCast(object):
         assert return_value == 3
 
 
-class TestResponseBodyConverter(object):
-    def test_convert(self):
-        converter_ = converters.ResponseBodyConverter()
-        response = "json response"
-        converted = converter_.convert(response)
-        assert converted == response
-
-
 class TestRequestBodyConverter(object):
     def test_convert_str(self):
         converter_ = converters.RequestBodyConverter()
