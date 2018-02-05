@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import commands, types, utils
+from uplink import commands, converters, types, utils
 
 
 class TestHttpMethodFactory(object):
@@ -42,6 +42,22 @@ class TestHttpMethod(object):
         missing_arguments = builder.argument_handler_builder.missing_arguments
         expected_missing = set(sig.args[1:]) - set(sig.annotations.keys())
         assert set(missing_arguments) == expected_missing
+
+    def test_call_with_return_annotation(self, mocker):
+        # Setup
+        def func(): pass
+        sig = utils.Signature(
+            args=[],
+            annotations={},
+            return_annotation="return_annotation"
+        )
+        mocker.patch("uplink.utils.get_arg_spec").return_value = sig
+        returns = mocker.patch("uplink.decorators.returns")
+        http_method = commands.HttpMethod("METHOD", uri="/{hello}")
+        http_method(func)
+
+        # Verify: build is wrapped with decorators.returns
+        returns.assert_called_with(sig.return_annotation)
 
 
 class TestURIDefinitionBuilder(object):
@@ -189,3 +205,11 @@ class TestRequestDefinition(object):
         definition.define_request(request_builder, (), {})
         assert request_builder.method == method
         assert request_builder.uri == uri
+
+    def test_make_converter_registry(self, annotation_handler_mock):
+        definition = commands.RequestDefinition(
+            "method", "uri", annotation_handler_mock, annotation_handler_mock
+        )
+        annotation_handler_mock.annotations = ("annotation",)
+        registry = definition.make_converter_registry(())
+        assert isinstance(registry, converters.ConverterFactoryRegistry)

@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import auth, builder, converters, exceptions
+from uplink import auth, builder, converters, exceptions, helpers, interfaces
 
 
 @pytest.fixture
@@ -26,15 +26,46 @@ class TestRequestPreparer(object):
             self,
             uplink_builder,
             request_builder,
+    ):
+        request_builder.method = "METHOD"
+        request_builder.uri = "/example/path"
+        uplink_builder.base_url = "https://example.com"
+        request_preparer = builder.RequestPreparer(uplink_builder)
+        request_preparer.prepare_request(request_builder)
+        uplink_builder.client.create_request().send.assert_called_with(
+            request_builder.method,
+            request_builder.uri,
+            request_builder.info
+        )
+
+    def test_prepare_request_with_transaction_hook(
+            self,
+            uplink_builder,
+            request_builder,
             transaction_hook_mock
     ):
         request_builder.method = "METHOD"
         request_builder.uri = "/example/path"
-        uplink_builder.add_hook(transaction_hook_mock)
         uplink_builder.base_url = "https://example.com"
+        uplink_builder.add_hook(transaction_hook_mock)
         request_preparer = builder.RequestPreparer(uplink_builder)
         request_preparer.prepare_request(request_builder)
         transaction_hook_mock.audit_request.assert_called_with(request_builder)
+        uplink_builder.client.create_request().send.assert_called_with(
+            request_builder.method,
+            request_builder.uri,
+            request_builder.info
+        )
+
+    def test_create_request_builder(
+            self,
+            uplink_builder,
+            request_definition,
+    ):
+        request_definition.make_converter_registry.return_value = {}
+        request_preparer = builder.RequestPreparer(uplink_builder)
+        request = request_preparer.create_request_builder(request_definition)
+        assert isinstance(request, helpers.RequestBuilder)
 
 
 class TestCallFactory(object):
@@ -78,6 +109,10 @@ class TestBuilder(object):
         factory = list(uplink_builder.converters)[0]
         assert factory == converter_factory_mock
 
+    def test_build(self, request_definition, uplink_builder):
+        call = uplink_builder.build(request_definition)
+        assert isinstance(call, builder.CallFactory)
+
 
 def test_build_failure(fake_service_cls):
     exception = exceptions.InvalidRequestDefinition()
@@ -112,3 +147,24 @@ def test_build(
     assert builder_mock.client is http_client_mock
     assert list(builder_mock.converters)[0] is converter_factory_mock
     assert isinstance(builder_mock.auth, auth.BasicAuth)
+
+
+def test_setting_request_method(request_definition_builder):
+    # We need this test, since we wrap the request definition builders and
+    # want to ensure that we unwrap on attribute access.
+
+    class Consumer(builder.Consumer):
+        request_method = request_definition_builder
+
+    # Verify: Get request definition builder on access
+    assert Consumer.request_method is request_definition_builder
+
+    # Verify: Try again after resetting
+    Consumer.request_method = request_definition_builder
+    assert Consumer.request_method is request_definition_builder
+
+    # Verify: We get callable on attribute access for an instance
+    consumer = Consumer()
+    assert callable(consumer.request_method)
+
+

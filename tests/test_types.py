@@ -131,6 +131,12 @@ class TestArgumentAnnotationHandlerBuilder(object):
         builder.listener.assert_called_with(argument_mock)
         assert args[0] not in builder.missing_arguments
 
+    def test_is_done(self, argument_mock):
+        builder = types.ArgumentAnnotationHandlerBuilder(None, ("arg1",), False)
+        assert not builder.is_done()
+        builder.add_annotation(argument_mock)
+        assert builder.is_done()
+
 
 class TestArgumentAnnotationHandler(object):
 
@@ -152,6 +158,13 @@ class TestArgumentAnnotationHandler(object):
         )
         handlers.handle_call(request_builder, (), {})
         annotation.modify_request.assert_called_with(request_builder, "hello")
+
+    @inject_args
+    def test_annotations(self, args):
+        annotations = ["annotation"] * len(args)
+        arg_dict = dict(zip(args, annotations))
+        annotation_handler = types.ArgumentAnnotationHandler(None, arg_dict)
+        assert list(annotation_handler.annotations) == annotations
 
 
 class TestArgumentAnnotation(object):
@@ -221,6 +234,14 @@ class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
                 request_builder, "value2"
             )
 
+    def test_converter_key_with_encoded(self):
+        query = types.Query("name", encoded=True)
+        assert query.converter_key == keys.CONVERT_TO_STRING
+
+    def test_converter_type(self):
+        query = types.Query("name", encoded=False)
+        assert query.converter_key == keys.Sequence(keys.CONVERT_TO_STRING)
+
 
 class TestQueryMap(ArgumentTestCase, FuncDecoratorTestCase):
     type_cls = types.QueryMap
@@ -234,6 +255,16 @@ class TestQueryMap(ArgumentTestCase, FuncDecoratorTestCase):
         types.QueryMap(encoded=True).modify_request(
             request_builder, {"name": "value"})
         assert request_builder.info["params"] == "name=value"
+
+    def test_converter_key_with_encoded(self):
+        query = types.QueryMap(encoded=True)
+        assert query.converter_key == keys.Map(keys.CONVERT_TO_STRING)
+
+    def test_converter_type(self):
+        query = types.QueryMap(encoded=False)
+        assert query.converter_key == keys.Map(
+            keys.Sequence(keys.CONVERT_TO_STRING)
+        )
 
 
 class TestHeader(ArgumentTestCase, FuncDecoratorTestCase):

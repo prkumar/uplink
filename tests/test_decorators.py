@@ -1,7 +1,7 @@
 import pytest
 
 # Local imports
-from uplink import decorators
+from uplink import decorators, interfaces
 
 
 @pytest.fixture
@@ -42,16 +42,20 @@ class TestMethodAnnotationHandlerBuilder(object):
 class TestMethodAnnotationHandler(object):
 
     def test_handle_builder(self, request_builder, method_annotation_mock):
-        handler = decorators.MethodAnnotationHandler(
-            [method_annotation_mock]
-        )
+        handler = decorators.MethodAnnotationHandler([method_annotation_mock])
         handler.handle_builder(request_builder)
         method_annotation_mock.modify_request.assert_called_with(
             request_builder
         )
 
+    def test_annotations(self, method_annotation_mock):
+        handler = decorators.MethodAnnotationHandler([method_annotation_mock])
+        assert list(handler.annotations) == [method_annotation_mock]
+
 
 class TestMethodAnnotation(object):
+    class FakeMethodAnnotation(decorators.MethodAnnotation):
+        can_be_static = True
 
     def test_call_with_class(self,
                              method_annotation,
@@ -63,12 +67,29 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(method_annotation)
 
+    def test_static_call_with_class(
+            self, mocker, request_definition_builder
+    ):
+        class Class(object):
+            builder = request_definition_builder
+
+        self.FakeMethodAnnotation(Class)
+        builder = request_definition_builder.method_handler_builder
+        builder.add_annotation.assert_called_with(mocker.ANY)
+
     def test_call_with_builder(self,
                                method_annotation,
                                request_definition_builder):
         method_annotation(request_definition_builder)
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(method_annotation)
+
+    def test_static_call_with_builder(self,
+                                      mocker,
+                                      request_definition_builder):
+        self.FakeMethodAnnotation(request_definition_builder)
+        builder = request_definition_builder.method_handler_builder
+        builder.add_annotation.assert_called_with(mocker.ANY)
 
     def test_method_in_http_method_whitelist(self,
                                              method_annotation,
@@ -137,9 +158,15 @@ def test_multipart(request_builder):
 
 
 def test_json(request_builder):
-    multipart = decorators.json()
+    json = decorators.json()
+
+    # Verify without
+    json.modify_request(request_builder)
+    assert "json" not in request_builder.info
+
+    # Verify with
     request_builder.info["data"] = {"field_name": "field_value"}
-    multipart.modify_request(request_builder)
+    json.modify_request(request_builder)
     assert request_builder.info["json"] == {"field_name": "field_value"}
     assert "data" not in request_builder.info
 

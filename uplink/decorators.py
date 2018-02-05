@@ -203,7 +203,6 @@ class json(MethodAnnotation):
 
     Example:
         .. code-block:: python
-
             @json
             @patch(/user")
             def update_user(self, **info: Body):
