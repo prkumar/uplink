@@ -106,7 +106,7 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         assert not builder.add_annotation.called
 
-# TODO: Refactor function test cases into test case class.
+# TODO: Refactor test cases for method annotations into test case class.
 
 
 def test_headers(request_builder):

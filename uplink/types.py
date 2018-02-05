@@ -133,9 +133,6 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
     def handle_call(self, request_builder, args, kwargs):
         call_args = utils.get_call_args(self._func, None, *args, **kwargs)
         for name in self.get_relevant_arguments(call_args):
-            if call_args[name] is self._arguments[name].OPTIONAL:
-                # Optional argument is not set, so skip handling it.
-                continue
             self.handle_argument(
                 request_builder,
                 self._arguments[name],
@@ -153,9 +150,6 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
 
 
 class ArgumentAnnotation(interfaces.Annotation):
-    # TODO: Add documentation for this constant
-    OPTIONAL = None
-
     can_be_static = True
 
     def __call__(self, request_definition_builder):
