@@ -91,7 +91,8 @@ def test_build(
         mocker,
         http_client_mock,
         converter_factory_mock,
-        fake_service_cls
+        fake_service_cls,
+        transaction_hook_mock
 ):
     # Monkey-patch the Builder class.
     builder_cls_mock = mocker.Mock()
@@ -104,7 +105,8 @@ def test_build(
         base_url="example.com",
         client=http_client_mock,
         converter=converter_factory_mock,
-        auth=("username", "password")
+        auth=("username", "password"),
+        hook=transaction_hook_mock
     )
     assert builder_mock.base_url == "example.com"
     assert builder_mock.client is http_client_mock

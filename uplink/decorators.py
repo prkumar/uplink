@@ -317,13 +317,13 @@ class args(MethodAnnotation):
         self._annotations = annotations
         self._more_annotations = more_annotations
 
-    def __call__(self, func):
-        if inspect.isfunction(func):
-            handler = types.ArgumentAnnotationHandlerBuilder.from_func(func)
+    def __call__(self, obj):
+        if inspect.isfunction(obj):
+            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
-            return func
+            return obj
         else:
-            return super(args, self).__call__(func)
+            return super(args, self).__call__(obj)
 
     def _helper(self, builder):
         builder.set_annotations(self._annotations, **self._more_annotations)

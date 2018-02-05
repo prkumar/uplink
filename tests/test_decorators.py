@@ -106,6 +106,8 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         assert not builder.add_annotation.called
 
+# TODO: Refactor function test cases into test case class.
+
 
 def test_headers(request_builder):
     headers = decorators.headers({"key_1": "value_1"})
@@ -176,6 +178,13 @@ def test_args_decorate_function(mocker):
     func = mocker.stub()
     args(func)
     handler.set_annotations.assert_called_with((str, str), name=str)
+
+
+def test_args_call_old(request_definition_builder):
+    annotation = decorators.args(str, str, name=str)
+    annotation(request_definition_builder)
+    handler = request_definition_builder.method_handler_builder
+    handler.add_annotation.assert_called_with(annotation)
 
 
 def test_response_handler(request_builder):
