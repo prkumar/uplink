@@ -1,8 +1,6 @@
 # Local imports
 from uplink import hooks
 
-# TODO: Add test for `uplink.TransactionHookChain`
-
 
 class TestTransactionHook(object):
     def test_handle_response(self):

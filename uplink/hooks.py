@@ -37,7 +37,7 @@ class TransactionHook(object):
         """
         return response
 
-    def handle_exception(self, exc_type, exc_val, exc_tb):
+    def handle_exception(self, exc_type, exc_val, exc_tb):  # pragma: no cover
         """
         Handles an exception thrown while waiting for a response from
         the server.
