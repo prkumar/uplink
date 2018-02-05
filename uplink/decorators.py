@@ -408,6 +408,11 @@ class error_handler(MethodAnnotation, hooks.ExceptionHandler):
             @raise_api_error
             class GitHub(Consumer):
                ...
+
+    Note:
+        Error handlers can not completely suppress exceptions. The
+        original exception is thrown if the error handler doesn't throw
+        anything.
     """
     def modify_request(self, request_builder):
         request_builder.add_transaction_hook(self)
