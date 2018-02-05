@@ -46,3 +46,10 @@ class TestTransactionHookChain(object):
         chain = hooks.TransactionHookChain(transaction_hook_mock)
         chain.handle_response({})
         transaction_hook_mock.handle_response.assert_called_with({})
+
+    def test_delegate_handle_exception(self, transaction_hook_mock):
+        chain = hooks.TransactionHookChain(transaction_hook_mock)
+        chain.handle_exception(None, None, None)
+        transaction_hook_mock.handle_exception.assert_called_with(
+            None, None, None
+        )
