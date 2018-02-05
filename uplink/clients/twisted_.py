@@ -56,7 +56,7 @@ class Request(interfaces.Request):
         )
         if self._callback is not None:
             deferred.addCallback(self._callback)
-        deferred.addErrback(self._handle_failure)
+        deferred.addErrback(self.handle_failure)
         return deferred
 
     def add_callback(self, callback):
@@ -65,7 +65,7 @@ class Request(interfaces.Request):
     def add_exception_handler(self, exception_handler):
         self._error_handler.set_handler(exception_handler)
 
-    def _handle_failure(self, failure):
+    def handle_failure(self, failure):
         tb = failure.getTracebackObject()
         self._error_handler.handle(failure.type, failure.value, tb)
         failure.raiseException()
