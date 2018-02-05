@@ -118,17 +118,16 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         return AiohttpClient(session=session_build_args)
 
 
-class Request(interfaces.Request):
+class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
     def __init__(self, client):
         self._client = client
         self._callback = None
-        self._error_handler = helpers.ExceptionHandler()
 
     @asyncio.coroutine
     def send(self, method, url, extras):
         session = yield from self._client.session()
-        with self._error_handler:
+        with self._exception_handler:
             response = yield from session.request(method, url, **extras)
         if self._callback is not None:
             response = yield from self._callback(response)
@@ -136,9 +135,6 @@ class Request(interfaces.Request):
 
     def add_callback(self, callback):
         self._callback = self._client.wrap_callback(callback)
-
-    def add_exception_handler(self, exception_handler):
-        self._error_handler.set_handler(exception_handler)
 
 
 class ThreadedCoroutine(object):
