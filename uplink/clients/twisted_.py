@@ -10,7 +10,7 @@ except ImportError:
     threads = None
 
 # Local imports
-from uplink.clients import interfaces, register
+from uplink.clients import helpers, interfaces, register
 
 
 class TwistedClient(interfaces.HttpClientAdapter):
@@ -40,7 +40,7 @@ class TwistedClient(interfaces.HttpClientAdapter):
         return Request(self._requests.create_request())
 
 
-class Request(interfaces.Request):
+class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
     def __init__(self, proxy):
         self._proxy = proxy
@@ -55,7 +55,13 @@ class Request(interfaces.Request):
         )
         if self._callback is not None:
             deferred.addCallback(self._callback)
+        deferred.addErrback(self.handle_failure)
         return deferred
 
     def add_callback(self, callback):
         self._callback = callback
+
+    def handle_failure(self, failure):
+        tb = failure.getTracebackObject()
+        self._exception_handler.handle(failure.type, failure.value, tb)
+        failure.raiseException()

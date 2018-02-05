@@ -37,6 +37,18 @@ class TransactionHook(object):
         """
         return response
 
+    def handle_exception(self, exc_type, exc_val, exc_tb):  # pragma: no cover
+        """
+        Handles an exception thrown while waiting for a response from
+        the server.
+
+        Args:
+            exc_type: The type of the exception.
+            exc_val: The exception instance raised.
+            exc_tb: A traceback instance.
+        """
+        pass
+
 
 class TransactionHookChain(TransactionHook):
     """
@@ -59,6 +71,10 @@ class TransactionHookChain(TransactionHook):
             response = hook.handle_response(response, *args, **kwargs)
         return response
 
+    def handle_exception(self, *args, **kwargs):
+        for hook in self._hooks:
+            hook.handle_exception(*args, **kwargs)
+
 
 class RequestAuditor(TransactionHook):
     """
@@ -79,8 +95,21 @@ class ResponseHandler(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, handler):
-        self._handle = handler
+    def __init__(self, response_handler):
+        self._handle = response_handler
 
     def handle_response(self, *args, **kwargs):
+        return self._handle(*args, **kwargs)
+
+
+class ExceptionHandler(TransactionHook):
+    """
+    Transaction hook that handles an exception thrown while waiting for
+    a response, using the provided function.
+    """
+
+    def __init__(self, exception_handler):
+        self._handle = exception_handler
+
+    def handle_exception(self, *args, **kwargs):
         return self._handle(*args, **kwargs)

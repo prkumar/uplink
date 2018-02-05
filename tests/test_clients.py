@@ -88,21 +88,40 @@ class TestTwisted(object):
         request.send(1, 2, 3)
         deferToThread.assert_called_with(request_mock.send, 1, 2, 3)
 
-    def test_request_send_with_callback(self, mocker, request_mock):
+    def test_request_send_callback_and_exception(self, mocker, request_mock):
         # Setup
         callback = mocker.stub()
+        exception_handler = mocker.stub()
         deferred = mocker.Mock()
         deferToThread = mocker.patch.object(twisted_.threads, "deferToThread")
         deferToThread.return_value = deferred
         request = twisted_.Request(request_mock)
         request.add_callback(callback)
+        request.add_exception_handler(exception_handler)
 
         # Run
         request.send(1, 2, 3)
 
         # Verify
         deferred.addCallback.assert_called_with(callback)
+        deferred.addErrback(request.handle_failure)
         deferToThread.assert_called_with(request_mock.send, 1, 2, 3)
+
+    def test_handle_failure(self, mocker, request_mock):
+        # Setup
+        failure = mocker.Mock(stub=twisted_.threads.failure.Failure)
+        failure.type, failure.value = Exception, Exception()
+        exception_handler = mocker.stub()
+        request = twisted_.Request(request_mock)
+        request.add_exception_handler(exception_handler)
+
+        # Run
+        request.handle_failure(failure)
+
+        # Verify
+        exception_handler.assert_called_with(
+            failure.type, failure.value, failure.getTracebackObject()
+        )
 
 
 @pytest.fixture
