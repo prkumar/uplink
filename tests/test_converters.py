@@ -148,6 +148,20 @@ class TestMarshmallowConverter(object):
         schema_mock.load.assert_called_with(response.json())
         assert expected_result == result
 
+    def test_make_response_body_converter_with_unsupported_response(
+            self, schema_mock_and_argument
+    ):
+        # Setup
+        schema_mock, argument = schema_mock_and_argument
+        converter = converters.MarshmallowConverter()
+
+        # Run
+        c = converter.make_response_body_converter(argument)
+        result = c.convert("unsupported response")
+
+        # Verify
+        return result is None
+
     def test_make_response_body_converter_without_schema(self):
         # Setup
         converter = converters.MarshmallowConverter()

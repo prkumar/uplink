@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import builder, converters, exceptions, helpers
+from uplink import auth, builder, converters, exceptions
 
 
 @pytest.fixture
@@ -18,19 +18,6 @@ def uplink_builder(http_client_mock):
     b = builder.Builder()
     b.client = http_client_mock
     return b
-
-
-class TestRequestHandler(object):
-
-    def test_fulfill(self, request_mock, transaction_hook_mock):
-        request_mock.send.return_value = 1
-
-        request_handler = builder.RequestHandler(transaction_hook_mock, 1, 2, 3)
-        value = request_handler.fulfill(request_mock)
-
-        transaction_hook_mock.audit_request(1, 2, 3)
-        request_mock.add_callback.assert_called_with(transaction_hook_mock.handle_response)
-        assert value == 1
 
 
 class TestRequestPreparer(object):
@@ -116,8 +103,10 @@ def test_build(
         fake_service_cls,
         base_url="example.com",
         client=http_client_mock,
-        converter=converter_factory_mock
+        converter=converter_factory_mock,
+        auth=("username", "password")
     )
     assert builder_mock.base_url == "example.com"
     assert builder_mock.client is http_client_mock
     assert list(builder_mock.converters)[0] is converter_factory_mock
+    assert isinstance(builder_mock.auth, auth.BasicAuth)

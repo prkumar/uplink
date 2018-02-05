@@ -176,3 +176,21 @@ def test_args_decorate_function(mocker):
     func = mocker.stub()
     args(func)
     handler.set_annotations.assert_called_with((str, str), name=str)
+
+
+def test_response_handler(request_builder):
+    @decorators.response_handler
+    def handler(response):
+        return response
+
+    handler.modify_request(request_builder)
+    request_builder.add_transaction_hook(handler)
+
+
+def test_error_handler(request_builder):
+    @decorators.error_handler
+    def handler(*_):
+        return True
+
+    handler.modify_request(request_builder)
+    request_builder.add_transaction_hook(handler)

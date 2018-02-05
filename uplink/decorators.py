@@ -2,7 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, hooks, interfaces, types
+from uplink import exceptions, helpers, hooks, interfaces
 
 
 __all__ = [
@@ -13,8 +13,8 @@ __all__ = [
     "timeout",
     "returns",
     "args",
+    "response_handler",
     "error_handler",
-    "response_handler"
 ]
 
 
@@ -32,15 +32,16 @@ class HttpMethodNotSupport(exceptions.AnnotationError):
         )
 
 
-class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
+class MethodAnnotationHandlerBuilder(
+    interfaces.AnnotationHandlerBuilder
+):
 
     def __init__(self):
         self._method_annotations = list()
 
     def add_annotation(self, annotation, *args_, **kwargs):
-        self._method_annotations.append(annotation)
         super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
-        return annotation
+        self._method_annotations.append(annotation)
 
     def build(self):
         return MethodAnnotationHandler(self._method_annotations)
@@ -317,20 +318,55 @@ class args(MethodAnnotation):
         self._annotations = annotations
         self._more_annotations = more_annotations
 
-    def __call__(self, func):
-        if inspect.isfunction(func):
-            handler = types.ArgumentAnnotationHandlerBuilder.from_func(func)
-            self._helper(handler)
-            return func
-        else:
-            return super(args, self).__call__(func)
-
-    def _helper(self, builder):
-        builder.set_annotations(self._annotations, **self._more_annotations)
-
     def modify_request_definition(self, request_definition_builder):
         """Modifies dynamic requests with given annotations"""
-        self._helper(request_definition_builder.argument_handler_builder)
+        request_definition_builder.argument_handler_builder.set_annotations(
+            self._annotations, **self._more_annotations
+        )
+
+
+# noinspection PyPep8Naming
+class response_handler(MethodAnnotation, hooks.ResponseHandler):
+    """
+    A decorator for creating custom response handlers.
+
+    To register a function as a custom response handler, decorate the
+    function with this class. The decorated function should accept a single
+    positional argument, an HTTP response object:
+
+    Example:
+        .. code-block:: python
+
+            @response_handler
+            def raise_for_status(response):
+                response.raise_for_status()
+                return response
+
+    Then, to apply custom response handling to a request method, simply
+    decorate the method with the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            @get("/user/posts")
+            def get_posts(self):
+                \"""Fetch all posts for the current users.\"""
+
+    To apply custom response handling on all request methods of a
+    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            class GitHub(Consumer):
+               ...
+    """
+
+    def modify_request(self, request_builder):
+        request_builder.add_transaction_hook(self)
 
 
 # noinspection PyPep8Naming
@@ -372,49 +408,11 @@ class error_handler(MethodAnnotation, hooks.ExceptionHandler):
             @raise_api_error
             class GitHub(Consumer):
                ...
-    """
-    def modify_request(self, request_builder):
-        request_builder.add_transaction_hook(self)
 
-
-# noinspection PyPep8Naming
-class response_handler(MethodAnnotation, hooks.ResponseHandler):
-    """
-    A decorator for creating custom response handlers.
-
-    To register a function as a custom response handler, decorate the
-    function with this class. The decorated function should accept a single
-    positional argument, an HTTP response object:
-
-    Example:
-        .. code-block:: python
-
-            @response_handler
-            def raise_for_status(response):
-                response.raise_for_status()
-                return response
-
-    Then, to apply custom response handling to a request method, simply
-    decorate the method with the registered response handler:
-
-    Example:
-        .. code-block:: python
-
-            @raise_for_status
-            @get("/user/posts")
-            def get_posts(self):
-                \"""Fetch all posts for the current users.\"""
-
-    To apply custom response handling on all request methods of a
-    :py:class:`uplink.Consumer` subclass, simply decorate the class with
-    the registered response handler:
-
-    Example:
-        .. code-block:: python
-
-            @raise_for_status
-            class GitHub(Consumer):
-               ...
+    Note:
+        Error handlers can not completely suppress exceptions. The
+        original exception is thrown if the error handler doesn't throw
+        anything.
     """
     def modify_request(self, request_builder):
         request_builder.add_transaction_hook(self)

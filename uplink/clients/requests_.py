@@ -35,7 +35,6 @@ class RequestsClient(interfaces.HttpClientAdapter):
 
     @staticmethod
     def _create_session(**kwargs):
-        # TODO: Add docstrings
         session = requests.Session()
         atexit.register(session.close)
         for key in kwargs:
@@ -43,15 +42,14 @@ class RequestsClient(interfaces.HttpClientAdapter):
         return session
 
 
-class Request(interfaces.Request):
+class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
     def __init__(self, session):
         self._session = session
         self._callback = None
-        self._error_handler = helpers.ExceptionHandler()
 
     def send(self, method, url, extras):
-        with self._error_handler:
+        with self._exception_handler:
             response = self._session.request(
                 method=method,
                 url=url,
@@ -63,6 +61,3 @@ class Request(interfaces.Request):
 
     def add_callback(self, callback):
         self._callback = callback
-
-    def add_error_handler(self, error_handler):
-        self._error_handler.set_handler(error_handler)
