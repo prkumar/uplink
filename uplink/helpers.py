@@ -41,7 +41,7 @@ class RequestBuilder(object):
 
     def __init__(self, converter_registry):
         self._method = None
-        self._uri = None
+        self._url = None
         self._return_type = None
 
         # TODO: Pass this in as constructor parameter
@@ -60,12 +60,12 @@ class RequestBuilder(object):
         self._method = method
 
     @property
-    def uri(self):
-        return self._uri
+    def url(self):
+        return self._url
 
-    @uri.setter
-    def uri(self, uri):
-        self._uri = uri
+    @url.setter
+    def url(self, url):
+        self._url = url
 
     # TODO: Consider moving info out and having everything register a
     #       transaction hook

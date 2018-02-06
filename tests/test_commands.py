@@ -204,7 +204,7 @@ class TestRequestDefinition(object):
             method, uri, mocker.Mock(), mocker.Mock())
         definition.define_request(request_builder, (), {})
         assert request_builder.method == method
-        assert request_builder.uri == uri
+        assert request_builder.url == uri
 
     def test_make_converter_registry(self, annotation_handler_mock):
         definition = commands.RequestDefinition(

@@ -210,7 +210,7 @@ class TestPath(ArgumentTestCase):
 
     def test_modify_request(self, request_builder):
         types.Path("name").modify_request(request_builder, "value")
-        request_builder.uri.set_variable.assert_called_with({"name": "value"})
+        request_builder.url.set_variable.assert_called_with({"name": "value"})
 
 
 class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
@@ -359,4 +359,4 @@ class TestUrl(ArgumentTestCase):
 
     def test_modify_request(self, request_builder):
         types.Url().modify_request(request_builder, "/some/path")
-        assert request_builder.uri == "/some/path"
+        assert request_builder.url == "/some/path"
