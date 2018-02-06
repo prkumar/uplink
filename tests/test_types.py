@@ -1,7 +1,7 @@
 import pytest
 
 # Local imports
-from uplink import types
+from uplink import hooks, types
 from uplink.converters import keys
 
 
@@ -38,7 +38,7 @@ class ArgumentTestCase(object):
         assert self.type_cls().converter_key == self.expected_converter_key
 
     def test_is_static(self):
-        assert self.type_cls.can_be_static == self.expected_can_be_static
+        assert self.type_cls._can_be_static == self.expected_can_be_static
 
     def test_static_call(self, mocker, request_definition_builder):
         request_definition_builder = self.type_cls(request_definition_builder)
@@ -52,6 +52,11 @@ class FuncDecoratorTestCase(object):
         def func(a1, a2): return a1, a2
         output = self.type_cls(func)
         assert output is func
+
+    def test_equals(self):
+        assert isinstance(
+            self.type_cls().equals("hello"),
+            hooks.TransactionHook)
 
 
 class TestArgumentAnnotationHandlerBuilder(object):
@@ -140,11 +145,11 @@ class TestArgumentAnnotationHandlerBuilder(object):
 
 class TestArgumentAnnotationHandler(object):
 
-    @inject_args
-    def test_get_relevant_arguments(self, args):
+    def test_get_relevant_arguments(self):
+        args = {"arg1": "value1"}
         annotation_handler = types.ArgumentAnnotationHandler(None, args)
-        relevant = annotation_handler.get_relevant_arguments(args[1:])
-        assert list(relevant) == args[1:]
+        relevant = annotation_handler.get_relevant_arguments(args)
+        assert list(relevant) == list(args.items())
 
     def test_handle_call(self, request_builder, converter_mock, mocker):
         def dummy(arg1): return arg1

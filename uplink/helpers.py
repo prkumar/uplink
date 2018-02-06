@@ -67,9 +67,6 @@ class RequestBuilder(object):
     def url(self, url):
         self._url = url
 
-    # TODO: Consider moving info out and having everything register a
-    #       transaction hook
-
     @property
     def info(self):
         return self._info

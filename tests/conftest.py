@@ -69,5 +69,7 @@ def uplink_builder_mock(mocker):
 def request_builder(mocker):
     builder = mocker.MagicMock(spec=helpers.RequestBuilder)
     builder.info = collections.defaultdict(dict)
+    builder.get_converter.return_value = converter_mock
+    converter_mock.convert = lambda x: x
     return builder
 

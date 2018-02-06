@@ -51,8 +51,12 @@ class TransactionHookChain(TransactionHook):
     method on all hooks in the chain.
     """
 
-    def __init__(self, *hooks):
-        self._hooks = list(hooks)
+    def __init__(self, hook, *hooks):
+        self._hooks = (hook,)
+        if not hooks:
+            self.handle_response = hook.handle_response
+        else:
+            self._hooks += hooks
 
     def audit_request(self, *args, **kwargs):
         for hook in self._hooks:

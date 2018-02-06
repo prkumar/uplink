@@ -55,7 +55,7 @@ class TestMethodAnnotationHandler(object):
 
 class TestMethodAnnotation(object):
     class FakeMethodAnnotation(decorators.MethodAnnotation):
-        can_be_static = True
+        _can_be_static = True
 
     def test_call_with_class(self,
                              method_annotation,
