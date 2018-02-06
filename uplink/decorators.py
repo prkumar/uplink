@@ -437,5 +437,5 @@ class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
             @inject(Query("sort").equals("pushed"))
             @get("users/{user}/repos")
             def list_repos(self, user):
-                \"""Lists user's public repos by last pushed.\"""
+                \"""Lists user's public repos by latest pushed.\"""
     """
