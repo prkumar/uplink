@@ -184,11 +184,11 @@ class RequestDefinition(interfaces.RequestDefinition):
 
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method
-        request_builder.uri = utils.URIBuilder(self._uri)
+        request_builder.url = utils.URIBuilder(self._uri)
         self._argument_handler.handle_call(
             request_builder, func_args, func_kwargs)
         self._method_handler.handle_builder(request_builder)
-        request_builder.uri = request_builder.uri.build()
+        request_builder.url = request_builder.url.build()
 
 
 get = HttpMethodFactory("GET").__call__

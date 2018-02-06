@@ -278,7 +278,7 @@ class Path(NamedArgument):
         request_definition_builder.uri.add_variable(self.name)
 
     def modify_request(self, request_builder, value):
-        request_builder.uri.set_variable({self.name: value})
+        request_builder.url.set_variable({self.name: value})
 
 
 class Query(FuncDecoratorMixin, NamedArgument):
@@ -631,4 +631,4 @@ class Url(ArgumentAnnotation):
     @classmethod
     def modify_request(cls, request_builder, value):
         """Updates request url."""
-        request_builder.uri = value
+        request_builder.url = value

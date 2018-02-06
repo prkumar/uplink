@@ -29,8 +29,8 @@ class RequestPreparer(object):
         self._converters = list(builder.converters)
         self._auth = builder.auth
 
-    def _join_uri_with_base(self, uri):
-        return utils.urlparse.urljoin(self._base_url, uri)
+    def _join_url_with_base(self, url):
+        return utils.urlparse.urljoin(self._base_url, url)
 
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
@@ -54,9 +54,7 @@ class RequestPreparer(object):
         sender.add_exception_handler(hook.handle_exception)
 
     def prepare_request(self, request_builder):
-        # TODO: Add tests for this that make sure the client is called?
-        # TODO: Rename uri to url
-        request_builder.uri = self._join_uri_with_base(request_builder.uri)
+        request_builder.url = self._join_url_with_base(request_builder.url)
         self._auth(request_builder)
         sender = self._client.create_request()
         chain = self._get_hook_chain(request_builder)
@@ -64,7 +62,7 @@ class RequestPreparer(object):
             self.apply_hooks(chain, request_builder, sender)
         return sender.send(
             request_builder.method,
-            request_builder.uri,
+            request_builder.url,
             request_builder.info
         )
 
