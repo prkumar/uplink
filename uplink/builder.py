@@ -45,10 +45,7 @@ class RequestPreparer(object):
 
     @staticmethod
     def apply_hooks(chain, request_builder, sender):
-        if len(chain) == 1:
-            hook = chain[0]
-        else:
-            hook = hooks.TransactionHookChain(*chain)
+        hook = hooks.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
         sender.add_callback(hook.handle_response)
         sender.add_exception_handler(hook.handle_exception)
@@ -134,7 +131,6 @@ class Builder(interfaces.CallBuilder):
         if auth is not None:
             self._auth = auth_.get_auth(auth)
 
-    @utils.memoize()
     def build(self, definition):
         """
         Creates a callable that uses the provided definition to execute
@@ -194,8 +190,9 @@ class ConsumerMeta(type):
             @functools.wraps(init)
             def new_init(self, *args, **kwargs):
                 init(self, *args, **kwargs)
+                call_args = utils.get_call_args(init, self, *args, **kwargs)
                 f = functools.partial(
-                    handler.handle_call, args=args, kwargs=kwargs
+                    handler.handle_call_args, call_args=call_args
                 )
                 hook = hooks.RequestAuditor(f)
                 self._builder.add_hook(hook)
@@ -239,6 +236,9 @@ class Consumer(_Consumer):
         self._builder.add_hook(*hook)
         self._builder.auth = auth
         self._builder.client = client
+
+    def _inject(self, hook, *more_hooks):
+        self._builder.add_hook(hook, *more_hooks)
 
 
 def build(service_cls, *args, **kwargs):

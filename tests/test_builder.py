@@ -168,3 +168,21 @@ def test_setting_request_method(request_definition_builder):
     assert callable(consumer.request_method)
 
 
+def test_inject(
+        mocker,
+        fake_service_cls,
+        transaction_hook_mock
+):
+    # Monkey-patch the Builder class.
+    builder_cls_mock = mocker.Mock()
+    builder_mock = mocker.Mock(wraps=builder.Builder())
+    builder_cls_mock.return_value = builder_mock
+    mocker.patch.object(builder, "Builder", builder_cls_mock)
+
+    service = builder.build(fake_service_cls)
+
+    # Verify
+    service._inject(transaction_hook_mock)
+    builder_mock.add_hook.assert_called_with(transaction_hook_mock)
+
+

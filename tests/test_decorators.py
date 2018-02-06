@@ -55,7 +55,7 @@ class TestMethodAnnotationHandler(object):
 
 class TestMethodAnnotation(object):
     class FakeMethodAnnotation(decorators.MethodAnnotation):
-        can_be_static = True
+        _can_be_static = True
 
     def test_call_with_class(self,
                              method_annotation,
@@ -220,7 +220,7 @@ def test_response_handler(request_builder):
         return response
 
     handler.modify_request(request_builder)
-    request_builder.add_transaction_hook(handler)
+    request_builder.add_transaction_hook.assert_called_with(handler)
 
 
 def test_error_handler(request_builder):
@@ -229,4 +229,10 @@ def test_error_handler(request_builder):
         return True
 
     handler.modify_request(request_builder)
-    request_builder.add_transaction_hook(handler)
+    request_builder.add_transaction_hook.assert_called_with(handler)
+
+
+def test_inject(request_builder, transaction_hook_mock):
+    handler = decorators.inject(transaction_hook_mock)
+    handler.modify_request(request_builder)
+    request_builder.add_transaction_hook.assert_called_with(handler)

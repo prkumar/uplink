@@ -15,6 +15,7 @@ __all__ = [
     "args",
     "response_handler",
     "error_handler",
+    "inject",
 ]
 
 
@@ -64,8 +65,8 @@ class MethodAnnotation(interfaces.Annotation):
     http_method_whitelist = None
 
     @classmethod
-    def is_static_call(cls, *args_, **kwargs):
-        if super(MethodAnnotation, cls).is_static_call(*args_, **kwargs):
+    def _is_static_call(cls, *args_, **kwargs):
+        if super(MethodAnnotation, cls)._is_static_call(*args_, **kwargs):
             return True
         try:
             is_class = inspect.isclass(args_[0])
@@ -157,7 +158,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
-    can_be_static = True
+    _can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
     # def modify_request(self, request_builder):
@@ -183,7 +184,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
-    can_be_static = True
+    _can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
     # def modify_request(self, request_builder):
@@ -208,7 +209,7 @@ class json(MethodAnnotation):
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
     """
-    can_be_static = True
+    _can_be_static = True
 
     def modify_request(self, request_builder):
         """Modifies JSON request."""
@@ -332,8 +333,13 @@ class args(MethodAnnotation):
         self._helper(request_definition_builder.argument_handler_builder)
 
 
+class _InjectableMethodAnnotation(MethodAnnotation):
+    def modify_request(self, request_builder):
+        request_builder.add_transaction_hook(self)
+
+
 # noinspection PyPep8Naming
-class response_handler(MethodAnnotation, hooks.ResponseHandler):
+class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
     """
     A decorator for creating custom response handlers.
 
@@ -372,12 +378,9 @@ class response_handler(MethodAnnotation, hooks.ResponseHandler):
                ...
     """
 
-    def modify_request(self, request_builder):
-        request_builder.add_transaction_hook(self)
-
 
 # noinspection PyPep8Naming
-class error_handler(MethodAnnotation, hooks.ExceptionHandler):
+class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
     """
     A decorator for creating custom error handlers.
 
@@ -421,5 +424,18 @@ class error_handler(MethodAnnotation, hooks.ExceptionHandler):
         original exception is thrown if the error handler doesn't throw
         anything.
     """
-    def modify_request(self, request_builder):
-        request_builder.add_transaction_hook(self)
+
+
+# noinspection PyPep8Naming
+class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
+    """
+    A decorator that applies one or more hooks to a request method.
+
+    Example:
+        .. code-block:: python
+
+            @inject(Query("sort").equals("pushed"))
+            @get("users/{user}/repos")
+            def list_repos(self, user):
+                \"""Lists user's public repos by latest pushed.\"""
+    """

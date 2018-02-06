@@ -1,3 +1,6 @@
+# Third party imports
+import pytest
+
 # Local imports
 from uplink import hooks
 
@@ -44,6 +47,12 @@ class TestTransactionHookChain(object):
         chain = hooks.TransactionHookChain(transaction_hook_mock)
         chain.handle_response({})
         transaction_hook_mock.handle_response.assert_called_with({})
+
+    def test_delegate_handle_response_multiple(self, transaction_hook_mock):
+        chain = hooks.TransactionHookChain(
+            transaction_hook_mock, transaction_hook_mock)
+        chain.handle_response({})
+        transaction_hook_mock.call_count == 2
 
     def test_delegate_handle_exception(self, transaction_hook_mock):
         chain = hooks.TransactionHookChain(transaction_hook_mock)

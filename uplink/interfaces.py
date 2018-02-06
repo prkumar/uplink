@@ -1,7 +1,6 @@
 class AnnotationMeta(type):
-
     def __call__(cls, *args, **kwargs):
-        if cls.can_be_static and cls.is_static_call(*args, **kwargs):
+        if cls._can_be_static and cls._is_static_call(*args, **kwargs):
             self = super(AnnotationMeta, cls).__call__()
             self(args[0])
             return args[0]
@@ -10,13 +9,13 @@ class AnnotationMeta(type):
 
 
 class _Annotation(object):
-    can_be_static = False
+    _can_be_static = False
 
     def modify_request_definition(self, request_definition_builder):
-        raise NotImplementedError
+        pass
 
     @classmethod
-    def is_static_call(cls, *args, **kwargs):
+    def _is_static_call(cls, *args, **kwargs):
         try:
             is_builder = isinstance(args[0], RequestDefinitionBuilder)
         except IndexError:
