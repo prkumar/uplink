@@ -224,6 +224,10 @@ class FuncDecoratorMixin(object):
             return super(FuncDecoratorMixin, self).__call__(obj)
 
     def equals(self, value):
+        """
+        Creates a transaction hook that sets this to the corresponding
+        value.
+        """
         auditor = functools.partial(self.modify_request, value=value)
         return hooks.RequestAuditor(auditor)
 
