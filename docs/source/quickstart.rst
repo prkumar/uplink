@@ -69,6 +69,7 @@ For complex query parameter combinations, a mapping can be used:
     @get("group/{id}/users")
     def group_list(self, group_id: Path("id"), options: QueryMap): pass
 
+
 Request Body
 ============
 
@@ -117,10 +118,10 @@ JSON data is sent when :py:class:`~uplink.json` decorates the method. The
 
 .. code:: python
 
-        @uplink.json
-        @uplink.patch("/user")
-        def update_user(self, **user_info: uplink.Body):
-            """Update an authenticated user."""
+    @uplink.json
+    @uplink.patch("/user")
+    def update_user(self, **user_info: uplink.Body):
+        """Update an authenticated user."""
 
 Header Manipulation
 ===================

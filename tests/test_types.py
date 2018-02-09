@@ -55,7 +55,7 @@ class FuncDecoratorTestCase(object):
 
     def test_equals(self):
         assert isinstance(
-            self.type_cls().equals("hello"),
+            self.type_cls().with_value("hello"),
             hooks.TransactionHook)
 
 

@@ -204,6 +204,7 @@ class json(MethodAnnotation):
 
     Example:
         .. code-block:: python
+
             @json
             @patch(/user")
             def update_user(self, **info: Body):
@@ -434,7 +435,7 @@ class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
     Example:
         .. code-block:: python
 
-            @inject(Query("sort").equals("pushed"))
+            @inject(Query("sort").with_value("pushed"))
             @get("users/{user}/repos")
             def list_repos(self, user):
                 \"""Lists user's public repos by latest pushed.\"""
