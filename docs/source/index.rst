@@ -80,6 +80,7 @@ Follow this guide to get up and running with Uplink.
    install.rst
    introduction.rst
    quickstart.rst
+   advanced.rst
    auth.rst
    tips.rst
 

@@ -1,6 +1,7 @@
 Authentication
 ==============
 
+This section covers how to do authentication with Uplink.
 
 Basic Authentication
 --------------------
@@ -8,7 +9,7 @@ Basic Authentication
 In v0.4, we added the :py:attr:`auth` parameter to the
 :py:class:`uplink.Consumer` constructor.
 
-Now, it's very simple to construct a consumer that uses HTTP Basic
+Now it's simple to construct a consumer that uses HTTP Basic
 Authentication with all requests:
 
 .. code-block:: python
@@ -67,7 +68,7 @@ for the underlying client. For instance, you can use `requests-oauthlib
 <https://github.com/requests/requests-oauthlib>`_ for doing OAuth with
 Requests:
 
-.. code-block:: python:
+.. code-block:: python
 
     from requests_oauthlib import OAuth2Session
 
