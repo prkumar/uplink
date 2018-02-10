@@ -59,18 +59,6 @@ try:
 except ImportError:
     import urlparse
 
-try:
-    from functools import lru_cache as memoize
-except ImportError:
-    def memoize():
-
-        def wrapper(func):
-            memo = {}
-            @wraps(func)
-            def wrapped(*args):
-                return memo.setdefault(args, func(*args))
-            return wrapped
-        return wrapper
 
 # Third party imports
 import uritemplate
@@ -82,6 +70,10 @@ Signature = collections.namedtuple(
 )
 
 Request = collections.namedtuple("Request", "method uri info return_type")
+
+
+def no_op(*_):
+    pass
 
 
 class URIBuilder(object):

@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import commands, utils
+from uplink import commands, converters, types, utils
 
 
 class TestHttpMethodFactory(object):
@@ -42,6 +42,22 @@ class TestHttpMethod(object):
         missing_arguments = builder.argument_handler_builder.missing_arguments
         expected_missing = set(sig.args[1:]) - set(sig.annotations.keys())
         assert set(missing_arguments) == expected_missing
+
+    def test_call_with_return_annotation(self, mocker):
+        # Setup
+        def func(): pass
+        sig = utils.Signature(
+            args=[],
+            annotations={},
+            return_annotation="return_annotation"
+        )
+        mocker.patch("uplink.utils.get_arg_spec").return_value = sig
+        returns = mocker.patch("uplink.decorators.returns")
+        http_method = commands.HttpMethod("METHOD", uri="/{hello}")
+        http_method(func)
+
+        # Verify: build is wrapped with decorators.returns
+        returns.assert_called_with(sig.return_annotation)
 
 
 class TestURIDefinitionBuilder(object):
@@ -100,8 +116,7 @@ class TestRequestDefinitionBuilder(object):
 
     def test_build(self,
                    mocker,
-                   annotation_handler_builder_mock,
-        ):
+                   annotation_handler_builder_mock):
         argument_handler_builder = type(annotation_handler_builder_mock)()
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
@@ -116,6 +131,55 @@ class TestRequestDefinitionBuilder(object):
         assert uri_definition_builder.build.called
         assert argument_handler_builder.build.called
         assert method_handler_builder.build.called
+
+    def test_auto_fill_when_not_done(
+            self,
+            mocker,
+            annotation_handler_builder_mock):
+        # Setup
+        argument_handler_builder = mocker.Mock(stub=types.ArgumentAnnotationHandlerBuilder)
+        method_handler_builder = annotation_handler_builder_mock
+        uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
+        builder = commands.RequestDefinitionBuilder(
+            "method",
+            uri_definition_builder,
+            argument_handler_builder,
+            method_handler_builder
+        )
+
+        # Setup success condition
+        argument_handler_builder.is_done.return_value = False
+        argument_handler_builder.missing_arguments = ["arg1"]
+        uri_definition_builder.remaining_variables = ["arg1"]
+
+        # Verify
+        builder.build()
+        argument_handler_builder.set_annotations.assert_called_with(
+            {"arg1": types.Path}
+        )
+
+    def test_auto_fill_when_not_done_fails(self,
+                   mocker,
+                   annotation_handler_builder_mock):
+        # Setup
+        argument_handler_builder = annotation_handler_builder_mock
+        method_handler_builder = annotation_handler_builder_mock
+        uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
+        builder = commands.RequestDefinitionBuilder(
+            "method",
+            uri_definition_builder,
+            argument_handler_builder,
+            method_handler_builder
+        )
+
+        # Setup fail condition: Argument is missing annotation
+        argument_handler_builder.is_done.return_value = False
+        argument_handler_builder.missing_arguments = ["arg1"]
+        uri_definition_builder.remaining_variables = []
+
+        # Verify
+        with pytest.raises(commands.MissingArgumentAnnotations):
+            builder.build()
 
 
 class TestRequestDefinition(object):
@@ -140,4 +204,12 @@ class TestRequestDefinition(object):
             method, uri, mocker.Mock(), mocker.Mock())
         definition.define_request(request_builder, (), {})
         assert request_builder.method == method
-        assert request_builder.uri == uri
+        assert request_builder.url == uri
+
+    def test_make_converter_registry(self, annotation_handler_mock):
+        definition = commands.RequestDefinition(
+            "method", "uri", annotation_handler_mock, annotation_handler_mock
+        )
+        annotation_handler_mock.annotations = ("annotation",)
+        registry = definition.make_converter_registry(())
+        assert isinstance(registry, converters.ConverterFactoryRegistry)

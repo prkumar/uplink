@@ -24,14 +24,6 @@ class TestCast(object):
         assert return_value == 3
 
 
-class TestResponseBodyConverter(object):
-    def test_convert(self):
-        converter_ = converters.ResponseBodyConverter()
-        response = "json response"
-        converted = converter_.convert(response)
-        assert converted == response
-
-
 class TestRequestBodyConverter(object):
     def test_convert_str(self):
         converter_ = converters.RequestBodyConverter()
@@ -155,6 +147,20 @@ class TestMarshmallowConverter(object):
         response.json.assert_called_with()
         schema_mock.load.assert_called_with(response.json())
         assert expected_result == result
+
+    def test_make_response_body_converter_with_unsupported_response(
+            self, schema_mock_and_argument
+    ):
+        # Setup
+        schema_mock, argument = schema_mock_and_argument
+        converter = converters.MarshmallowConverter()
+
+        # Run
+        c = converter.make_response_body_converter(argument)
+        result = c.convert("unsupported response")
+
+        # Verify
+        return result is None
 
     def test_make_response_body_converter_without_schema(self):
         # Setup

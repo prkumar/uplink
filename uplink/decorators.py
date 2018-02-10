@@ -2,7 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, interfaces
+from uplink import exceptions, helpers, hooks, interfaces, types
 
 
 __all__ = [
@@ -12,7 +12,10 @@ __all__ = [
     "json",
     "timeout",
     "returns",
-    "args"
+    "args",
+    "response_handler",
+    "error_handler",
+    "inject",
 ]
 
 
@@ -30,16 +33,15 @@ class HttpMethodNotSupport(exceptions.AnnotationError):
         )
 
 
-class MethodAnnotationHandlerBuilder(
-    interfaces.AnnotationHandlerBuilder
-):
+class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     def __init__(self):
         self._method_annotations = list()
 
     def add_annotation(self, annotation, *args_, **kwargs):
-        super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
         self._method_annotations.append(annotation)
+        super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
+        return annotation
 
     def build(self):
         return MethodAnnotationHandler(self._method_annotations)
@@ -63,8 +65,8 @@ class MethodAnnotation(interfaces.Annotation):
     http_method_whitelist = None
 
     @classmethod
-    def is_static_call(cls, *args_, **kwargs):
-        if super(MethodAnnotation, cls).is_static_call(*args_, **kwargs):
+    def _is_static_call(cls, *args_, **kwargs):
+        if super(MethodAnnotation, cls)._is_static_call(*args_, **kwargs):
             return True
         try:
             is_class = inspect.isclass(args_[0])
@@ -122,10 +124,16 @@ class headers(MethodAnnotation):
     """
 
     def __init__(self, arg, **kwargs):
-        # TODO: allow the first argument to be a list or str, in
-        # which case you would split the strings by a colon delimiter
-        # to identify the headers.
-        self._headers = dict(arg, **kwargs)
+        if isinstance(arg, str):
+            key, value = self._get_header(arg)
+            self._headers = {key: value}
+        elif isinstance(arg, list):
+            self._headers = dict(self._get_header(a) for a in arg)
+        else:
+            self._headers = dict(arg, **kwargs)
+
+    def _get_header(self, arg):
+        return map(str.strip, arg.split(":"))
 
     def modify_request(self, request_builder):
         """Updates header contents."""
@@ -150,7 +158,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
-    can_be_static = True
+    _can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
     # def modify_request(self, request_builder):
@@ -176,7 +184,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
-    can_be_static = True
+    _can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
     # def modify_request(self, request_builder):
@@ -202,7 +210,7 @@ class json(MethodAnnotation):
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
     """
-    can_be_static = True
+    _can_be_static = True
 
     def modify_request(self, request_builder):
         """Modifies JSON request."""
@@ -272,7 +280,7 @@ class returns(MethodAnnotation):
         self._type = type
 
     def modify_request(self, request_builder):
-        request_builder.set_return_type(self._type)
+        request_builder.return_type = self._type
 
 
 # noinspection PyPep8Naming
@@ -310,8 +318,131 @@ class args(MethodAnnotation):
         self._annotations = annotations
         self._more_annotations = more_annotations
 
+    def __call__(self, obj):
+        if inspect.isfunction(obj):
+            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
+            self._helper(handler)
+            return obj
+        else:
+            return super(args, self).__call__(obj)
+
+    def _helper(self, builder):
+        builder.set_annotations(self._annotations, **self._more_annotations)
+
     def modify_request_definition(self, request_definition_builder):
         """Modifies dynamic requests with given annotations"""
-        request_definition_builder.argument_handler_builder.set_annotations(
-            self._annotations, **self._more_annotations
-        )
+        self._helper(request_definition_builder.argument_handler_builder)
+
+
+class _InjectableMethodAnnotation(MethodAnnotation):
+    def modify_request(self, request_builder):
+        request_builder.add_transaction_hook(self)
+
+
+# noinspection PyPep8Naming
+class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
+    """
+    A decorator for creating custom response handlers.
+
+    To register a function as a custom response handler, decorate the
+    function with this class. The decorated function should accept a single
+    positional argument, an HTTP response object:
+
+    Example:
+        .. code-block:: python
+
+            @response_handler
+            def raise_for_status(response):
+                response.raise_for_status()
+                return response
+
+    Then, to apply custom response handling to a request method, simply
+    decorate the method with the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            @get("/user/posts")
+            def get_posts(self):
+                \"""Fetch all posts for the current users.\"""
+
+    To apply custom response handling on all request methods of a
+    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    the registered response handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_for_status
+            class GitHub(Consumer):
+               ...
+
+    .. versionadded:: 0.4.0
+    """
+
+
+# noinspection PyPep8Naming
+class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
+    """
+    A decorator for creating custom error handlers.
+
+    To register a function as a custom error handler, decorate the
+    function with this class. The decorated function should accept three
+    positional arguments: (1) the type of the exception, (2) the
+    exception instance raised, and (3) a traceback instance.
+
+    Example:
+        .. code-block:: python
+
+            @error_handler
+            def raise_api_error(exc_type, exc_val, exc_tb):
+                # wrap client error with custom API error
+                ...
+
+    Then, to apply custom error handling to a request method, simply
+    decorate the method with the registered error handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_api_error
+            @get("/user/posts")
+            def get_posts(self):
+                \"""Fetch all posts for the current users.\"""
+
+    To apply custom error handling on all request methods of a
+    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    the registered error handler:
+
+    Example:
+        .. code-block:: python
+
+            @raise_api_error
+            class GitHub(Consumer):
+               ...
+
+    .. versionadded:: 0.4.0
+
+    Note:
+        Error handlers can not completely suppress exceptions. The
+        original exception is thrown if the error handler doesn't throw
+        anything.
+    """
+
+
+# noinspection PyPep8Naming
+class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
+    """
+    A decorator that applies one or more hooks to a request method.
+
+    Example:
+        .. code-block:: python
+
+            @inject(Query("sort").with_value("pushed"))
+            @get("users/{user}/repos")
+            def list_repos(self, user):
+                \"""Lists user's public repos by latest pushed.\"""
+
+    .. versionadded:: 0.4.0
+    """

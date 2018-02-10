@@ -35,7 +35,7 @@ def get_default_client():
         return default_client
 
 
-def get_client(client):
+def get_client(client=DEFAULT_CLIENT):
     if client is DEFAULT_CLIENT:
         client = get_default_client()
 

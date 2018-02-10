@@ -88,7 +88,6 @@ class Sequence(CompositeKey):
         Sequence(CONVERT_TO_STRING)
     """
     def convert(self, converter, value):
-        print(value)
         if isinstance(value, (list, tuple)):
             return list(map(converter.convert, value))
         else:

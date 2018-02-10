@@ -21,11 +21,6 @@ class Cast(interfaces.Converter):
         return self._converter.convert(value)
 
 
-class ResponseBodyConverter(interfaces.Converter):
-    def convert(self, response):
-        return response
-
-
 class RequestBodyConverter(interfaces.Converter):
     def convert(self, value):
         if isinstance(value, str):
@@ -49,7 +44,7 @@ class StandardConverter(interfaces.ConverterFactory):
     """
 
     def make_response_body_converter(self, type_, *args, **kwargs):
-        return ResponseBodyConverter()  # pragma: no cover
+        return None  # pragma: no cover
 
     def make_request_body_converter(self, type_, *args, **kwargs):
         return Cast(type_, RequestBodyConverter())  # pragma: no cover

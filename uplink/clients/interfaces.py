@@ -13,3 +13,6 @@ class Request(object):
 
     def add_callback(self, callback):
         raise NotImplementedError
+
+    def add_exception_handler(self, exception_handler):
+        raise NotImplementedError

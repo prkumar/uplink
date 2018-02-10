@@ -6,17 +6,31 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.4.0_ - 2018-2-10
+==================
+Added
+-----
+- Support for Basic Authentication.
+- The ``response_handler`` decorator for defining custom response handlers.
+- The ``error_handler`` decorator for defining custom error handlers.
+- The ``inject`` decorator for injecting other kinds of middleware.
+- The ``Consumer._inject`` method for adding middleware to a consumer
+  instance.
+- Support for annotating constructor arguments of a ``Consumer`` subclass
+  with built-in function annotations like ``Query`` and ``Header``.
+
 0.3.0_ - 2018-1-09
 ==================
 Added
 -----
-- HTTP HEAD request decorator by `@brandonio21`_
+- HTTP HEAD request decorator by `@brandonio21`_.
 - Support for returning deserialized response objects using ``marshmallow``
   schemas.
-- Constructor parameter for ``uplink.Query`` and ``uplink.QueryMap`` to
-  support already encoded URL parameters
+- Constructor parameter for ``Query`` and ``QueryMap`` to
+  support already encoded URL parameters.
 - Support for using ``requests.Session`` and ``aiohttp.ClientSession``
-  instances with the ``client`` parameter of the ``uplink.Consumer`` constructor.
+  instances with the ``client`` parameter of the ``Consumer``
+  constructor.
 
 Changed
 -------
@@ -24,7 +38,7 @@ Changed
 
 Fixed
 -----
-- Fix issue with calling a request method with ``super``.
+- Fix for calling a request method with ``super``, by `@brandonio21`_.
 - Fix issue where method decorators would incorrectly decorate inherited
   request methods.
 
@@ -32,14 +46,15 @@ Fixed
 ===================
 Fixed
 -----
-- Fix error raised when an object that is not a class is passed into the 
+- Fix for error raised when an object that is not a class is passed into the
   ``client`` parameter of the ``Consumer`` constructor, by `@kadrach`_.
 
 0.2.0_ - 2017-11-03
 ===================
 Added
 -----
-- The class ``uplink.Consumer``. Consumer classes should inherit this base
+- The class ``uplink.Consumer`` by `@itstehkman`_. Consumer classes should
+  inherit this base.
   class, and creating consumer instances happens through instantiation.
 - Support for ``asyncio`` for Python 3.4 and above.
 - Support for ``twisted`` for all supported Python versions.
@@ -94,6 +109,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.4.0: https://github.com/prkumar/uplink/compare/v0.3.0...v0.4.0
 .. _0.3.0: https://github.com/prkumar/uplink/compare/v0.2.2...v0.3.0
 .. _0.2.2: https://github.com/prkumar/uplink/compare/v0.2.0...v0.2.2
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
@@ -101,4 +117,5 @@ Added
 
 .. Contributors
 .. _@brandonio21: https://github.com/brandonio21
+.. _@itstehkman: https://github.com/itstehkman
 .. _@kadrach: https://github.com/kadrach

@@ -4,7 +4,7 @@ Uplink
 |Gitter|
 
 - Builds Reusable Objects for Consuming Web APIs.
-- Works with Requests, asyncio, and Twisted.
+- Works with **Requests**, **asyncio**, and **Twisted**.
 - Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
 A Quick Walkthrough, with GitHub API v3
@@ -15,7 +15,6 @@ Uplink turns your HTTP API into a Python class.
 
    from uplink import Consumer, get, headers, Path, Query
 
-   @headers({"Accept": "application/vnd.github.v3.full+json"})
    class GitHub(Consumer):
 
       @get("users/{user}/repos")
@@ -55,6 +54,7 @@ Use decorators and function annotations to describe the HTTP request:
 * URL parameter replacement and query parameter support
 * Convert responses into Python objects (e.g., |using marshmallow|_)
 * JSON, URL-encoded, and multipart request body and file upload
+* Inject functions as **middleware** to apply custom response and error handling
 
 .. |using marshmallow| replace:: using ``marshmallow``
 .. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
@@ -78,11 +78,8 @@ If you are interested in the cutting-edge, preview the upcoming release with:
 Extra! Extra!
 -------------
 
-Further, uplink has optional integrations and features, such as
-`sending non-blocking requests with <examples/async-requests>`__
-``aiohttp`` and `deserializing JSON responses using <examples/marshmallow>`__
-``marshmallow``. You can view a full list of available extras `here
-<http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
+Further, uplink has optional integrations and features. You can view a full list 
+of available extras `here <http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
 
 When installing Uplink with ``pip``, you can specify any of number of extras
 using the format:

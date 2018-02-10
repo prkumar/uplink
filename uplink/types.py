@@ -4,10 +4,11 @@ handling classes.
 """
 # Standard library imports
 import collections
+import functools
 import inspect
 
 # Local imports
-from uplink import exceptions, interfaces, utils
+from uplink import exceptions, hooks, interfaces, utils
 from uplink.converters import keys
 
 __all__ = [
@@ -42,25 +43,29 @@ class ArgumentNotFound(exceptions.AnnotationError):
         self.message = self.message % (name, func.__name__)
 
 
-class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
-    message = "Missing annotation for argument(s): '%s'."
-    implicit_message = " (Implicit path variables: '%s')"
+class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
+    __ANNOTATION_BUILDER_KEY = "#ANNOTATION_BUILDER_KEY#"
 
-    def __init__(self, missing, path_variables):
-        missing, path_variables = list(missing), list(path_variables)
-        self.message = self.message % "', '".join(missing)
-        if path_variables:
-            self.message += self.implicit_message % "', '".join(path_variables)
+    @classmethod
+    def from_func(cls, func):
+        if not hasattr(func, cls.__ANNOTATION_BUILDER_KEY):
+            spec = utils.get_arg_spec(func)
+            handler = cls(func, spec.args)
+            setattr(func, cls.__ANNOTATION_BUILDER_KEY, handler)
+            handler.add_annotations_from_spec(spec)
+        return getattr(func, cls.__ANNOTATION_BUILDER_KEY)
 
-
-class ArgumentAnnotationHandlerBuilder(
-    interfaces.AnnotationHandlerBuilder
-):
     def __init__(self, func, arguments, func_is_method=True):
         self._arguments = arguments[func_is_method:]
         self._argument_types = collections.OrderedDict.fromkeys(self._arguments)
         self._defined = 0
         self._func = func
+
+    def add_annotations_from_spec(self, spec):
+        if spec.args:
+            # Ignore `self` instance reference
+            spec.annotations.pop(spec.args[0], None)
+        self.set_annotations(spec.annotations)
 
     @property
     def missing_arguments(self):
@@ -101,24 +106,15 @@ class ArgumentAnnotationHandlerBuilder(
     def is_done(self):
         return self.remaining_args_count == 0
 
-    def _auto_fill_remaining_arguments(self):
-        uri_vars = set(self.request_definition_builder.uri.remaining_variables)
-        missing = list(self.missing_arguments)
-        still_missing = set(missing) - uri_vars
-
-        # Preserve order of function parameters.
-        matching = [p for p in missing if p in uri_vars]
-
-        if still_missing:
-            raise MissingArgumentAnnotations(still_missing, matching)
-        self.set_annotations(dict.fromkeys(matching, Path))
+    @property
+    def _types(self):
+        types = self._argument_types
+        return ((k, types[k]) for k in types if types[k] is not None)
 
     def build(self):
-        if not self.is_done():
-            self._auto_fill_remaining_arguments()
         return ArgumentAnnotationHandler(
             self._func,
-            self._argument_types,
+            collections.OrderedDict(self._types)
         )
 
 
@@ -133,40 +129,28 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
         return iter(self._arguments.values())
 
     def get_relevant_arguments(self, call_args):
-        return filter(call_args.__contains__, self._arguments)
+        annotations = self._arguments
+        return ((n, annotations[n]) for n in call_args if n in annotations)
 
     def handle_call(self, request_builder, args, kwargs):
         call_args = utils.get_call_args(self._func, None, *args, **kwargs)
-        for name in self.get_relevant_arguments(call_args):
-            self.handle_argument(
-                request_builder,
-                self._arguments[name],
-                call_args[name]
-            )
+        self.handle_call_args(request_builder, call_args)
 
-    @staticmethod
-    def handle_argument(request_builder, argument, value):
-        argument_type, converter_key = argument.type, argument.converter_key
-        converter = request_builder.get_converter(converter_key, argument_type)
-        value = converter.convert(value)
-
+    def handle_call_args(self, request_builder, call_args):
         # TODO: Catch Annotation errors and chain them here + provide context.
-        argument.modify_request(request_builder, value)
+        for name, annotation in self.get_relevant_arguments(call_args):
+            annotation.modify_request(request_builder, call_args[name])
 
 
 class ArgumentAnnotation(interfaces.Annotation):
-    can_be_static = True
+    _can_be_static = True
 
     def __call__(self, request_definition_builder):
         request_definition_builder.argument_handler_builder.add_annotation(self)
         return request_definition_builder
 
-    def modify_request_definition(self, request_definition_builder):
-        # pragma: no cover
+    def _modify_request(self, request_builder, value):  # pragma: no cover
         pass
-
-    def modify_request(self, request_builder, value):  # pragma: no cover
-        raise NotImplementedError
 
     @property
     def type(self):  # pragma: no cover
@@ -175,6 +159,12 @@ class ArgumentAnnotation(interfaces.Annotation):
     @property
     def converter_key(self):  # pragma: no cover
         raise NotImplementedError
+
+    def modify_request(self, request_builder, value):
+        argument_type, converter_key = self.type, self.converter_key
+        converter = request_builder.get_converter(converter_key, argument_type)
+        value = converter.convert(value)
+        self._modify_request(request_builder, value)
 
 
 class TypedArgument(ArgumentAnnotation):
@@ -190,12 +180,9 @@ class TypedArgument(ArgumentAnnotation):
     def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
-    def modify_request(self, request_builder, value):  # pragma: no cover
-        raise NotImplementedError
-
 
 class NamedArgument(TypedArgument):
-    can_be_static = True
+    _can_be_static = True
 
     def __init__(self, name=None, type=None):
         self._arg_name = name
@@ -216,8 +203,37 @@ class NamedArgument(TypedArgument):
     def converter_key(self):  # pragma: no cover
         raise NotImplementedError
 
-    def modify_request(self, request_builder, value):  # pragma: no cover
-        raise NotImplementedError
+
+class FuncDecoratorMixin(object):
+    @classmethod
+    def _is_static_call(cls, *args_, **kwargs):
+        if super(FuncDecoratorMixin, cls)._is_static_call(*args_, **kwargs):
+            return True
+        try:
+            is_func = inspect.isfunction(args_[0])
+        except IndexError:
+            return False
+        else:
+            return is_func and not (kwargs or args_[1:])
+
+    def __call__(self, obj):
+        if inspect.isfunction(obj):
+            ArgumentAnnotationHandlerBuilder.from_func(obj).add_annotation(self)
+            return obj
+        else:
+            return super(FuncDecoratorMixin, self).__call__(obj)
+
+    def with_value(self, value):
+        """
+        Creates an object that can be used with the
+        :py:class:`Consumer._inject` method or
+        :py:class:`~uplink.inject` decorator to inject request properties
+        with specific values.
+
+        .. versionadded:: 0.4.0
+        """
+        auditor = functools.partial(self.modify_request, value=value)
+        return hooks.RequestAuditor(auditor)
 
 
 class Path(NamedArgument):
@@ -263,11 +279,11 @@ class Path(NamedArgument):
     def modify_request_definition(self, request_definition_builder):
         request_definition_builder.uri.add_variable(self.name)
 
-    def modify_request(self, request_builder, value):
-        request_builder.uri.set_variable({self.name: value})
+    def _modify_request(self, request_builder, value):
+        request_builder.url.set_variable({self.name: value})
 
 
-class Query(NamedArgument):
+class Query(FuncDecoratorMixin, NamedArgument):
     """
     Set a dynamic query parameter.
 
@@ -334,7 +350,7 @@ class Query(NamedArgument):
         else:
             return keys.Sequence(keys.CONVERT_TO_STRING)
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
         self.update_params(
             request_builder.info,
@@ -343,7 +359,7 @@ class Query(NamedArgument):
         )
 
 
-class QueryMap(TypedArgument):
+class QueryMap(FuncDecoratorMixin, TypedArgument):
     """
     A mapping of query arguments.
 
@@ -375,12 +391,12 @@ class QueryMap(TypedArgument):
         else:
             return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates request body with the mapping of query args."""
         Query.update_params(request_builder.info, value, self._encoded)
 
 
-class Header(NamedArgument):
+class Header(FuncDecoratorMixin, NamedArgument):
     """
     Pass a header as a method argument at runtime.
 
@@ -401,12 +417,12 @@ class Header(NamedArgument):
         """Converts passed argument to string."""
         return keys.CONVERT_TO_STRING
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates request header contents."""
         request_builder.info["headers"][self.name] = value
 
 
-class HeaderMap(TypedArgument):
+class HeaderMap(FuncDecoratorMixin, TypedArgument):
     """Pass a mapping of header fields at runtime."""
 
     @property
@@ -415,7 +431,7 @@ class HeaderMap(TypedArgument):
         return keys.Map(keys.CONVERT_TO_STRING)
 
     @classmethod
-    def modify_request(cls, request_builder, value):
+    def _modify_request(cls, request_builder, value):
         """Updates request header contents."""
         request_builder.info["headers"].update(value)
 
@@ -452,7 +468,7 @@ class Field(NamedArgument):
         """Converts type to string."""
         return keys.CONVERT_TO_STRING
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates the request body with chosen field."""
         try:
             request_builder.info["data"][self.name] = value
@@ -491,7 +507,7 @@ class FieldMap(TypedArgument):
         """Converts type to string."""
         return keys.Map(keys.CONVERT_TO_STRING)
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates request body with chosen field mapping."""
         try:
             request_builder.info["data"].update(value)
@@ -521,7 +537,7 @@ class Part(NamedArgument):
         """Converts part to the request body."""
         return keys.CONVERT_TO_REQUEST_BODY
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates the request body with the form part."""
         request_builder.info["files"][self.name] = value
 
@@ -547,7 +563,7 @@ class PartMap(TypedArgument):
         """Converts each part to the request body."""
         return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updaytes request body to with the form parts."""
         request_builder.info["files"].update(value)
 
@@ -573,7 +589,7 @@ class Body(TypedArgument):
         """Converts request body."""
         return keys.CONVERT_TO_REQUEST_BODY
 
-    def modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, value):
         """Updates request body data."""
         request_builder.info["data"] = value
 
@@ -594,7 +610,7 @@ class Url(ArgumentAnnotation):
                 \"""Execute a GET requests against the given endpoint\"""
     """
 
-    class DynamicUrlAssignmentFailed(exceptions.AnnotationError):
+    class DynamicUrlAssignmentFailed(exceptions.InvalidRequestDefinition):
         """Raised when the attempt to set dynamic url fails."""
         message = "Failed to set dynamic url annotation on `%s`. "
 
@@ -615,6 +631,6 @@ class Url(ArgumentAnnotation):
             raise self.DynamicUrlAssignmentFailed(request_definition_builder)
 
     @classmethod
-    def modify_request(cls, request_builder, value):
+    def _modify_request(cls, request_builder, value):
         """Updates request url."""
-        request_builder.uri = value
+        request_builder.url = value

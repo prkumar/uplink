@@ -1,80 +1,71 @@
 # Standard library imports
 import collections
+import functools
 import warnings
 
 # Local imports
 from uplink import (
-    hooks,
+    auth as auth_,
     clients,
     converters,
-    interfaces,
     exceptions,
     helpers,
-    utils
+    hooks,
+    interfaces,
+    utils,
+    types
 )
+from uplink.converters import keys
 
 __all__ = ["build", "Consumer"]
 
 
-class ResponseConverter(hooks.TransactionHookDecorator):
-    # TODO: Override `audit_request` to log request details
-
-    def __init__(self, connection, convert):
-        super(ResponseConverter, self).__init__(connection)
-        self._convert = convert
-
-    def handle_response(self, response):
-        response = super(ResponseConverter, self).handle_response(response)
-        return self._convert(response)
-
-
-class RequestHandler(object):
-
-    def __init__(self, hook, method, url, extras):
-        self._args = (method, url, extras)
-        self._hook = hook
-
-    def fulfill(self, request):
-        self._hook.audit_request(*self._args)
-        request.add_callback(self._hook.handle_response)
-        return request.send(*self._args)
-
-
 class RequestPreparer(object):
 
-    def __init__(self, uplink_builder, definition):
-        self._hook = uplink_builder.hook
-        self._client = clients.get_client(uplink_builder.client)
-        self._base_url = str(uplink_builder.base_url)
-        self._converter_registry = self._make_converter_registry(
-            uplink_builder, definition
-        )
+    def __init__(self, builder):
+        self._hooks = list(builder.hooks)
+        self._client = builder.client
+        self._base_url = str(builder.base_url)
+        self._converters = list(builder.converters)
+        self._auth = builder.auth
 
-    @staticmethod
-    def _make_converter_registry(uplink_builder, request_definition):
-        return converters.ConverterFactoryRegistry(
-            uplink_builder.converters,
-            argument_annotations=request_definition.argument_annotations,
-            request_annotations=request_definition.method_annotations
-        )
-
-    def _join_uri_with_base(self, url):
+    def _join_url_with_base(self, url):
         return utils.urlparse.urljoin(self._base_url, url)
 
-    def _get_converter(self, request):
-        f = self._converter_registry[converters.keys.CONVERT_FROM_RESPONSE_BODY]
-        return f(request.return_type).convert
+    def _get_hook_chain(self, contract):
+        chain = list(contract.transaction_hooks)
+        converter = contract.get_converter(
+            keys.CONVERT_FROM_RESPONSE_BODY,
+            contract.return_type)
+        if converter is not None:
+            # Found a converter that can handle the return type.
+            chain.append(hooks.ResponseHandler(converter.convert))
+        chain.extend(self._hooks)
+        return chain
 
-    def prepare_request(self, request):
-        url = self._join_uri_with_base(request.uri)
-        convert = self._get_converter(request)
-        hook = ResponseConverter(self._hook, convert)
-        request_handler = RequestHandler(
-            hook, request.method, url, request.info)
-        return request_handler.fulfill(self._client.create_request())
+    @staticmethod
+    def apply_hooks(chain, request_builder, sender):
+        hook = hooks.TransactionHookChain(*chain)
+        hook.audit_request(request_builder)
+        sender.add_callback(hook.handle_response)
+        sender.add_exception_handler(hook.handle_exception)
 
-    def create_request_builder(self):
-        return helpers.RequestBuilder(self._converter_registry)
+    def prepare_request(self, request_builder):
+        request_builder.url = self._join_url_with_base(request_builder.url)
+        self._auth(request_builder)
+        sender = self._client.create_request()
+        chain = self._get_hook_chain(request_builder)
+        if chain:
+            self.apply_hooks(chain, request_builder, sender)
+        return sender.send(
+            request_builder.method,
+            request_builder.url,
+            request_builder.info
+        )
+
+    def create_request_builder(self, definition):
+        registry = definition.make_converter_registry(self._converters)
+        return helpers.RequestBuilder(registry)
 
 
 class CallFactory(object):
@@ -83,10 +74,10 @@ class CallFactory(object):
         self._request_definition = request_definition
 
     def __call__(self, *args, **kwargs):
-        builder = self._request_preparer.create_request_builder()
+        builder = self._request_preparer.create_request_builder(
+            self._request_definition)
         self._request_definition.define_request(builder, args, kwargs)
-        request = builder.build()
-        return self._request_preparer.prepare_request(request)
+        return self._request_preparer.prepare_request(builder)
 
 
 class Builder(interfaces.CallBuilder):
@@ -94,10 +85,11 @@ class Builder(interfaces.CallBuilder):
 
     def __init__(self):
         self._base_url = ""
-        self._hook = hooks.TransactionHook()
-        self._client = clients.DEFAULT_CLIENT
+        self._hooks = []
+        self._client = clients.get_client()
         self._converters = collections.deque()
         self._converters.append(converters.StandardConverter())
+        self._auth = auth_.get_auth()
 
     @property
     def client(self):
@@ -105,15 +97,15 @@ class Builder(interfaces.CallBuilder):
 
     @client.setter
     def client(self, client):
-        self._client = client
+        if client is not None:
+            self._client = clients.get_client(client)
 
     @property
-    def hook(self):
-        return self._hook
+    def hooks(self):
+        return iter(self._hooks)
 
-    @hook.setter
-    def hook(self, hook):
-        self._hook = hook
+    def add_hook(self, *hooks_):
+        self._hooks.extend(hooks_)
 
     @property
     def base_url(self):
@@ -130,13 +122,21 @@ class Builder(interfaces.CallBuilder):
     def add_converter(self, *converters_):
         self._converters.extendleft(converters_)
 
-    @utils.memoize()
+    @property
+    def auth(self):
+        return self._auth
+
+    @auth.setter
+    def auth(self, auth):
+        if auth is not None:
+            self._auth = auth_.get_auth(auth)
+
     def build(self, definition):
         """
         Creates a callable that uses the provided definition to execute
         HTTP requests when invoked.
         """
-        return CallFactory(RequestPreparer(self, definition), definition)
+        return CallFactory(RequestPreparer(self), definition)
 
 
 class ConsumerMethod(object):
@@ -170,13 +170,38 @@ class ConsumerMethod(object):
 
 
 class ConsumerMeta(type):
+
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
         if isinstance(value, interfaces.RequestDefinitionBuilder):
             value = ConsumerMethod(cls_name, key, value)
         return value
 
+    @staticmethod
+    def _set_init_handler(namespace):
+        try:
+            init = namespace["__init__"]
+        except KeyError:
+            pass
+        else:
+            builder = types.ArgumentAnnotationHandlerBuilder.from_func(init)
+            handler = builder.build()
+
+            @functools.wraps(init)
+            def new_init(self, *args, **kwargs):
+                init(self, *args, **kwargs)
+                call_args = utils.get_call_args(init, self, *args, **kwargs)
+                f = functools.partial(
+                    handler.handle_call_args, call_args=call_args
+                )
+                hook = hooks.RequestAuditor(f)
+                self._builder.add_hook(hook)
+
+            namespace["__init__"] = new_init
+
     def __new__(mcs, name, bases, namespace):
+        mcs._set_init_handler(namespace)
+
         # Wrap all definition builders with a special descriptor that
         # handles attribute access behavior.
         for key, value in namespace.items():
@@ -197,18 +222,23 @@ class Consumer(_Consumer):
             self,
             base_url="",
             client=None,
-            hook=None,
-            converter=()
+            converter=(),
+            auth=None,
+            hook=()
     ):
         self._builder = Builder()
         self._builder.base_url = base_url
         if isinstance(converter, converters.interfaces.ConverterFactory):
             converter = (converter,)
         self._builder.add_converter(*converter)
-        if client is not None:
-            self._builder.client = client
-        if hook is not None:
-            self._builder.hook = hook
+        if isinstance(hook, hooks.TransactionHook):
+            hook = (hook,)
+        self._builder.add_hook(*hook)
+        self._builder.auth = auth
+        self._builder.client = client
+
+    def _inject(self, hook, *more_hooks):
+        self._builder.add_hook(hook, *more_hooks)
 
 
 def build(service_cls, *args, **kwargs):

@@ -2,7 +2,7 @@
 import collections
 
 # Local imports
-from uplink import interfaces, utils
+from uplink import interfaces
 
 
 def get_api_definitions(service):
@@ -38,12 +38,18 @@ def set_api_definition(service, name, definition):
 
 
 class RequestBuilder(object):
+
     def __init__(self, converter_registry):
         self._method = None
-        self._uri_builder = None
+        self._url = None
         self._return_type = None
+
+        # TODO: Pass this in as constructor parameter
+        # TODO: Delegate instantiations to uplink.HTTPClientAdapter
         self._info = collections.defaultdict(dict)
+
         self._converter_registry = converter_registry
+        self._transaction_hooks = []
 
     @property
     def method(self):
@@ -54,29 +60,31 @@ class RequestBuilder(object):
         self._method = method
 
     @property
-    def uri(self):
-        return self._uri_builder
+    def url(self):
+        return self._url
 
-    @uri.setter
-    def uri(self, uri):
-        self._uri_builder = utils.URIBuilder(uri)
+    @url.setter
+    def url(self, url):
+        self._url = url
 
     @property
     def info(self):
         return self._info
 
+    @property
+    def transaction_hooks(self):
+        return iter(self._transaction_hooks)
+
     def get_converter(self, converter_key, *args, **kwargs):
         return self._converter_registry[converter_key](*args, **kwargs)
 
-    def set_return_type(self, return_type):
+    @property
+    def return_type(self):
+        return self._return_type
+
+    @return_type.setter
+    def return_type(self, return_type):
         self._return_type = return_type
 
-    def build(self):
-        # TODO: Should we assert that all URI variables are set?
-        # assert not self._uri_builder.remaining_variables():
-        return utils.Request(
-            self._method,
-            self._uri_builder.build(),
-            self._info,
-            self._return_type
-        )
+    def add_transaction_hook(self, hook):
+        self._transaction_hooks.append(hook)

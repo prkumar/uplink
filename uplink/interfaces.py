@@ -1,7 +1,6 @@
 class AnnotationMeta(type):
-
     def __call__(cls, *args, **kwargs):
-        if cls.can_be_static and cls.is_static_call(*args, **kwargs):
+        if cls._can_be_static and cls._is_static_call(*args, **kwargs):
             self = super(AnnotationMeta, cls).__call__()
             self(args[0])
             return args[0]
@@ -10,13 +9,13 @@ class AnnotationMeta(type):
 
 
 class _Annotation(object):
-    can_be_static = False
+    _can_be_static = False
 
     def modify_request_definition(self, request_definition_builder):
-        raise NotImplementedError
+        pass
 
     @classmethod
-    def is_static_call(cls, *args, **kwargs):
+    def _is_static_call(cls, *args, **kwargs):
         try:
             is_builder = isinstance(args[0], RequestDefinitionBuilder)
         except IndexError:
@@ -31,22 +30,19 @@ Annotation = AnnotationMeta(
 
 
 class AnnotationHandlerBuilder(object):
-    __request_definition_builder = None
-
-    def set_annotations(self, *annotations, **kwargs):
-        for annotation in annotations:
-            self.add_annotation(annotation)
-
-    def add_annotation(self, annotation, *args, **kwargs):
-        annotation.modify_request_definition(self.request_definition_builder)
-
-    def set_request_definition_builder(self, request_definition_builder):
-        if self.__request_definition_builder is None:
-            self.__request_definition_builder = request_definition_builder
+    __listener = None
 
     @property
-    def request_definition_builder(self):
-        return self.__request_definition_builder
+    def listener(self):
+        return self.__listener
+
+    @listener.setter
+    def listener(self, listener):
+        self.__listener = listener
+
+    def add_annotation(self, annotation, *args, **kwargs):
+        if self.__listener is not None:
+            self.__listener(annotation)
 
     def is_done(self):
         return True
@@ -111,12 +107,7 @@ class RequestDefinitionBuilder(object):
 
 class RequestDefinition(object):
 
-    @property
-    def argument_annotations(self):
-        raise NotImplementedError
-
-    @property
-    def method_annotations(self):
+    def make_converter_registry(self, converters):
         raise NotImplementedError
 
     def define_request(self, request_builder, func_args, func_kwargs):
@@ -129,18 +120,24 @@ class CallBuilder(object):
     def client(self):
         raise NotImplementedError
 
-    @client.setter
-    def client(self, client):
-        raise NotImplementedError
-
     @property
     def base_url(self):
         raise NotImplementedError
 
-    @base_url.setter
-    def base_url(self, base_url):
+    @property
+    def converters(self):
         raise NotImplementedError
 
     @property
-    def converters(self):
+    def hooks(self):
+        raise NotImplementedError
+
+    @property
+    def auth(self):
+        raise NotImplementedError
+
+
+class Auth(object):
+
+    def __call__(self, request_builder):
         raise NotImplementedError

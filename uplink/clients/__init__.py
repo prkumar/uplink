@@ -1,12 +1,12 @@
 """
-This package defines an adapter layer for handling requests built by
-Uplink's high-level, declarative API with existing HTTP clients
-(`requests`, `asyncio`, etc.).
+This package defines an adapter layer for writing wrappers of existing
+HTTP clients (Requests, aiohttp, etc.) so they can handle requests built by
+Uplink's high-level, declarative API.
 
 We refer to this layer as the backend, as these adapters handle the
-actual client behavior (i.e., making a request to a server).
+actual HTTP client logic (i.e., making a request to a server).
 
-Note:
+Todo:
     At some point, we may want to expose this layer to the user, so
     they can create custom adapters.
 """

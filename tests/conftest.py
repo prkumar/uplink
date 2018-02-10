@@ -9,8 +9,10 @@ from uplink import clients, converters, hooks, interfaces, helpers
 
 
 @pytest.fixture
-def http_client_mock(mocker):
-    return mocker.Mock(spec=clients.interfaces.HttpClientAdapter)
+def http_client_mock(mocker, request_mock):
+    client = mocker.Mock(spec=clients.interfaces.HttpClientAdapter)
+    client.create_request.return_value = request_mock
+    return client
 
 
 @pytest.fixture
@@ -20,7 +22,7 @@ def request_mock(mocker):
 
 @pytest.fixture
 def transaction_hook_mock(mocker):
-    return mocker.Mock(spec=hooks.BaseTransactionHook)
+    return mocker.Mock(spec=hooks.TransactionHook)
 
 
 @pytest.fixture
@@ -67,5 +69,7 @@ def uplink_builder_mock(mocker):
 def request_builder(mocker):
     builder = mocker.MagicMock(spec=helpers.RequestBuilder)
     builder.info = collections.defaultdict(dict)
+    builder.get_converter.return_value = converter_mock
+    converter_mock.convert = lambda x: x
     return builder
 
