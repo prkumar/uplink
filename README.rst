@@ -4,7 +4,7 @@ Uplink
 |Gitter|
 
 - Builds Reusable Objects for Consuming Web APIs.
-- Works with Requests, asyncio, and Twisted.
+- Works with **Requests**, **asyncio**, and **Twisted**.
 - Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
 A Quick Walkthrough, with GitHub API v3
@@ -54,7 +54,7 @@ Use decorators and function annotations to describe the HTTP request:
 * URL parameter replacement and query parameter support
 * Convert responses into Python objects (e.g., |using marshmallow|_)
 * JSON, URL-encoded, and multipart request body and file upload
-* Inject functions as **middleware** to define custom response and error handling
+* Inject functions as **middleware** to apply custom response and error handling
 
 .. |using marshmallow| replace:: using ``marshmallow``
 .. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
