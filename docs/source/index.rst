@@ -34,7 +34,6 @@ Uplink turns your HTTP API into a Python class.
 
    from uplink import Consumer, get, headers, Path, Query
 
-   @headers({"Accept": "application/vnd.github.v3.full+json"})
    class GitHub(Consumer):
 
       @get("users/{user}/repos")
@@ -69,6 +68,8 @@ Use decorators and function annotations to describe the HTTP request:
 * URL parameter replacement and query parameter support
 * Convert responses into Python objects (e.g., using :py:mod:`marshmallow`)
 * JSON, URL-encoded, and multipart request body and file upload
+* Inject functions as **middleware** to define custom response and error handling
+
 
 The User Manual
 ===============
@@ -81,6 +82,7 @@ Follow this guide to get up and running with Uplink.
    install.rst
    introduction.rst
    quickstart.rst
+   auth.rst
    tips.rst
 
 The Public API

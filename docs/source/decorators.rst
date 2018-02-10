@@ -34,3 +34,17 @@ args
 
 .. autoclass:: uplink.args
 
+response_handler
+================
+
+.. autoclass:: uplink.response_handler
+
+error_handler
+=============
+
+.. autoclass:: uplink.error_handler
+
+inject
+======
+
+.. autoclass:: uplink.inject

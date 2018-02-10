@@ -75,34 +75,16 @@ Annotating Your Arguments For Python 2.7
 
 There are several ways to annotate arguments. Most examples in this
 documentation use function annotations, but this approach is unavailable
-for Python 2.7 users. Instead, you can use argument annotations as decorators
-or utilize the method annotation :py:class:`~uplink.args`.
-
-Argument Annotations as Decorators
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-For one, annotations can work as function decorators. With this approach,
-annotations are mapped to arguments from "bottom-up".
-
-For instance, in the below definition, the :py:class:`~uplink.Url`
-annotation corresponds to :py:attr:`commits_url`, and
-:py:class:`~uplink.Path` to :py:attr:`sha`.
-
-.. code-block:: python
-   :emphasize-lines: 2,3
-
-    class GitHub(uplink.Consumer):
-        @uplink.Path
-        @uplink.Url
-        @uplink.get
-        def get_commit(self, commits_url, sha): pass
+for Python 2.7 users. Instead, you should utilize the method annotation
+:py:class:`~uplink.args`.
 
 Using :py:class:`uplink.args`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The second approach involves using the method annotation
-:py:class:`~uplink.args`, arranging annotations in the same order as
-their corresponding function arguments (again, ignore :py:attr:`self`):
+The recommended approach for Python 2.7 users involves using the method
+annotation :py:class:`~uplink.args`, arranging annotations in the same
+order as their corresponding function arguments (again, ignore
+:py:attr:`self`):
 
 .. code-block:: python
    :emphasize-lines: 2
@@ -115,8 +97,8 @@ their corresponding function arguments (again, ignore :py:attr:`self`):
 Function Annotations (Python 3 only)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Finally, when using Python 3, you can use these classes as function
-annotations (:pep:`3107`):
+When using Python 3, you can use these classes as function annotations
+(:pep:`3107`):
 
 .. code-block:: python
    :emphasize-lines: 3

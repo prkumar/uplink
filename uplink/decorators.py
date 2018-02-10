@@ -204,6 +204,7 @@ class json(MethodAnnotation):
 
     Example:
         .. code-block:: python
+
             @json
             @patch(/user")
             def update_user(self, **info: Body):
@@ -376,6 +377,8 @@ class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
             @raise_for_status
             class GitHub(Consumer):
                ...
+
+    .. versionadded:: 0.4.0
     """
 
 
@@ -419,6 +422,8 @@ class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
             class GitHub(Consumer):
                ...
 
+    .. versionadded:: 0.4.0
+
     Note:
         Error handlers can not completely suppress exceptions. The
         original exception is thrown if the error handler doesn't throw
@@ -434,8 +439,10 @@ class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
     Example:
         .. code-block:: python
 
-            @inject(Query("sort").equals("pushed"))
+            @inject(Query("sort").with_value("pushed"))
             @get("users/{user}/repos")
             def list_repos(self, user):
                 \"""Lists user's public repos by latest pushed.\"""
+
+    .. versionadded:: 0.4.0
     """

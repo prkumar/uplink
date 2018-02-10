@@ -15,7 +15,6 @@ Uplink turns your HTTP API into a Python class.
 
    from uplink import Consumer, get, headers, Path, Query
 
-   @headers({"Accept": "application/vnd.github.v3.full+json"})
    class GitHub(Consumer):
 
       @get("users/{user}/repos")
@@ -55,6 +54,7 @@ Use decorators and function annotations to describe the HTTP request:
 * URL parameter replacement and query parameter support
 * Convert responses into Python objects (e.g., |using marshmallow|_)
 * JSON, URL-encoded, and multipart request body and file upload
+* Inject functions as **middleware** to define custom response and error handling
 
 .. |using marshmallow| replace:: using ``marshmallow``
 .. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow

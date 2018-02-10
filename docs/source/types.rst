@@ -16,22 +16,25 @@ Query
 =====
 
 .. autoclass:: uplink.Query
+   :members: with_value
 
 QueryMap
 ========
 
 .. autoclass:: uplink.QueryMap
+   :members: with_value
 
 Header
 ======
 
 .. autoclass:: uplink.Header
+   :members: with_value
 
 HeaderMap
 =========
 
 .. autoclass:: uplink.HeaderMap
-
+   :members: with_value
 
 Field
 =====
