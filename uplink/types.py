@@ -225,8 +225,12 @@ class FuncDecoratorMixin(object):
 
     def with_value(self, value):
         """
-        Creates a transaction hook that sets the request property to the
-        the corresponding value.
+        Creates an object that can be used with the
+        :py:class:`Consumer._inject` method or
+        :py:class:`~uplink.inject` decorator to inject request properties
+        with specific values.
+
+        .. versionadded:: 0.4.0
         """
         auditor = functools.partial(self.modify_request, value=value)
         return hooks.RequestAuditor(auditor)

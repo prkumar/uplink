@@ -159,6 +159,7 @@ function parameter annotation:
     def get_user(self, authorization: Header):
         """Get an authenticated user."""
 
+
 Synchronous vs. Asynchronous
 ============================
 
@@ -190,3 +191,121 @@ For instance, the :py:class:`~uplink.MarshmallowConverter` adapter turns JSON
 HTTP responses into Python objects using the :py:class:`marshmallow.Schema`
 object. Checkout `this example on GitHub
 <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_ for more.
+
+
+Custom Response and Error Handling
+==================================
+
+To register a custom response or error handler, decorate a function with
+the :py:class:`response_handler` or :py:class:`error_handler` decorator.
+
+For instance, the function :py:func:`accept_json` defined below is a response
+handler that outputs the JSON body of a given response:
+
+.. code-block:: python
+
+    @uplink.response_handler
+    def accept_json(response):
+        return response.json()
+
+Now, :py:func:`accept_json` can be used as a decorator to inject its custom
+response handling into any request method:
+
+.. code-block:: python
+
+    @accept_json
+    @get("/todo/{id}")
+    def get_todo(self, id):
+        """Get the todo with the given id."""
+
+To apply the function's handling onto all request methods of a
+:py:class:`~uplink.Consumer` subclass, we can simply use the registered handler
+as a class decorator:
+
+.. code-block:: python
+
+    @accept_json
+    class TodoApp(uplink.Consumer):
+        ...
+
+Similarly, functions decorated with :py:class:`error_handler` are registered
+error handlers. When applied to a request method, these handlers are
+invoked when the underlying HTTP client fails to execute a request:
+
+.. code-block:: python
+
+    @error_handler
+    def raise_api_error(exc_type, exc_val, exc_tb):
+        # wrap client error with custom API error
+        ...
+
+Notably, handlers can be stacked on top of one another to chain their
+behavior:
+
+.. code-block:: python
+
+    @raise_api_error
+    @accept_json
+    class TodoApp(uplink.Consumer):
+        ...
+
+.. _`annotating constructor arguments`:
+
+Annotating :py:meth:`__init__` Arguments
+========================================
+
+Function annotations like :py:class:`Query` and :py:class:`Header` can
+be used with constructor arguments of a :py:class:`~uplink.Consumer` subclass.
+When a new consumer instance is created, the value of these arguments are
+applied to all requests made through that instance.
+
+For example, the following consumer accepts the API access token as the
+constructor argument :py:attr:`access_token`:
+
+.. code-block:: python
+
+    class GitHub(uplink.Consumer):
+
+        def __init__(self, access_token: uplink.Query):
+            ...
+
+        @uplink.post("/user")
+        def update_user(self, **info: Body):
+            """Update the authenticated user"""
+
+Now, all requests made from an instance of this consumer class will be
+authenticated with the access token passed in at initialization:
+
+.. code-block:: python
+
+    github = TodoApp("my-github-access-token")
+
+    # This request will include the above access token as a query parameter.
+    github.update_user(bio="Beam me up, Scotty!")
+
+.. versionadded:: v0.4.0
+
+:py:meth:`_inject` Request Properties
+=====================================
+
+As an alternative to :ref:`annotating constructor arguments`, you can achieve
+a similar behavior with more control by using the
+:py:meth:`Consumer._inject` method. With this method, you can calculate
+request properties within plain old python methods.
+
+.. code-block:: python
+
+    class TodoApp(uplink.Consumer):
+
+        def __init__(self, username, password)
+            # Create an access token
+            api_key = create_api_key(username, password)
+
+            # Inject it.
+            self._inject(uplink.Query("api_key").with_value(api_key))
+
+Similar to the annotation style, request properties added with
+:py:meth:`~uplink.Consumer._inject` method are applied to all requests made
+through the consumer instance.
+
+.. versionadded:: v0.4.0

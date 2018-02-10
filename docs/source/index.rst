@@ -68,6 +68,8 @@ Use decorators and function annotations to describe the HTTP request:
 * URL parameter replacement and query parameter support
 * Convert responses into Python objects (e.g., using :py:mod:`marshmallow`)
 * JSON, URL-encoded, and multipart request body and file upload
+* Inject functions as **middleware** to define custom response and error handling
+
 
 The User Manual
 ===============
@@ -80,7 +82,6 @@ Follow this guide to get up and running with Uplink.
    install.rst
    introduction.rst
    quickstart.rst
-   advanced.rst
    auth.rst
    tips.rst
 

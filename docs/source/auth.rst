@@ -30,9 +30,8 @@ accepting the user's credentials as an argument:
         """Update the user associated to the given access token."""
 
 If more than one request requires authentication, you can make the token
-an argument of your consumer constructor:
-
-.. TODO: Add link to how inject hooks into a consumer instance.
+an argument of your consumer constructor (see :ref:`annotating constructor
+arguments`):
 
 .. code-block:: python
 
@@ -42,8 +41,8 @@ an argument of your consumer constructor:
             ...
 
 
-Using Existing Auth Support for Requests and aiohttp
-----------------------------------------------------
+Using Auth Support for Requests and aiohttp
+-------------------------------------------
 
 As we work towards Uplink's v1.0 release, improving built-in support for other
 types of authentication is a continuing goal.
@@ -74,4 +73,3 @@ Requests:
 
     session = OAuth2Session(...)
     api = MyApi(BASE_URL, client=session)
-

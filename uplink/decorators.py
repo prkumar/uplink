@@ -377,6 +377,8 @@ class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
             @raise_for_status
             class GitHub(Consumer):
                ...
+
+    .. versionadded:: 0.4.0
     """
 
 
@@ -420,6 +422,8 @@ class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
             class GitHub(Consumer):
                ...
 
+    .. versionadded:: 0.4.0
+
     Note:
         Error handlers can not completely suppress exceptions. The
         original exception is thrown if the error handler doesn't throw
@@ -439,4 +443,6 @@ class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
             @get("users/{user}/repos")
             def list_repos(self, user):
                 \"""Lists user's public repos by latest pushed.\"""
+
+    .. versionadded:: 0.4.0
     """

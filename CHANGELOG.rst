@@ -6,6 +6,19 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.4.0_ - 2018-2-10
+==================
+Added
+-----
+- Support for Basic Authentication.
+- The ``response_handler`` decorator for defining custom response handlers.
+- The ``error_handler`` decorator for defining custom error handlers.
+- The ``inject`` decorator for injecting other kinds of middleware.
+- The ``Consumer._inject`` method for adding middleware to a consumer
+  instance.
+- Support for annotating constructor arguments of a ``Consumer`` subclass
+  with built-in function annotations like ``Query`` and ``Header``.
+
 0.3.0_ - 2018-1-09
 ==================
 Added
@@ -13,10 +26,10 @@ Added
 - HTTP HEAD request decorator by `@brandonio21`_.
 - Support for returning deserialized response objects using ``marshmallow``
   schemas.
-- Constructor parameter for ``uplink.Query`` and ``uplink.QueryMap`` to
+- Constructor parameter for ``Query`` and ``QueryMap`` to
   support already encoded URL parameters.
 - Support for using ``requests.Session`` and ``aiohttp.ClientSession``
-  instances with the ``client`` parameter of the ``uplink.Consumer`` 
+  instances with the ``client`` parameter of the ``Consumer``
   constructor.
 
 Changed
@@ -96,6 +109,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.4.0: https://github.com/prkumar/uplink/compare/v0.3.0...v0.4.0
 .. _0.3.0: https://github.com/prkumar/uplink/compare/v0.2.2...v0.3.0
 .. _0.2.2: https://github.com/prkumar/uplink/compare/v0.2.0...v0.2.2
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
