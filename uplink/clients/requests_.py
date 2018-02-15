@@ -3,9 +3,11 @@ import atexit
 
 # Local imports
 from uplink.clients import helpers, interfaces, register
+from uplink.clients.exceptions import ClientExceptions
 
 # Third party imports
 import requests
+import requests.exceptions
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
@@ -61,3 +63,11 @@ class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
     def add_callback(self, callback):
         self._callback = callback
+
+
+# == Register client exceptions == #
+ClientExceptions.BaseException.register(requests.RequestException)
+ClientExceptions.ConnectionError.register(requests.ConnectionError)
+ClientExceptions.TimeoutError.register(requests.Timeout)
+ClientExceptions.SSLError.register(requests.exceptions.SSLError)
+ClientExceptions.InvalidURL.register(requests.exceptions.InvalidURL)

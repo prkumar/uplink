@@ -15,6 +15,7 @@ import inspect
 
 # Local imports
 from uplink.clients import interfaces, register
+from uplink.clients.exceptions import client_exceptions
 from uplink.clients.register import DEFAULT_CLIENT, get_client
 from uplink.clients.requests_ import RequestsClient
 from uplink.clients.twisted_ import TwistedClient
@@ -45,6 +46,7 @@ __all__ = [
     "RequestsClient",
     "AiohttpClient",
     "TwistedClient",
+    "client_exceptions",
 ]
 
 register.set_default_client(RequestsClient)
