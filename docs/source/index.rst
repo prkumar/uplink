@@ -13,7 +13,7 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 .. note::
 
    Uplink is currently in initial development. Until the official
-   release (``v1.0.0``), the public API should be considered provisional,
+   release (``v1.0.0``), the public API should be considered provisional.
    Although we don't expect any considerable changes to the API at this point,
    please avoid using the code in production, for now.
 
