@@ -2,8 +2,7 @@
 import atexit
 
 # Local imports
-from uplink.clients import helpers, interfaces, register
-from uplink.clients.exceptions import ClientExceptions
+from uplink.clients import client_exceptions, helpers, interfaces, register
 
 # Third party imports
 import requests
@@ -66,8 +65,8 @@ class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
 
 # == Register client exceptions == #
-ClientExceptions.BaseException.register(requests.RequestException)
-ClientExceptions.ConnectionError.register(requests.ConnectionError)
-ClientExceptions.TimeoutError.register(requests.Timeout)
-ClientExceptions.SSLError.register(requests.exceptions.SSLError)
-ClientExceptions.InvalidURL.register(requests.exceptions.InvalidURL)
+client_exceptions.BaseClientException.register(requests.RequestException)
+client_exceptions.ConnectionError.register(requests.ConnectionError)
+client_exceptions.Timeout.register(requests.Timeout)
+client_exceptions.SSLError.register(requests.exceptions.SSLError)
+client_exceptions.InvalidURL.register(requests.exceptions.InvalidURL)

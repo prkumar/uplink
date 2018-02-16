@@ -17,8 +17,7 @@ except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import helpers, interfaces, register
-from uplink.clients.exceptions import ClientExceptions
+from uplink.clients import client_exceptions, helpers, interfaces, register
 
 
 def threaded_callback(callback):
@@ -193,8 +192,8 @@ class AsyncioExecutor(futures.Executor):
 
 
 # == Register client exceptions == #
-ClientExceptions.BaseException.register(aiohttp.ClientError)
-ClientExceptions.ConnectionError.register(aiohttp.ClientConnectionError)
-ClientExceptions.TimeoutError.register(aiohttp.ServerTimeoutError)
-ClientExceptions.SSLError.register(aiohttp.ClientSSLError)
-ClientExceptions.InvalidURL.register(aiohttp.InvalidURL)
+client_exceptions.BaseClientException.register(aiohttp.ClientError)
+client_exceptions.ConnectionError.register(aiohttp.ClientConnectionError)
+client_exceptions.Timeout.register(aiohttp.ServerTimeoutError)
+client_exceptions.SSLError.register(aiohttp.ClientSSLError)
+client_exceptions.InvalidURL.register(aiohttp.InvalidURL)
