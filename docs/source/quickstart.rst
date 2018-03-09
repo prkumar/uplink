@@ -196,6 +196,8 @@ object. Checkout `this example on GitHub
 Custom Response and Error Handling
 ==================================
 
+.. versionadded:: 0.4.0
+
 To register a custom response or error handler, decorate a function with
 the :py:class:`response_handler` or :py:class:`error_handler` decorator.
 
@@ -254,6 +256,8 @@ behavior:
 Annotating :py:meth:`__init__` Arguments
 ========================================
 
+.. versionadded:: 0.4.0
+
 Function annotations like :py:class:`Query` and :py:class:`Header` can
 be used with constructor arguments of a :py:class:`~uplink.Consumer` subclass.
 When a new consumer instance is created, the value of these arguments are
@@ -283,10 +287,10 @@ authenticated with the access token passed in at initialization:
     # This request will include the above access token as a query parameter.
     github.update_user(bio="Beam me up, Scotty!")
 
-.. versionadded:: v0.4.0
-
 :py:meth:`_inject` Request Properties
 =====================================
+
+.. versionadded:: 0.4.0
 
 As an alternative to :ref:`annotating constructor arguments`, you can achieve
 a similar behavior with more control by using the
@@ -307,5 +311,3 @@ request properties within plain old python methods.
 Similar to the annotation style, request properties added with
 :py:meth:`~uplink.Consumer._inject` method are applied to all requests made
 through the consumer instance.
-
-.. versionadded:: v0.4.0

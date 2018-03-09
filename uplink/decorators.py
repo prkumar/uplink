@@ -36,15 +36,21 @@ class HttpMethodNotSupport(exceptions.AnnotationError):
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     def __init__(self):
+        self._class_annotations = list()
         self._method_annotations = list()
 
     def add_annotation(self, annotation, *args_, **kwargs):
-        self._method_annotations.append(annotation)
+        if kwargs.get("is_class", False):
+            self._class_annotations.append(annotation)
+        else:
+            self._method_annotations.append(annotation)
         super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
         return annotation
 
     def build(self):
-        return MethodAnnotationHandler(self._method_annotations)
+        return MethodAnnotationHandler(
+            self._class_annotations + self._method_annotations
+        )
 
 
 class MethodAnnotationHandler(interfaces.AnnotationHandler):
@@ -78,8 +84,12 @@ class MethodAnnotation(interfaces.Annotation):
     def __call__(self, class_or_builder):
         if inspect.isclass(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
+
             for name, builder in builders:
-                builder.method_handler_builder.add_annotation(self)
+                builder.method_handler_builder.add_annotation(
+                    self,
+                    is_class=True,
+                )
                 helpers.set_api_definition(class_or_builder, name, builder)
         else:
             class_or_builder.method_handler_builder.add_annotation(self)
