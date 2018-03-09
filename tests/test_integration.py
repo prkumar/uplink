@@ -13,9 +13,11 @@ def _get_url(url):
     return utils.urlparse.urljoin(BASE_URL, url)
 
 
+@uplink.timeout(10)
 @uplink.headers({"Accept": "application/vnd.github.v3.full+json"})
 class GitHubService(uplink.Consumer):
 
+    @uplink.timeout(15)
     @uplink.get("/users/{user}/repos")
     def list_repos(self, user): pass
 
@@ -35,7 +37,8 @@ def test_list_repo(github_service_and_client):
         "GET", _get_url("/users/prkumar/repos"), {
             "headers": {
                 "Accept": "application/vnd.github.v3.full+json"
-            }
+            },
+            "timeout": 15
         }
     )
 
