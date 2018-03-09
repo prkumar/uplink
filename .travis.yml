@@ -8,7 +8,7 @@ python:
 install:
   - pip install -e .
 before_script:
-  - pip install -r requirements.txt
+  - pip install -r requirements.d/core.txt -r requirements.d/tests.txt
 script:
   - tox -e py
 after_success:
