@@ -5,10 +5,8 @@ python:
   - '3.4'
   - '3.5'
   - '3.6'
-install:
-  - pip install -e .
 before_script:
-  - pip install -r requirements.txt
+  - pip install tox
 script:
   - tox -e py
 after_success:
