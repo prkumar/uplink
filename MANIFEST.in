@@ -1,2 +1,2 @@
-include AUTHORS.rst README.rst CHANGELOG.rst LICENSE requirements.txt
-recursive-include tests *.py
+include AUTHORS.rst README.rst CHANGELOG.rst LICENSE
+recursive-include requirements.d tests *.py

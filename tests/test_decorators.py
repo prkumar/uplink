@@ -38,6 +38,24 @@ class TestMethodAnnotationHandlerBuilder(object):
         handler = method_handler_builder.build()
         assert list(handler.annotations) == [method_annotation]
 
+    def test_class_level_appears_before_method_level_annotations(
+            self, method_handler_builder
+    ):
+        method_level1 = decorators.MethodAnnotation()
+        method_level2 = decorators.MethodAnnotation()
+        class_level1 = decorators.MethodAnnotation()
+        class_level2 = decorators.MethodAnnotation()
+        method_handler_builder.add_annotation(method_level1)
+        method_handler_builder.add_annotation(method_level2)
+        method_handler_builder.add_annotation(class_level1, is_class=True)
+        method_handler_builder.add_annotation(class_level2, is_class=True)
+        handler = method_handler_builder.build()
+        assert list(handler.annotations) == [
+            class_level1,
+            class_level2,
+            method_level1,
+            method_level2
+        ]
 
 class TestMethodAnnotationHandler(object):
 
@@ -65,7 +83,8 @@ class TestMethodAnnotation(object):
 
         method_annotation(Class)
         builder = request_definition_builder.method_handler_builder
-        builder.add_annotation.assert_called_with(method_annotation)
+        builder.add_annotation.assert_called_with(
+            method_annotation, is_class=True)
 
     def test_static_call_with_class(
             self, mocker, request_definition_builder
@@ -75,7 +94,7 @@ class TestMethodAnnotation(object):
 
         self.FakeMethodAnnotation(Class)
         builder = request_definition_builder.method_handler_builder
-        builder.add_annotation.assert_called_with(mocker.ANY)
+        builder.add_annotation.assert_called_with(mocker.ANY, is_class=True)
 
     def test_call_with_builder(self,
                                method_annotation,

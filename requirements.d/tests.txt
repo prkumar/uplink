@@ -1,7 +1,3 @@
-# Package
-requests==2.18.1
-uritemplate==3.0.0
-
 # Twisted Support
 twisted==17.1.0
 
@@ -18,7 +14,3 @@ pytest==3.2.1
 pytest-mock==1.6.2
 pytest-cov==2.5.1
 tox==2.7.0
-
-# Documentation
-Sphinx==1.6.3
-sphinx-autobuild==0.7.1

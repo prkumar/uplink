@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.4.1_ - 2018-3-10
+==================
+Fixed
+-----
+- Enforce method-level decorators override class-level decorators when they conflict.
+
 0.4.0_ - 2018-2-10
 ==================
 Added
@@ -109,6 +115,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.4.1: https://github.com/prkumar/uplink/compare/v0.4.0...v0.4.1
 .. _0.4.0: https://github.com/prkumar/uplink/compare/v0.3.0...v0.4.0
 .. _0.3.0: https://github.com/prkumar/uplink/compare/v0.2.2...v0.3.0
 .. _0.2.2: https://github.com/prkumar/uplink/compare/v0.2.0...v0.2.2
