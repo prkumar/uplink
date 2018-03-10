@@ -16,11 +16,10 @@ register their exceptions. For each registered exception, we generate a
 subclass that is a child of both the client exception and the proxy
 exception to which the writer registered it.
 
-The client exception handling layer attempts to exchange client-raised
-error, the layer attempts to exchange the client error for a subclass
-generated in the previous step. If the exchange is successfully,
-end-users can catch the subclass exception using either the proxy
-exception or the original exception.
+When a client-raised exception is thrown, the client layer attempts to
+exchange the client error for a subclass generated in the previous step.
+If the exchange is successfully, end-users can catch the subclass
+exception using either the proxy exception or the original exception.
 """
 
 
