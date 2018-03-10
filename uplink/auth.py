@@ -7,14 +7,14 @@ import collections
 from requests import auth
 
 # Local imports
-from uplink import utils
+from uplink import helpers
 
 __all__ = []
 
 
 def get_auth(auth_object=None):
     if auth_object is None:
-        return utils.no_op
+        return helpers.no_op
     elif isinstance(auth_object, collections.Iterable):
         return BasicAuth(*auth_object)
     elif callable(auth_object):

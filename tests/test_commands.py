@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import commands, converters, types, utils
+from uplink import commands, compat, converters, types
 
 
 class TestHttpMethodFactory(object):
@@ -25,12 +25,12 @@ class TestHttpMethod(object):
     def test_call(self, mocker, annotation_mock):
         # Setup
         def func(): pass
-        sig = utils.Signature(
+        sig = compat.Signature(
             args=["self", "arg1", "arg2"],
             annotations={"arg1": annotation_mock},
             return_annotation=None
         )
-        mocker.patch("uplink.utils.get_arg_spec").return_value = sig
+        mocker.patch("uplink.compat.get_arg_spec").return_value = sig
 
         http_method = commands.HttpMethod("METHOD", uri="/{hello}")
         builder = http_method(func)
@@ -46,12 +46,12 @@ class TestHttpMethod(object):
     def test_call_with_return_annotation(self, mocker):
         # Setup
         def func(): pass
-        sig = utils.Signature(
+        sig = compat.Signature(
             args=[],
             annotations={},
             return_annotation="return_annotation"
         )
-        mocker.patch("uplink.utils.get_arg_spec").return_value = sig
+        mocker.patch("uplink.compat.get_arg_spec").return_value = sig
         returns = mocker.patch("uplink.decorators.returns")
         http_method = commands.HttpMethod("METHOD", uri="/{hello}")
         http_method(func)

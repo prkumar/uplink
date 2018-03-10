@@ -7,12 +7,12 @@ import warnings
 from uplink import (
     auth as auth_,
     clients,
+    compat,
     converters,
     exceptions,
     helpers,
     hooks,
     interfaces,
-    utils,
     types
 )
 from uplink.converters import keys
@@ -30,7 +30,7 @@ class RequestPreparer(object):
         self._auth = builder.auth
 
     def _join_url_with_base(self, url):
-        return utils.urlparse.urljoin(self._base_url, url)
+        return compat.urlparse.urljoin(self._base_url, url)
 
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
@@ -190,7 +190,7 @@ class ConsumerMeta(type):
             @functools.wraps(init)
             def new_init(self, *args, **kwargs):
                 init(self, *args, **kwargs)
-                call_args = utils.get_call_args(init, self, *args, **kwargs)
+                call_args = compat.get_call_args(init, self, *args, **kwargs)
                 f = functools.partial(
                     handler.handle_call_args, call_args=call_args
                 )

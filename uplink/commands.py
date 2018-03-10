@@ -2,7 +2,15 @@
 import functools
 
 # Local imports
-from uplink import converters, decorators, exceptions, interfaces, types, utils
+from uplink import (
+    converters,
+    compat,
+    decorators,
+    exceptions,
+    helpers,
+    interfaces,
+    types
+)
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
@@ -44,7 +52,7 @@ class HttpMethod(object):
         self._uri = uri
 
     def __call__(self, func):
-        spec = utils.get_arg_spec(func)
+        spec = compat.get_arg_spec(func)
         arg_handler = types.ArgumentAnnotationHandlerBuilder(func, spec.args)
         builder = RequestDefinitionBuilder(
             self._method,
@@ -92,7 +100,7 @@ class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
 
     @property
     def remaining_variables(self):
-        return utils.URIBuilder.variables(self._uri) - self._uri_variables
+        return helpers.URIBuilder.variables(self._uri) - self._uri_variables
 
     def build(self):
         if self.remaining_variables:
@@ -184,7 +192,7 @@ class RequestDefinition(interfaces.RequestDefinition):
 
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method
-        request_builder.url = utils.URIBuilder(self._uri)
+        request_builder.url = helpers.URIBuilder(self._uri)
         self._argument_handler.handle_call(
             request_builder, func_args, func_kwargs)
         self._method_handler.handle_builder(request_builder)

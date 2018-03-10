@@ -1,13 +1,20 @@
 # Standard library imports
 import collections
-from functools import wraps
+import sys
+
+PY2 = False
+PY3 = False
 
 try:
     # Python 3.2+
     from inspect import signature
+
+    PY3 = True
 except ImportError:  # pragma: no cover
     # Python 2.7
     from inspect import getcallargs as get_call_args, getargspec as _getargspec
+
+    PY2 = True
 
     def signature(_):
         raise ImportError
@@ -60,39 +67,35 @@ except ImportError:
     import urlparse
 
 
-# Third party imports
-import uritemplate
-
-
 Signature = collections.namedtuple(
     "Signature",
     "args annotations return_annotation"
 )
 
-Request = collections.namedtuple("Request", "method uri info return_type")
+
+if PY3:  # pragma: no cover
+    def reraise(tp, value, tb=None):
+        if value is None:
+            value = tp()
+        if value.__traceback__ is not tb:
+            raise value.with_traceback(tb)
+        raise value
+else:  # pragma: no cover
+    def exec_(_code_, _globs_=None, _locs_=None):
+        """Execute code in a namespace."""
+        if _globs_ is None:
+            frame = sys._getframe(1)
+            _globs_ = frame.f_globals
+            if _locs_ is None:
+                _locs_ = frame.f_locals
+            del frame
+        elif _locs_ is None:
+            _locs_ = _globs_
+        exec("""exec _code_ in _globs_, _locs_""")
+
+    exec_("""def reraise(tp, value, tb=None):
+    raise tp, value, tb
+""")
 
 
-def no_op(*_):
-    pass
 
-
-class URIBuilder(object):
-
-    @staticmethod
-    def variables(uri):
-        try:
-            return uritemplate.URITemplate(uri).variable_names
-        except TypeError:
-            return set()
-
-    def __init__(self, uri):
-        self._uri = uritemplate.URITemplate(uri or "")
-
-    def set_variable(self, var_dict=None, **kwargs):
-        self._uri = self._uri.partial(var_dict, **kwargs)
-
-    def remaining_variables(self):
-        return self._uri.variable_names
-
-    def build(self):
-        return self._uri.expand()

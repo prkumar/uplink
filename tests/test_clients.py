@@ -6,7 +6,8 @@ import pytest
 
 # Local imports
 from uplink.clients import (
-    AiohttpClient, interfaces, requests_, twisted_, register
+    AiohttpClient, helpers, interfaces, register, requests_, twisted_,
+    exceptions
 )
 
 try:
@@ -48,6 +49,28 @@ def test_get_client_with_http_client_adapter_subclass():
 
     client = register.get_client(HttpClientAdapterMock)
     assert isinstance(client, HttpClientAdapterMock)
+
+
+def test_raise_exception():
+    # FIXME: Loop through all registered client exceptions
+    # Ensure that client errors are caught with proxy exception
+    handler = helpers.ExceptionHandler()
+    error = requests_.requests.ConnectionError()
+
+    # Catch with proxy exception class
+    with pytest.raises(exceptions.ConnectionError):
+        with handler:
+            raise error
+
+    # Catch with original exception class
+    with pytest.raises(requests_.requests.ConnectionError):
+        with handler:
+            raise error
+
+    # Catch with proxy exception superclass
+    with pytest.raises(exceptions.BaseClientException):
+        with handler:
+            raise error
 
 
 class TestRequests(object):

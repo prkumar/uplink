@@ -155,7 +155,7 @@ class TestArgumentAnnotationHandler(object):
         def dummy(arg1): return arg1
         request_builder.get_converter.return_value = converter_mock
         converter_mock.convert = dummy
-        get_call_args = mocker.patch("uplink.utils.get_call_args")
+        get_call_args = mocker.patch("uplink.compat.get_call_args")
         get_call_args.return_value = {"arg1": "hello"}
         annotation = mocker.Mock(types.ArgumentAnnotation)
         handlers = types.ArgumentAnnotationHandler(
