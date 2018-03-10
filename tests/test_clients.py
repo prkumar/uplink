@@ -72,6 +72,14 @@ def test_raise_exception():
         with handler:
             raise error
 
+    # Can't catch other exceptions
+    with pytest.raises(exceptions.InvalidURL):
+        try:
+            with handler:
+                raise exceptions.InvalidURL()
+        except exceptions.ConnectionError:
+            assert False
+
 
 class TestRequests(object):
 

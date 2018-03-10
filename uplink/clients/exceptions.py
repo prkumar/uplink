@@ -53,9 +53,6 @@ class ClientException(BaseException):
             wrapper.__dict__ = exc_val.__dict__
             return derived_class, wrapper
 
-    def __str__(self):
-        return super.__str__()
-
 
 class BaseClientException(ClientException):
     """Base class for client errors."""
