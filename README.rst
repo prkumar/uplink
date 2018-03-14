@@ -19,7 +19,7 @@ Uplink turns your HTTP API into a Python class.
 
       @get("users/{user}/repos")
       def get_repos(self, user: Path, sort_by: Query("sort")):
-         """Fetches the user's public repositories."""
+         """Retrieves the user's public repositories."""
 
 Build an instance to interact with the webservice.
 
