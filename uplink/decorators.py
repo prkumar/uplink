@@ -230,9 +230,10 @@ class json(MethodAnnotation):
         for name in path[:-1]:
             body = body.setdefault(name, {})
             if not isinstance(body, collections.Mapping):
-                # FIXME: Throw a more informative error here.
                 raise ValueError(
-                    "Specified JSON path sequence  ."
+                    "Failed to set nested JSON attribute '%s': "
+                    "parent field '%s' is not a JSON object."
+                    % (path, name)
                 )
         body[path[-1]] = value
 
@@ -248,7 +249,7 @@ class json(MethodAnnotation):
             self._body = {}
 
         def __setitem__(self, path, value):
-            if isinstance(path, (list, tuple)):
+            if isinstance(path, tuple):
                 json._sequence_path_resolver(path, value, self._body)
             else:
                 self._body[path] = value
