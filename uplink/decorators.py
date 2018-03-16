@@ -268,20 +268,9 @@ class json(MethodAnnotation):
 
     def modify_request(self, request_builder):
         """Modifies JSON request."""
-        old_body = request_builder.info.get("data", {})
-        request_builder.info["data"] = self._JsonBody()
-        request_builder.info["data"].update(old_body)
-        request_builder.add_transaction_hook(
-            hooks.RequestAuditor(self._remove_data)
-        )
-
-    @staticmethod
-    def _remove_data(request_builder):
-        """Pops off the data map if it still exists."""
-        try:
-            request_builder.info["json"] = request_builder.info.pop("data")
-        except KeyError:
-            pass
+        old_body = request_builder.info.pop("data", {})
+        request_builder.info["json"] = self._JsonBody()
+        request_builder.info["json"].update(old_body)
 
 
 # noinspection PyPep8Naming

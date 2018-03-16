@@ -57,6 +57,7 @@ class TestMethodAnnotationHandlerBuilder(object):
             method_level2
         ]
 
+
 class TestMethodAnnotationHandler(object):
 
     def test_handle_builder(self, request_builder, method_annotation_mock):
@@ -179,26 +180,20 @@ def test_multipart(request_builder):
 def test_json(request_builder):
     json = decorators.json()
 
-    # Check removal with nothing set yet
-    json._remove_data(request_builder)
-
     # Verify
     request_builder.info["data"] = {"field_name": "field_value"}
     json.modify_request(request_builder)
-    assert request_builder.info["data"] == {"field_name": "field_value"}
-    assert len(request_builder.info["data"]) == 1
+    assert request_builder.info["json"] == {"field_name": "field_value"}
+    assert len(request_builder.info["json"]) == 1
 
     # Check delete
-    del request_builder.info["data"]["field_name"]
-    assert len(request_builder.info["data"]) == 0
+    del request_builder.info["json"]["field_name"]
+    assert len(request_builder.info["json"]) == 0
+    assert "data" not in request_builder.info
 
     # Verify nested attribute
     request_builder.info["data"] = {("outer", "inner"): "inner_value"}
     json.modify_request(request_builder)
-    assert request_builder.info["data"] == {"outer": {"inner": "inner_value"}}
-
-    # Check removal
-    json._remove_data(request_builder)
     assert request_builder.info["json"] == {"outer": {"inner": "inner_value"}}
     assert "data" not in request_builder.info
 
@@ -208,13 +203,9 @@ def test_json(request_builder):
         json.modify_request(request_builder)
 
     # Verify that error is raised when paths conflict
-    request_builder.info["data"] = {}
-    json.modify_request(request_builder)
-    request_builder.info["data"]["key"] = "value"
+    request_builder.info["data"] = {"key": "outer", ("key", "inner"): "inner"}
     with pytest.raises(ValueError):
-        request_builder.info["data"]["key", "inner"] = "inner value"
-
-    assert request_builder.add_transaction_hook.called
+        json.modify_request(request_builder)
 
 
 def test_timeout(request_builder):
