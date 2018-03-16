@@ -4,19 +4,28 @@ import collections
 # Local imports
 from uplink.converters import interfaces
 
-_default_converter_factories = collections.deque()
+
+class FactoryRegistry(object):
+
+    def __init__(self):
+        self._register = collections.deque()
+
+    def register_converter_factory(self, factory_proxy):
+        factory = factory_proxy() if callable(factory_proxy) else factory_proxy
+        if not isinstance(factory, interfaces.ConverterFactory):
+            raise TypeError(
+                "Failed to register '%s' as converter factory: it is not an "
+                "instance of '%s'." % (factory, interfaces.ConverterFactory)
+            )
+        self._register.appendleft(factory)
+        return factory_proxy
+
+    def get_default_converter_factories(self):
+        return tuple(self._register)
 
 
-def register_converter_factory(factory_proxy):
-    factory = factory_proxy() if callable(factory_proxy) else factory_proxy
-    if not isinstance(factory, interfaces.ConverterFactory):
-        raise TypeError(
-            "Failed to register '%s' as converter factory: it is not an "
-            "instance of '%s'." % (factory, interfaces.ConverterFactory)
-        )
-    _default_converter_factories.appendleft(factory)
-    return factory_proxy
+_registry = FactoryRegistry()
 
+register_converter_factory = _registry.register_converter_factory
+get_default_converter_factories = _registry.get_default_converter_factories
 
-def get_default_converter_factories():
-    return tuple(_default_converter_factories)

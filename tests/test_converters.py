@@ -4,7 +4,7 @@ import pytest
 
 # Local imports
 from uplink import converters
-from uplink.converters import standard
+from uplink.converters import register, standard
 
 
 class TestCast(object):
@@ -230,3 +230,30 @@ class TestSequence(object):
 
         # Verify
         assert value == "1"
+
+
+class TestRegistry(object):
+
+    @pytest.mark.parametrize(
+        "converter",
+        # Try with both class and instance
+        (converters.StandardConverter, converters.StandardConverter())
+    )
+    def test_register_converter_factory_pass(self, converter):
+        # Setup
+        registry = register.FactoryRegistry()
+
+        # Verify
+        return_value = registry.register_converter_factory(converter)
+        defaults = registry.get_default_converter_factories()
+        assert return_value is converter
+        assert len(defaults) == 1
+        assert isinstance(defaults[0], converters.StandardConverter)
+
+    def test_register_converter_factory_pass(self):
+        # Setup
+        registry = register.FactoryRegistry()
+
+        # Verify failure when registered factory is not proper type.
+        with pytest.raises(TypeError):
+            registry.register_converter_factory(object())
