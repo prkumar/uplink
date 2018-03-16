@@ -241,18 +241,18 @@ class TestRegistry(object):
     )
     def test_register_converter_factory_pass(self, converter):
         # Setup
-        registry = register.FactoryRegistry()
+        registry = register.Register()
 
         # Verify
         return_value = registry.register_converter_factory(converter)
-        defaults = registry.get_default_converter_factories()
+        defaults = registry.get_converter_factories()
         assert return_value is converter
         assert len(defaults) == 1
         assert isinstance(defaults[0], converters.StandardConverter)
 
     def test_register_converter_factory_pass(self):
         # Setup
-        registry = register.FactoryRegistry()
+        registry = register.Register()
 
         # Verify failure when registered factory is not proper type.
         with pytest.raises(TypeError):
