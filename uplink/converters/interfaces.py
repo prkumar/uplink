@@ -20,4 +20,3 @@ class ConverterFactory(object):
     def make_string_converter(self, type_, argument_annotations,
                               method_annotations):
         pass
-        raise NotImplementedError
