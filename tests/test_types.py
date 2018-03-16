@@ -99,10 +99,10 @@ class TestArgumentAnnotationHandlerBuilder(object):
         assert args[0] not in builder.missing_arguments
 
     @inject_args
-    def test_add_annotation_class(self, mocker, argument_mock, args):
+    def test_add_annotation_class(self, mocker, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
-        argument = builder.add_annotation(type(argument_mock))
+        argument = builder.add_annotation(types.ArgumentAnnotation())
         builder.listener.assert_called_with(argument)
         assert args[0] not in builder.missing_arguments
 
