@@ -179,15 +179,17 @@ def test_multipart(request_builder):
 def test_json(request_builder):
     json = decorators.json()
 
-    # Verify without
-    json.modify_request(request_builder)
-    assert "json" not in request_builder.info
-
-    # Verify with
+    # Verify
     request_builder.info["data"] = {"field_name": "field_value"}
     json.modify_request(request_builder)
-    assert request_builder.info["json"] == {"field_name": "field_value"}
-    assert "data" not in request_builder.info
+    assert request_builder.info["data"] == {"field_name": "field_value"}
+
+    # Verify nested attribute
+    request_builder.info["data"] = {("outer", "inner"): "inner_value"}
+    json.modify_request(request_builder)
+    assert request_builder.info["data"] == {"outer": {"inner": "inner_value"}}
+
+    assert request_builder.add_transaction_hook.called
 
 
 def test_timeout(request_builder):

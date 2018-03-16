@@ -292,7 +292,7 @@ class TestHeaderMap(ArgumentTestCase, FuncDecoratorTestCase):
 
 class TestField(ArgumentTestCase):
     type_cls = types.Field
-    expected_converter_key = keys.CONVERT_TO_STRING
+    expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
         types.Field("hello").modify_request(request_builder, "world")

@@ -465,8 +465,8 @@ class Field(NamedArgument):
 
     @property
     def converter_key(self):
-        """Converts type to string."""
-        return keys.CONVERT_TO_STRING
+        """Converts type to request body."""
+        return keys.CONVERT_TO_REQUEST_BODY
 
     def _modify_request(self, request_builder, value):
         """Updates the request body with chosen field."""
@@ -504,8 +504,8 @@ class FieldMap(TypedArgument):
 
     @property
     def converter_key(self):
-        """Converts type to string."""
-        return keys.Map(keys.CONVERT_TO_STRING)
+        """Converts type to request body."""
+        return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
     def _modify_request(self, request_builder, value):
         """Updates request body with chosen field mapping."""
@@ -591,7 +591,8 @@ class Body(TypedArgument):
 
     def _modify_request(self, request_builder, value):
         """Updates request body data."""
-        request_builder.info["data"] = value
+        # TODO: Ensure that the body provides a mapping interface.
+        request_builder.info.setdefault("data", {}).update(value)
 
 
 class Url(ArgumentAnnotation):

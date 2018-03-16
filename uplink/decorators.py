@@ -1,4 +1,5 @@
 # Standard library imports
+import collections
 import inspect
 
 # Local imports
@@ -222,8 +223,60 @@ class json(MethodAnnotation):
     """
     _can_be_static = True
 
+    @staticmethod
+    def _sequence_path_resolver(path, value, body):
+        if not path:
+            raise ValueError("Path sequence cannot be empty.")
+        for name in path[:-1]:
+            body = body.setdefault(name, {})
+            if not isinstance(body, collections.Mapping):
+                # FIXME: Throw a more informative error here.
+                raise ValueError(
+                    "Specified JSON path sequence  ."
+                )
+        body[path[-1]] = value
+
+    class _JsonBody(collections.MutableMapping):
+        """
+        A helper class that builds a JSON request body using a
+        dictionary interface.
+
+        Fields that are built using a field annotation
+        """
+
+        def __init__(self):
+            self._body = {}
+
+        def __setitem__(self, path, value):
+            if isinstance(path, (list, tuple)):
+                json._sequence_path_resolver(path, value, self._body)
+            else:
+                self._body[path] = value
+
+        def __delitem__(self, key):
+            del self._body[key]
+
+        def __getitem__(self, key):
+            return self._body[key]
+
+        def __len__(self):
+            return len(self._body)
+
+        def __iter__(self):
+            return iter(self._body)
+
     def modify_request(self, request_builder):
         """Modifies JSON request."""
+        old_body = request_builder.info.get("data", {})
+        request_builder.info["data"] = self._JsonBody()
+        request_builder.info["data"].update(old_body)
+        request_builder.add_transaction_hook(
+            hooks.RequestAuditor(self._remove_data)
+        )
+
+    @staticmethod
+    def _remove_data(request_builder):
+        """Pops off the data map if it still exists."""
         try:
             request_builder.info["json"] = request_builder.info.pop("data")
         except KeyError:
