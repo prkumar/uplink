@@ -4,40 +4,42 @@ import pytest
 
 # Local imports
 from uplink import converters
+from uplink.converters import standard
 
 
 class TestCast(object):
-    def test_converter_without_caster(self, converter_mock):
-        converter_mock.convert.return_value = 2
-        cast = converters.Cast(None, converter_mock)
+    def test_converter_without_caster(self, mocker):
+        converter_mock = mocker.stub()
+        converter_mock.return_value = 2
+        cast = standard.Cast(None, converter_mock)
         return_value = cast.convert(1)
-        converter_mock.convert.assert_called_with(1)
+        converter_mock.assert_called_with(1)
         assert return_value == 2
 
-    def test_convert_with_caster(self, mocker, converter_mock):
+    def test_convert_with_caster(self, mocker):
         caster = mocker.Mock(return_value=2)
-        converter_mock.convert.return_value = 3
-        cast = converters.Cast(caster, converter_mock)
+        converter_mock = mocker.Mock(return_value=3)
+        cast = standard.Cast(caster, converter_mock)
         return_value = cast.convert(1)
         caster.assert_called_with(1)
-        converter_mock.convert.assert_called_with(2)
+        converter_mock.assert_called_with(2)
         assert return_value == 3
 
 
 class TestRequestBodyConverter(object):
     def test_convert_str(self):
-        converter_ = converters.RequestBodyConverter()
+        converter_ = standard.RequestBodyConverter()
         assert converter_.convert("example") == "example"
 
     def test_convert_obj(self):
-        converter_ = converters.RequestBodyConverter()
+        converter_ = standard.RequestBodyConverter()
         example = {"hello": "2"}
         assert converter_.convert(example) == example
 
 
 class TestStringConverter(object):
     def test_convert(self):
-        converter_ = converters.StringConverter()
+        converter_ = standard.StringConverter()
         assert converter_.convert(2) == "2"
 
 
@@ -178,7 +180,7 @@ class TestMarshmallowConverter(object):
         converter = converters.MarshmallowConverter()
 
         # Run
-        c = converter.make_string_converter(argument)
+        c = converter.make_string_converter(argument, None, None)
 
         # Verify
         assert c is None
@@ -194,7 +196,7 @@ class TestMap(object):
 
         # Run
         converter = registry[key](None)
-        value = converter.convert({"hello": 1})
+        value = converter({"hello": 1})
 
         # Verify
         assert value == {"hello": "1"}
@@ -210,7 +212,7 @@ class TestSequence(object):
 
         # Run
         converter = registry[key](None)
-        value = converter.convert([1, 2, 3])
+        value = converter([1, 2, 3])
 
         # Verify
         assert value == ["1", "2", "3"]
@@ -224,7 +226,7 @@ class TestSequence(object):
 
         # Run
         converter = registry[key](None)
-        value = converter.convert("1")
+        value = converter("1")
 
         # Verify
         assert value == "1"

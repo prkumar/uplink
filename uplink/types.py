@@ -163,8 +163,7 @@ class ArgumentAnnotation(interfaces.Annotation):
     def modify_request(self, request_builder, value):
         argument_type, converter_key = self.type, self.converter_key
         converter = request_builder.get_converter(converter_key, argument_type)
-        value = converter.convert(value)
-        self._modify_request(request_builder, value)
+        self._modify_request(request_builder, converter(value))
 
 
 class TypedArgument(ArgumentAnnotation):

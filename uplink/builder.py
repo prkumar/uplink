@@ -1,5 +1,4 @@
 # Standard library imports
-import collections
 import functools
 import warnings
 
@@ -39,7 +38,7 @@ class RequestPreparer(object):
             contract.return_type)
         if converter is not None:
             # Found a converter that can handle the return type.
-            chain.append(hooks.ResponseHandler(converter.convert))
+            chain.append(hooks.ResponseHandler(converter))
         chain.extend(self._hooks)
         return chain
 
@@ -87,8 +86,7 @@ class Builder(interfaces.CallBuilder):
         self._base_url = ""
         self._hooks = []
         self._client = clients.get_client()
-        self._converters = collections.deque()
-        self._converters.append(converters.StandardConverter())
+        self._converters = converters.get_default_converter_factories()
         self._auth = auth_.get_auth()
 
     @property
@@ -117,10 +115,14 @@ class Builder(interfaces.CallBuilder):
 
     @property
     def converters(self):
-        return iter(self._converters)
+        return self._converters
 
-    def add_converter(self, *converters_):
-        self._converters.extendleft(converters_)
+    @converters.setter
+    def converters(self, converters_):
+        if isinstance(converters_, converters.interfaces.ConverterFactory):
+            converters_ = (converters_,)
+        self._converters = tuple(converters_)
+        self._converters += converters.get_default_converter_factories()
 
     @property
     def auth(self):
@@ -228,9 +230,7 @@ class Consumer(_Consumer):
     ):
         self._builder = Builder()
         self._builder.base_url = base_url
-        if isinstance(converter, converters.interfaces.ConverterFactory):
-            converter = (converter,)
-        self._builder.add_converter(*converter)
+        self._builder.converters = converter
         if isinstance(hook, hooks.TransactionHook):
             hook = (hook,)
         self._builder.add_hook(*hook)

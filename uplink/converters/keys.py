@@ -34,13 +34,6 @@ class CompositeKey(object):
     Arguments:
         converter_key: The enveloped converter key.
     """
-    class ConverterUsingFunction(interfaces.Converter):
-        def __init__(self, convert_function):
-            self._convert = convert_function
-
-        def convert(self, value):
-            return self._convert(value)
-
     def __init__(self, converter_key):
         self._converter_key = converter_key
 
@@ -57,8 +50,7 @@ class CompositeKey(object):
 
         def factory_wrapper(*args, **kwargs):
             converter = factory(*args, **kwargs)
-            convert_func = functools.partial(self.convert, converter)
-            return self.ConverterUsingFunction(convert_func)
+            return functools.partial(self.convert, converter)
 
         return factory_wrapper
 
@@ -74,7 +66,7 @@ class Map(CompositeKey):
         Map(CONVERT_TO_STRING)
     """
     def convert(self, converter, value):
-        return dict((k, converter.convert(value[k])) for k in value)
+        return dict((k, converter(value[k])) for k in value)
 
 
 class Sequence(CompositeKey):
@@ -89,6 +81,6 @@ class Sequence(CompositeKey):
     """
     def convert(self, converter, value):
         if isinstance(value, (list, tuple)):
-            return list(map(converter.convert, value))
+            return list(map(converter, value))
         else:
-            return converter.convert(value)
+            return converter(value)

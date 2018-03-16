@@ -1,56 +1,33 @@
 # Standard library imports
 import collections
 import functools
-import json
 
 # Local imports
 from uplink.converters import interfaces, keys
+from uplink.converters.register import (
+    get_default_converter_factories,
+    register_converter_factory
+)
+
+# Default converters - load standard first so it's ensured to be the
+# last in the converter chain.
+from uplink.converters.standard import StandardConverter
 from uplink.converters.marshmallow_ import MarshmallowConverter
 
-__all__ = ["StandardConverter", "MarshmallowConverter"]
+__all__ = [
+    "register_converter_factory",
+    "MarshmallowConverter"
+]
 
 
-class Cast(interfaces.Converter):
-    def __init__(self, caster, converter):
-        self._cast = caster
-        self._converter = converter
+class ConverterChain(object):
 
-    def convert(self, value):
-        if callable(self._cast):
-            value = self._cast(value)
-        return self._converter.convert(value)
+    def __init__(self, converter_factory):
+        self._converter_factory = converter_factory
 
-
-class RequestBodyConverter(interfaces.Converter):
-    def convert(self, value):
-        if isinstance(value, str):
-            return value
-        else:
-            return json.loads(
-                json.dumps(value, default=lambda obj: obj.__dict__)
-            )
-
-
-class StringConverter(interfaces.Converter):
-    def convert(self, value):
-        return str(value)
-
-
-class StandardConverter(interfaces.ConverterFactory):
-    """
-    The default converter, this class seeks to provide sane alternatives
-    for (de)serialization when all else fails -- e.g., no other
-    converters could handle a particular type.
-    """
-
-    def make_response_body_converter(self, type_, *args, **kwargs):
-        return None  # pragma: no cover
-
-    def make_request_body_converter(self, type_, *args, **kwargs):
-        return Cast(type_, RequestBodyConverter())  # pragma: no cover
-
-    def make_string_converter(self, type_, *args, **kwargs):
-        return Cast(type_, StringConverter())  # pragma: no cover
+    def __call__(self, *args, **kwargs):
+        converter = self._converter_factory(*args, **kwargs)
+        return converter
 
 
 class ConverterFactoryRegistry(collections.Mapping):
@@ -83,14 +60,13 @@ class ConverterFactoryRegistry(collections.Mapping):
             appear earlier in the chain are given the opportunity to
             handle a request before those that appear later.
     """
-
     #: A mapping of keys to callables. Each callable value accepts a
     #: single argument, a :py:class:`interfaces.ConverterFactory`
     #: subclass, and returns another callable, which should return a
     #: :py:`interfaces.Converter` instance.
     _converter_factory_registry = {}
 
-    def __init__(self, factories, *args, **kwargs):
+    def __init__(self, factories=(), *args, **kwargs):
         self._factories = tuple(factories)
         self._args = args
         self._kwargs = kwargs
@@ -108,7 +84,9 @@ class ConverterFactoryRegistry(collections.Mapping):
                 converter = func(factory)(*args, **kwargs)
                 if converter is not None:
                     return converter
-        return functools.partial(chain, *self._args, **self._kwargs)
+        return ConverterChain(
+            functools.partial(chain, *self._args, **self._kwargs)
+        )
 
     def _make_chain_for_key(self, converter_key):
         return self._make_chain_for_func(

@@ -7,7 +7,7 @@ to deserialize and serialize values.
 import inspect
 
 # Local imports
-from uplink.converters import interfaces
+from uplink.converters import interfaces, register
 
 
 class MarshmallowConverter(interfaces.ConverterFactory):
@@ -39,6 +39,7 @@ class MarshmallowConverter(interfaces.ConverterFactory):
 
             $ pip install uplink[marshmallow]
     """
+
     try:
         import marshmallow
     except ImportError:  # pragma: no cover
@@ -102,5 +103,6 @@ class MarshmallowConverter(interfaces.ConverterFactory):
         """
         return self._make_converter(self.ResponseBodyConverter, type_)
 
-    def make_string_converter(self, type_, *args, **kwargs):
-        return None
+
+if MarshmallowConverter.marshmallow is not None:
+    register.register_converter_factory(MarshmallowConverter)
