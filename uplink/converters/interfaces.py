@@ -20,3 +20,9 @@ class ConverterFactory(object):
     def make_string_converter(self, type_, argument_annotations,
                               method_annotations):
         pass
+
+
+class RequiresChain(object):
+
+    def set_chain(self, chain):
+        raise NotImplementedError

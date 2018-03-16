@@ -13,6 +13,7 @@ from uplink.converters.register import (
 # last in the converter chain.
 from uplink.converters.standard import StandardConverter
 from uplink.converters.marshmallow_ import MarshmallowConverter
+from uplink.converters.typing_ import TypingConverter
 
 __all__ = [
     "register_converter_factory",
@@ -27,6 +28,8 @@ class ConverterChain(object):
 
     def __call__(self, *args, **kwargs):
         converter = self._converter_factory(*args, **kwargs)
+        if isinstance(converter, interfaces.RequiresChain):
+            converter.set_chain(self)
         return converter
 
 
