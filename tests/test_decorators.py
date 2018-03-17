@@ -1,7 +1,11 @@
+# Standard library imports
+import collections
+
+# Third party imports
 import pytest
 
 # Local imports
-from uplink import decorators, interfaces
+from uplink import decorators
 
 
 @pytest.fixture
@@ -203,7 +207,9 @@ def test_json(request_builder):
         json.modify_request(request_builder)
 
     # Verify that error is raised when paths conflict
-    request_builder.info["data"] = {"key": "outer", ("key", "inner"): "inner"}
+    request_builder.info["data"] = body = collections.OrderedDict()
+    body["key"] = "outer"
+    body["key", "inner"] = "inner value"
     with pytest.raises(ValueError):
         json.modify_request(request_builder)
 
