@@ -2,8 +2,7 @@
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, hooks, interfaces, types
-from uplink.converters import typing_
+from uplink import converters, exceptions, helpers, hooks, interfaces, types
 
 __all__ = [
     "headers",
@@ -292,23 +291,8 @@ class returns(MethodAnnotation):
     def modify_request(self, request_builder):
         request_builder.return_type = self._type
 
-    try:
-        import typing as _typing
-    except ImportError:
-        class _TypeProxy(object):
-            def __init__(self, func):
-                self._func = func
-
-            def __getitem__(self, item):
-                items = item if isinstance(item, tuple) else (item,)
-                return self._func(*items)
-
-        _typing = False
-        List = _TypeProxy(typing_.ListConverter.freeze)
-        Dict = _TypeProxy(typing_.DictConverter.freeze)
-    else:
-        List = _typing.List
-        Dict = _typing.Dict
+    List = converters.TypingConverter.List
+    Dict = converters.TypingConverter.Dict
 
     @classmethod
     def list(cls, t):

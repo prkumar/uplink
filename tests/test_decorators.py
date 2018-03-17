@@ -201,6 +201,14 @@ def test_returns(request_builder):
     returns.modify_request(request_builder)
     assert request_builder.return_type is str
 
+    returns = decorators.returns.list(str)
+    returns.modify_request(request_builder)
+    assert request_builder.return_type == returns.List[str]
+
+    returns = decorators.returns.dict(str, str)
+    returns.modify_request(request_builder)
+    assert request_builder.return_type == returns.Dict[str, str]
+
 
 def test_args(request_definition_builder):
     args = decorators.args(str, str, name=str)

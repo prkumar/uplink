@@ -1,3 +1,6 @@
+# Standard library imports
+import typing
+
 # Third party imports
 import marshmallow
 import pytest
@@ -57,6 +60,13 @@ class TestConverterFactoryRegistry(object):
             *args, **kwargs
         )
         assert return_value == "test"
+
+    def test_converters_require_chain(self, converter_factory_mock, mocker):
+        requires_chain = mocker.Mock(spec=converters.interfaces.RequiresChain)
+        converter_factory_mock.make_string_converter.return_value = requires_chain
+        registry = converters.ConverterFactoryRegistry((converter_factory_mock,))
+        registry[converters.keys.CONVERT_TO_STRING]()
+        assert requires_chain.set_chain.called
 
     def test_len(self):
         registry = converters.ConverterFactoryRegistry(())
@@ -257,3 +267,54 @@ class TestRegistry(object):
         # Verify failure when registered factory is not proper type.
         with pytest.raises(TypeError):
             registry.register_converter_factory(object())
+
+
+class TestTypingConverter(object):
+    singleton = converters.TypingConverter()
+    inject_methods = pytest.mark.parametrize(
+        "method, use_typing",
+        [
+            (singleton.make_request_body_converter, True),
+            (singleton.make_request_body_converter, False),
+            (singleton.make_response_body_converter, True),
+            (singleton.make_response_body_converter, False)
+        ]
+    )
+
+    @inject_methods
+    def test_methods(self, method, use_typing):
+        List, Dict = converters.typing_._get_types(use_typing)
+
+        # Verify with sequence
+        converter = method(List[str])
+        assert isinstance(converter, converters.typing_.ListConverter)
+
+        # Verify with mapping
+        converter = method(Dict[str, str])
+        assert isinstance(converter, converters.typing_.DictConverter)
+
+    def test_list_converter(self):
+        # Setup
+        converter = converters.typing_.ListConverter(str)
+        converter.set_chain(lambda x: x)
+
+        # Verify
+        output = converter([1, 2, 3])
+        assert output == ["1", "2", "3"]
+
+        # Verify with non-list: use element converter
+        output = converter(1)
+        assert output == "1"
+
+    def test_dict_converter(self):
+        # Setup
+        converter = converters.typing_.DictConverter(int, str)
+        converter.set_chain(lambda x: x)
+
+        # Verify
+        output = converter({"1": 1, "2": 2})
+        assert output == {1: "1", 2: "2"}
+
+        # Verify with non-map: use value converter
+        output = converter(1)
+        assert output == "1"
