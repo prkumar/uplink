@@ -84,7 +84,6 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     @staticmethod
     def _is_annotation(annotation):
-        print(annotation)
         is_annotation_class = (
                 inspect.isclass(annotation) and
                 issubclass(annotation, interfaces.Annotation)
