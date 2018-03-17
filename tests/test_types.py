@@ -120,6 +120,12 @@ class TestArgumentAnnotationHandlerBuilder(object):
         with pytest.raises(types.ExhaustedArguments):
             builder.add_annotation(argument_mock)
 
+    def test_add_annotation_that_is_not_an_annotation(self):
+        def dummy(): pass
+        builder = types.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
+        builder.add_annotation(type, "arg1")
+        assert builder.remaining_args_count == 1
+
     @inject_args
     def test_set_annotations(self, mocker, argument_mock, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
@@ -186,6 +192,17 @@ class TestTypedArgument(object):
 
     def test_type(self):
         assert types.TypedArgument("hello").type == "hello"
+
+    def test_set_type(self):
+        annotation = types.TypedArgument()
+        assert annotation.type is None
+        annotation.type = "type"
+        assert annotation.type == "type"
+
+    def test_set_type_with_type_already_set(self):
+        annotation = types.TypedArgument("type")
+        with pytest.raises(AttributeError):
+            annotation.type = "new type"
 
 
 class TestNamedArgument(object):
