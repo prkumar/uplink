@@ -49,24 +49,23 @@ class TestStringConverter(object):
 class TestConverterFactoryRegistry(object):
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
-    def test_init_args_are_passed_to_factory(self, converter_factory_mock):
+    def test_init_args_are_passed_to_factory(self, converter_factory_mock, converter_mock):
         args = ("arg1", "arg2")
         kwargs = {"arg3": "arg3"}
-        converter_factory_mock.make_string_converter.return_value = "test"
+        converter_factory_mock.make_string_converter.return_value = converter_mock
         registry = converters.ConverterFactoryRegistry(
             (converter_factory_mock,), *args, **kwargs)
         return_value = registry[converters.keys.CONVERT_TO_STRING]()
         converter_factory_mock.make_string_converter.assert_called_with(
             *args, **kwargs
         )
-        assert return_value == "test"
+        assert return_value is converter_mock
 
-    def test_converters_require_chain(self, converter_factory_mock, mocker):
-        requires_chain = mocker.Mock(spec=converters.interfaces.RequiresChain)
-        converter_factory_mock.make_string_converter.return_value = requires_chain
+    def test_hooks(self, converter_factory_mock, converter_mock):
+        converter_factory_mock.make_string_converter.return_value = converter_mock
         registry = converters.ConverterFactoryRegistry((converter_factory_mock,))
         registry[converters.keys.CONVERT_TO_STRING]()
-        assert requires_chain.set_chain.called
+        assert converter_mock.set_chain.called
 
     def test_len(self):
         registry = converters.ConverterFactoryRegistry(())

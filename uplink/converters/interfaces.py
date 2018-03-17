@@ -6,6 +6,9 @@ class Converter(object):
     def __call__(self, *args, **kwargs):
         return self.convert(*args, **kwargs)
 
+    def set_chain(self, chain):
+        pass
+
 
 class ConverterFactory(object):
 
@@ -20,9 +23,3 @@ class ConverterFactory(object):
     def make_string_converter(self, type_, argument_annotations,
                               method_annotations):
         pass
-
-
-class RequiresChain(object):
-
-    def set_chain(self, chain):
-        raise NotImplementedError

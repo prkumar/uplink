@@ -17,7 +17,7 @@ class BaseTypeConverter(object):
         return cls.Builder(functools.partial(cls, *args, **kwargs))
 
 
-class ListConverter(BaseTypeConverter, interfaces.RequiresChain):
+class ListConverter(BaseTypeConverter, interfaces.Converter):
 
     def __init__(self, elem_type):
         self._elem_type = elem_type
@@ -26,14 +26,14 @@ class ListConverter(BaseTypeConverter, interfaces.RequiresChain):
     def set_chain(self, chain):
         self._elem_converter = chain(self._elem_type)
 
-    def __call__(self, value):
+    def convert(self, value):
         if isinstance(value, (list, tuple)):
             return list(map(self._elem_converter, value))
         else:
             return self._elem_converter(value)
 
 
-class DictConverter(BaseTypeConverter, interfaces.RequiresChain):
+class DictConverter(BaseTypeConverter, interfaces.Converter):
 
     def __init__(self, key_type, value_type):
         self._key_type = key_type
@@ -45,7 +45,7 @@ class DictConverter(BaseTypeConverter, interfaces.RequiresChain):
         self._key_converter = chain(self._key_type)
         self._value_converter = chain(self._value_type)
 
-    def __call__(self, value):
+    def convert(self, value):
         if isinstance(value, collections.Mapping):
             key_c, val_c = self._key_converter, self._value_converter
             return dict((key_c(k), val_c(value[k])) for k in value)
