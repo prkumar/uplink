@@ -3,8 +3,7 @@ import collections
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, hooks, interfaces, types
-
+from uplink import converters, exceptions, helpers, hooks, interfaces, types
 
 __all__ = [
     "headers",
@@ -334,6 +333,17 @@ class returns(MethodAnnotation):
 
     def modify_request(self, request_builder):
         request_builder.return_type = self._type
+
+    List = converters.TypingConverter.List
+    Dict = converters.TypingConverter.Dict
+
+    @classmethod
+    def list(cls, t):
+        return cls(cls.List[t])
+
+    @classmethod
+    def dict(cls, kt, vt):
+        return cls(cls.Dict[kt, vt])
 
 
 # noinspection PyPep8Naming

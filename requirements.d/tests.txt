@@ -9,6 +9,9 @@ aiohttp==2.3.0; python_version >= '3.4'
 # Marshmallow Support
 marshmallow==2.15.0
 
+# Typing Support
+typing==3.6.4
+
 # Testing
 pytest==3.2.1
 pytest-mock==1.6.2

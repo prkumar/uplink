@@ -1,3 +1,6 @@
+# Standard library imports
+import typing
+
 # Third party imports
 import marshmallow
 import pytest
@@ -59,17 +62,23 @@ class TestStandardConverter(object):
 class TestConverterFactoryRegistry(object):
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
-    def test_init_args_are_passed_to_factory(self, converter_factory_mock):
+    def test_init_args_are_passed_to_factory(self, converter_factory_mock, converter_mock):
         args = ("arg1", "arg2")
         kwargs = {"arg3": "arg3"}
-        converter_factory_mock.make_string_converter.return_value = "test"
+        converter_factory_mock.make_string_converter.return_value = converter_mock
         registry = converters.ConverterFactoryRegistry(
             (converter_factory_mock,), *args, **kwargs)
         return_value = registry[converters.keys.CONVERT_TO_STRING]()
         converter_factory_mock.make_string_converter.assert_called_with(
             *args, **kwargs
         )
-        assert return_value == "test"
+        assert return_value is converter_mock
+
+    def test_hooks(self, converter_factory_mock, converter_mock):
+        converter_factory_mock.make_string_converter.return_value = converter_mock
+        registry = converters.ConverterFactoryRegistry((converter_factory_mock,))
+        registry[converters.keys.CONVERT_TO_STRING]()
+        assert converter_mock.set_chain.called
 
     def test_len(self):
         registry = converters.ConverterFactoryRegistry(())
@@ -300,3 +309,59 @@ class TestRegistry(object):
         # Verify failure when registered factory is not proper type.
         with pytest.raises(TypeError):
             registry.register_converter_factory(object())
+
+
+class TestTypingConverter(object):
+    singleton = converters.TypingConverter()
+    inject_methods = pytest.mark.parametrize(
+        "method, use_typing",
+        [
+            (singleton.make_request_body_converter, True),
+            (singleton.make_request_body_converter, False),
+            (singleton.make_response_body_converter, True),
+            (singleton.make_response_body_converter, False)
+        ]
+    )
+
+    @inject_methods
+    def test_methods(self, method, use_typing):
+        List, Dict = converters.typing_._get_types(use_typing)
+
+        # Verify with sequence
+        converter = method(List[str])
+        assert isinstance(converter, converters.typing_.ListConverter)
+
+        # Verify with mapping
+        converter = method(Dict[str, str])
+        assert isinstance(converter, converters.typing_.DictConverter)
+
+        # Verify with unsupported type
+        if use_typing:
+            converter = method(typing.Set[str])
+            assert converter is None
+
+    def test_list_converter(self):
+        # Setup
+        converter = converters.typing_.ListConverter(str)
+        converter.set_chain(lambda x: x)
+
+        # Verify
+        output = converter([1, 2, 3])
+        assert output == ["1", "2", "3"]
+
+        # Verify with non-list: use element converter
+        output = converter(1)
+        assert output == "1"
+
+    def test_dict_converter(self):
+        # Setup
+        converter = converters.typing_.DictConverter(int, str)
+        converter.set_chain(lambda x: x)
+
+        # Verify
+        output = converter({"1": 1, "2": 2})
+        assert output == {1: "1", 2: "2"}
+
+        # Verify with non-map: use value converter
+        output = converter(1)
+        assert output == "1"

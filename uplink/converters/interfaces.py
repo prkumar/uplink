@@ -6,6 +6,9 @@ class Converter(object):
     def __call__(self, *args, **kwargs):
         return self.convert(*args, **kwargs)
 
+    def set_chain(self, chain):
+        pass
+
 
 class ConverterFactory(object):
 

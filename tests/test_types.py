@@ -60,7 +60,13 @@ class FuncDecoratorTestCase(object):
 
 
 class TestArgumentAnnotationHandlerBuilder(object):
-    
+
+    def test_from_func(self):
+        def func(_): pass
+        handler = types.ArgumentAnnotationHandlerBuilder.from_func(func)
+        another_handler = types.ArgumentAnnotationHandlerBuilder.from_func(func)
+        assert handler is another_handler
+
     @inject_args
     def test_missing_arguments(self, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)

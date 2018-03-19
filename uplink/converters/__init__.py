@@ -4,6 +4,7 @@ import functools
 
 # Local imports
 from uplink.converters import interfaces, keys
+from uplink.converters.interfaces import ConverterFactory, Converter
 from uplink.converters.register import (
     get_default_converter_factories,
     register_converter_factory
@@ -13,6 +14,7 @@ from uplink.converters.register import (
 # last in the converter chain.
 from uplink.converters.standard import StandardConverter
 from uplink.converters.marshmallow_ import MarshmallowConverter
+from uplink.converters.typing_ import TypingConverter
 
 __all__ = [
     "register_converter_factory",
@@ -27,6 +29,8 @@ class ConverterChain(object):
 
     def __call__(self, *args, **kwargs):
         converter = self._converter_factory(*args, **kwargs)
+        if isinstance(converter, interfaces.Converter):
+            converter.set_chain(self)
         return converter
 
 
@@ -82,7 +86,7 @@ class ConverterFactoryRegistry(collections.Mapping):
         def chain(*args, **kwargs):
             for factory in self.factories:
                 converter = func(factory)(*args, **kwargs)
-                if converter is not None:
+                if callable(converter):
                     return converter
         return ConverterChain(
             functools.partial(chain, *self._args, **self._kwargs)
