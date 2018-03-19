@@ -103,6 +103,10 @@ class MarshmallowConverter(interfaces.ConverterFactory):
         """
         return self._make_converter(self.ResponseBodyConverter, type_)
 
+    @classmethod
+    def register_if_necessary(cls, register_):
+        if cls.marshmallow is not None:
+            register_.register_converter_factory(cls)
 
-if MarshmallowConverter.marshmallow is not None:
-    register.register_converter_factory(MarshmallowConverter)
+
+MarshmallowConverter.register_if_necessary(register)

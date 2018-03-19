@@ -194,6 +194,26 @@ class TestMarshmallowConverter(object):
         # Verify
         assert c is None
 
+    def test_register(self, mocker):
+        # Setup
+        converter = converters.MarshmallowConverter
+        old_marshmallow = converter.marshmallow
+
+        # Run & Verify: Register when marshmallow is installed
+        converter.marshmallow = True
+        register_ = mocker.Mock(spec=register.Register())
+        converter.register_if_necessary(register_)
+        register_.register_converter_factory.assert_called_with(converter)
+
+        # Run & Verify: Skip when marshmallow is not installed
+        converter.marshmallow = None
+        register_ = mocker.Mock(spec=register.Register())
+        converter.register_if_necessary(register_)
+        assert not register_.register_converter_factory.called
+
+        # Rewire
+        converters.MarshmallowConverter.marshmallow = old_marshmallow
+
 
 class TestMap(object):
     def test_convert(self):
@@ -209,6 +229,11 @@ class TestMap(object):
 
         # Verify
         assert value == {"hello": "1"}
+
+    def test_eq(self):
+        assert converters.keys.Map(0) == converters.keys.Map(0)
+        assert not (converters.keys.Map(1) == converters.keys.Map(0))
+        assert not (converters.keys.Map(1) == 1)
 
 
 class TestSequence(object):
@@ -239,6 +264,11 @@ class TestSequence(object):
 
         # Verify
         assert value == "1"
+
+    def test_eq(self):
+        assert converters.keys.Sequence(0) == converters.keys.Sequence(0)
+        assert not (converters.keys.Sequence(1) == converters.keys.Sequence(0))
+        assert not (converters.keys.Sequence(1) == 1)
 
 
 class TestRegistry(object):
