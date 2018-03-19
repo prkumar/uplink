@@ -146,15 +146,15 @@ require merging your work into one or two target branches (typically one is
 3. If your PR fails the Travis CI check, investigate the build log for
    cause of failure, address locally, and update the candidate branch. Repeat
    this step until the PR passes the Travis CI check.
-4. If your PR fails the Coveralls check, check the PR's Coveralls' report
+4. If your PR fails the Codecov check, check the PR's Codecov report
    to identify modules experiencing a test coverage drop. Improve testing
    locally, then update the candidate branch.
 5. Once all checks have passed and the assigned reviewers have approved,
    a maintainer will merge your pull requests into the base branch by
    selecting "Merge Pull Request" (i.e., a ``--no-ff`` merge).
-6. If the base branch fails the Travis CI or Coveralls builds that run
-   immediately following your merge, revert the merge commit, address the
-   issue locally, update the candidate branch, then revisit step 3.
+6. If the base branch fails the Travis CI build ran immediately following
+   your merge, revert the merge commit, address the issue locally, update the
+   candidate branch, then revisit step 3.
 
 Tests
 =====

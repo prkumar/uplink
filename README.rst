@@ -110,8 +110,9 @@ Thank you for taking the time to improve an open source project 💜
 .. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
    :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
-.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
-   :target: https://coveralls.io/github/prkumar/uplink?branch=master
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/prkumar/uplink.svg   
+   :alt: Codecov   
+   :target: https://codecov.io/gh/prkumar/uplink
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
