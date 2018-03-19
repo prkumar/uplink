@@ -17,13 +17,16 @@ class Cast(interfaces.Converter):
 
 
 class RequestBodyConverter(interfaces.Converter):
+
+    @staticmethod
+    def _default_json_dumper(obj):
+        return obj.__dict__  # pragma: no cover
+
     def convert(self, value):
         if isinstance(value, str):
             return value
-        else:
-            return json.loads(
-                json.dumps(value, default=lambda obj: obj.__dict__)
-            )
+        dumped = json.dumps(value, default=self._default_json_dumper)
+        return json.loads(dumped)
 
 
 class StringConverter(interfaces.Converter):
