@@ -3,14 +3,14 @@ import pytest
 
 # Local imports.
 import uplink
-from uplink import utils
+from uplink import compat
 
 # Constants
 BASE_URL = "https://api.github.com/"
 
 
 def _get_url(url):
-    return utils.urlparse.urljoin(BASE_URL, url)
+    return compat.urlparse.urljoin(BASE_URL, url)
 
 
 @uplink.timeout(10)

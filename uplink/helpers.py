@@ -1,6 +1,9 @@
 # Standard library imports
 import collections
 
+# Third party imports
+import uritemplate
+
 # Local imports
 from uplink import interfaces
 
@@ -35,6 +38,32 @@ def get_api_definitions(service):
 
 def set_api_definition(service, name, definition):
     setattr(service, name, definition)
+
+
+def no_op(*_):
+    pass
+
+
+class URIBuilder(object):
+
+    @staticmethod
+    def variables(uri):
+        try:
+            return uritemplate.URITemplate(uri).variable_names
+        except TypeError:
+            return set()
+
+    def __init__(self, uri):
+        self._uri = uritemplate.URITemplate(uri or "")
+
+    def set_variable(self, var_dict=None, **kwargs):
+        self._uri = self._uri.partial(var_dict, **kwargs)
+
+    def remaining_variables(self):
+        return self._uri.variable_names
+
+    def build(self):
+        return self._uri.expand()
 
 
 class RequestBuilder(object):

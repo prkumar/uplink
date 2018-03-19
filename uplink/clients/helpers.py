@@ -1,3 +1,8 @@
+# Local imports
+from uplink import compat
+from uplink.clients.exceptions import ClientException
+
+
 class ExceptionHandler(object):
 
     def __init__(self, exception_class=Exception):
@@ -8,7 +13,11 @@ class ExceptionHandler(object):
         pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.handle(exc_type, exc_val, exc_tb)
+        et, ev = ClientException.wrap_exception_if_necessary(exc_type, exc_val)
+        self.handle(et, ev, exc_tb)
+        if (et, ev) != (exc_type, exc_val):
+            # rethrow if we've wrapped the exception
+            compat.reraise(et, ev, exc_tb)
 
     def set_handler(self, handler):
         self._handler = handler

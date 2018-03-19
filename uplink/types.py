@@ -8,7 +8,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink import exceptions, hooks, interfaces, utils
+from uplink import compat, exceptions, hooks, interfaces
 from uplink.converters import keys
 
 __all__ = [
@@ -49,7 +49,7 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
     @classmethod
     def from_func(cls, func):
         if not hasattr(func, cls.__ANNOTATION_BUILDER_KEY):
-            spec = utils.get_arg_spec(func)
+            spec = compat.get_arg_spec(func)
             handler = cls(func, spec.args)
             setattr(func, cls.__ANNOTATION_BUILDER_KEY, handler)
             handler.add_annotations_from_spec(spec)
@@ -133,7 +133,7 @@ class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
         return ((n, annotations[n]) for n in call_args if n in annotations)
 
     def handle_call(self, request_builder, args, kwargs):
-        call_args = utils.get_call_args(self._func, None, *args, **kwargs)
+        call_args = compat.get_call_args(self._func, None, *args, **kwargs)
         self.handle_call_args(request_builder, call_args)
 
     def handle_call_args(self, request_builder, call_args):
