@@ -10,8 +10,8 @@ before_script:
 script:
   - tox -e py
 after_success:
-  - pip install coveralls
-  - coveralls
+  - pip install codecov
+  - codecov
 deploy:
   provider: pypi
   user: prkumar
