@@ -52,24 +52,19 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
             spec = utils.get_arg_spec(func)
             handler = cls(func, spec.args)
             setattr(func, cls.__ANNOTATION_BUILDER_KEY, handler)
-            handler.add_annotations_from_spec(spec)
+            handler.set_annotations(spec.annotations)
         return getattr(func, cls.__ANNOTATION_BUILDER_KEY)
 
     def __init__(self, func, arguments, func_is_method=True):
         self._arguments = arguments[func_is_method:]
-        self._argument_types = collections.OrderedDict.fromkeys(self._arguments)
+        self._annotations = collections.OrderedDict.fromkeys(self._arguments)
         self._defined = 0
         self._func = func
-
-    def add_annotations_from_spec(self, spec):
-        if spec.args:
-            # Ignore `self` instance reference
-            spec.annotations.pop(spec.args[0], None)
-        self.set_annotations(spec.annotations)
+        self._argument_types = {}
 
     @property
     def missing_arguments(self):
-        return (a for a in self._arguments if self._argument_types[a] is None)
+        return (a for a in self._arguments if self._annotations[a] is None)
 
     @property
     def remaining_args_count(self):
@@ -87,20 +82,42 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         for name in more_annotations:
             self.add_annotation(more_annotations[name], name)
 
+    @staticmethod
+    def _is_annotation(annotation):
+        is_annotation_class = (
+                inspect.isclass(annotation) and
+                issubclass(annotation, interfaces.Annotation)
+        )
+        return (
+            is_annotation_class or isinstance(annotation, interfaces.Annotation)
+        )
+
     def add_annotation(self, annotation, name=None, *args, **kwargs):
+        if self._is_annotation(annotation):
+            return self._add_annotation(annotation, name)
+        else:
+            self._argument_types[name] = annotation
+
+    def _add_annotation(self, annotation, name=None):
         try:
             name = next(self.missing_arguments) if name is None else name
         except StopIteration:
             raise ExhaustedArguments(annotation, self._func)
-        if name not in self._argument_types:
+        if name not in self._annotations:
             raise ArgumentNotFound(name, self._func)
+        annotation = self._process_annotation(name, annotation)
+        super(ArgumentAnnotationHandlerBuilder, self).add_annotation(annotation)
+        self._defined += self._annotations[name] is None
+        self._annotations[name] = annotation
+        return annotation
+
+    def _process_annotation(self, name, annotation):
         if inspect.isclass(annotation):
             annotation = annotation()
+        if isinstance(annotation, TypedArgument) and annotation.type is None:
+            annotation.type = self._argument_types.pop(name, None)
         if isinstance(annotation, NamedArgument) and annotation.name is None:
             annotation.name = name
-        super(ArgumentAnnotationHandlerBuilder, self).add_annotation(annotation)
-        self._defined += self._argument_types[name] is None
-        self._argument_types[name] = annotation
         return annotation
 
     def is_done(self):
@@ -108,7 +125,7 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     @property
     def _types(self):
-        types = self._argument_types
+        types = self._annotations
         return ((k, types[k]) for k in types if types[k] is not None)
 
     def build(self):
@@ -174,6 +191,13 @@ class TypedArgument(ArgumentAnnotation):
     @property
     def type(self):
         return self._type
+
+    @type.setter
+    def type(self, type_):
+        if self._type is None:
+            self._type = type_
+        else:
+            raise AttributeError("Type is already set.")
 
     @property
     def converter_key(self):  # pragma: no cover
@@ -563,7 +587,7 @@ class PartMap(TypedArgument):
         return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
     def _modify_request(self, request_builder, value):
-        """Updaytes request body to with the form parts."""
+        """Updates request body to with the form parts."""
         request_builder.info["files"].update(value)
 
 

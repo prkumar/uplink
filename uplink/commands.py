@@ -52,7 +52,11 @@ class HttpMethod(object):
             arg_handler,
             decorators.MethodAnnotationHandlerBuilder()
         )
-        arg_handler.add_annotations_from_spec(spec)
+
+        # Need to add the annotations after constructing the request
+        # definition builder so it has a chance to attach its listener.
+        arg_handler.set_annotations(spec.annotations)
+
         if spec.return_annotation is not None:
             builder = decorators.returns(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)

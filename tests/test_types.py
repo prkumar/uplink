@@ -105,10 +105,10 @@ class TestArgumentAnnotationHandlerBuilder(object):
         assert args[0] not in builder.missing_arguments
 
     @inject_args
-    def test_add_annotation_class(self, mocker, argument_mock, args):
+    def test_add_annotation_class(self, mocker, args):
         builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
-        argument = builder.add_annotation(type(argument_mock))
+        argument = builder.add_annotation(types.ArgumentAnnotation())
         builder.listener.assert_called_with(argument)
         assert args[0] not in builder.missing_arguments
 
@@ -125,6 +125,12 @@ class TestArgumentAnnotationHandlerBuilder(object):
         builder = types.ArgumentAnnotationHandlerBuilder(dummy, [], False)
         with pytest.raises(types.ExhaustedArguments):
             builder.add_annotation(argument_mock)
+
+    def test_add_annotation_that_is_not_an_annotation(self):
+        def dummy(): pass
+        builder = types.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
+        builder.add_annotation(type, "arg1")
+        assert builder.remaining_args_count == 1
 
     @inject_args
     def test_set_annotations(self, mocker, argument_mock, args):
@@ -191,6 +197,17 @@ class TestTypedArgument(object):
 
     def test_type(self):
         assert types.TypedArgument("hello").type == "hello"
+
+    def test_set_type(self):
+        annotation = types.TypedArgument()
+        assert annotation.type is None
+        annotation.type = "type"
+        assert annotation.type == "type"
+
+    def test_set_type_with_type_already_set(self):
+        annotation = types.TypedArgument("type")
+        with pytest.raises(AttributeError):
+            annotation.type = "new type"
 
 
 class TestNamedArgument(object):
