@@ -151,10 +151,9 @@ class TestArgumentAnnotationHandler(object):
         relevant = annotation_handler.get_relevant_arguments(args)
         assert list(relevant) == list(args.items())
 
-    def test_handle_call(self, request_builder, converter_mock, mocker):
+    def test_handle_call(self, request_builder, mocker):
         def dummy(arg1): return arg1
-        request_builder.get_converter.return_value = converter_mock
-        converter_mock.convert = dummy
+        request_builder.get_converter.return_value = dummy
         get_call_args = mocker.patch("uplink.utils.get_call_args")
         get_call_args.return_value = {"arg1": "hello"}
         annotation = mocker.Mock(types.ArgumentAnnotation)

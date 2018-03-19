@@ -179,7 +179,7 @@ class RequestDefinition(interfaces.RequestDefinition):
         return converters.ConverterFactoryRegistry(
             converters_,
             argument_annotations=self.argument_annotations,
-            request_annotations=self.method_annotations
+            method_annotations=self.method_annotations
         )
 
     def define_request(self, request_builder, func_args, func_kwargs):

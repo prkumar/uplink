@@ -86,7 +86,7 @@ class TestCallFactory(object):
 class TestBuilder(object):
     def test_init_adds_standard_converter_factory(self, uplink_builder):
         assert isinstance(
-            uplink_builder._converters[0],
+            uplink_builder.converters[-1],
             converters.StandardConverter
         )
 
@@ -105,7 +105,7 @@ class TestBuilder(object):
     def test_add_converter_factory(self,
                                    uplink_builder,
                                    converter_factory_mock):
-        uplink_builder.add_converter(converter_factory_mock)
+        uplink_builder.converters = (converter_factory_mock,)
         factory = list(uplink_builder.converters)[0]
         assert factory == converter_factory_mock
 
