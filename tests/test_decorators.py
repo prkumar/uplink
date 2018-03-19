@@ -1,7 +1,11 @@
+# Standard library imports
+import collections
+
+# Third party imports
 import pytest
 
 # Local imports
-from uplink import decorators, interfaces
+from uplink import decorators
 
 
 @pytest.fixture
@@ -56,6 +60,7 @@ class TestMethodAnnotationHandlerBuilder(object):
             method_level1,
             method_level2
         ]
+
 
 class TestMethodAnnotationHandler(object):
 
@@ -179,15 +184,34 @@ def test_multipart(request_builder):
 def test_json(request_builder):
     json = decorators.json()
 
-    # Verify without
-    json.modify_request(request_builder)
-    assert "json" not in request_builder.info
-
-    # Verify with
+    # Verify
     request_builder.info["data"] = {"field_name": "field_value"}
     json.modify_request(request_builder)
     assert request_builder.info["json"] == {"field_name": "field_value"}
+    assert len(request_builder.info["json"]) == 1
+
+    # Check delete
+    del request_builder.info["json"]["field_name"]
+    assert len(request_builder.info["json"]) == 0
     assert "data" not in request_builder.info
+
+    # Verify nested attribute
+    request_builder.info["data"] = {("outer", "inner"): "inner_value"}
+    json.modify_request(request_builder)
+    assert request_builder.info["json"] == {"outer": {"inner": "inner_value"}}
+    assert "data" not in request_builder.info
+
+    # Verify that error is raised when path is empty
+    request_builder.info["data"] = {(): "value"}
+    with pytest.raises(ValueError):
+        json.modify_request(request_builder)
+
+    # Verify that error is raised when paths conflict
+    request_builder.info["data"] = body = collections.OrderedDict()
+    body["key"] = "outer"
+    body["key", "inner"] = "inner value"
+    with pytest.raises(ValueError):
+        json.modify_request(request_builder)
 
 
 def test_timeout(request_builder):

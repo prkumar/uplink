@@ -1,4 +1,5 @@
 # Standard library imports
+import collections
 import inspect
 
 # Local imports
@@ -222,12 +223,54 @@ class json(MethodAnnotation):
     """
     _can_be_static = True
 
+    @staticmethod
+    def _sequence_path_resolver(path, value, body):
+        if not path:
+            raise ValueError("Path sequence cannot be empty.")
+        for name in path[:-1]:
+            body = body.setdefault(name, {})
+            if not isinstance(body, collections.Mapping):
+                raise ValueError(
+                    "Failed to set nested JSON attribute '%s': "
+                    "parent field '%s' is not a JSON object."
+                    % (path, name)
+                )
+        body[path[-1]] = value
+
+    class _JsonBody(collections.MutableMapping):
+        """
+        A helper class that builds a JSON request body using a
+        dictionary interface.
+
+        Fields that are built using a field annotation
+        """
+
+        def __init__(self):
+            self._body = {}
+
+        def __setitem__(self, path, value):
+            if isinstance(path, tuple):
+                json._sequence_path_resolver(path, value, self._body)
+            else:
+                self._body[path] = value
+
+        def __delitem__(self, key):
+            del self._body[key]
+
+        def __getitem__(self, key):
+            return self._body[key]
+
+        def __len__(self):
+            return len(self._body)
+
+        def __iter__(self):
+            return iter(self._body)
+
     def modify_request(self, request_builder):
         """Modifies JSON request."""
-        try:
-            request_builder.info["json"] = request_builder.info.pop("data")
-        except KeyError:
-            pass
+        old_body = request_builder.info.pop("data", {})
+        request_builder.info["json"] = self._JsonBody()
+        request_builder.info["json"].update(old_body)
 
 
 # noinspection PyPep8Naming
