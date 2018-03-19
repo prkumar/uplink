@@ -43,6 +43,19 @@ class TestStringConverter(object):
         assert converter_.convert(2) == "2"
 
 
+class TestStandardConverter(object):
+    def test_make_response_body_converter(self):
+        # Setup
+        converter = standard.StandardConverter()
+
+        # Run & Verify: Pass-through callables
+        def f(_): pass
+        assert f is converter.make_response_body_converter(f)
+
+        # Run & Verify: Otherwise, return None
+        assert None is converter.make_response_body_converter("converter")
+
+
 class TestConverterFactoryRegistry(object):
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
