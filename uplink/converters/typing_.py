@@ -76,7 +76,7 @@ def _get_types(try_typing=True):
 class TypingConverter(interfaces.ConverterFactory):
     try:
         import typing
-    except ImportError:
+    except ImportError:  # pragma: no cover
         typing = None
 
     def _check_typing(self, t):

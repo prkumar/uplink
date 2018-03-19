@@ -335,6 +335,11 @@ class TestTypingConverter(object):
         converter = method(Dict[str, str])
         assert isinstance(converter, converters.typing_.DictConverter)
 
+        # Verify with unsupported type
+        if use_typing:
+            converter = method(typing.Set[str])
+            assert converter is None
+
     def test_list_converter(self):
         # Setup
         converter = converters.typing_.ListConverter(str)
