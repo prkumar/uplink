@@ -105,15 +105,19 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
             raise ExhaustedArguments(annotation, self._func)
         if name not in self._annotations:
             raise ArgumentNotFound(name, self._func)
+        annotation = self._process_annotation(name, annotation)
+        super(ArgumentAnnotationHandlerBuilder, self).add_annotation(annotation)
+        self._defined += self._annotations[name] is None
+        self._annotations[name] = annotation
+        return annotation
+
+    def _process_annotation(self, name, annotation):
         if inspect.isclass(annotation):
             annotation = annotation()
         if isinstance(annotation, TypedArgument) and annotation.type is None:
             annotation.type = self._argument_types.pop(name, None)
         if isinstance(annotation, NamedArgument) and annotation.name is None:
             annotation.name = name
-        super(ArgumentAnnotationHandlerBuilder, self).add_annotation(annotation)
-        self._defined += self._annotations[name] is None
-        self._annotations[name] = annotation
         return annotation
 
     def is_done(self):
