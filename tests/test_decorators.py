@@ -115,22 +115,25 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(mocker.ANY)
 
-    def test_method_in_http_method_blacklist(self,
-                                             method_annotation,
-                                             request_definition_builder):
+    def test_method_in_http_method_blacklist(self, request_definition_builder):
+        class DummyAnnotation(decorators.MethodAnnotation):
+            _http_method_blacklist = ["GET"]
+
         request_definition_builder.method = "GET"
-        method_annotation._http_method_blacklist = ["GET"]
-        assert not method_annotation._is_relevant_for(
-            request_definition_builder
+        assert not DummyAnnotation.supports_http_method(
+            request_definition_builder.method
         )
 
-    def test_method_not_in_http_method_blacklist(self,
-                                                 method_annotation,
+    def test_method_not_in_http_method_blacklist(self, 
                                                  request_definition_builder):
+        class DummyAnnotation(decorators.MethodAnnotation):
+            _http_method_whitelist = ["POST"]
+
         request_definition_builder.method = "POST"
         request_definition_builder.__name__ = "dummy"
-        method_annotation._http_method_blacklist = ["GET"]
-        assert method_annotation._is_relevant_for(request_definition_builder)
+        assert DummyAnnotation().supports_http_method(
+            request_definition_builder.method
+        )
 
     def test_call_with_child_class(self,
                                    method_annotation,

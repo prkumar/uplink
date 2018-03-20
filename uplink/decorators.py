@@ -19,20 +19,6 @@ __all__ = [
 ]
 
 
-class HttpMethodNotSupport(exceptions.AnnotationError):
-    message = (
-        "Error on method `%s`: annotation %s is not supported with %s "
-        "commands."
-    )
-
-    def __init__(self, request_definition_builder, annotation):
-        self.message = self.message % (
-            request_definition_builder.__name__,
-            type(annotation),
-            request_definition_builder.method.upper()
-        )
-
-
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     def __init__(self):
@@ -69,6 +55,20 @@ class MethodAnnotationHandler(interfaces.AnnotationHandler):
 
 class MethodAnnotation(interfaces.Annotation):
     _http_method_blacklist = None
+    _http_method_whitelist = None
+
+    @classmethod
+    def supports_http_method(cls, method):
+        method = method.upper()
+        if cls._http_method_blacklist is not None:
+            return method not in cls._http_method_blacklist
+        if cls._http_method_whitelist is not None:
+            return method in cls._http_method_whitelist
+        return True
+
+    @classmethod
+    def _is_relevant_for_builder(cls, builder):
+        return cls.supports_http_method(builder.method)
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
@@ -86,7 +86,7 @@ class MethodAnnotation(interfaces.Annotation):
             builders = helpers.get_api_definitions(class_or_builder)
 
             for name, builder in builders:
-                if not self._is_relevant_for(builder):
+                if not self._is_relevant_for_builder(builder):
                     # Skip if the method is not supported
                     continue
                 builder.method_handler_builder.add_annotation(
@@ -94,16 +94,9 @@ class MethodAnnotation(interfaces.Annotation):
                     is_class=True,
                 )
                 helpers.set_api_definition(class_or_builder, name, builder)
-        else:
+        elif self._is_relevant_for_builder(class_or_builder):
             class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
-
-    def _is_relevant_for(self, request_definition_builder):
-        if self._http_method_blacklist is not None:
-            method = request_definition_builder.method.upper()
-            if method in self._http_method_blacklist:
-                return False
-        return True
 
     def modify_request(self, request_builder):
         pass
