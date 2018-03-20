@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+import functools
 import inspect
 
 # Local imports
@@ -402,8 +403,13 @@ class _InjectableMethodAnnotation(MethodAnnotation):
         request_builder.add_transaction_hook(self)
 
 
+class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
+    def __init__(self, func):
+        functools.update_wrapper(self, func)
+
+
 # noinspection PyPep8Naming
-class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
+class response_handler(_BaseHandlerAnnotation, hooks.ResponseHandler):
     """
     A decorator for creating custom response handlers.
 
@@ -446,7 +452,7 @@ class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
 
 
 # noinspection PyPep8Naming
-class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
+class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
     """
     A decorator for creating custom error handlers.
 
