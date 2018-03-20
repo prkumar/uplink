@@ -68,7 +68,7 @@ class MethodAnnotationHandler(interfaces.AnnotationHandler):
 
 
 class MethodAnnotation(interfaces.Annotation):
-    http_method_whitelist = None
+    _http_method_blacklist = None
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
@@ -86,6 +86,9 @@ class MethodAnnotation(interfaces.Annotation):
             builders = helpers.get_api_definitions(class_or_builder)
 
             for name, builder in builders:
+                if not self._is_relevant_for(builder):
+                    # Skip if the method is not supported
+                    continue
                 builder.method_handler_builder.add_annotation(
                     self,
                     is_class=True,
@@ -95,11 +98,12 @@ class MethodAnnotation(interfaces.Annotation):
             class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
 
-    def modify_request_definition(self, request_definition_builder):
-        if self.http_method_whitelist is not None:
+    def _is_relevant_for(self, request_definition_builder):
+        if self._http_method_blacklist is not None:
             method = request_definition_builder.method.upper()
-            if method not in self.http_method_whitelist:
-                raise HttpMethodNotSupport(request_definition_builder, self)
+            if method in self._http_method_blacklist:
+                return False
+        return True
 
     def modify_request(self, request_builder):
         pass
@@ -168,6 +172,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
+    _http_method_blacklist = set(("GET",))
     _can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
@@ -194,6 +199,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
+    _http_method_blacklist = set(("GET",))
     _can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
@@ -220,6 +226,7 @@ class json(MethodAnnotation):
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
     """
+    _http_method_blacklist = set(("GET",))
     _can_be_static = True
 
     @staticmethod
