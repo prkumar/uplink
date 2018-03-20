@@ -345,6 +345,42 @@ class returns(MethodAnnotation):
     def dict(cls, kt, vt):
         return cls(cls.Dict[kt, vt])
 
+    class Json(converters.interfaces.Converter):
+        # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
+
+        def __init__(self, model, member=()):
+            self._model = model
+            self._model_converter = None
+
+            if not isinstance(member, (list, tuple)):
+                member = (member,)
+            self._member = member
+
+        def set_chain(self, chain):
+            self._model_converter = chain(self._model)
+
+        def convert(self, response):
+            content = response.json()
+            for name in self._member:
+                content = content[name]
+            if self._model_converter is not None:
+                content = self._model_converter(content)
+            return content
+
+    class json(MethodAnnotation):
+        _can_be_static = True
+
+        def __init__(self, model=None, member=()):
+            self._model = model
+            self._member = member
+
+        def modify_request(self, request_builder):
+            return_type = request_builder.return_type
+            return_type = self._model if return_type is None else return_type
+            request_builder.return_type = returns.Json(
+                return_type, self._member
+            )
+
 
 # noinspection PyPep8Naming
 class args(MethodAnnotation):
