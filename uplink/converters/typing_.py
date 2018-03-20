@@ -72,7 +72,7 @@ def _get_types(try_typing=True):
         )
 
 
-@register.register_converter_factory
+@register.register_default_converter_factory
 class TypingConverter(interfaces.ConverterFactory):
     try:
         import typing

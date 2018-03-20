@@ -4,10 +4,9 @@ import functools
 
 # Local imports
 from uplink.converters import interfaces, keys
-from uplink.converters.interfaces import ConverterFactory, Converter
 from uplink.converters.register import (
     get_default_converter_factories,
-    register_converter_factory
+    register_default_converter_factory
 )
 
 # Default converters - load standard first so it's ensured to be the
@@ -17,7 +16,6 @@ from uplink.converters.marshmallow_ import MarshmallowConverter
 from uplink.converters.typing_ import TypingConverter
 
 __all__ = [
-    "register_converter_factory",
     "MarshmallowConverter"
 ]
 

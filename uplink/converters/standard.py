@@ -34,7 +34,7 @@ class StringConverter(interfaces.Converter):
         return str(value)
 
 
-@register.register_converter_factory
+@register.register_default_converter_factory
 class StandardConverter(interfaces.ConverterFactory):
     """
     The default converter, this class seeks to provide sane alternatives
