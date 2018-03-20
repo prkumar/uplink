@@ -68,7 +68,7 @@ class MethodAnnotation(interfaces.Annotation):
 
     @classmethod
     def _is_relevant_for_builder(cls, builder):
-        return cls.supports_http_method(builder.method)
+        return cls.supports_http_method(builder[1].method)
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
@@ -82,20 +82,21 @@ class MethodAnnotation(interfaces.Annotation):
             return is_class and not (kwargs or args_[1:])
 
     def __call__(self, class_or_builder):
-        if inspect.isclass(class_or_builder):
-            builders = helpers.get_api_definitions(class_or_builder)
+        is_class = inspect.isclass(class_or_builder)
 
-            for name, builder in builders:
-                if not self._is_relevant_for_builder(builder):
-                    # Skip if the method is not supported
-                    continue
-                builder.method_handler_builder.add_annotation(
-                    self,
-                    is_class=True,
-                )
+        if is_class:
+            builders = helpers.get_api_definitions(class_or_builder)
+        else:
+            builders = ((None, class_or_builder),)
+
+        builders = filter(self._is_relevant_for_builder, builders)
+        for name, builder in builders:
+            builder.method_handler_builder.add_annotation(
+                self,
+                is_class=is_class
+            )
+            if is_class:
                 helpers.set_api_definition(class_or_builder, name, builder)
-        elif self._is_relevant_for_builder(class_or_builder):
-            class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
 
     def modify_request(self, request_builder):
