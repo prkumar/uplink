@@ -25,13 +25,6 @@ class MarshmallowConverter(interfaces.ConverterFactory):
         def get_users(self, username) -> UserSchema():
             '''Fetch a single user'''
 
-    Also, when instantiating a consumer, be sure to set this class as
-    a converter for the instance:
-
-    .. code-block:: python
-
-        github = GitHub(BASE_URL, converter=MarshmallowConverter())
-
     Note:
 
         This converter is an optional feature and requires the :py:mod:`marshmallow`
