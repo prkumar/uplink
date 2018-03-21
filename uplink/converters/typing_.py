@@ -74,6 +74,20 @@ def _get_types(try_typing=True):
 
 @register.register_default_converter_factory
 class TypingConverter(interfaces.ConverterFactory):
+    """
+    An adapter that serializes and deserializes collection types defined
+    in the :py:mod:`typing` module, such as :py:class:`typing.List`.
+    (See :pep:`484` for the specification of type hints in Python.)
+
+    Inner types of a collection are recursively resolved, using other
+    available converters if necessary. For instance, when resolving the
+    type hint :py:attr:`typing.Sequence[UserSchema]`, where
+    :py:attr:`UserSchema` is a custom py:class:`marshmallow.Schema`
+    subclass, the converter will resolve the inner type using
+    :py:class:`uplink.converters.MarshmallowConverter`.
+
+    TODO: Address how to leverage this converter in Python 3.5 and below.
+    """
     try:
         import typing
     except ImportError:  # pragma: no cover
