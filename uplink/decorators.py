@@ -67,6 +67,7 @@ class MethodAnnotationHandler(interfaces.AnnotationHandler):
             annotation.modify_request(request_builder)
 
 
+# TODO: Only decorate consumers
 class MethodAnnotation(interfaces.Annotation):
     http_method_whitelist = None
 
@@ -360,20 +361,6 @@ class returns(MethodAnnotation):
     """
     Dict = converters.TypingConverter.Dict
 
-    @classmethod
-    def list(cls, t):
-        """
-        TODO: Remove this
-        """
-        return cls(cls.List[t])
-
-    @classmethod
-    def dict(cls, kt, vt):
-        """
-        TODO: Remove this
-        """
-        return cls(cls.Dict[kt, vt])
-
     class Json(converters.interfaces.Converter):
         # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
 
@@ -396,6 +383,7 @@ class returns(MethodAnnotation):
                 content = self._model_converter(content)
             return content
 
+    # noinspection PyPep8Naming
     class json(MethodAnnotation):
         _can_be_static = True
 
