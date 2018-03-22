@@ -215,13 +215,13 @@ class TestMarshmallowConverter(object):
         # Run & Verify: Register when marshmallow is installed
         converter.marshmallow = True
         register_ = mocker.Mock(spec=register.Register())
-        converter.register_if_necessary(register_)
+        converter.register_if_necessary(register_.register_converter_factory)
         register_.register_converter_factory.assert_called_with(converter)
 
         # Run & Verify: Skip when marshmallow is not installed
         converter.marshmallow = None
         register_ = mocker.Mock(spec=register.Register())
-        converter.register_if_necessary(register_)
+        converter.register_if_necessary(register_.register_converter_factory)
         assert not register_.register_converter_factory.called
 
         # Rewire

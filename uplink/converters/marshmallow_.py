@@ -25,17 +25,11 @@ class MarshmallowConverter(interfaces.ConverterFactory):
         def get_users(self, username) -> UserSchema():
             '''Fetch a single user'''
 
-    Also, when instantiating a consumer, be sure to set this class as
-    a converter for the instance:
-
-    .. code-block:: python
-
-        github = GitHub(BASE_URL, converter=MarshmallowConverter())
-
     Note:
 
-        This converter is an optional feature and requires the :py:mod:`marshmallow`
-        package. For example, here's how to install this feature using pip::
+        This converter is an optional feature and requires the
+        :py:mod:`marshmallow` package. For example, here's how to
+        install this feature using pip::
 
             $ pip install uplink[marshmallow]
     """
@@ -88,25 +82,17 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             return converter_cls(schema)
 
     def make_request_body_converter(self, type_, *args, **kwargs):
-        """
-        Constructs a :py:class:`uplink.converters.interfaces.Converter`
-        subclass that serializes values using a
-        :py:class:`marshmallow.Schema`.
-        """
         return self._make_converter(self.RequestBodyConverter, type_)
 
     def make_response_body_converter(self, type_, *args, **kwargs):
-        """
-        Constructs a :py:class:`uplink.converters.interfaces.Converter`
-        subclass that deserializes values using a
-        :py:class:`marshmallow.Schema`.
-        """
         return self._make_converter(self.ResponseBodyConverter, type_)
 
     @classmethod
-    def register_if_necessary(cls, register_):
+    def register_if_necessary(cls, register_func):
         if cls.marshmallow is not None:
-            register_.register_converter_factory(cls)
+            register_func(cls)
 
 
-MarshmallowConverter.register_if_necessary(register)
+MarshmallowConverter.register_if_necessary(
+    register.register_default_converter_factory
+)

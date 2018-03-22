@@ -192,6 +192,7 @@ HTTP responses into Python objects using the :py:class:`marshmallow.Schema`
 object. Checkout `this example on GitHub
 <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_ for more.
 
+.. _`custom response handler`:
 
 Custom Response and Error Handling
 ==================================
