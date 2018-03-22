@@ -334,15 +334,44 @@ class returns(MethodAnnotation):
     def modify_request(self, request_builder):
         request_builder.return_type = self._type
 
+    """
+    A proxy for :py:class:`typing.List` that is safe to use in type 
+    hints with Python 3.4 and below.
+    
+    .. code-block:: python
+        
+        @returns.json
+        @get("/users")
+        def get_users(self) -> returns.List[str]:
+            \"""Fetches all users\"""
+    """
     List = converters.TypingConverter.List
+
+    """
+    A proxy for :py:class:`typing.Dict` that is safe to use in type 
+    hints with Python 3.4 and below
+    
+    .. code-block:: python
+        
+        @returns.json
+        @get("/users")
+        def get_users(self) -> returns.Dict[str, str]:
+            \"""Fetches all users\"""
+    """
     Dict = converters.TypingConverter.Dict
 
     @classmethod
     def list(cls, t):
+        """
+        TODO: Remove this
+        """
         return cls(cls.List[t])
 
     @classmethod
     def dict(cls, kt, vt):
+        """
+        TODO: Remove this
+        """
         return cls(cls.Dict[kt, vt])
 
 
