@@ -75,6 +75,8 @@ def _get_types(try_typing=True):
 @register.register_default_converter_factory
 class TypingConverter(interfaces.ConverterFactory):
     """
+    .. versionadded: v0.5.0
+
     An adapter that serializes and deserializes collection types from
     the :py:mod:`typing` module, such as :py:class:`typing.List`.
 

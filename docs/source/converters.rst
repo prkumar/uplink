@@ -29,8 +29,8 @@ Uplink comes with optional support for :py:mod:`marshmallow`.
     to provide it when constructing your consumer instances.
 
 
-Collections
-===========
+Type Hints
+==========
 
 .. versionadded:: v0.5.0
 
@@ -48,7 +48,6 @@ instance:
 .. autoclass:: uplink.converters.TypingConverter
 
 ..
-
     Writing a Custom Converter
     ==========================
 

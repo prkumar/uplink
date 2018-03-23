@@ -335,31 +335,35 @@ class returns(MethodAnnotation):
     def modify_request(self, request_builder):
         request_builder.return_type = self._type
 
+    List = converters.TypingConverter.List
     """
+    .. versionadded:: v0.5.0
+    
     A proxy for :py:class:`typing.List` that is safe to use in type 
     hints with Python 3.4 and below.
-    
+
     .. code-block:: python
-        
+
         @returns.json
         @get("/users")
         def get_users(self) -> returns.List[str]:
             \"""Fetches all users\"""
     """
-    List = converters.TypingConverter.List
 
+    Dict = converters.TypingConverter.Dict
     """
+    .. versionadded:: v0.5.0
+    
     A proxy for :py:class:`typing.Dict` that is safe to use in type 
     hints with Python 3.4 and below
-    
+
     .. code-block:: python
-        
+
         @returns.json
         @get("/users")
         def get_users(self) -> returns.Dict[str, str]:
             \"""Fetches all users\"""
     """
-    Dict = converters.TypingConverter.Dict
 
     class Json(converters.interfaces.Converter):
         # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
@@ -385,6 +389,83 @@ class returns(MethodAnnotation):
 
     # noinspection PyPep8Naming
     class json(MethodAnnotation):
+        """
+        .. versionadded:: v0.5.0
+
+        Specifies that the decorated consumer method should return a
+        JSON object.
+
+        Example:
+
+            .. code-block:: python
+
+                @returns.json
+                @get("/users/{username}")
+                def get_user(self, username):
+                    \"""Get a specific user.\"""
+
+
+        Returning a Specific JSON Field:
+
+            This decorator accepts two optional arguments. The
+            :py:attr:`member` argument accepts a string or tuple that
+            specifies the path of an internal field in the JSON
+            document.
+
+            For instance, consider an API that returns JSON responses
+            that, at the root of the document, contains both the
+            server-retrieved data and a list of relevant API errors:
+
+            .. code-block:: json
+                :emphasize-lines: 2
+
+                {
+                    "data": { "user": "prkumar", "id": 10432 }
+                    "errors": []
+                }
+
+            If returning the list of errors is unnecessary, we can use
+            the :py:attr:`member` argument to strictly return the inner
+            field :py:attr:`data`:
+
+            .. code-block:: python
+
+                @returns.json(member="data")
+                @get("/users/{username}")
+                def get_user(self, username):
+                    \"""Get a specific user.\"""
+
+        Deserialize Objects from JSON:
+
+            Often, JSON responses represent models in your application.
+            If an existing Python object encapsulates this model, use
+            the :py:attr:`model` argument to specify it as the return
+            type:
+
+            .. code-block:: python
+
+                @returns.json(model=User, member="data")
+                @get("/users/{username}")
+                def get_user(self, username):
+                    \"""Get a specific user.\"""
+
+            This pattern typically requires also registering a converter
+            that knows how to deserialize the JSON into your data model
+            object or leveraging a built-in converter (e.g.,
+            :py:class:`uplink.converters.MarshmallowConverter`).
+
+            For Python 3 users, you can alternatively provide a return
+            value annotation. Hence, the previous code is equivalent
+            to the following in Python 3:
+
+            .. code-block:: python
+
+                @returns.json(member="data")
+                @get("/users/{username}")
+                def get_user(self, username) -> User:
+                    \"""Get a specific user.\"""
+
+        """
         _can_be_static = True
 
         def __init__(self, model=None, member=()):
