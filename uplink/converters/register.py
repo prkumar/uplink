@@ -26,6 +26,6 @@ class Register(object):
 
 _registry = Register()
 
-register_converter_factory = _registry.register_converter_factory
+register_default_converter_factory = _registry.register_converter_factory
 get_default_converter_factories = _registry.get_converter_factories
 
