@@ -141,3 +141,6 @@ class Auth(object):
 
     def __call__(self, request_builder):
         raise NotImplementedError
+
+class Consumer(object):
+    pass

@@ -3,7 +3,7 @@ import collections
 import inspect
 
 # Local imports
-from uplink import converters, exceptions, helpers, hooks, interfaces, types
+from uplink import converters, helpers, hooks, interfaces, types
 
 __all__ = [
     "headers",
@@ -57,6 +57,10 @@ class MethodAnnotation(interfaces.Annotation):
     _http_method_blacklist = None
     _http_method_whitelist = None
 
+    @staticmethod
+    def _is_consumer_class(c):
+        return inspect.isclass(c) and issubclass(c, interfaces.Consumer)
+
     @classmethod
     def supports_http_method(cls, method):
         method = method.upper()
@@ -75,28 +79,27 @@ class MethodAnnotation(interfaces.Annotation):
         if super(MethodAnnotation, cls)._is_static_call(*args_, **kwargs):
             return True
         try:
-            is_class = inspect.isclass(args_[0])
+            is_consumer_class = cls._is_consumer_class(args_[0])
         except IndexError:
             return False
         else:
-            return is_class and not (kwargs or args_[1:])
+            return is_consumer_class and not (kwargs or args_[1:])
 
     def __call__(self, class_or_builder):
-        is_class = inspect.isclass(class_or_builder)
+        is_class = self._is_consumer_class(class_or_builder)
 
         if is_class:
             builders = helpers.get_api_definitions(class_or_builder)
-        else:
+            builders = filter(self._is_relevant_for_builder, builders)
+        elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
             builders = ((None, class_or_builder),)
+        else:
+            builders = ()
 
-        builders = filter(self._is_relevant_for_builder, builders)
-        for name, builder in builders:
-            builder.method_handler_builder.add_annotation(
-                self,
-                is_class=is_class
-            )
+        for name, b in builders:
+            b.method_handler_builder.add_annotation(self, is_class=is_class)
             if is_class:
-                helpers.set_api_definition(class_or_builder, name, builder)
+                helpers.set_api_definition(class_or_builder, name, b)
         return class_or_builder
 
     def modify_request(self, request_builder):
@@ -166,7 +169,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
-    _http_method_blacklist = set(("GET",))
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
@@ -193,7 +196,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
-    _http_method_blacklist = set(("GET",))
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
@@ -220,7 +223,7 @@ class json(MethodAnnotation):
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
     """
-    _http_method_blacklist = set(("GET",))
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     @staticmethod

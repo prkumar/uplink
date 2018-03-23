@@ -5,7 +5,7 @@ import collections
 import pytest
 
 # Local imports
-from uplink import decorators
+from uplink import decorators, interfaces
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ class TestMethodAnnotation(object):
     def test_call_with_class(self,
                              method_annotation,
                              request_definition_builder):
-        class Class(object):
+        class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         method_annotation(Class)
@@ -94,7 +94,7 @@ class TestMethodAnnotation(object):
     def test_static_call_with_class(
             self, mocker, request_definition_builder
     ):
-        class Class(object):
+        class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         self.FakeMethodAnnotation(Class)
