@@ -43,8 +43,8 @@ class StandardConverter(interfaces.ConverterFactory):
     """
 
     def make_response_body_converter(self, type_, *args, **kwargs):
-        if callable(type_):
-            return type_
+        if isinstance(type_, interfaces.Converter):
+            return type_.convert
 
     def make_request_body_converter(self, type_, *args, **kwargs):
         return Cast(type_, RequestBodyConverter())  # pragma: no cover

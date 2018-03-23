@@ -50,6 +50,10 @@ def test_get_client_with_http_client_adapter_subclass():
     assert isinstance(client, HttpClientAdapterMock)
 
 
+def test_get_client_with_unrecognized_key():
+    assert register.get_client("no client for this key") is None
+
+
 class TestRequests(object):
 
     def test_get_client(self, mocker):
@@ -76,12 +80,16 @@ class TestRequests(object):
         session_mock.request.return_value = "response"
         callback = mocker.stub()
         client = requests_.Request(session_mock)
-        client.add_callback(callback)
 
         # Run
         client.send("method", "url", {})
 
         # Verify
+        session_mock.request.assert_called_with(method="method", url="url")
+
+        # Run with callback
+        client.add_callback(callback)
+        client.send("method", "url", {})
         session_mock.request.assert_called_with(method="method", url="url")
         callback.assert_called_with(session_mock.request.return_value)
 

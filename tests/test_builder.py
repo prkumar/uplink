@@ -24,12 +24,15 @@ class TestRequestPreparer(object):
 
     def test_prepare_request(
             self,
-            uplink_builder,
+            mocker,
             request_builder,
     ):
         request_builder.method = "METHOD"
         request_builder.url = "/example/path"
-        uplink_builder.base_url = "https://example.com"
+        request_builder.get_converter.return_value = None
+        uplink_builder = mocker.Mock(spec=builder.Builder)
+        uplink_builder.converters = ()
+        uplink_builder.hooks = ()
         request_preparer = builder.RequestPreparer(uplink_builder)
         request_preparer.prepare_request(request_builder)
         uplink_builder.client.create_request().send.assert_called_with(

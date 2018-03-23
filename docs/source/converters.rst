@@ -47,45 +47,48 @@ instance:
 
 .. autoclass:: uplink.converters.TypingConverter
 
+..
 
-Writing a Custom Converter
-==========================
+    Writing a Custom Converter
+    ==========================
 
-.. note::
+    .. note::
 
-    Before writing a custom converter factory, consider instead whether
-    defining a :ref:`custom response handler` could cover your use case.
-
-You can define custom converters by extending
-py:class:`uplink.converters.ConverterFactory`:
-
-.. code-block:: python
-
-    from uplink import converters
-
-    class MyCustomSerializationProtocol(converters.ConverterFactory):
-        ...
+        Before writing a custom converter factory, consider instead whether
+        defining a :ref:`custom response handler` could cover your use case.
 
 
-Here are the methods that you can override to define custom serialization or
-deserialization logic:
+    You can define custom converters by extending
+    py:class:`uplink.converters.ConverterFactory`:
 
-.. autoclass:: uplink.converters.ConverterFactory
+    .. code-block:: python
 
+        from uplink import converters
 
-If you'd like your custom factory to be included automatically, you can
-decorate your factory implementation with
-:py:func:`uplink.converters.register_default_converter_factory`:
-
-.. code-block:: python
-
-    from uplink import converters
-
-    @converters.register_default_converter_factory
-    class MyCustomSerializationProtocol(converters.ConverterFactory):
-        ...
+        class MyCustomSerializationProtocol(converters.ConverterFactory):
+            ...
 
 
-Applying this decorator to the class avoids the need to specify the
-implementation through the ``converter`` parameter when instantiating
-your consumer.
+    Here are the methods that you can override to define custom serialization or
+    deserialization logic:
+
+    .. autoclass:: uplink.converters.ConverterFactory
+        :members:
+
+
+    If you'd like your custom factory to be included automatically, you can
+    decorate your factory implementation with
+    :py:func:`uplink.converters.register_default_converter_factory`:
+
+    .. code-block:: python
+
+        from uplink import converters
+
+        @converters.register_default_converter_factory
+        class MyCustomSerializationProtocol(converters.ConverterFactory):
+            ...
+
+
+    Applying this decorator to the class avoids the need to specify the
+    implementation through the ``converter`` parameter when instantiating
+    your consumer.

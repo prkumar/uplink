@@ -47,16 +47,16 @@ class TestStringConverter(object):
 
 
 class TestStandardConverter(object):
-    def test_make_response_body_converter(self):
+    def test_make_response_body_converter(self, converter_mock):
         # Setup
-        converter = standard.StandardConverter()
+        factory = standard.StandardConverter()
 
-        # Run & Verify: Pass-through callables
-        def f(_): pass
-        assert f is converter.make_response_body_converter(f)
+        # Run & Verify: Pass-through converters
+        converter = factory.make_response_body_converter(converter_mock)
+        assert converter is converter_mock.convert
 
         # Run & Verify: Otherwise, return None
-        assert None is converter.make_response_body_converter("converter")
+        assert None is factory.make_response_body_converter("converter")
 
 
 class TestConverterFactoryRegistry(object):
@@ -161,16 +161,26 @@ class TestMarshmallowConverter(object):
         load_result.data = expected_result
         schema_mock.load.return_value = load_result
         converter = converters.MarshmallowConverter()
-        response = mocker.Mock()
-
-        # Run
+        response = mocker.Mock(spec=["json"])
         c = converter.make_response_body_converter(argument)
-        result = c.convert(response)
 
-        # Verify
+        # Run & Verify: with response
+        result = c.convert(response)
         response.json.assert_called_with()
         schema_mock.load.assert_called_with(response.json())
         assert expected_result == result
+
+        # Run & Verify: with json
+        data = {"hello": "world"}
+        result = c.convert(data)
+        schema_mock.load.assert_called_with(data)
+        assert expected_result == result
+
+        # Run & Verify: with not compatible
+        schema_mock.load.side_effect = marshmallow.exceptions.MarshmallowError
+        result = c.convert(data)
+        assert result is data
+
 
     def test_make_response_body_converter_with_unsupported_response(
             self, schema_mock_and_argument
