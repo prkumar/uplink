@@ -5,7 +5,7 @@ import collections
 import pytest
 
 # Local imports
-from uplink import decorators
+from uplink import decorators, interfaces
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ class TestMethodAnnotation(object):
     def test_call_with_class(self,
                              method_annotation,
                              request_definition_builder):
-        class Class(object):
+        class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         method_annotation(Class)
@@ -94,7 +94,7 @@ class TestMethodAnnotation(object):
     def test_static_call_with_class(
             self, mocker, request_definition_builder
     ):
-        class Class(object):
+        class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         self.FakeMethodAnnotation(Class)
@@ -115,26 +115,25 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(mocker.ANY)
 
-    def test_method_in_http_method_whitelist(self,
-                                             method_annotation,
-                                             request_definition_builder):
-        request_definition_builder.method = "GET"
-        method_annotation.http_method_whitelist = ["GET"]
-        method_annotation.modify_request_definition(
-            request_definition_builder
-        )
-        assert True
+    def test_method_in_http_method_blacklist(self, request_definition_builder):
+        class DummyAnnotation(decorators.MethodAnnotation):
+            _http_method_blacklist = ["GET"]
 
-    def test_method_not_in_http_method_whitelist(self,
-                                                 method_annotation,
+        request_definition_builder.method = "GET"
+        assert not DummyAnnotation.supports_http_method(
+            request_definition_builder.method
+        )
+
+    def test_method_not_in_http_method_blacklist(self, 
                                                  request_definition_builder):
+        class DummyAnnotation(decorators.MethodAnnotation):
+            _http_method_whitelist = ["POST"]
+
         request_definition_builder.method = "POST"
         request_definition_builder.__name__ = "dummy"
-        method_annotation.http_method_whitelist = ["GET"]
-        with pytest.raises(decorators.HttpMethodNotSupport):
-            method_annotation.modify_request_definition(
-                request_definition_builder
-            )
+        assert DummyAnnotation().supports_http_method(
+            request_definition_builder.method
+        )
 
     def test_call_with_child_class(self,
                                    method_annotation,

@@ -1,9 +1,10 @@
 # Standard library imports
 import collections
+import functools
 import inspect
 
 # Local imports
-from uplink import converters, exceptions, helpers, hooks, interfaces, types
+from uplink import converters, helpers, hooks, interfaces, types
 
 __all__ = [
     "headers",
@@ -17,20 +18,6 @@ __all__ = [
     "error_handler",
     "inject",
 ]
-
-
-class HttpMethodNotSupport(exceptions.AnnotationError):
-    message = (
-        "Error on method `%s`: annotation %s is not supported with %s "
-        "commands."
-    )
-
-    def __init__(self, request_definition_builder, annotation):
-        self.message = self.message % (
-            request_definition_builder.__name__,
-            type(annotation),
-            request_definition_builder.method.upper()
-        )
 
 
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
@@ -69,38 +56,48 @@ class MethodAnnotationHandler(interfaces.AnnotationHandler):
 
 # TODO: Only decorate consumers
 class MethodAnnotation(interfaces.Annotation):
-    http_method_whitelist = None
+    _http_method_blacklist = None
+    _http_method_whitelist = None
+
+    @staticmethod
+    def _is_consumer_class(c):
+        return inspect.isclass(c) and issubclass(c, interfaces.Consumer)
+
+    @classmethod
+    def supports_http_method(cls, method):
+        method = method.upper()
+        if cls._http_method_blacklist is not None:
+            return method not in cls._http_method_blacklist
+        if cls._http_method_whitelist is not None:
+            return method in cls._http_method_whitelist
+        return True
+
+    @classmethod
+    def _is_relevant_for_builder(cls, builder):
+        return cls.supports_http_method(builder[1].method)
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
         if super(MethodAnnotation, cls)._is_static_call(*args_, **kwargs):
             return True
         try:
-            is_class = inspect.isclass(args_[0])
+            is_consumer_class = cls._is_consumer_class(args_[0])
         except IndexError:
             return False
         else:
-            return is_class and not (kwargs or args_[1:])
+            return is_consumer_class and not (kwargs or args_[1:])
 
     def __call__(self, class_or_builder):
-        if inspect.isclass(class_or_builder):
+        if self._is_consumer_class(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
+            builders = filter(self._is_relevant_for_builder, builders)
 
-            for name, builder in builders:
-                builder.method_handler_builder.add_annotation(
-                    self,
-                    is_class=True,
-                )
-                helpers.set_api_definition(class_or_builder, name, builder)
-        else:
+            for name, b in builders:
+                b.method_handler_builder.add_annotation(self, is_class=True)
+                helpers.set_api_definition(class_or_builder, name, b)
+        elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
             class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
-
-    def modify_request_definition(self, request_definition_builder):
-        if self.http_method_whitelist is not None:
-            method = request_definition_builder.method.upper()
-            if method not in self.http_method_whitelist:
-                raise HttpMethodNotSupport(request_definition_builder, self)
 
     def modify_request(self, request_builder):
         pass
@@ -169,6 +166,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
@@ -195,6 +193,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
@@ -221,6 +220,7 @@ class json(MethodAnnotation):
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
     """
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     @staticmethod
@@ -455,8 +455,13 @@ class _InjectableMethodAnnotation(MethodAnnotation):
         request_builder.add_transaction_hook(self)
 
 
+class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
+    def __init__(self, func):
+        functools.update_wrapper(self, func)
+
+
 # noinspection PyPep8Naming
-class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
+class response_handler(_BaseHandlerAnnotation, hooks.ResponseHandler):
     """
     A decorator for creating custom response handlers.
 
@@ -499,7 +504,7 @@ class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
 
 
 # noinspection PyPep8Naming
-class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
+class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
     """
     A decorator for creating custom error handlers.
 

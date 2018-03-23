@@ -218,7 +218,7 @@ class ConsumerMeta(type):
 _Consumer = ConsumerMeta("_Consumer", (), {})
 
 
-class Consumer(_Consumer):
+class Consumer(interfaces.Consumer, _Consumer):
 
     def __init__(
             self,
