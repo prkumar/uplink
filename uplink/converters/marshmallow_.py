@@ -52,9 +52,13 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             try:
                 json = response.json()
             except AttributeError:
-                return response
-            else:
+                # Assume that the response is already json
+                json = response
+
+            try:
                 return self._schema.load(json).data
+            except MarshmallowConverter.marshmallow.exceptions.MarshmallowError:
+                return response
 
     class RequestBodyConverter(interfaces.Converter):
         def __init__(self, schema):

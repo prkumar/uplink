@@ -161,15 +161,19 @@ class TestMarshmallowConverter(object):
         load_result.data = expected_result
         schema_mock.load.return_value = load_result
         converter = converters.MarshmallowConverter()
-        response = mocker.Mock()
-
-        # Run
+        response = mocker.Mock(spec=["json"])
         c = converter.make_response_body_converter(argument)
-        result = c.convert(response)
 
-        # Verify
+        # Run & Verify: with response
+        result = c.convert(response)
         response.json.assert_called_with()
         schema_mock.load.assert_called_with(response.json())
+        assert expected_result == result
+
+        # Run & Verify: with json
+        data = {"hello": "world"}
+        result = c.convert(data)
+        schema_mock.load.assert_called_with(data)
         assert expected_result == result
 
     def test_make_response_body_converter_with_unsupported_response(
