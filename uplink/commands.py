@@ -14,7 +14,7 @@ class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
     def __init__(self, missing, path_variables):
         missing, path_variables = list(missing), list(path_variables)
         self.message = self.message % "', '".join(missing)
-        if path_variables:
+        if path_variables:  # pragma: no cover
             self.message += self.implicit_message % "', '".join(path_variables)
 
 

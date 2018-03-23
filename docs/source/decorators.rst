@@ -48,3 +48,10 @@ inject
 ======
 
 .. autoclass:: uplink.inject
+
+
+returns
+=======
+
+.. autoclass:: uplink.returns
+    :members:
