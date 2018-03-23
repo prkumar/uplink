@@ -47,16 +47,16 @@ class TestStringConverter(object):
 
 
 class TestStandardConverter(object):
-    def test_make_response_body_converter(self):
+    def test_make_response_body_converter(self, converter_mock):
         # Setup
-        converter = standard.StandardConverter()
+        factory = standard.StandardConverter()
 
-        # Run & Verify: Pass-through callables
-        def f(_): pass
-        assert f is converter.make_response_body_converter(f)
+        # Run & Verify: Pass-through converters
+        converter = factory.make_response_body_converter(converter_mock)
+        assert converter is converter_mock.convert
 
         # Run & Verify: Otherwise, return None
-        assert None is converter.make_response_body_converter("converter")
+        assert None is factory.make_response_body_converter("converter")
 
 
 class TestConverterFactoryRegistry(object):
