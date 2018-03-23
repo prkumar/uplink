@@ -91,7 +91,7 @@ class TypingConverter(interfaces.ConverterFactory):
         def get_users(self) -> typing.Sequence[UserSchema]:
             '''Fetch all users.'''
 
-    Note::
+    Note:
 
         The :py:mod:`typing` module is available in the standard library
         starting from Python 3.5. For earlier versions of Python, there
