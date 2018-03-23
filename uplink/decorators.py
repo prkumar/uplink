@@ -86,20 +86,15 @@ class MethodAnnotation(interfaces.Annotation):
             return is_consumer_class and not (kwargs or args_[1:])
 
     def __call__(self, class_or_builder):
-        is_class = self._is_consumer_class(class_or_builder)
-
-        if is_class:
+        if self._is_consumer_class(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
             builders = filter(self._is_relevant_for_builder, builders)
-        elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
-            builders = ((None, class_or_builder),)
-        else:
-            builders = ()
 
-        for name, b in builders:
-            b.method_handler_builder.add_annotation(self, is_class=is_class)
-            if is_class:
+            for name, b in builders:
+                b.method_handler_builder.add_annotation(self, is_class=True)
                 helpers.set_api_definition(class_or_builder, name, b)
+        elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
+            class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
 
     def modify_request(self, request_builder):

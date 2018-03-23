@@ -106,15 +106,14 @@ class TestMethodAnnotation(object):
                                request_definition_builder):
         method_annotation(request_definition_builder)
         builder = request_definition_builder.method_handler_builder
-        builder.add_annotation.assert_called_with(
-            method_annotation, is_class=False)
+        builder.add_annotation.assert_called_with(method_annotation)
 
     def test_static_call_with_builder(self,
                                       mocker,
                                       request_definition_builder):
         self.FakeMethodAnnotation(request_definition_builder)
         builder = request_definition_builder.method_handler_builder
-        builder.add_annotation.assert_called_with(mocker.ANY, is_class=False)
+        builder.add_annotation.assert_called_with(mocker.ANY)
 
     def test_method_in_http_method_blacklist(self, request_definition_builder):
         class DummyAnnotation(decorators.MethodAnnotation):
@@ -262,7 +261,7 @@ def test_args_call_old(request_definition_builder):
     annotation = decorators.args(str, str, name=str)
     annotation(request_definition_builder)
     handler = request_definition_builder.method_handler_builder
-    handler.add_annotation.assert_called_with(annotation, is_class=False)
+    handler.add_annotation.assert_called_with(annotation)
 
 
 def test_response_handler(request_builder):
