@@ -539,6 +539,7 @@ class _InjectableMethodAnnotation(MethodAnnotation):
 class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
     def __init__(self, func):
         functools.update_wrapper(self, func)
+        super(_BaseHandlerAnnotation, self).__init__(func)
 
 
 # noinspection PyPep8Naming

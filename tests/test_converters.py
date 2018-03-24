@@ -53,7 +53,7 @@ class TestStandardConverter(object):
 
         # Run & Verify: Pass-through converters
         converter = factory.make_response_body_converter(converter_mock)
-        assert converter is converter_mock.convert
+        assert converter is converter_mock
 
         # Run & Verify: Otherwise, return None
         assert None is factory.make_response_body_converter("converter")

@@ -10,6 +10,9 @@ class Cast(interfaces.Converter):
         self._cast = caster
         self._converter = converter
 
+    def set_chain(self, chain):
+        self._converter.set_chain(chain)
+
     def convert(self, value):
         if callable(self._cast):
             value = self._cast(value)
@@ -44,7 +47,7 @@ class StandardConverter(interfaces.ConverterFactory):
 
     def make_response_body_converter(self, type_, *args, **kwargs):
         if isinstance(type_, interfaces.Converter):
-            return type_.convert
+            return type_
 
     def make_request_body_converter(self, type_, *args, **kwargs):
         return Cast(type_, RequestBodyConverter())  # pragma: no cover
