@@ -224,13 +224,22 @@ def test_returns(request_builder):
     returns.modify_request(request_builder)
     assert request_builder.return_type is str
 
-    returns = decorators.returns.list(str)
-    returns.modify_request(request_builder)
-    assert request_builder.return_type == returns.List[str]
 
-    returns = decorators.returns.dict(str, str)
-    returns.modify_request(request_builder)
-    assert request_builder.return_type == returns.Dict[str, str]
+def test_returns_json(request_builder):
+    returns_json = decorators.returns.json(str, ())
+    returns_json.modify_request(request_builder)
+    assert isinstance(request_builder.return_type, decorators.returns.Json)
+
+
+def test_returns_Json(mocker):
+    response = mocker.Mock(spec=["json"])
+    response.json.return_value = {"hello": "world"}
+    converter = decorators.returns.Json(str, "hello")
+    converter.set_chain(lambda x: None)
+    assert converter.convert(response) == "world"
+
+    converter.set_chain(lambda x: (lambda y: y + "!"))
+    assert converter.convert(response) == "world!"
 
 
 def test_args(request_definition_builder):
