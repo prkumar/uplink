@@ -39,13 +39,3 @@ def test_proxy_auth(request_builder):
     proxy_auth(request_builder)
     auth_str = proxy_auth._auth_str
     assert request_builder.info["headers"]["Proxy-Authorization"] == auth_str
-
-
-def test_bearer_token(request_builder):
-    # Setup
-    bearer_token = auth.BearerToken("bearer-token")
-
-    # Verify
-    bearer_token(request_builder)
-    auth_str = bearer_token._auth_str
-    assert request_builder.info["headers"]["Authorization"] == auth_str

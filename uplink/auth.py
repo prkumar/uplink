@@ -47,12 +47,3 @@ class ProxyAuth(BasicAuth):
 
     def __call__(self, request_builder):
         request_builder.info["headers"]["Proxy-Authorization"] = self._auth_str
-
-
-class BearerToken(object):
-
-    def __init__(self, token):
-        self._auth_str = "Bearer %s" % token
-
-    def __call__(self, request_builder):
-        request_builder.info["headers"]["Authorization"] = self._auth_str
