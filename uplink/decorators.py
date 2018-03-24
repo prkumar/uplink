@@ -4,7 +4,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink import converters, helpers, hooks, interfaces, types
+from uplink import converters, helpers, hooks, interfaces, types, utils
 
 __all__ = [
     "headers",
@@ -61,7 +61,7 @@ class MethodAnnotation(interfaces.Annotation):
 
     @staticmethod
     def _is_consumer_class(c):
-        return inspect.isclass(c) and issubclass(c, interfaces.Consumer)
+        return utils.is_subclass(c, interfaces.Consumer)
 
     @classmethod
     def supports_http_method(cls, method):

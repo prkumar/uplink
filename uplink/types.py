@@ -84,13 +84,8 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     @staticmethod
     def _is_annotation(annotation):
-        is_annotation_class = (
-                inspect.isclass(annotation) and
-                issubclass(annotation, interfaces.Annotation)
-        )
-        return (
-            is_annotation_class or isinstance(annotation, interfaces.Annotation)
-        )
+        cls = interfaces.Annotation
+        return utils.is_subclass(annotation, cls) or isinstance(annotation, cls)
 
     def add_annotation(self, annotation, name=None, *args, **kwargs):
         if self._is_annotation(annotation):

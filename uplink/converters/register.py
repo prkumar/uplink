@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+import inspect
 
 # Local imports
 from uplink.converters import interfaces
@@ -10,15 +11,15 @@ class Register(object):
     def __init__(self):
         self._register = collections.deque()
 
-    def register_converter_factory(self, factory_proxy):
-        factory = factory_proxy() if callable(factory_proxy) else factory_proxy
+    def register_converter_factory(self, proxy):
+        factory = proxy() if inspect.isclass(proxy) else proxy
         if not isinstance(factory, interfaces.ConverterFactory):
             raise TypeError(
                 "Failed to register '%s' as a converter factory: it is not an "
                 "instance of '%s'." % (factory, interfaces.ConverterFactory)
             )
         self._register.appendleft(factory)
-        return factory_proxy
+        return proxy
 
     def get_converter_factories(self):
         return tuple(self._register)

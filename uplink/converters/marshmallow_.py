@@ -3,10 +3,8 @@ This module defines a converter that uses :py:mod:`marshmallow` schemas
 to deserialize and serialize values.
 """
 
-# Standard library imports
-import inspect
-
 # Local imports
+from uplink import utils
 from uplink.converters import interfaces, register
 
 
@@ -69,7 +67,7 @@ class MarshmallowConverter(interfaces.ConverterFactory):
 
     @classmethod
     def _get_schema(cls, type_):
-        if inspect.isclass(type_) and issubclass(type_, cls.marshmallow.Schema):
+        if utils.is_subclass(type_, cls.marshmallow.Schema):
             return type_()
         elif isinstance(type_, cls.marshmallow.Schema):
             return type_
