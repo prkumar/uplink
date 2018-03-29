@@ -1,4 +1,5 @@
 # Standard library imports
+import collections
 import functools
 
 # Local imports
@@ -30,18 +31,26 @@ class HttpMethodFactory(object):
     def __init__(self, method):
         self._method = method
 
-    def __call__(self, uri=None):
-        if callable(uri):
+    def __call__(self, uri=None, args=()):
+        if callable(uri) and not args:
             return HttpMethod(self._method)(uri)
         else:
-            return HttpMethod(self._method, uri)
+            return HttpMethod(self._method, uri, args)
 
 
 class HttpMethod(object):
+    @staticmethod
+    def _add_args(obj): return obj
 
-    def __init__(self, method, uri=None):
+    def __init__(self, method, uri=None, args=None):
         self._method = method
         self._uri = uri
+
+        # Register argument annotations
+        if args:
+            is_map = isinstance(args, collections.Mapping)
+            args, kwargs = ((), args) if is_map else (args, {})
+            self._add_args = decorators.args(*args, **kwargs)
 
     def __call__(self, func):
         spec = utils.get_arg_spec(func)
@@ -57,9 +66,11 @@ class HttpMethod(object):
         # definition builder so it has a chance to attach its listener.
         arg_handler.set_annotations(spec.annotations)
 
+        # Use return value type hint as expected return type
         if spec.return_annotation is not None:
             builder = decorators.returns(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
+        builder = self._add_args(builder)
         return builder
 
 
