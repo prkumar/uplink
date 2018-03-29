@@ -59,6 +59,23 @@ class TestHttpMethod(object):
         # Verify: build is wrapped with decorators.returns
         returns.assert_called_with(sig.return_annotation)
 
+    def test_call_with_args(self, mocker, annotation_mock):
+        # Setup
+        def func(): pass
+        args = mocker.patch("uplink.decorators.args")
+
+        # Verify: using sequence
+        http_method = commands.HttpMethod(
+            "METHOD", uri="/{hello}", args=(annotation_mock,))
+        http_method(func)
+        args.assert_called_with(annotation_mock)
+
+        # Verify: using mapping
+        http_method = commands.HttpMethod(
+            "METHOD", uri="/{hello}", args={"arg1": "value"})
+        http_method(func)
+        args.assert_called_with(arg1="value")
+
 
 class TestURIDefinitionBuilder(object):
 
