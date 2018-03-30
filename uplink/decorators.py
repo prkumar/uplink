@@ -237,40 +237,21 @@ class json(MethodAnnotation):
                 )
         body[path[-1]] = value
 
-    class _JsonBody(collections.MutableMapping):
-        """
-        A helper class that builds a JSON request body using a
-        dictionary interface.
-
-        Fields that are built using a field annotation
-        """
-
-        def __init__(self):
-            self._body = {}
-
-        def __setitem__(self, path, value):
-            if isinstance(path, tuple):
-                json._sequence_path_resolver(path, value, self._body)
-            else:
-                self._body[path] = value
-
-        def __delitem__(self, key):
-            del self._body[key]
-
-        def __getitem__(self, key):
-            return self._body[key]
-
-        def __len__(self):
-            return len(self._body)
-
-        def __iter__(self):
-            return iter(self._body)
-
     def modify_request(self, request_builder):
         """Modifies JSON request."""
+        request_builder.add_transaction_hook(self._hook)
+
+    @staticmethod
+    def set_json_body(request_builder):
+        body = request_builder.info.setdefault("json", {})
         old_body = request_builder.info.pop("data", {})
-        request_builder.info["json"] = self._JsonBody()
-        request_builder.info["json"].update(old_body)
+        for path in old_body:
+            if isinstance(path, tuple):
+                json._sequence_path_resolver(path, old_body[path], body)
+            else:
+                body[path] = old_body[path]
+
+    _hook = hooks.RequestAuditor(set_json_body)
 
 
 # noinspection PyPep8Naming

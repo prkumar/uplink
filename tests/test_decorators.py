@@ -183,9 +183,13 @@ def test_multipart(request_builder):
 def test_json(request_builder):
     json = decorators.json()
 
+    # Verify that we add the hook
+    json.modify_request(request_builder)
+    request_builder.add_transaction_hook.assert_called_with(json._hook)
+
     # Verify
     request_builder.info["data"] = {"field_name": "field_value"}
-    json.modify_request(request_builder)
+    json.set_json_body(request_builder)
     assert request_builder.info["json"] == {"field_name": "field_value"}
     assert len(request_builder.info["json"]) == 1
 
@@ -196,21 +200,21 @@ def test_json(request_builder):
 
     # Verify nested attribute
     request_builder.info["data"] = {("outer", "inner"): "inner_value"}
-    json.modify_request(request_builder)
+    json.set_json_body(request_builder)
     assert request_builder.info["json"] == {"outer": {"inner": "inner_value"}}
     assert "data" not in request_builder.info
 
     # Verify that error is raised when path is empty
     request_builder.info["data"] = {(): "value"}
     with pytest.raises(ValueError):
-        json.modify_request(request_builder)
+        json.set_json_body(request_builder)
 
     # Verify that error is raised when paths conflict
     request_builder.info["data"] = body = collections.OrderedDict()
     body["key"] = "outer"
     body["key", "inner"] = "inner value"
     with pytest.raises(ValueError):
-        json.modify_request(request_builder)
+        json.set_json_body(request_builder)
 
 
 def test_timeout(request_builder):
