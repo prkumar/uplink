@@ -323,9 +323,7 @@ class returns(MethodAnnotation):
         request_builder.return_type = self._type
 
     List = converters.TypingConverter.List
-    """
-    .. versionadded:: v0.5.0
-    
+    """    
     A proxy for :py:class:`typing.List` that is safe to use in type 
     hints with Python 3.4 and below.
 
@@ -335,14 +333,14 @@ class returns(MethodAnnotation):
         @get("/users")
         def get_users(self) -> returns.List[str]:
             \"""Fetches all users\"""
+            
+    .. versionadded:: v0.5.0
     """
 
     Dict = converters.TypingConverter.Dict
     """
-    .. versionadded:: v0.5.0
-    
     A proxy for :py:class:`typing.Dict` that is safe to use in type 
-    hints with Python 3.4 and below
+    hints with Python 3.4 and below.
 
     .. code-block:: python
 
@@ -350,6 +348,8 @@ class returns(MethodAnnotation):
         @get("/users")
         def get_users(self) -> returns.Dict[str, str]:
             \"""Fetches all users\"""
+
+    .. versionadded:: v0.5.0
     """
 
     class Json(converters.interfaces.Converter):
@@ -377,8 +377,6 @@ class returns(MethodAnnotation):
     # noinspection PyPep8Naming
     class json(MethodAnnotation):
         """
-        .. versionadded:: v0.5.0
-
         Specifies that the decorated consumer method should return a
         JSON object.
 
@@ -436,11 +434,6 @@ class returns(MethodAnnotation):
                 def get_user(self, username):
                     \"""Get a specific user.\"""
 
-            This pattern typically requires also registering a converter
-            that knows how to deserialize the JSON into your data model
-            object or leveraging a built-in converter (e.g.,
-            :py:class:`uplink.converters.MarshmallowConverter`).
-
             For Python 3 users, you can alternatively provide a return
             value annotation. Hence, the previous code is equivalent
             to the following in Python 3:
@@ -452,6 +445,14 @@ class returns(MethodAnnotation):
                 def get_user(self, username) -> User:
                     \"""Get a specific user.\"""
 
+            Both usages typically require also registering a converter
+            that knows how to deserialize the JSON into your data model
+            object (see :py:meth:`uplink.loads.from_json`), unless you
+            define these objects using a library for whom Uplink has
+            built-in support, such as :py:mod:`marshmallow` (see
+            :py:class:`uplink.converters.MarshmallowConverter`).
+
+        .. versionadded:: v0.5.0
         """
         _can_be_static = True
 

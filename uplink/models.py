@@ -49,6 +49,7 @@ class _ModelConverterBuilder(object):
         return cls(base_class=base_class, annotations=annotations)
 
 
+# noinspection PyPep8Naming
 class loads(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object deserializer.
@@ -63,9 +64,11 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
 
     .. code-block:: python
 
-        @models.loads(ModelBase)
+        @loads(ModelBase)
         def load_model(model_cls, data):
             ...
+
+    .. versionadded:: v0.5.0
     """
 
     def make_response_body_converter(self, *args, **kwargs):
@@ -77,12 +80,12 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
         Builds a custom JSON deserialization strategy.
 
         This decorator accepts the same arguments and behaves like
-        :py:class:`uplink.models.loads`, except that the second argument of
-        the decorated function is always a JSON object:
+        :py:class:`uplink.loads`, except that the second argument of the
+        decorated function is always a JSON object:
 
         .. code-block:: python
 
-            @models.loads.from_json(ModelBase)
+            @loads.from_json(ModelBase)
             def from_json(model_cls, json_object):
                 return model_cls.from_json(json_object)
 
@@ -100,12 +103,15 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
             @returns.json
             @get("user")
             def get_user(self) -> User: pass
+
+        .. versionadded:: v0.5.0
         """
         return cls._make_builder(
             base_class, annotations, decorators.returns.json
         )
 
 
+# noinspection PyPep8Naming
 class dumps(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object serializer.
@@ -120,9 +126,11 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
 
     .. code-block:: python
 
-        @models.dumps(ModelBase)
+        @dumps(ModelBase)
         def deserialize_model(model_cls, model_instance):
             ...
+
+    .. versionadded:: v0.5.0
     """
 
     def make_request_body_converter(self, *args, **kwargs):
@@ -134,12 +142,12 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
         Builds a custom JSON serialization strategy.
 
         This decorator accepts the same arguments and behaves like
-        :py:class:`uplink.models.dumps`. The only distinction is that the
-        decorated function should return a JSON object.
+        :py:class:`uplink.dumps`. The only distinction is that the
+        decorated function should be JSON serializable.
 
         .. code-block:: python
 
-            @models.dumps.to_json(ModelBase)
+            @dumps.to_json(ModelBase)
             def to_json(model_cls, model_instance):
                 return model_instance.to_json()
 
@@ -157,5 +165,7 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
             @json
             @post("user")
             def change_user_name(self, name: Field(type=User): pass
+
+        .. versionadded:: v0.5.0
         """
         return cls._make_builder(base_class, annotations, decorators.json)
