@@ -241,17 +241,23 @@ class json(MethodAnnotation):
         """Modifies JSON request."""
         request_builder.add_transaction_hook(self._hook)
 
-    @staticmethod
-    def set_json_body(request_builder):
+    @classmethod
+    def set_json_body(cls, request_builder):
         body = request_builder.info.setdefault("json", {})
         old_body = request_builder.info.pop("data", {})
         for path in old_body:
             if isinstance(path, tuple):
-                json._sequence_path_resolver(path, old_body[path], body)
+                cls._sequence_path_resolver(path, old_body[path], body)
             else:
                 body[path] = old_body[path]
 
-    _hook = hooks.RequestAuditor(set_json_body)
+    __hook = None
+
+    @property
+    def _hook(self):
+        if self.__hook is None:
+            self.__hook = hooks.RequestAuditor(self.set_json_body)
+        return self.__hook
 
 
 # noinspection PyPep8Naming
