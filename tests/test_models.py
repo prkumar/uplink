@@ -2,13 +2,14 @@
 import pytest
 
 # Local imports
-from uplink import models
 from uplink.converters import register
+from uplink.decorators import returns, json
+from uplink.models import loads, dumps
 
 
 @pytest.mark.parametrize("cls, method", [
-    (models.load, models.load.make_response_body_converter),
-    (models.dump, models.dump.make_request_body_converter)
+    (loads, loads.make_response_body_converter),
+    (dumps, dumps.make_request_body_converter)
 ])
 def test_models(cls, method):
     # Setup
@@ -30,3 +31,20 @@ def test_models(cls, method):
     value = method(obj, object, (object(),), ())
     assert callable(value)
 
+
+@pytest.mark.parametrize("cls, method, decorator", [
+    (loads.from_json, loads.make_response_body_converter, returns.json()),
+    (dumps.to_json, dumps.make_request_body_converter, json())
+])
+def test_json_builders(cls, method, decorator):
+    # Setup
+    obj = cls(object)
+    obj.using(lambda x: x)
+
+    # Verify: not relevant
+    value = method(obj, object, (), ())
+    assert value is None
+
+    # Verify relevant
+    value = method(obj, object, (), (decorator,))
+    assert callable(value)

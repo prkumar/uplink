@@ -4,7 +4,7 @@ import functools
 # Local imports
 from uplink import converters, decorators, utils
 
-__all__ = ["load", "dump"]
+__all__ = ["loads", "dumps"]
 
 _get_classes = functools.partial(map, type)
 
@@ -42,8 +42,14 @@ class _ModelConverterBuilder(object):
         if self._is_relevant(type_, *args, **kwargs):
             return functools.partial(self._func, type_)
 
+    @classmethod
+    def _make_builder(cls, base_class, annotations, *more_annotations):
+        annotations = set(annotations)
+        annotations.update(more_annotations)
+        return cls(base_class=base_class, annotations=annotations)
 
-class load(_ModelConverterBuilder, converters.ConverterFactory):
+
+class loads(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object deserializer.
 
@@ -57,7 +63,7 @@ class load(_ModelConverterBuilder, converters.ConverterFactory):
 
     .. code-block:: python
 
-        @models.load(ModelBase)
+        @models.loads(ModelBase)
         def load_model(model_cls, data):
             ...
     """
@@ -65,39 +71,42 @@ class load(_ModelConverterBuilder, converters.ConverterFactory):
     def make_response_body_converter(self, *args, **kwargs):
         return self._marshall(*args, **kwargs)
 
+    @classmethod
+    def from_json(cls, base_class, annotations=()):
+        """
+        Builds a custom JSON deserialization strategy.
 
-load.from_json = functools.partial(load, annotations=(decorators.returns.json,))
-"""
-Builds a custom JSON deserialization strategy.
+        This decorator accepts the same arguments and behaves like
+        :py:class:`uplink.models.loads`, except that the second argument of
+        the decorated function is always a JSON object:
 
-This decorator accepts the same arguments and behaves like
-:py:class:`uplink.models.load`, except that the second argument of the
-decorated function is always a JSON object:
+        .. code-block:: python
 
-.. code-block:: python
+            @models.loads.from_json(ModelBase)
+            def from_json(model_cls, json_object):
+                return model_cls.from_json(json_object)
 
-    @models.load.from_json(ModelBase)
-    def from_json(model_cls, json_object):
-        return model_cls.from_json(json_object)
+        Notably, only consumer methods that have the expected return type
+        (i.e., the given base class or any subclass) and are decorated with
+        :py:class:`uplink.returns.json` can leverage the registered strategy
+        to deserialize JSON responses.
 
-Notably, only consumer methods that have the expected return type (i.e.,
-the given base class or any subclass) and are decorated with
-:py:class:`uplink.returns.json` can leverage the registered strategy to
-deserialize JSON responses.
+        For example, the following consumer method would leverage the
+        :py:func:`from_json` strategy defined above, only if
+        :py:class:`User` is a subclass of :py:class:`ModelBase`:
 
-For example, the following consumer method would leverage the
-:py:func:`from_json` strategy defined above, only if :py:class:`User` is
-a subclass of :py:class:`ModelBase`:
+        .. code-block:: python
 
-.. code-block:: python
-    
-    @returns.json
-    @get("user")
-    def get_user(self) -> User: pass
-"""
+            @returns.json
+            @get("user")
+            def get_user(self) -> User: pass
+        """
+        return cls._make_builder(
+            base_class, annotations, decorators.returns.json
+        )
 
 
-class dump(_ModelConverterBuilder, converters.ConverterFactory):
+class dumps(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object serializer.
 
@@ -111,7 +120,7 @@ class dump(_ModelConverterBuilder, converters.ConverterFactory):
 
     .. code-block:: python
 
-        @models.dump(ModelBase)
+        @models.dumps(ModelBase)
         def deserialize_model(model_cls, model_instance):
             ...
     """
@@ -119,33 +128,34 @@ class dump(_ModelConverterBuilder, converters.ConverterFactory):
     def make_request_body_converter(self, *args, **kwargs):
         return self._marshall(*args, **kwargs)
 
+    @classmethod
+    def to_json(cls, base_class, annotations=()):
+        """
+        Builds a custom JSON serialization strategy.
 
-dump.to_json = functools.partial(dump, annotations=(decorators.json,))
-"""
-Builds a custom JSON serialization strategy.
+        This decorator accepts the same arguments and behaves like
+        :py:class:`uplink.models.dumps`. The only distinction is that the
+        decorated function should return a JSON object.
 
-This decorator accepts the same arguments and behaves like
-:py:class:`uplink.models.dump`. The only distinction is that the
-decorated function should return a JSON object.
+        .. code-block:: python
 
-.. code-block:: python
+            @models.dumps.to_json(ModelBase)
+            def to_json(model_cls, model_instance):
+                return model_instance.to_json()
 
-    @models.dump.to_json(ModelBase)
-    def to_json(model_cls, model_instance):
-        return model_instance.to_json()
+        Notably, only consumer methods that are decorated with
+        py:class:`uplink.json` and have one or more argument annotations
+        with the expected type (i.e., the given base class or a subclass)
+        can leverage the registered strategy.
 
-Notably, only consumer methods that are decorated with
-py:class:`uplink.json` and have one or more argument annotations with
-the expected type (i.e., the given base class or a subclass) can
-leverage the registered strategy.
+        For example, the following consumer method would leverage the
+        :py:func:`to_json` strategy defined above, only if :py:class:`User`
+        is a subclass of :py:class:`ModelBase`:
 
-For example, the following consumer method would leverage the
-:py:func:`to_json` strategy defined above, only if :py:class:`User` is a
-subclass of :py:class:`ModelBase`:
+        .. code-block:: python
 
-.. code-block:: python
-    
-    @json
-    @post("user")
-    def change_user_name(self, name: Field(type=User): pass
-"""
+            @json
+            @post("user")
+            def change_user_name(self, name: Field(type=User): pass
+        """
+        return cls._make_builder(base_class, annotations, decorators.json)
