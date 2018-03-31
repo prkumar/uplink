@@ -177,8 +177,57 @@ For non-blocking requests, Uplink comes with optional support for
 example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
 for more.
 
-Deserializing the Response
-==========================
+Deserializing JSON Responses
+============================
+
+At the least, you need to specify the expected return type using the
+:py:class:`~uplink.returns.json` decorator, which is handy when
+working with APIs that provide JSON responses:
+
+.. code-block:: python
+
+    @returns.json(User)
+    @get("users/{username}")
+    def get_user(self, username): pass
+
+Python 3 users can alternatively use a return type hint:
+
+.. code-block:: python
+
+    @returns.json
+    @get("users/{username}")
+    def get_user(self, username) -> User: pass
+
+The final step is to register a strategy that converts the HTTP response
+into the expected return type. To this end, :py:class:`~uplink.loads` can
+register a function that handles such deserialization for a particular class
+and all its subclasses. Further, :py:meth:`~uplink.loads.from_json` is
+required
+
+
+.. code-block:: python
+
+    from models import ModelBase  # The base class for all model types.
+
+    # Tell Uplink how to deserialize JSON responses into our models:
+    loads.from_json(ModelBase).using(
+        lambda model_cls, json_obj: model_cls.from_json(json_obj)
+    )
+
+This step is not required if you define your data model objects using a library
+for whom Uplink has built-in support, such as :py:mod:`marshmallow` (see
+:py:class:`uplink.converters.MarshmallowConverter`).
+
+
+
+
+
+
+
+
+
+
+
 
 The ``converter`` parameter of the :py:class:`~uplink.Consumer` constructor
 accepts an adapter class that handles deserialization of HTTP response objects.

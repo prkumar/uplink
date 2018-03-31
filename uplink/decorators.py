@@ -298,7 +298,7 @@ class returns(MethodAnnotation):
     compatibility.
 
     In Python 3, to provide a consumer method's return type, you can
-    set the it as the method's return annotation:
+    set the type as the method's return type annotation:
 
     .. code-block:: python
 
@@ -429,7 +429,7 @@ class returns(MethodAnnotation):
 
             .. code-block:: python
 
-                @returns.json(model=User, member="data")
+                @returns.json(model=User)
                 @get("/users/{username}")
                 def get_user(self, username):
                     \"""Get a specific user.\"""
@@ -440,7 +440,7 @@ class returns(MethodAnnotation):
 
             .. code-block:: python
 
-                @returns.json(member="data")
+                @returns.json
                 @get("/users/{username}")
                 def get_user(self, username) -> User:
                     \"""Get a specific user.\"""

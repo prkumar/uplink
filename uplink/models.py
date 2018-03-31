@@ -21,6 +21,16 @@ class _ModelConverterBuilder(object):
         self._func = None
 
     def using(self, func, _r=converters.register_default_converter_factory):
+        """
+        Registers the given function as converter for the provided
+        base class and all subclasses.
+
+        Example:
+
+            .. code-block:: python
+
+                loads(Model).using(lambda cls, resp: cls.from_response(resp))
+        """
         self._func = func
         _r(self)
         return func
