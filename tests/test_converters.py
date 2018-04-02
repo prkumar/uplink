@@ -74,6 +74,11 @@ class TestConverterFactoryRegistry(object):
         )
         assert return_value is converter_mock
 
+        # Test with type that can't be handled by registry
+        converter_factory_mock.make_string_converter.return_value = None
+        return_value = registry[converters.keys.CONVERT_TO_STRING]()
+        assert return_value is None
+
     def test_hooks(self, converter_factory_mock, converter_mock):
         converter_factory_mock.make_string_converter.return_value = converter_mock
         registry = converters.ConverterFactoryRegistry((converter_factory_mock,))
@@ -344,6 +349,10 @@ class TestTypingConverter(object):
         # Verify with mapping
         converter = method(Dict[str, str])
         assert isinstance(converter, converters.typing_.DictConverter)
+
+        # Verify with unsupported value
+        converter = method(None)
+        assert converter is None
 
         # Verify with unsupported type
         if use_typing:

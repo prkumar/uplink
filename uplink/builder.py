@@ -42,7 +42,8 @@ class RequestPreparer(object):
     def apply_hooks(chain, request_builder, sender):
         hook = hooks.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
-        sender.add_callback(hook.handle_response)
+        if hook.handle_response is not None:
+            sender.add_callback(hook.handle_response)
         sender.add_exception_handler(hook.handle_exception)
 
     def prepare_request(self, request_builder):
