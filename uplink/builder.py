@@ -4,6 +4,7 @@ import warnings
 
 # Local imports
 from uplink import (
+    arguments,
     auth as auth_,
     clients,
     converters,
@@ -11,8 +12,7 @@ from uplink import (
     helpers,
     hooks,
     interfaces,
-    utils,
-    types
+    utils
 )
 from uplink.converters import keys
 
@@ -183,7 +183,7 @@ class ConsumerMeta(type):
         except KeyError:
             pass
         else:
-            builder = types.ArgumentAnnotationHandlerBuilder.from_func(init)
+            builder = arguments.ArgumentAnnotationHandlerBuilder.from_func(init)
             handler = builder.build()
 
             @functools.wraps(init)

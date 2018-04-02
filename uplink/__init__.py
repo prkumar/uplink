@@ -7,4 +7,4 @@ from uplink.commands import *
 from uplink.exceptions import *
 from uplink.decorators import *
 from uplink.models import *
-from uplink.types import *
+from uplink.arguments import *

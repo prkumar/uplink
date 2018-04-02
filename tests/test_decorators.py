@@ -269,7 +269,7 @@ def test_args_decorate_function(mocker):
         return handler
 
     mocker.patch(
-        "uplink.types.ArgumentAnnotationHandlerBuilder.from_func",
+        "uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func",
         patched
     )
     args = decorators.args(str, str, name=str)

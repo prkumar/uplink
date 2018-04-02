@@ -4,7 +4,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink import converters, helpers, hooks, interfaces, types, utils
+from uplink import converters, helpers, hooks, interfaces, arguments, utils
 from uplink.converters import keys
 
 __all__ = [
@@ -538,7 +538,7 @@ class args(MethodAnnotation):
 
     def __call__(self, obj):
         if inspect.isfunction(obj):
-            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
+            handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
             return obj
         else:

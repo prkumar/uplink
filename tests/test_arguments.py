@@ -1,7 +1,7 @@
 import pytest
 
 # Local imports
-from uplink import hooks, types
+from uplink import hooks, arguments
 from uplink.converters import keys
 
 
@@ -12,12 +12,12 @@ inject_args = pytest.mark.parametrize(
 
 @pytest.fixture
 def argument_mock(mocker):
-    return mocker.Mock(spec=types.ArgumentAnnotation)
+    return mocker.Mock(spec=arguments.ArgumentAnnotation)
 
 
 @pytest.fixture
 def named_argument_mock(mocker):
-    return mocker.Mock(spec=types.NamedArgument)
+    return mocker.Mock(spec=arguments.NamedArgument)
 
 
 class ArgumentTestCase(object):
@@ -63,23 +63,23 @@ class TestArgumentAnnotationHandlerBuilder(object):
 
     def test_from_func(self):
         def func(_): pass
-        handler = types.ArgumentAnnotationHandlerBuilder.from_func(func)
-        another_handler = types.ArgumentAnnotationHandlerBuilder.from_func(func)
+        handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(func)
+        another_handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(func)
         assert handler is another_handler
 
     @inject_args
     def test_missing_arguments(self, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         assert list(builder.missing_arguments) == args
     
     @inject_args
     def test_remaining_args_count(self, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         assert builder.remaining_args_count == len(args)
 
     @inject_args
     def test_add_annotation_without_name(self, mocker, argument_mock, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
         builder.add_annotation(argument_mock)
         builder.listener.assert_called_with(argument_mock)
@@ -87,7 +87,7 @@ class TestArgumentAnnotationHandlerBuilder(object):
 
     @inject_args
     def test_add_annotation_with_name(self, mocker, argument_mock, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
         builder.add_annotation(argument_mock, name=args[-1])
         builder.listener.assert_called_with(argument_mock)
@@ -96,7 +96,7 @@ class TestArgumentAnnotationHandlerBuilder(object):
     @inject_args
     def test_add_named_annotation_without_name(self, mocker,
                                                named_argument_mock, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         named_argument_mock.name = None
         builder.listener = mocker.stub()
         builder.add_annotation(named_argument_mock)
@@ -106,9 +106,9 @@ class TestArgumentAnnotationHandlerBuilder(object):
 
     @inject_args
     def test_add_annotation_class(self, mocker, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
-        argument = builder.add_annotation(types.ArgumentAnnotation())
+        argument = builder.add_annotation(arguments.ArgumentAnnotation())
         builder.listener.assert_called_with(argument)
         assert args[0] not in builder.missing_arguments
 
@@ -116,25 +116,25 @@ class TestArgumentAnnotationHandlerBuilder(object):
     def test_add_annotation_with_name_not_recognized(self, argument_mock, args):
         def dummy(): pass
         assert -1 not in args
-        builder = types.ArgumentAnnotationHandlerBuilder(dummy, args, False)
-        with pytest.raises(types.ArgumentNotFound):
+        builder = arguments.ArgumentAnnotationHandlerBuilder(dummy, args, False)
+        with pytest.raises(arguments.ArgumentNotFound):
             builder.add_annotation(argument_mock, name=-1)
 
     def test_add_annotation_with_no_missing_arguments(self, argument_mock):
         def dummy(): pass
-        builder = types.ArgumentAnnotationHandlerBuilder(dummy, [], False)
-        with pytest.raises(types.ExhaustedArguments):
+        builder = arguments.ArgumentAnnotationHandlerBuilder(dummy, [], False)
+        with pytest.raises(arguments.ExhaustedArguments):
             builder.add_annotation(argument_mock)
 
     def test_add_annotation_that_is_not_an_annotation(self):
         def dummy(): pass
-        builder = types.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
         builder.add_annotation(type, "arg1")
         assert builder.remaining_args_count == 1
 
     @inject_args
     def test_set_annotations(self, mocker, argument_mock, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
         builder.set_annotations((argument_mock,))
         builder.listener.assert_called_with(argument_mock)
@@ -142,14 +142,14 @@ class TestArgumentAnnotationHandlerBuilder(object):
 
     @inject_args
     def test_set_annotations_with_dict(self, mocker, argument_mock, args):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, args, False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         builder.listener = mocker.stub()
         builder.set_annotations(**{args[0]: argument_mock})
         builder.listener.assert_called_with(argument_mock)
         assert args[0] not in builder.missing_arguments
 
     def test_is_done(self, argument_mock):
-        builder = types.ArgumentAnnotationHandlerBuilder(None, ("arg1",), False)
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, ("arg1",), False)
         assert not builder.is_done()
         builder.add_annotation(argument_mock)
         assert builder.is_done()
@@ -159,7 +159,7 @@ class TestArgumentAnnotationHandler(object):
 
     def test_get_relevant_arguments(self):
         args = {"arg1": "value1"}
-        annotation_handler = types.ArgumentAnnotationHandler(None, args)
+        annotation_handler = arguments.ArgumentAnnotationHandler(None, args)
         relevant = annotation_handler.get_relevant_arguments(args)
         assert list(relevant) == list(args.items())
 
@@ -168,8 +168,8 @@ class TestArgumentAnnotationHandler(object):
         request_builder.get_converter.return_value = dummy
         get_call_args = mocker.patch("uplink.utils.get_call_args")
         get_call_args.return_value = {"arg1": "hello"}
-        annotation = mocker.Mock(types.ArgumentAnnotation)
-        handlers = types.ArgumentAnnotationHandler(
+        annotation = mocker.Mock(arguments.ArgumentAnnotation)
+        handlers = arguments.ArgumentAnnotationHandler(
             dummy, {"arg1": annotation}
         )
         handlers.handle_call(request_builder, (), {})
@@ -179,14 +179,14 @@ class TestArgumentAnnotationHandler(object):
     def test_annotations(self, args):
         annotations = ["annotation"] * len(args)
         arg_dict = dict(zip(args, annotations))
-        annotation_handler = types.ArgumentAnnotationHandler(None, arg_dict)
+        annotation_handler = arguments.ArgumentAnnotationHandler(None, arg_dict)
         assert list(annotation_handler.annotations) == annotations
 
 
 class TestArgumentAnnotation(object):
 
     def test_call(self, request_definition_builder):
-        annotation = types.ArgumentAnnotation()
+        annotation = arguments.ArgumentAnnotation()
         return_value = annotation(request_definition_builder)
         handler_builder = request_definition_builder.argument_handler_builder
         handler_builder.add_annotation.assert_called_with(annotation)
@@ -196,16 +196,16 @@ class TestArgumentAnnotation(object):
 class TestTypedArgument(object):
 
     def test_type(self):
-        assert types.TypedArgument("hello").type == "hello"
+        assert arguments.TypedArgument("hello").type == "hello"
 
     def test_set_type(self):
-        annotation = types.TypedArgument()
+        annotation = arguments.TypedArgument()
         assert annotation.type is None
         annotation.type = "type"
         assert annotation.type == "type"
 
     def test_set_type_with_type_already_set(self):
-        annotation = types.TypedArgument("type")
+        annotation = arguments.TypedArgument("type")
         with pytest.raises(AttributeError):
             annotation.type = "new type"
 
@@ -213,166 +213,166 @@ class TestTypedArgument(object):
 class TestNamedArgument(object):
 
     def test_name(self):
-        assert types.NamedArgument("name").name == "name"
+        assert arguments.NamedArgument("name").name == "name"
 
     def test_set_name(self):
-        annotation = types.NamedArgument()
+        annotation = arguments.NamedArgument()
         assert annotation.name is None
         annotation.name = "name"
         assert annotation.name == "name"
 
     def test_set_name_with_name_already_set(self):
-        annotation = types.NamedArgument("name")
+        annotation = arguments.NamedArgument("name")
         with pytest.raises(AttributeError):
             annotation.name = "new name"
 
 
 class TestPath(ArgumentTestCase):
-    type_cls = types.Path
+    type_cls = arguments.Path
     expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request_definition(self, request_definition_builder):
-        types.Path("name").modify_request_definition(request_definition_builder)
+        arguments.Path("name").modify_request_definition(request_definition_builder)
         request_definition_builder.uri.add_variable.assert_called_with("name")
 
     def test_modify_request(self, request_builder):
-        types.Path("name").modify_request(request_builder, "value")
+        arguments.Path("name").modify_request(request_builder, "value")
         request_builder.url.set_variable.assert_called_with({"name": "value"})
 
 
 class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
-    type_cls = types.Query
+    type_cls = arguments.Query
     expected_converter_key = keys.Sequence(keys.CONVERT_TO_STRING)
 
     def test_modify_request(self, request_builder):
-        types.Query("name").modify_request(request_builder, "value")
+        arguments.Query("name").modify_request(request_builder, "value")
         assert request_builder.info["params"] == {"name": "value"}
 
     def test_modify_request_with_encoded(self, request_builder):
-        types.Query("name", encoded=True).modify_request(
+        arguments.Query("name", encoded=True).modify_request(
             request_builder, "value")
         assert request_builder.info["params"] == "name=value"
 
     def test_modify_request_with_mismatched_encoding(self, request_builder):
-        types.Query("name", encoded=True).modify_request(
+        arguments.Query("name", encoded=True).modify_request(
             request_builder, "value")
-        with pytest.raises(types.Query.QueryStringEncodingError):
-            types.Query("name2", encoded=False).modify_request(
+        with pytest.raises(arguments.Query.QueryStringEncodingError):
+            arguments.Query("name2", encoded=False).modify_request(
                 request_builder, "value2"
             )
 
     def test_converter_key_with_encoded(self):
-        query = types.Query("name", encoded=True)
+        query = arguments.Query("name", encoded=True)
         assert query.converter_key == keys.CONVERT_TO_STRING
 
     def test_converter_type(self):
-        query = types.Query("name", encoded=False)
+        query = arguments.Query("name", encoded=False)
         assert query.converter_key == keys.Sequence(keys.CONVERT_TO_STRING)
 
 
 class TestQueryMap(ArgumentTestCase, FuncDecoratorTestCase):
-    type_cls = types.QueryMap
+    type_cls = arguments.QueryMap
     expected_converter_key = keys.Map(TestQuery.expected_converter_key)
 
     def test_modify_request(self, request_builder):
-        types.QueryMap().modify_request(request_builder, {"hello": "world"})
+        arguments.QueryMap().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["params"] == {"hello": "world"}
 
     def test_modify_request_with_encoded(self, request_builder):
-        types.QueryMap(encoded=True).modify_request(
+        arguments.QueryMap(encoded=True).modify_request(
             request_builder, {"name": "value"})
         assert request_builder.info["params"] == "name=value"
 
     def test_converter_key_with_encoded(self):
-        query = types.QueryMap(encoded=True)
+        query = arguments.QueryMap(encoded=True)
         assert query.converter_key == keys.Map(keys.CONVERT_TO_STRING)
 
     def test_converter_type(self):
-        query = types.QueryMap(encoded=False)
+        query = arguments.QueryMap(encoded=False)
         assert query.converter_key == keys.Map(
             keys.Sequence(keys.CONVERT_TO_STRING)
         )
 
 
 class TestHeader(ArgumentTestCase, FuncDecoratorTestCase):
-    type_cls = types.Header
+    type_cls = arguments.Header
     expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request(self, request_builder):
-        types.Header("hello").modify_request(request_builder, "world")
+        arguments.Header("hello").modify_request(request_builder, "world")
         assert request_builder.info["headers"] == {"hello": "world"}
 
 
 class TestHeaderMap(ArgumentTestCase, FuncDecoratorTestCase):
-    type_cls = types.HeaderMap
+    type_cls = arguments.HeaderMap
     expected_converter_key = keys.Map(TestHeader.expected_converter_key)
 
     def test_modify_request(self, request_builder):
-        types.HeaderMap().modify_request(request_builder, {"hello": "world"})
+        arguments.HeaderMap().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["headers"] == {"hello": "world"}
 
 
 class TestField(ArgumentTestCase):
-    type_cls = types.Field
+    type_cls = arguments.Field
     expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
-        types.Field("hello").modify_request(request_builder, "world")
+        arguments.Field("hello").modify_request(request_builder, "world")
         assert request_builder.info["data"]["hello"] == "world"
 
     def test_modify_request_failure(self, request_builder):
         request_builder.info["data"] = object()
-        with pytest.raises(types.Field.FieldAssignmentFailed):
-            types.Field("hello").modify_request(request_builder, "world")
+        with pytest.raises(arguments.Field.FieldAssignmentFailed):
+            arguments.Field("hello").modify_request(request_builder, "world")
 
 
 class TestFieldMap(ArgumentTestCase):
-    type_cls = types.FieldMap
+    type_cls = arguments.FieldMap
     expected_converter_key = keys.Map(TestField.expected_converter_key)
 
     def test_modify_request(self, request_builder):
-        types.FieldMap().modify_request(request_builder, {"hello": "world"})
+        arguments.FieldMap().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["data"] == {"hello": "world"}
 
     def test_modify_request_failure(self, request_builder):
         request_builder.info["data"] = object()
-        with pytest.raises(types.FieldMap.FieldMapUpdateFailed):
-            types.FieldMap().modify_request(request_builder, {})
+        with pytest.raises(arguments.FieldMap.FieldMapUpdateFailed):
+            arguments.FieldMap().modify_request(request_builder, {})
 
 
 class TestPart(ArgumentTestCase):
-    type_cls = types.Part
+    type_cls = arguments.Part
     expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
-        types.Part("hello").modify_request(request_builder, "world")
+        arguments.Part("hello").modify_request(request_builder, "world")
         assert request_builder.info["files"] == {"hello": "world"}
 
 
 class TestPartMap(ArgumentTestCase):
-    type_cls = types.PartMap
+    type_cls = arguments.PartMap
     expected_converter_key = keys.Map(TestPart.expected_converter_key)
 
     def test_modify_request(self, request_builder):
-        types.PartMap().modify_request(request_builder, {"hello": "world"})
+        arguments.PartMap().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["files"] == {"hello": "world"}
 
 
 class TestBody(ArgumentTestCase):
-    type_cls = types.Body
+    type_cls = arguments.Body
     expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
-        types.Body().modify_request(request_builder, {"hello": "world"})
+        arguments.Body().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["data"] == {"hello": "world"}
 
 
 class TestUrl(ArgumentTestCase):
-    type_cls = types.Url
+    type_cls = arguments.Url
     expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request_definition(self, request_definition_builder):
-        types.Url().modify_request_definition(request_definition_builder)
+        arguments.Url().modify_request_definition(request_definition_builder)
         assert request_definition_builder.uri.is_dynamic
 
     def test_modify_request_definition_failure(self,
@@ -381,9 +381,9 @@ class TestUrl(ArgumentTestCase):
         is_dynamic_mock = mocker.PropertyMock(side_effect=ValueError())
         type(request_definition_builder.uri).is_dynamic = is_dynamic_mock
         request_definition_builder.__name__ = "dummy"
-        with pytest.raises(types.Url.DynamicUrlAssignmentFailed):
-            types.Url().modify_request_definition(request_definition_builder)
+        with pytest.raises(arguments.Url.DynamicUrlAssignmentFailed):
+            arguments.Url().modify_request_definition(request_definition_builder)
 
     def test_modify_request(self, request_builder):
-        types.Url().modify_request(request_builder, "/some/path")
+        arguments.Url().modify_request(request_builder, "/some/path")
         assert request_builder.url == "/some/path"
