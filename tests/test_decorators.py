@@ -223,10 +223,22 @@ def test_timeout(request_builder):
     request_builder.info["timeout"] == 60
 
 
-def test_returns(request_builder):
+def test_returns(request_builder, mocker):
     returns = decorators.returns(str)
     returns.modify_request(request_builder)
+    request_builder.add_transaction_hook.assert_called_with(returns._hook)
     assert request_builder.return_type is str
+
+    # Call with same return type
+    json = mocker.patch("uplink.returns.json")
+    returns.enforce_decoder(request_builder)
+    json().modify_request.assert_called_with(request_builder)
+
+    # Call with different return type
+    json = mocker.patch("uplink.returns.json")
+    request_builder.return_type = int
+    returns.enforce_decoder(request_builder)
+    assert not json().modify_request.called
 
 
 def test_returns_json(request_builder):

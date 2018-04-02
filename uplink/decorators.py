@@ -291,9 +291,30 @@ class timeout(MethodAnnotation):
         request_builder.info["timeout"] = self._seconds
 
 
+class _ReturnsBase(MethodAnnotation):
+
+    def _strategy(self, old_return_type):  # pragma: no cover
+        pass
+
+    def modify_request(self, request_builder):
+        old_return_type = request_builder.return_type
+        request_builder.return_type = self._strategy(old_return_type)
+
+
 # noinspection PyPep8Naming
-class returns(MethodAnnotation):
+class returns(_ReturnsBase):
     """
+    TODO: Recommend not instantiating this directly (or move to a module?).
+    TODO: Recommend not instantiating loads directly (how about dumps?)
+    TODO: Have returns accept a strategy for setting the return type (i.e., the
+          bridge pattern)
+    TODO: Only give the converter layer the body of the response
+         (errors stored in json (like json["errors"]) can be done in registered
+          function)
+    TODO: Move List and other type hints into separate module or out
+          of this class since they can used in also request properties
+          not just the return type.
+
     Specify the function's return annotation for Python 2.7
     compatibility.
 
@@ -315,12 +336,28 @@ class returns(MethodAnnotation):
         def get_user(self, username):
             \"""Get a specific user.\"""
     """
+    __hook = None
+
+    def _strategy(self, return_type):
+        return self._type
 
     def __init__(self, type):
         self._type = type
 
     def modify_request(self, request_builder):
-        request_builder.return_type = self._type
+        super(returns, self).modify_request(request_builder)
+        request_builder.add_transaction_hook(self._hook)
+
+    def enforce_decoder(self, request_builder):
+        # Default to a JSON decoding the body.
+        if request_builder.return_type is self._type:
+            returns.json().modify_request(request_builder)
+
+    @property
+    def _hook(self):
+        if self.__hook is None:
+            self.__hook = hooks.RequestAuditor(self.enforce_decoder)
+        return self.__hook
 
     List = converters.TypingConverter.List
     """    
@@ -353,6 +390,7 @@ class returns(MethodAnnotation):
     """
 
     class Json(converters.interfaces.Converter):
+        # TODO: Consider moving this under json decorator
         # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
 
         def __init__(self, model, member=()):
@@ -375,7 +413,7 @@ class returns(MethodAnnotation):
             return content
 
     # noinspection PyPep8Naming
-    class json(MethodAnnotation):
+    class json(_ReturnsBase):
         """
         Specifies that the decorated consumer method should return a
         JSON object.
@@ -460,12 +498,9 @@ class returns(MethodAnnotation):
             self._model = model
             self._member = member
 
-        def modify_request(self, request_builder):
-            return_type = request_builder.return_type
+        def _strategy(self, return_type):
             return_type = self._model if return_type is None else return_type
-            request_builder.return_type = returns.Json(
-                return_type, self._member
-            )
+            return returns.Json(return_type, self._member)
 
 
 # noinspection PyPep8Naming
