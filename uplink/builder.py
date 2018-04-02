@@ -33,12 +33,8 @@ class RequestPreparer(object):
 
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
-        converter = contract.get_converter(
-            keys.CONVERT_FROM_RESPONSE_BODY,
-            contract.return_type)
-        if converter is not None:
-            # Found a converter that can handle the return type.
-            chain.append(hooks.ResponseHandler(converter))
+        if callable(contract.return_type):
+            chain.append(hooks.ResponseHandler(contract.return_type))
         chain.extend(self._hooks)
         return chain
 

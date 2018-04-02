@@ -5,6 +5,7 @@ import inspect
 
 # Local imports
 from uplink import converters, helpers, hooks, interfaces, types, utils
+from uplink.converters import keys
 
 __all__ = [
     "headers",
@@ -293,12 +294,24 @@ class timeout(MethodAnnotation):
 
 class _ReturnsBase(MethodAnnotation):
 
-    def _strategy(self, old_return_type):  # pragma: no cover
+    def _get_return_type(self, return_type):  # pragma: no cover
+        return return_type
+
+    def _make_strategy(self, converter):  # pragma: no cover
         pass
 
     def modify_request(self, request_builder):
-        old_return_type = request_builder.return_type
-        request_builder.return_type = self._strategy(old_return_type)
+        return_type = self._get_return_type(request_builder.return_type)
+        converter = request_builder.get_converter(
+            keys.CONVERT_FROM_RESPONSE_BODY,
+            return_type
+        )
+        if converter is not None:
+            # Found a converter that can handle the return type.
+            request_builder.return_type = self._make_strategy(converter)
+
+
+ReturnType = collections.namedtuple("ReturnType", "type strategy")
 
 
 # noinspection PyPep8Naming
@@ -338,26 +351,14 @@ class returns(_ReturnsBase):
     """
     __hook = None
 
-    def _strategy(self, return_type):
-        return self._type
+    def _get_return_type(self, return_type):
+        return self._proxy._get_return_type(return_type)
+
+    def _make_strategy(self, converter):
+        return self._proxy._make_strategy(converter)
 
     def __init__(self, type):
-        self._type = type
-
-    def modify_request(self, request_builder):
-        super(returns, self).modify_request(request_builder)
-        request_builder.add_transaction_hook(self._hook)
-
-    def enforce_decoder(self, request_builder):
-        # Default to a JSON decoding the body.
-        if request_builder.return_type is self._type:
-            returns.json().modify_request(request_builder)
-
-    @property
-    def _hook(self):
-        if self.__hook is None:
-            self.__hook = hooks.RequestAuditor(self.enforce_decoder)
-        return self.__hook
+        self._proxy = returns.json(model=type)
 
     List = converters.TypingConverter.List
     """    
@@ -389,27 +390,22 @@ class returns(_ReturnsBase):
     .. versionadded:: v0.5.0
     """
 
-    class Json(converters.interfaces.Converter):
+    class JsonStrategy(object):
         # TODO: Consider moving this under json decorator
         # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
 
-        def __init__(self, model, member=()):
-            self._model = model
-            self._model_converter = None
+        def __init__(self, converter, member=()):
+            self._converter = converter
 
             if not isinstance(member, (list, tuple)):
                 member = (member,)
             self._member = member
 
-        def set_chain(self, chain):
-            self._model_converter = chain(self._model)
-
-        def convert(self, response):
+        def __call__(self, response):
             content = response.json()
             for name in self._member:
                 content = content[name]
-            if self._model_converter is not None:
-                content = self._model_converter(content)
+            content = self._converter(content)
             return content
 
     # noinspection PyPep8Naming
@@ -498,9 +494,11 @@ class returns(_ReturnsBase):
             self._model = model
             self._member = member
 
-        def _strategy(self, return_type):
-            return_type = self._model if return_type is None else return_type
-            return returns.Json(return_type, self._member)
+        def _get_return_type(self, return_type):
+            return self._model if return_type is None else return_type
+
+        def _make_strategy(self, converter):
+            return returns.JsonStrategy(converter, self._member)
 
 
 # noinspection PyPep8Naming

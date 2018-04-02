@@ -29,7 +29,8 @@ class TestRequestPreparer(object):
     ):
         request_builder.method = "METHOD"
         request_builder.url = "/example/path"
-        request_builder.get_converter.return_value = None
+        request_builder.return_type = None
+        request_builder.transaction_hooks = ()
         uplink_builder = mocker.Mock(spec=builder.Builder)
         uplink_builder.converters = ()
         uplink_builder.hooks = ()
