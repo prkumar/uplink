@@ -4,7 +4,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink import converters, helpers, hooks, interfaces, arguments, utils
+from uplink import arguments, helpers, hooks, interfaces, utils
 from uplink.converters import keys
 
 __all__ = [
@@ -359,36 +359,6 @@ class returns(_ReturnsBase):
 
     def __init__(self, type):
         self._proxy = returns.json(model=type)
-
-    List = converters.TypingConverter.List
-    """    
-    A proxy for :py:class:`typing.List` that is safe to use in type 
-    hints with Python 3.4 and below.
-
-    .. code-block:: python
-
-        @returns.json
-        @get("/users")
-        def get_users(self) -> returns.List[str]:
-            \"""Fetches all users\"""
-            
-    .. versionadded:: v0.5.0
-    """
-
-    Dict = converters.TypingConverter.Dict
-    """
-    A proxy for :py:class:`typing.Dict` that is safe to use in type 
-    hints with Python 3.4 and below.
-
-    .. code-block:: python
-
-        @returns.json
-        @get("/users")
-        def get_users(self) -> returns.Dict[str, str]:
-            \"""Fetches all users\"""
-
-    .. versionadded:: v0.5.0
-    """
 
     class JsonStrategy(object):
         # TODO: Consider moving this under json decorator

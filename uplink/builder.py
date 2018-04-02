@@ -14,7 +14,6 @@ from uplink import (
     interfaces,
     utils
 )
-from uplink.converters import keys
 
 __all__ = ["build", "Consumer"]
 
