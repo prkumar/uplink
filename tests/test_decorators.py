@@ -223,37 +223,6 @@ def test_timeout(request_builder):
     request_builder.info["timeout"] == 60
 
 
-def test_returns(request_builder):
-    # Run & Verify: Wrap return type in strategy if we can find converter for it
-    request_builder.return_type = None
-    request_builder.get_converter.return_value = lambda x: x
-    returns = decorators.returns(str)
-    returns.modify_request(request_builder)
-    assert isinstance(request_builder.return_type, returns.JsonStrategy)
-
-    # Run & Verify: Don't wrap return type in strategy when converter is missing
-    request_builder.return_type = None
-    request_builder.get_converter.return_value = None
-    returns = decorators.returns(str)
-    returns.modify_request(request_builder)
-    assert request_builder.return_type is None
-
-def test_returns_json(request_builder):
-    returns_json = decorators.returns.json(str, ())
-    returns_json.modify_request(request_builder)
-    assert isinstance(request_builder.return_type, decorators.returns.JsonStrategy)
-
-
-def test_returns_Json(mocker):
-    response = mocker.Mock(spec=["json"])
-    response.json.return_value = {"hello": "world"}
-    converter = decorators.returns.JsonStrategy(lambda x: x, "hello")
-    assert converter(response) == "world"
-
-    converter = decorators.returns.JsonStrategy(lambda y: y + "!", "hello")
-    assert converter(response) == "world!"
-
-
 def test_args(request_definition_builder):
     args = decorators.args(str, str, name=str)
     args.modify_request_definition(request_definition_builder)

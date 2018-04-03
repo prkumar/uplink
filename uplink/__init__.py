@@ -1,6 +1,6 @@
 # Local imports
 from uplink.__about__ import __version__
-from uplink import types
+from uplink import returns, types
 from uplink.clients import *
 from uplink.converters import *
 from uplink.builder import *

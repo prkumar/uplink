@@ -4,7 +4,7 @@ import functools
 
 # Local imports
 from uplink import (
-    arguments, converters, decorators, exceptions, interfaces, utils
+    arguments, converters, decorators, exceptions, interfaces, returns, utils
 )
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
@@ -70,7 +70,7 @@ class HttpMethod(object):
 
         # Use return value type hint as expected return type
         if spec.return_annotation is not None:
-            builder = decorators.returns(spec.return_annotation)(builder)
+            builder = returns.json(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
         builder = self._add_args(builder)
         return builder

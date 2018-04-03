@@ -2,7 +2,7 @@
 import functools
 
 # Local imports
-from uplink import converters, decorators, utils
+from uplink import converters, decorators, returns, utils
 
 __all__ = ["loads", "dumps"]
 
@@ -116,9 +116,7 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
 
         .. versionadded:: v0.5.0
         """
-        return cls._make_builder(
-            base_class, annotations, decorators.returns.json
-        )
+        return cls._make_builder(base_class, annotations, returns.json)
 
 
 # noinspection PyPep8Naming

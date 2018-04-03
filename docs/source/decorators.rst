@@ -50,8 +50,9 @@ inject
 .. autoclass:: uplink.inject
 
 
-returns
-=======
+returns.*
+=========
 
-.. autoclass:: uplink.returns
-    :members:
+.. automodule:: uplink.returns
+
+.. autoclass:: uplink.returns.json
