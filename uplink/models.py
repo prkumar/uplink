@@ -1,3 +1,42 @@
+"""
+These methods and classes can be used one of two ways. First is as
+function decorators:
+
+.. code-block:: python
+
+    # Registers the function as a loader for the given model class.
+    @loads.from_json(Model)
+    def load_model_from_json(model_type, json):
+        ...
+
+With this usage, the decorated function is registered as a default
+converter (specifically for the class :py:class:`Model` and its
+subclasses).
+
+The alternative usage is to build a converter instance:
+
+    def load_model_from_json(model_type, json):
+        ...
+
+    # Creates a converter using the given loader function.
+    converter = loads.from_json(Model).using(load_model_from_json)
+
+Unlike the decorator usage, this approach does not register the function
+as a default converter, meaning, to use the converter, you must supply
+the generated converter object when instantiating a :py:class:`Consumer`
+subclass, through the :py:attr:`converter` constructor parameter.
+
+Notably, invoking the :py:meth:`~loads.by_default` method registers the
+generated converter object as a default converter, achieving parity
+between the two usages. Hence, the follow snippet is equivalent to the
+first example using the decorator approach:
+
+.. code-block:: python
+
+    # Registers the function as a loader for the given model class.
+    loads.from_json(Model).using(load_model_from_json).by_default()
+"""
+
 # Standard library imports
 import functools
 
@@ -20,22 +59,23 @@ class _ModelConverterBuilder(object):
         self._annotations = set(annotations)
         self._func = None
 
-    def using(self, func, _r=converters.register_default_converter_factory):
-        """
-        Registers the given function as converter for the provided
-        base class and all subclasses.
-
-        Example:
-
-            .. code-block:: python
-
-                loads(Model).using(lambda cls, resp: cls.from_response(resp))
-        """
+    def using(self, func):
+        """Sets the converter strategy to the given function."""
         self._func = func
-        _r(self)
-        return func
+        return self
 
-    __call__ = using
+    def by_default(self, _r=converters.register_default_converter_factory):
+        """Registers this converter as a default converter."""
+        _r(self)
+        return self
+
+    def __call__(self, func, _r=converters.register_default_converter_factory):
+        """
+        Sets the converter strategy to the given function and registers
+        the converter as a default converter.
+        """
+        self.using(func).by_default(_r)
+        return func
 
     def _contains_annotations(self, argument_annotations, method_annotations):
         types = set(_get_classes(argument_annotations))
@@ -64,7 +104,7 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object deserializer.
 
-    This decorator takes a single argument, the base model class, and
+    This class takes a single argument, the base model class, and
     registers the decorated function as a deserializer for that base
     class and all subclasses.
 
@@ -91,7 +131,7 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
 
         This decorator accepts the same arguments and behaves like
         :py:class:`uplink.loads`, except that the second argument of the
-        decorated function is always a JSON object:
+        decorated function is a JSON object:
 
         .. code-block:: python
 
@@ -105,7 +145,7 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
         to deserialize JSON responses.
 
         For example, the following consumer method would leverage the
-        :py:func:`from_json` strategy defined above, only if
+        :py:func:`from_json` strategy defined above, given
         :py:class:`User` is a subclass of :py:class:`ModelBase`:
 
         .. code-block:: python
@@ -165,8 +205,8 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
         can leverage the registered strategy.
 
         For example, the following consumer method would leverage the
-        :py:func:`to_json` strategy defined above, only if :py:class:`User`
-        is a subclass of :py:class:`ModelBase`:
+        :py:func:`to_json` strategy defined above, given
+        :py:class:`User` is a subclass of :py:class:`ModelBase`:
 
         .. code-block:: python
 
