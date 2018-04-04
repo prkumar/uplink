@@ -1,11 +1,3 @@
-"""
-Uplink makes it easy to
-
-
-The :py:mod:`uplink.returns` module exposes the supported HTTP response
-body formats.
-"""
-
 # Local imports
 from uplink import decorators
 from uplink.converters import keys
@@ -164,3 +156,7 @@ class json(_ReturnsBase):
 
     def _make_strategy(self, converter):
         return JsonStrategy(converter, self._member)
+
+
+from_json = json
+"""An alias for :py:class:`json`."""
