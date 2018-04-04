@@ -68,29 +68,30 @@ class JsonStrategy(object):
 # noinspection PyPep8Naming
 class json(_ReturnsBase):
     """
-    Specifies that the decorated consumer method should return a
-    JSON object.
+    Specifies that the decorated consumer method should return a JSON
+    object. If a :py:obj:`model` is provided, the resulting JSON object
+    is converted into the :py:obj:`model` object using an appropriate
+    converter (see :py:meth:`uplink.loads.from_json`) and the final
+    object is returned.
 
-    Example:
+    .. code-block:: python
 
-        .. code-block:: python
-
-            @returns.json
-            @get("/users/{username}")
-            def get_user(self, username):
-                \"""Get a specific user.\"""
+        # This method will return a JSON object (e.g., a dict or list)
+        @returns.json
+        @get("/users/{username}")
+        def get_user(self, username):
+            \"""Get a specific user.\"""
 
 
     Returning a Specific JSON Field:
 
         This decorator accepts two optional arguments. The
         :py:attr:`member` argument accepts a string or tuple that
-        specifies the path of an internal field in the JSON
-        document.
+        specifies the path of an internal field in the JSON document.
 
-        For instance, consider an API that returns JSON responses
-        that, at the root of the document, contains both the
-        server-retrieved data and a list of relevant API errors:
+        For instance, consider an API that returns JSON responses that,
+        at the root of the document, contains both the server-retrieved
+        data and a list of relevant API errors:
 
         .. code-block:: json
             :emphasize-lines: 2
@@ -100,9 +101,9 @@ class json(_ReturnsBase):
                 "errors": []
             }
 
-        If returning the list of errors is unnecessary, we can use
-        the :py:attr:`member` argument to strictly return the inner
-        field :py:attr:`data`:
+        If returning the list of errors is unnecessary, we can use the
+        :py:attr:`member` argument to strictly return the inner field
+        :py:attr:`data`:
 
         .. code-block:: python
 
@@ -113,10 +114,9 @@ class json(_ReturnsBase):
 
     Deserialize Objects from JSON:
 
-        Often, JSON responses represent models in your application.
-        If an existing Python object encapsulates this model, use
-        the :py:attr:`model` argument to specify it as the return
-        type:
+        Often, JSON responses represent models in your application. If
+        an existing Python object encapsulates this model, use the
+        :py:attr:`model` argument to specify it as the return type:
 
         .. code-block:: python
 
@@ -125,9 +125,9 @@ class json(_ReturnsBase):
             def get_user(self, username):
                 \"""Get a specific user.\"""
 
-        For Python 3 users, you can alternatively provide a return
-        value annotation. Hence, the previous code is equivalent
-        to the following in Python 3:
+        For Python 3 users, you can alternatively provide a return value
+        annotation. Hence, the previous code is equivalent to the
+        following in Python 3:
 
         .. code-block:: python
 
@@ -136,11 +136,11 @@ class json(_ReturnsBase):
             def get_user(self, username) -> User:
                 \"""Get a specific user.\"""
 
-        Both usages typically require also registering a converter
-        that knows how to deserialize the JSON into your data model
-        object (see :py:meth:`uplink.loads.from_json`), unless you
-        define these objects using a library for whom Uplink has
-        built-in support, such as :py:mod:`marshmallow` (see
+        Both usages typically require also registering a converter that
+        knows how to deserialize the JSON into your data model object
+        (see :py:meth:`uplink.loads.from_json`), unless you define these
+        objects using a library for whom Uplink has built-in support,
+        such as :py:mod:`marshmallow` (see
         :py:class:`uplink.converters.MarshmallowConverter`).
 
     .. versionadded:: v0.5.0
