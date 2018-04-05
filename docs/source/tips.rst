@@ -75,16 +75,16 @@ Annotating Your Arguments For Python 2.7
 
 There are several ways to annotate arguments. Most examples in this
 documentation use function annotations, but this approach is unavailable
-for Python 2.7 users. Instead, you should utilize the method annotation
-:py:class:`~uplink.args`.
+for Python 2.7 users. Instead, you should either utilize the method
+annotation :py:class:`~uplink.args` or use the optional :py:attr:`args`
+parameter of the HTTP method decorators (e.g., :py:obj:`uplink.get`).
 
 Using :py:class:`uplink.args`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The recommended approach for Python 2.7 users involves using the method
-annotation :py:class:`~uplink.args`, arranging annotations in the same
-order as their corresponding function arguments (again, ignore
-:py:attr:`self`):
+One approach for Python 2.7 users involves using the method annotation
+:py:class:`~uplink.args`, arranging annotations in the same order as
+their corresponding function arguments (again, ignore :py:attr:`self`):
 
 .. code-block:: python
    :emphasize-lines: 2
@@ -93,6 +93,33 @@ order as their corresponding function arguments (again, ignore
         @uplink.args(uplink.Url, uplink.Path)
         @uplink.get
         def get_commit(self, commits_url, sha): pass
+
+The :py:attr:`args` argument
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. versionadded:: v0.5.0
+
+The HTTP method decorators (e.g., :py:obj:`uplink.get`) support an
+optional positional argument :py:attr:`args`, which accepts a
+list of annotations, arranged in the same order as their corresponding
+function arguments,
+
+.. code-block:: python
+   :emphasize-lines: 2
+
+    class GitHub(uplink.Consumer):
+        @uplink.get(args=(uplink.Url, uplink.Path))
+        def get_commit(self, commits_url, sha): pass
+
+or a mapping of argument names to annotations:
+
+.. code-block:: python
+   :emphasize-lines: 2
+
+    class GitHub(uplink.Consumer):
+        @uplink.get(args={"commits_url": uplink.Url, "sha": uplink.Path})
+        def get_commit(self, commits_url, sha): pass
+
 
 Function Annotations (Python 3 only)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -4,7 +4,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink import converters, helpers, hooks, interfaces, types, utils
+from uplink import arguments, helpers, hooks, interfaces, utils
 
 __all__ = [
     "headers",
@@ -12,7 +12,6 @@ __all__ = [
     "multipart",
     "json",
     "timeout",
-    "returns",
     "args",
     "response_handler",
     "error_handler",
@@ -207,10 +206,10 @@ class multipart(MethodAnnotation):
 class json(MethodAnnotation):
     """Use as a decorator to make JSON requests.
 
-    You should annotate a method argument with `uplink.Body` which
-    indicates that the argument's value should become the request's
-    body. :py:class:`uplink.Body` has to be either a dict or a subclass
-    of py:class:`collections.Mapping`.
+    You can annotate a method argument with :py:class:`uplink.Body`,
+    which indicates that the argument's value should become the
+    request's body. :py:class:`uplink.Body` has to be either a dict or a
+    subclass of py:class:`collections.Mapping`.
 
     Example:
         .. code-block:: python
@@ -218,6 +217,48 @@ class json(MethodAnnotation):
             @json
             @patch(/user")
             def update_user(self, **info: Body):
+                \"""Update the current user.\"""
+
+    You can alternatively use the :py:class:`uplink.Field` annotation to
+    specify JSON fields separately, across multiple arguments:
+
+    Example:
+    .. code-block:: python
+
+        @json
+        @patch(/user")
+        def update_user(self, name: Field, email: Field("e-mail"):
+            \"""Update the current user.\"""
+
+    Further, to set a nested field, you can specify the path of the
+    target field with a tuple of strings as the first argument of
+    :py:class:`uplink.Field`.
+
+    Example:
+        Consider a consumer method that sends a PATCH request with a JSON
+        body of the following format:
+
+        .. code-block:: json
+            :emphasize-lines: 3
+
+            {
+                user: {
+                    name: "<User's Name>"
+                },
+            }
+
+        The tuple :py:obj:`("user", "name")` specifies the path to the
+        highlighted inner field:
+
+        .. code-block:: python
+            :emphasize-lines: 5
+
+            @json
+            @patch(/user")
+            def update_user(
+                            self,
+                            new_name: Field(("user", "name"))
+            ):
                 \"""Update the current user.\"""
     """
     _http_method_blacklist = {"GET"}
@@ -292,182 +333,6 @@ class timeout(MethodAnnotation):
 
 
 # noinspection PyPep8Naming
-class returns(MethodAnnotation):
-    """
-    Specify the function's return annotation for Python 2.7
-    compatibility.
-
-    In Python 3, to provide a consumer method's return type, you can
-    set the it as the method's return annotation:
-
-    .. code-block:: python
-
-        @get("/users/{username}")
-        def get_user(self, username) -> UserSchema:
-            \"""Get a specific user.\"""
-
-    For Python 2.7 compatibility, you can use this decorator instead:
-
-    .. code-block:: python
-
-        @returns(UserSchema)
-        @get("/users/{username}")
-        def get_user(self, username):
-            \"""Get a specific user.\"""
-    """
-
-    def __init__(self, type):
-        self._type = type
-
-    def modify_request(self, request_builder):
-        request_builder.return_type = self._type
-
-    List = converters.TypingConverter.List
-    """
-    .. versionadded:: v0.5.0
-    
-    A proxy for :py:class:`typing.List` that is safe to use in type 
-    hints with Python 3.4 and below.
-
-    .. code-block:: python
-
-        @returns.json
-        @get("/users")
-        def get_users(self) -> returns.List[str]:
-            \"""Fetches all users\"""
-    """
-
-    Dict = converters.TypingConverter.Dict
-    """
-    .. versionadded:: v0.5.0
-    
-    A proxy for :py:class:`typing.Dict` that is safe to use in type 
-    hints with Python 3.4 and below
-
-    .. code-block:: python
-
-        @returns.json
-        @get("/users")
-        def get_users(self) -> returns.Dict[str, str]:
-            \"""Fetches all users\"""
-    """
-
-    class Json(converters.interfaces.Converter):
-        # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
-
-        def __init__(self, model, member=()):
-            self._model = model
-            self._model_converter = None
-
-            if not isinstance(member, (list, tuple)):
-                member = (member,)
-            self._member = member
-
-        def set_chain(self, chain):
-            self._model_converter = chain(self._model)
-
-        def convert(self, response):
-            content = response.json()
-            for name in self._member:
-                content = content[name]
-            if self._model_converter is not None:
-                content = self._model_converter(content)
-            return content
-
-    # noinspection PyPep8Naming
-    class json(MethodAnnotation):
-        """
-        .. versionadded:: v0.5.0
-
-        Specifies that the decorated consumer method should return a
-        JSON object.
-
-        Example:
-
-            .. code-block:: python
-
-                @returns.json
-                @get("/users/{username}")
-                def get_user(self, username):
-                    \"""Get a specific user.\"""
-
-
-        Returning a Specific JSON Field:
-
-            This decorator accepts two optional arguments. The
-            :py:attr:`member` argument accepts a string or tuple that
-            specifies the path of an internal field in the JSON
-            document.
-
-            For instance, consider an API that returns JSON responses
-            that, at the root of the document, contains both the
-            server-retrieved data and a list of relevant API errors:
-
-            .. code-block:: json
-                :emphasize-lines: 2
-
-                {
-                    "data": { "user": "prkumar", "id": 140232 },
-                    "errors": []
-                }
-
-            If returning the list of errors is unnecessary, we can use
-            the :py:attr:`member` argument to strictly return the inner
-            field :py:attr:`data`:
-
-            .. code-block:: python
-
-                @returns.json(member="data")
-                @get("/users/{username}")
-                def get_user(self, username):
-                    \"""Get a specific user.\"""
-
-        Deserialize Objects from JSON:
-
-            Often, JSON responses represent models in your application.
-            If an existing Python object encapsulates this model, use
-            the :py:attr:`model` argument to specify it as the return
-            type:
-
-            .. code-block:: python
-
-                @returns.json(model=User, member="data")
-                @get("/users/{username}")
-                def get_user(self, username):
-                    \"""Get a specific user.\"""
-
-            This pattern typically requires also registering a converter
-            that knows how to deserialize the JSON into your data model
-            object or leveraging a built-in converter (e.g.,
-            :py:class:`uplink.converters.MarshmallowConverter`).
-
-            For Python 3 users, you can alternatively provide a return
-            value annotation. Hence, the previous code is equivalent
-            to the following in Python 3:
-
-            .. code-block:: python
-
-                @returns.json(member="data")
-                @get("/users/{username}")
-                def get_user(self, username) -> User:
-                    \"""Get a specific user.\"""
-
-        """
-        _can_be_static = True
-
-        def __init__(self, model=None, member=()):
-            self._model = model
-            self._member = member
-
-        def modify_request(self, request_builder):
-            return_type = request_builder.return_type
-            return_type = self._model if return_type is None else return_type
-            request_builder.return_type = returns.Json(
-                return_type, self._member
-            )
-
-
-# noinspection PyPep8Naming
 class args(MethodAnnotation):
     """
     Annotate method arguments for Python 2.7 compatibility.
@@ -504,7 +369,7 @@ class args(MethodAnnotation):
 
     def __call__(self, obj):
         if inspect.isfunction(obj):
-            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
+            handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
             return obj
         else:

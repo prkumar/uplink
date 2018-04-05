@@ -52,12 +52,13 @@ For sending non-blocking requests, Uplink comes with support for
 Use decorators and function annotations to describe the HTTP request:
 
 * URL parameter replacement and query parameter support
-* Convert responses into Python objects (e.g., |using marshmallow|_)
+* Convert response bodies into Python objects (e.g., using |marshmallow|_ or
+  a `custom converter <http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body>`_)
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to apply custom response and error handling
 
-.. |using marshmallow| replace:: using ``marshmallow``
-.. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
+.. |marshmallow| replace:: ``marshmallow``
+.. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 
 Installation
 ============

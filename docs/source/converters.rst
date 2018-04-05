@@ -28,18 +28,19 @@ Uplink comes with optional support for :py:mod:`marshmallow`.
     included if you have :py:mod:`marshmallow` installed, so you don't need
     to provide it when constructing your consumer instances.
 
+.. _`converting lists and mappings`:
 
-Type Hints
-==========
+Converting Collections
+======================
 
 .. versionadded:: v0.5.0
 
-Uplink can convert collections, such as a deserializing a response into
-a list of users. If you have :py:mod:`typing` installed (the module is
-part of the standard library starting Python 3.5), you can use type
-hints (see :pep:`484`) to specify such conversions. You can also leverage
-this feature without :py:mod:`typing` by using one of the proxy types
-defined by :py:class:`uplink.returns`.
+Uplink can convert collections of a type, such as deserializing a
+response body into a list of users. If you have :py:mod:`typing`
+installed (the module is part of the standard library starting Python
+3.5), you can use type hints (see :pep:`484`) to specify such
+conversions. You can also leverage this feature without :py:mod:`typing`
+by using one of the proxy types defined in :py:class:`uplink.types`.
 
 The following converter factory implements this feature and is automatically
 included, so you don't need to provide it when constructing your consumer
@@ -47,47 +48,61 @@ instance:
 
 .. autoclass:: uplink.converters.TypingConverter
 
-..
-    Writing a Custom Converter
-    ==========================
+Here are the collection types defined in :py:class:`uplink.types`. You can
+use these or the corresponding type hints from :py:class:`typing` to leverage
+this feature:
 
-    .. note::
+.. automodule:: uplink.types
+    :members:
 
-        Before writing a custom converter factory, consider instead whether
-        defining a :ref:`custom response handler` could cover your use case.
+Writing a Custom Converter
+==========================
 
+You can define custom converters by using :py:class:`uplink.loads` and
+:py:class:`uplink.dumps`.
 
-    You can define custom converters by extending
-    py:class:`uplink.converters.ConverterFactory`:
+These classes can be used one of two ways. First is as function
+decorators:
 
-    .. code-block:: python
+.. code-block:: python
 
-        from uplink import converters
+    # Registers the function as a loader for the given model class.
+    @loads.from_json(Model)
+    def load_model_from_json(model_type, json):
+        ...
 
-        class MyCustomSerializationProtocol(converters.ConverterFactory):
-            ...
+With this usage, the decorated function is registered as a default
+converter (specifically for the class :py:class:`Model` and its
+subclasses).
 
+The alternative usage is to build a converter instance:
 
-    Here are the methods that you can override to define custom serialization or
-    deserialization logic:
+.. code-block:: python
 
-    .. autoclass:: uplink.converters.ConverterFactory
-        :members:
+    def load_model_from_json(model_type, json):
+        ...
 
+    # Creates a converter using the given loader function.
+    converter = loads.from_json(Model).using(load_model_from_json)
 
-    If you'd like your custom factory to be included automatically, you can
-    decorate your factory implementation with
-    :py:func:`uplink.converters.register_default_converter_factory`:
+Unlike the decorator usage, this approach does not register the function
+as a default converter, meaning, to use the converter, you must supply
+the generated converter object when instantiating a
+:py:class:`~uplink.Consumer` subclass, through the :py:attr:`converter`
+constructor parameter.
 
-    .. code-block:: python
+Notably, invoking the :py:meth:`~uplink.loads.by_default` method
+registers the generated converter object as a default converter,
+achieving parity between the two usages. Hence, the follow snippet is
+equivalent to the first example using the decorator approach:
 
-        from uplink import converters
+.. code-block:: python
 
-        @converters.register_default_converter_factory
-        class MyCustomSerializationProtocol(converters.ConverterFactory):
-            ...
+    # Registers the function as a loader for the given model class.
+    loads.from_json(Model).using(load_model_from_json).by_default()
 
+.. autoclass:: uplink.loads
+    :members:
 
-    Applying this decorator to the class avoids the need to specify the
-    implementation through the ``converter`` parameter when instantiating
-    your consumer.
+.. autoclass:: uplink.dumps
+    :members:

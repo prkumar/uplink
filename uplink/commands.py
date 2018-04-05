@@ -3,7 +3,9 @@ import collections
 import functools
 
 # Local imports
-from uplink import converters, decorators, exceptions, interfaces, types, utils
+from uplink import (
+    arguments, converters, decorators, exceptions, interfaces, returns, utils
+)
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
@@ -54,7 +56,7 @@ class HttpMethod(object):
 
     def __call__(self, func):
         spec = utils.get_arg_spec(func)
-        arg_handler = types.ArgumentAnnotationHandlerBuilder(func, spec.args)
+        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(func, spec.args)
         builder = RequestDefinitionBuilder(
             self._method,
             URIDefinitionBuilder(self._uri),
@@ -68,7 +70,7 @@ class HttpMethod(object):
 
         # Use return value type hint as expected return type
         if spec.return_annotation is not None:
-            builder = decorators.returns(spec.return_annotation)(builder)
+            builder = returns.json(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
         builder = self._add_args(builder)
         return builder
@@ -157,7 +159,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         if still_missing:
             raise MissingArgumentAnnotations(still_missing, matching)
 
-        path_vars = dict.fromkeys(matching, types.Path)
+        path_vars = dict.fromkeys(matching, arguments.Path)
         self.argument_handler_builder.set_annotations(path_vars)
 
     def build(self):

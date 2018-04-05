@@ -2,7 +2,7 @@
 import functools
 
 # Local imports
-from uplink import converters, decorators, utils
+from uplink import converters, decorators, returns, utils
 
 __all__ = ["loads", "dumps"]
 
@@ -20,12 +20,23 @@ class _ModelConverterBuilder(object):
         self._annotations = set(annotations)
         self._func = None
 
-    def using(self, func, _r=converters.register_default_converter_factory):
+    def using(self, func):
+        """Sets the converter strategy to the given function."""
         self._func = func
-        _r(self)
-        return func
+        return self
 
-    __call__ = using
+    def by_default(self, _r=converters.register_default_converter_factory):
+        """Registers this converter as a default converter."""
+        _r(self)
+        return self
+
+    def __call__(self, func, _r=converters.register_default_converter_factory):
+        """
+        Sets the converter strategy to the given function and registers
+        the converter as a default converter.
+        """
+        self.using(func).by_default(_r)
+        return func
 
     def _contains_annotations(self, argument_annotations, method_annotations):
         types = set(_get_classes(argument_annotations))
@@ -49,11 +60,12 @@ class _ModelConverterBuilder(object):
         return cls(base_class=base_class, annotations=annotations)
 
 
+# noinspection PyPep8Naming
 class loads(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object deserializer.
 
-    This decorator takes a single argument, the base model class, and
+    This class takes a single argument, the base model class, and
     registers the decorated function as a deserializer for that base
     class and all subclasses.
 
@@ -63,9 +75,11 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
 
     .. code-block:: python
 
-        @models.loads(ModelBase)
+        @loads(ModelBase)
         def load_model(model_cls, data):
             ...
+
+    .. versionadded:: v0.5.0
     """
 
     def make_response_body_converter(self, *args, **kwargs):
@@ -77,12 +91,12 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
         Builds a custom JSON deserialization strategy.
 
         This decorator accepts the same arguments and behaves like
-        :py:class:`uplink.models.loads`, except that the second argument of
-        the decorated function is always a JSON object:
+        :py:class:`uplink.loads`, except that the second argument of the
+        decorated function is a JSON object:
 
         .. code-block:: python
 
-            @models.loads.from_json(ModelBase)
+            @loads.from_json(ModelBase)
             def from_json(model_cls, json_object):
                 return model_cls.from_json(json_object)
 
@@ -92,7 +106,7 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
         to deserialize JSON responses.
 
         For example, the following consumer method would leverage the
-        :py:func:`from_json` strategy defined above, only if
+        :py:func:`from_json` strategy defined above, given
         :py:class:`User` is a subclass of :py:class:`ModelBase`:
 
         .. code-block:: python
@@ -100,12 +114,13 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
             @returns.json
             @get("user")
             def get_user(self) -> User: pass
+
+        .. versionadded:: v0.5.0
         """
-        return cls._make_builder(
-            base_class, annotations, decorators.returns.json
-        )
+        return cls._make_builder(base_class, annotations, returns.json)
 
 
+# noinspection PyPep8Naming
 class dumps(_ModelConverterBuilder, converters.ConverterFactory):
     """
     Builds a custom object serializer.
@@ -120,9 +135,11 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
 
     .. code-block:: python
 
-        @models.dumps(ModelBase)
+        @dumps(ModelBase)
         def deserialize_model(model_cls, model_instance):
             ...
+
+    .. versionadded:: v0.5.0
     """
 
     def make_request_body_converter(self, *args, **kwargs):
@@ -134,12 +151,12 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
         Builds a custom JSON serialization strategy.
 
         This decorator accepts the same arguments and behaves like
-        :py:class:`uplink.models.dumps`. The only distinction is that the
-        decorated function should return a JSON object.
+        :py:class:`uplink.dumps`. The only distinction is that the
+        decorated function should be JSON serializable.
 
         .. code-block:: python
 
-            @models.dumps.to_json(ModelBase)
+            @dumps.to_json(ModelBase)
             def to_json(model_cls, model_instance):
                 return model_instance.to_json()
 
@@ -149,13 +166,15 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
         can leverage the registered strategy.
 
         For example, the following consumer method would leverage the
-        :py:func:`to_json` strategy defined above, only if :py:class:`User`
-        is a subclass of :py:class:`ModelBase`:
+        :py:func:`to_json` strategy defined above, given
+        :py:class:`User` is a subclass of :py:class:`ModelBase`:
 
         .. code-block:: python
 
             @json
             @post("user")
             def change_user_name(self, name: Field(type=User): pass
+
+        .. versionadded:: v0.5.0
         """
         return cls._make_builder(base_class, annotations, decorators.json)

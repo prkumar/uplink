@@ -223,29 +223,6 @@ def test_timeout(request_builder):
     request_builder.info["timeout"] == 60
 
 
-def test_returns(request_builder):
-    returns = decorators.returns(str)
-    returns.modify_request(request_builder)
-    assert request_builder.return_type is str
-
-
-def test_returns_json(request_builder):
-    returns_json = decorators.returns.json(str, ())
-    returns_json.modify_request(request_builder)
-    assert isinstance(request_builder.return_type, decorators.returns.Json)
-
-
-def test_returns_Json(mocker):
-    response = mocker.Mock(spec=["json"])
-    response.json.return_value = {"hello": "world"}
-    converter = decorators.returns.Json(str, "hello")
-    converter.set_chain(lambda x: None)
-    assert converter.convert(response) == "world"
-
-    converter.set_chain(lambda x: (lambda y: y + "!"))
-    assert converter.convert(response) == "world!"
-
-
 def test_args(request_definition_builder):
     args = decorators.args(str, str, name=str)
     args.modify_request_definition(request_definition_builder)
@@ -261,7 +238,7 @@ def test_args_decorate_function(mocker):
         return handler
 
     mocker.patch(
-        "uplink.types.ArgumentAnnotationHandlerBuilder.from_func",
+        "uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func",
         patched
     )
     args = decorators.args(str, str, name=str)
