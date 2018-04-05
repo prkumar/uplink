@@ -177,12 +177,20 @@ For non-blocking requests, Uplink comes with optional support for
 example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
 for more.
 
-Deserializing JSON Responses
-============================
+Deserializing the Response Body
+===============================
 
-At the least, you need to specify the expected return type using the
-:py:class:`~uplink.returns.json` decorator, which is handy when
-working with APIs that provide JSON responses:
+Uplink makes it easy and optional to convert HTTP response bodies into
+data model objects, whether you leverage Uplink's built-in support for
+libraries such as :py:mod:`marshmallow` (see
+:py:class:`uplink.converters.MarshmallowConverter`) or use
+:py:class:`uplink.loads` to write custom conversion logic that fits your
+unique needs.
+
+At the least, you need to specify the expected return type using a
+decorator from the :py:class:`uplink.returns` module.
+:py:class:`uplink.returns.json` is handy when working with APIs that
+provide JSON responses:
 
 .. code-block:: python
 
@@ -199,47 +207,30 @@ Python 3 users can alternatively use a return type hint:
     def get_user(self, username) -> User: pass
 
 The final step is to register a strategy that converts the HTTP response
-into the expected return type. To this end, :py:class:`~uplink.loads` can
-register a function that handles such deserialization for a particular class
-and all its subclasses. Further, :py:meth:`~uplink.loads.from_json` is
-required
-
+into the expected return type. To this end, :py:meth:`uplink.loads` can
+register a function that handles such deserialization for a particular
+class and all its subclasses.
 
 .. code-block:: python
 
-    from models import ModelBase  # The base class for all model types.
+    # The base class for all model types, including User from above.
+    from models import ModelBase
 
-    # Tell Uplink how to deserialize JSON responses into our models:
-    loads.from_json(ModelBase).using(
-        lambda model_cls, json_obj: model_cls.from_json(json_obj)
-    )
+    # Tell Uplink how to deserialize JSON responses into our model classes:
+    @loads.from_json(ModelBase)
+    def load_model_from_json(model_cls, json_obj):
+        return model_cls.from_json(json_obj)
 
 This step is not required if you define your data model objects using a library
 for whom Uplink has built-in support, such as :py:mod:`marshmallow` (see
 :py:class:`uplink.converters.MarshmallowConverter`).
 
+.. note::
 
-
-
-
-
-
-
-
-
-
-
-The ``converter`` parameter of the :py:class:`~uplink.Consumer` constructor
-accepts an adapter class that handles deserialization of HTTP response objects.
-
-.. code-block:: python
-
-    github = GitHub(BASE_URL, converter=...)
-
-For instance, the :py:class:`~uplink.MarshmallowConverter` adapter turns JSON
-HTTP responses into Python objects using the :py:class:`marshmallow.Schema`
-object. Checkout `this example on GitHub
-<https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_ for more.
+    For API endpoints that return collections (such as a list of users),
+    Uplink just needs to know how to deserialize the element type (e.g.,
+    a user), offering built-in support for :ref:`converting lists and
+    mappings`.
 
 .. _`custom response handler`:
 
@@ -251,32 +242,37 @@ Custom Response and Error Handling
 To register a custom response or error handler, decorate a function with
 the :py:class:`response_handler` or :py:class:`error_handler` decorator.
 
-For instance, the function :py:func:`accept_json` defined below is a response
-handler that outputs the JSON body of a given response:
+.. note::
+
+    Unlike consumer methods, these functions should be defined outside
+    of a class scope.
+
+For instance, the function :py:func:`returns_success` defined below is a
+response handler that output whether or not the request was successful:
 
 .. code-block:: python
 
     @uplink.response_handler
-    def accept_json(response):
-        return response.json()
+    def returns_success(response):
+        return response.status == 200
 
-Now, :py:func:`accept_json` can be used as a decorator to inject its custom
+Now, :py:func:`returns_success` can be used as a decorator to inject its custom
 response handling into any request method:
 
 .. code-block:: python
 
-    @accept_json
-    @get("/todo/{id}")
-    def get_todo(self, id):
-        """Get the todo with the given id."""
+    @returns_success
+    @put("/todos")
+    def create_todo(self, title):
+        """Creates a todo with the given title."""
 
 To apply the function's handling onto all request methods of a
-:py:class:`~uplink.Consumer` subclass, we can simply use the registered handler
-as a class decorator:
+:py:class:`~uplink.Consumer` subclass, we can simply use the registered
+handler as a class decorator:
 
 .. code-block:: python
 
-    @accept_json
+    @returns_success
     class TodoApp(uplink.Consumer):
         ...
 
@@ -297,7 +293,7 @@ behavior:
 .. code-block:: python
 
     @raise_api_error
-    @accept_json
+    @returns_success
     class TodoApp(uplink.Consumer):
         ...
 

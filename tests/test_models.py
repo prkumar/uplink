@@ -2,8 +2,9 @@
 import pytest
 
 # Local imports
+from uplink import returns
 from uplink.converters import register
-from uplink.decorators import returns, json
+from uplink.decorators import json
 from uplink.models import loads, dumps
 
 

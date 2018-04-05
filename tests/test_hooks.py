@@ -5,12 +5,6 @@ import pytest
 from uplink import hooks
 
 
-class TestTransactionHook(object):
-    def test_handle_response(self):
-        r = {}
-        assert hooks.TransactionHook().handle_response(r) is r
-
-
 class TestResponseHandler(object):
     def test_handle_response(self, mocker):
         converter = mocker.Mock()

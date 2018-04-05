@@ -4,6 +4,7 @@ import warnings
 
 # Local imports
 from uplink import (
+    arguments,
     auth as auth_,
     clients,
     converters,
@@ -11,10 +12,8 @@ from uplink import (
     helpers,
     hooks,
     interfaces,
-    utils,
-    types
+    utils
 )
-from uplink.converters import keys
 
 __all__ = ["build", "Consumer"]
 
@@ -33,12 +32,8 @@ class RequestPreparer(object):
 
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
-        converter = contract.get_converter(
-            keys.CONVERT_FROM_RESPONSE_BODY,
-            contract.return_type)
-        if converter is not None:
-            # Found a converter that can handle the return type.
-            chain.append(hooks.ResponseHandler(converter))
+        if callable(contract.return_type):
+            chain.append(hooks.ResponseHandler(contract.return_type))
         chain.extend(self._hooks)
         return chain
 
@@ -46,7 +41,8 @@ class RequestPreparer(object):
     def apply_hooks(chain, request_builder, sender):
         hook = hooks.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
-        sender.add_callback(hook.handle_response)
+        if hook.handle_response is not None:
+            sender.add_callback(hook.handle_response)
         sender.add_exception_handler(hook.handle_exception)
 
     def prepare_request(self, request_builder):
@@ -186,7 +182,7 @@ class ConsumerMeta(type):
         except KeyError:
             pass
         else:
-            builder = types.ArgumentAnnotationHandlerBuilder.from_func(init)
+            builder = arguments.ArgumentAnnotationHandlerBuilder.from_func(init)
             handler = builder.build()
 
             @functools.wraps(init)

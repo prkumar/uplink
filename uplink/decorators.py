@@ -4,7 +4,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink import converters, helpers, hooks, interfaces, types, utils
+from uplink import arguments, helpers, hooks, interfaces, utils
 
 __all__ = [
     "headers",
@@ -12,7 +12,6 @@ __all__ = [
     "multipart",
     "json",
     "timeout",
-    "returns",
     "args",
     "response_handler",
     "error_handler",
@@ -291,218 +290,6 @@ class timeout(MethodAnnotation):
         request_builder.info["timeout"] = self._seconds
 
 
-class _ReturnsBase(MethodAnnotation):
-
-    def _strategy(self, old_return_type):  # pragma: no cover
-        pass
-
-    def modify_request(self, request_builder):
-        old_return_type = request_builder.return_type
-        request_builder.return_type = self._strategy(old_return_type)
-
-
-# noinspection PyPep8Naming
-class returns(_ReturnsBase):
-    """
-    TODO: Recommend not instantiating this directly (or move to a module?).
-    TODO: Recommend not instantiating loads directly (how about dumps?)
-    TODO: Have returns accept a strategy for setting the return type (i.e., the
-          bridge pattern)
-    TODO: Only give the converter layer the body of the response
-         (errors stored in json (like json["errors"]) can be done in registered
-          function)
-    TODO: Move List and other type hints into separate module or out
-          of this class since they can used in also request properties
-          not just the return type.
-
-    Specify the function's return annotation for Python 2.7
-    compatibility.
-
-    In Python 3, to provide a consumer method's return type, you can
-    set the type as the method's return type annotation:
-
-    .. code-block:: python
-
-        @get("/users/{username}")
-        def get_user(self, username) -> UserSchema:
-            \"""Get a specific user.\"""
-
-    For Python 2.7 compatibility, you can use this decorator instead:
-
-    .. code-block:: python
-
-        @returns(UserSchema)
-        @get("/users/{username}")
-        def get_user(self, username):
-            \"""Get a specific user.\"""
-    """
-    __hook = None
-
-    def _strategy(self, return_type):
-        return self._type
-
-    def __init__(self, type):
-        self._type = type
-
-    def modify_request(self, request_builder):
-        super(returns, self).modify_request(request_builder)
-        request_builder.add_transaction_hook(self._hook)
-
-    def enforce_decoder(self, request_builder):
-        # Default to a JSON decoding the body.
-        if request_builder.return_type is self._type:
-            returns.json().modify_request(request_builder)
-
-    @property
-    def _hook(self):
-        if self.__hook is None:
-            self.__hook = hooks.RequestAuditor(self.enforce_decoder)
-        return self.__hook
-
-    List = converters.TypingConverter.List
-    """    
-    A proxy for :py:class:`typing.List` that is safe to use in type 
-    hints with Python 3.4 and below.
-
-    .. code-block:: python
-
-        @returns.json
-        @get("/users")
-        def get_users(self) -> returns.List[str]:
-            \"""Fetches all users\"""
-            
-    .. versionadded:: v0.5.0
-    """
-
-    Dict = converters.TypingConverter.Dict
-    """
-    A proxy for :py:class:`typing.Dict` that is safe to use in type 
-    hints with Python 3.4 and below.
-
-    .. code-block:: python
-
-        @returns.json
-        @get("/users")
-        def get_users(self) -> returns.Dict[str, str]:
-            \"""Fetches all users\"""
-
-    .. versionadded:: v0.5.0
-    """
-
-    class Json(converters.interfaces.Converter):
-        # TODO: Consider moving this under json decorator
-        # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
-
-        def __init__(self, model, member=()):
-            self._model = model
-            self._model_converter = None
-
-            if not isinstance(member, (list, tuple)):
-                member = (member,)
-            self._member = member
-
-        def set_chain(self, chain):
-            self._model_converter = chain(self._model)
-
-        def convert(self, response):
-            content = response.json()
-            for name in self._member:
-                content = content[name]
-            if self._model_converter is not None:
-                content = self._model_converter(content)
-            return content
-
-    # noinspection PyPep8Naming
-    class json(_ReturnsBase):
-        """
-        Specifies that the decorated consumer method should return a
-        JSON object.
-
-        Example:
-
-            .. code-block:: python
-
-                @returns.json
-                @get("/users/{username}")
-                def get_user(self, username):
-                    \"""Get a specific user.\"""
-
-
-        Returning a Specific JSON Field:
-
-            This decorator accepts two optional arguments. The
-            :py:attr:`member` argument accepts a string or tuple that
-            specifies the path of an internal field in the JSON
-            document.
-
-            For instance, consider an API that returns JSON responses
-            that, at the root of the document, contains both the
-            server-retrieved data and a list of relevant API errors:
-
-            .. code-block:: json
-                :emphasize-lines: 2
-
-                {
-                    "data": { "user": "prkumar", "id": 140232 },
-                    "errors": []
-                }
-
-            If returning the list of errors is unnecessary, we can use
-            the :py:attr:`member` argument to strictly return the inner
-            field :py:attr:`data`:
-
-            .. code-block:: python
-
-                @returns.json(member="data")
-                @get("/users/{username}")
-                def get_user(self, username):
-                    \"""Get a specific user.\"""
-
-        Deserialize Objects from JSON:
-
-            Often, JSON responses represent models in your application.
-            If an existing Python object encapsulates this model, use
-            the :py:attr:`model` argument to specify it as the return
-            type:
-
-            .. code-block:: python
-
-                @returns.json(model=User)
-                @get("/users/{username}")
-                def get_user(self, username):
-                    \"""Get a specific user.\"""
-
-            For Python 3 users, you can alternatively provide a return
-            value annotation. Hence, the previous code is equivalent
-            to the following in Python 3:
-
-            .. code-block:: python
-
-                @returns.json
-                @get("/users/{username}")
-                def get_user(self, username) -> User:
-                    \"""Get a specific user.\"""
-
-            Both usages typically require also registering a converter
-            that knows how to deserialize the JSON into your data model
-            object (see :py:meth:`uplink.loads.from_json`), unless you
-            define these objects using a library for whom Uplink has
-            built-in support, such as :py:mod:`marshmallow` (see
-            :py:class:`uplink.converters.MarshmallowConverter`).
-
-        .. versionadded:: v0.5.0
-        """
-        _can_be_static = True
-
-        def __init__(self, model=None, member=()):
-            self._model = model
-            self._member = member
-
-        def _strategy(self, return_type):
-            return_type = self._model if return_type is None else return_type
-            return returns.Json(return_type, self._member)
-
-
 # noinspection PyPep8Naming
 class args(MethodAnnotation):
     """
@@ -540,7 +327,7 @@ class args(MethodAnnotation):
 
     def __call__(self, obj):
         if inspect.isfunction(obj):
-            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
+            handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
             return obj
         else:
