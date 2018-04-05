@@ -53,7 +53,7 @@ Use decorators and function annotations to describe the HTTP request:
 
 * URL parameter replacement and query parameter support
 * Convert response bodies into Python objects (e.g., using |marshmallow|_ or
-  a custom converter)
+  a `custom converter <http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body>`_)
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to apply custom response and error handling
 
