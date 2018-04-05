@@ -187,5 +187,5 @@ class AsyncioExecutor(futures.Executor):
 
     def shutdown(self, wait=True):
         self._loop.call_soon_threadsafe(self._loop.stop)
-        if wait:
+        if wait:  # pragma: no cover
             self._thread.join()
