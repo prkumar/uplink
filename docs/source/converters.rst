@@ -86,13 +86,14 @@ The alternative usage is to build a converter instance:
 
 Unlike the decorator usage, this approach does not register the function
 as a default converter, meaning, to use the converter, you must supply
-the generated converter object when instantiating a :py:class:`Consumer`
-subclass, through the :py:attr:`converter` constructor parameter.
+the generated converter object when instantiating a
+:py:class:`~uplink.Consumer` subclass, through the :py:attr:`converter`
+constructor parameter.
 
-Notably, invoking the :py:meth:`~loads.by_default` method registers the
-generated converter object as a default converter, achieving parity
-between the two usages. Hence, the follow snippet is equivalent to the
-first example using the decorator approach:
+Notably, invoking the :py:meth:`~uplink.loads.by_default` method
+registers the generated converter object as a default converter,
+achieving parity between the two usages. Hence, the follow snippet is
+equivalent to the first example using the decorator approach:
 
 .. code-block:: python
 
