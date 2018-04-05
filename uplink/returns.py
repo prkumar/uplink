@@ -2,7 +2,7 @@
 from uplink import decorators
 from uplink.converters import keys
 
-__all__ = ["json"]
+__all__ = ["json", "from_json"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
@@ -159,4 +159,3 @@ class json(_ReturnsBase):
 
 
 from_json = json
-"""An alias for :py:class:`json`."""

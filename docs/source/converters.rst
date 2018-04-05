@@ -30,8 +30,8 @@ Uplink comes with optional support for :py:mod:`marshmallow`.
 
 .. _`converting lists and mappings`:
 
-Type Hints
-==========
+Converting Collections
+======================
 
 .. versionadded:: v0.5.0
 
@@ -52,7 +52,8 @@ Here are the collection types defined in :py:class:`uplink.types`. You can
 use these or the corresponding type hints from :py:class:`typing` to leverage
 this feature:
 
-.. autoclass:: uplink.types
+.. automodule:: uplink.types
+    :members:
 
 Writing a Custom Converter
 ==========================
@@ -101,5 +102,7 @@ equivalent to the first example using the decorator approach:
     loads.from_json(Model).using(load_model_from_json).by_default()
 
 .. autoclass:: uplink.loads
+    :members:
 
 .. autoclass:: uplink.dumps
+    :members:

@@ -58,4 +58,5 @@ straightforward with Uplink; the :py:mod:`uplink.returns` modules
 exposes optional decorators for defining the expected return type and
 data serialization format for any consumer method.
 
-.. autoclass:: uplink.returns.json
+.. automodule:: uplink.returns
+    :members:

@@ -184,7 +184,7 @@ Uplink makes it easy and optional to convert HTTP response bodies into
 data model objects, whether you leverage Uplink's built-in support for
 libraries such as :py:mod:`marshmallow` (see
 :py:class:`uplink.converters.MarshmallowConverter`) or use
-:py:`uplink.loads` to write custom conversion logic that fits your
+:py:class:`uplink.loads` to write custom conversion logic that fits your
 unique needs.
 
 At the least, you need to specify the expected return type using a
@@ -207,9 +207,9 @@ Python 3 users can alternatively use a return type hint:
     def get_user(self, username) -> User: pass
 
 The final step is to register a strategy that converts the HTTP response
-into the expected return type. To this end,
-:py:meth:`~uplink.loads.from_json` can register a function that handles
-such deserialization for a particular class and all its subclasses.
+into the expected return type. To this end, :py:meth:`uplink.loads` can
+register a function that handles such deserialization for a particular
+class and all its subclasses.
 
 .. code-block:: python
 
