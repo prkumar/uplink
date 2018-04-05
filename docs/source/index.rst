@@ -66,7 +66,8 @@ For sending non-blocking requests, Uplink comes with support for
 Use decorators and function annotations to describe the HTTP request:
 
 * URL parameter replacement and query parameter support
-* Convert responses into Python objects (e.g., using :py:mod:`marshmallow`)
+* Convert response bodies into Python objects (e.g., using
+  :py:mod:`marshmallow` or a custom converter)
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to define custom response and error handling
 

@@ -6,6 +6,33 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.5.0_ - 2018-4-06
+==================
+Added
+-----
+- Decorators for convenient registration of custom serialization.
+  (``uplink.dumps``) and deserialization (``uplink.loads``) strategies.
+- Support for setting nested JSON fields with ``uplink.Field`` and
+  ``uplink.json``.
+- Optional ``args`` parameter to HTTP method decorators (e.g., ``uplink.get``)
+  for another Python 2.7-compatible alternative to annotating consumer method
+  arguments with function annotations.
+- Decorator ``uplink.returns.json`` for converting HTTP response bodies into
+  JSON objects or custom Python objects.
+- Support for converting collections (e.g., converting a response body into a
+  list of users).
+
+Changed
+-------
+- Leveraging built-in converters (such as ``uplink.converters.MarshmallowConverter``)
+  no longer requires providing the converter when instantiating an
+  ``uplink.Consumer`` subclass, as these converters are now implicitly included.
+
+Fixed
+-----
+- ``uplink.response_handler`` and ``uplink.error_handler`` properly
+  adopts the name and docstring of the wrapped function.
+
 0.4.1_ - 2018-3-10
 ==================
 Fixed
@@ -115,6 +142,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.5.0: https://github.com/prkumar/uplink/compare/v0.4.1...v0.5.0
 .. _0.4.1: https://github.com/prkumar/uplink/compare/v0.4.0...v0.4.1
 .. _0.4.0: https://github.com/prkumar/uplink/compare/v0.3.0...v0.4.0
 .. _0.3.0: https://github.com/prkumar/uplink/compare/v0.2.2...v0.3.0

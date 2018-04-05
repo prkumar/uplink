@@ -206,10 +206,10 @@ class multipart(MethodAnnotation):
 class json(MethodAnnotation):
     """Use as a decorator to make JSON requests.
 
-    You should annotate a method argument with `uplink.Body` which
-    indicates that the argument's value should become the request's
-    body. :py:class:`uplink.Body` has to be either a dict or a subclass
-    of py:class:`collections.Mapping`.
+    You can annotate a method argument with :py:class:`uplink.Body`,
+    which indicates that the argument's value should become the
+    request's body. :py:class:`uplink.Body` has to be either a dict or a
+    subclass of py:class:`collections.Mapping`.
 
     Example:
         .. code-block:: python
@@ -217,6 +217,48 @@ class json(MethodAnnotation):
             @json
             @patch(/user")
             def update_user(self, **info: Body):
+                \"""Update the current user.\"""
+
+    You can alternatively use the :py:class:`uplink.Field` annotation to
+    specify JSON fields separately, across multiple arguments:
+
+    Example:
+    .. code-block:: python
+
+        @json
+        @patch(/user")
+        def update_user(self, name: Field, email: Field("e-mail"):
+            \"""Update the current user.\"""
+
+    Further, to set a nested field, you can specify the path of the
+    target field with a tuple of strings as the first argument of
+    :py:class:`uplink.Field`.
+
+    Example:
+        Consider a consumer method that sends a PATCH request with a JSON
+        body of the following format:
+
+        .. code-block:: json
+            :emphasize-lines: 3
+
+            {
+                user: {
+                    name: "<User's Name>"
+                },
+            }
+
+        The tuple :py:obj:`("user", "name")` specifies the path to the
+        highlighted inner field:
+
+        .. code-block:: python
+            :emphasize-lines: 5
+
+            @json
+            @patch(/user")
+            def update_user(
+                            self,
+                            new_name: Field(("user", "name"))
+            ):
                 \"""Update the current user.\"""
     """
     _http_method_blacklist = {"GET"}
