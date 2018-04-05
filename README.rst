@@ -5,7 +5,6 @@ Uplink
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with **Requests**, **asyncio**, and **Twisted**.
-- Supports Custom Conversion of Response Bodies into Python Objects
 - Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
 A Quick Walkthrough, with GitHub API v3
@@ -58,7 +57,7 @@ Use decorators and function annotations to describe the HTTP request:
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to apply custom response and error handling
 
-.. |marshmallow| replace:: using ``marshmallow``
+.. |marshmallow| replace:: ``marshmallow``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 
 Installation
