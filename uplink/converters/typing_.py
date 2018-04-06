@@ -83,7 +83,7 @@ class TypingConverter(interfaces.ConverterFactory):
     Inner types of a collection are recursively resolved, using other
     available converters if necessary. For instance, when resolving the
     type hint :py:attr:`typing.Sequence[UserSchema]`, where
-    :py:attr:`UserSchema` is a custom py:class:`marshmallow.Schema`
+    :py:attr:`UserSchema` is a custom :py:class:`marshmallow.Schema`
     subclass, the converter will resolve the inner type using
     :py:class:`uplink.converters.MarshmallowConverter`.
 

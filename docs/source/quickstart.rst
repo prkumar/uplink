@@ -217,7 +217,7 @@ class and all its subclasses.
     from models import ModelBase
 
     # Tell Uplink how to deserialize JSON responses into our model classes:
-    @loads.publish  # Make this available to all consumer instances.
+    @loads.install  # Make this available to all consumer instances.
     @loads.from_json(ModelBase)
     def load_model_from_json(model_cls, json_obj):
         return model_cls.from_json(json_obj)

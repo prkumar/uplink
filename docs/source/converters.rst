@@ -79,8 +79,8 @@ instantiating a :py:class:`~uplink.Consumer` subclass, through the
 
     github = GitHub(BASE_URL, converter=load_model_from_json)
 
-Alternatively, you can add the :py:meth:`uplink.loads.publish` or
-:py:meth:`uplink.dumps.publish` decorator to register the converter
+Alternatively, you can add the :py:meth:`uplink.loads.install` or
+:py:meth:`uplink.dumps.install` decorator to register the converter
 function as a default converter, meaning the converter will be included
 automatically with any consumer instance and doesn't need to be
 explicitly provided through the ``converter`` parameter:
@@ -88,7 +88,7 @@ explicitly provided through the ``converter`` parameter:
 .. code-block:: python
 
     # Register the function as a default loader for the given model class.
-    @loads.publish
+    @loads.install
     @loads.from_json(Model)
     def load_model_from_json(model_type, json):
         ...

@@ -1,6 +1,8 @@
 # Local imports
 from uplink import converters
 
+__all__ = ["List", "Dict"]
+
 List = converters.TypingConverter.List
 """
 A proxy for :py:class:`typing.List` that is safe to use in type 
