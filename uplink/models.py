@@ -25,18 +25,11 @@ class _ModelConverterBuilder(object):
         self._func = func
         return self
 
-    def by_default(self, _r=converters.register_default_converter_factory):
-        """Registers this converter as a default converter."""
-        _r(self)
-        return self
+    def __call__(self, func):
+        self.__call__ = func
+        return self.using(func)
 
-    def __call__(self, func, _r=converters.register_default_converter_factory):
-        """
-        Sets the converter strategy to the given function and registers
-        the converter as a default converter.
-        """
-        self.using(func).by_default(_r)
-        return func
+    enroll = converters.register_default_converter_factory
 
     def _contains_annotations(self, argument_annotations, method_annotations):
         types = set(_get_classes(argument_annotations))
