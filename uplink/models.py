@@ -9,27 +9,22 @@ __all__ = ["loads", "dumps"]
 _get_classes = functools.partial(map, type)
 
 
-class _ModelConverterBuilder(object):
+class ResponseBodyConverterFactory(converters.ConverterFactory):
+    def __init__(self, delegate):
+        self.make_response_body_converter = delegate
 
-    def __init__(self, base_class, annotations=()):
-        """
-        Args:
-            base_class (type): The base model class.
-        """
-        self._model_class = base_class
-        self._annotations = set(annotations)
-        self._func = None
 
-    def using(self, func):
-        """Sets the converter strategy to the given function."""
+class RequestBodyConverterFactory(converters.ConverterFactory):
+    def __init__(self, delegate):
+        self.make_request_body_converter = delegate
+
+
+class _Delegate(object):
+
+    def __init__(self, model_class, annotations, func):
+        self._model_class = model_class
+        self._annotations = annotations
         self._func = func
-        return self
-
-    def __call__(self, func):
-        self.__call__ = func
-        return self.using(func)
-
-    enroll = converters.register_default_converter_factory
 
     def _contains_annotations(self, argument_annotations, method_annotations):
         types = set(_get_classes(argument_annotations))
@@ -42,9 +37,47 @@ class _ModelConverterBuilder(object):
             self._contains_annotations(argument_annotations, method_annotations)
         )
 
-    def _marshall(self, type_, *args, **kwargs):
+    def __call__(self, type_, *args, **kwargs):
         if self._is_relevant(type_, *args, **kwargs):
             return functools.partial(self._func, type_)
+
+
+class _Wrapper(converters.ConverterFactory):
+
+    def __init__(self, factory, func):
+        self.make_response_body_converter = factory.make_response_body_converter
+        self.make_request_body_converter = factory.make_request_body_converter
+        self.make_string_converter = factory.make_string_converter
+        self._func = func
+
+    def __call__(self, *args, **kwargs):
+        return self._func(*args, **kwargs)
+
+
+class _ModelConverterBuilder(object):
+
+    def __init__(self, base_class, annotations=()):
+        """
+        Args:
+            base_class (type): The base model class.
+        """
+        self._model_class = base_class
+        self._annotations = set(annotations)
+
+    def using(self, func):
+        """Sets the converter strategy to the given function."""
+        delegate = _Delegate(self._model_class, self._annotations, func)
+        return self._wrap_delegate(delegate)
+
+    def _wrap_delegate(self, delegate):  # pragma: no cover
+        raise NotImplementedError
+
+    def __call__(self, func):
+        converter = _Wrapper(self.using(func), func)
+        functools.update_wrapper(converter, func)
+        return converter
+
+    enroll = converters.register_default_converter_factory
 
     @classmethod
     def _make_builder(cls, base_class, annotations, *more_annotations):
@@ -54,7 +87,7 @@ class _ModelConverterBuilder(object):
 
 
 # noinspection PyPep8Naming
-class loads(_ModelConverterBuilder, converters.ConverterFactory):
+class loads(_ModelConverterBuilder):
     """
     Builds a custom object deserializer.
 
@@ -75,8 +108,8 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
     .. versionadded:: v0.5.0
     """
 
-    def make_response_body_converter(self, *args, **kwargs):
-        return self._marshall(*args, **kwargs)
+    def _wrap_delegate(self, delegate):
+        return ResponseBodyConverterFactory(delegate)
 
     @classmethod
     def from_json(cls, base_class, annotations=()):
@@ -114,7 +147,7 @@ class loads(_ModelConverterBuilder, converters.ConverterFactory):
 
 
 # noinspection PyPep8Naming
-class dumps(_ModelConverterBuilder, converters.ConverterFactory):
+class dumps(_ModelConverterBuilder):
     """
     Builds a custom object serializer.
 
@@ -135,8 +168,8 @@ class dumps(_ModelConverterBuilder, converters.ConverterFactory):
     .. versionadded:: v0.5.0
     """
 
-    def make_request_body_converter(self, *args, **kwargs):
-        return self._marshall(*args, **kwargs)
+    def _wrap_delegate(self, delegate):
+        return RequestBodyConverterFactory(delegate)
 
     @classmethod
     def to_json(cls, base_class, annotations=()):
