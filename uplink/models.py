@@ -77,7 +77,7 @@ class _ModelConverterBuilder(object):
         functools.update_wrapper(converter, func)
         return converter
 
-    enroll = converters.register_default_converter_factory
+    publish = converters.register_default_converter_factory
 
     @classmethod
     def _make_builder(cls, base_class, annotations, *more_annotations):
