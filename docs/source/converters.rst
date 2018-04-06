@@ -61,8 +61,8 @@ Writing a Custom Converter
 You can define custom converters by using :py:class:`uplink.loads` and
 :py:class:`uplink.dumps`.
 
-These classes can be used one of two ways. First is as function
-decorators:
+These classes can be used as decorators to create converters of a class
+and its subclasses:
 
 .. code-block:: python
 
@@ -71,35 +71,27 @@ decorators:
     def load_model_from_json(model_type, json):
         ...
 
-With this usage, the decorated function is registered as a default
-converter (specifically for the class :py:class:`Model` and its
-subclasses).
-
-The alternative usage is to build a converter instance:
+To use the converter, you can generated converter object when
+instantiating a :py:class:`~uplink.Consumer` subclass, through the
+:py:attr:`converter` constructor parameter:
 
 .. code-block:: python
 
+    github = GitHub(BASE_URL, converter=load_model_from_json)
+
+Alternatively, you can add the :py:meth:`uplink.loads.enroll` or
+:py:meth:`uplink.dumps.enroll` decorator to register the converter
+function as a default converter, meaning the converter will be included
+automatically with any consumer instance and doesn't need to be
+explicitly provided through the ``converter`` parameter:
+
+.. code-block:: python
+
+    # Registers the function as a default loader for the given model class.
+    @loads.enroll
+    @loads.from_json(Model)
     def load_model_from_json(model_type, json):
         ...
-
-    # Creates a converter using the given loader function.
-    converter = loads.from_json(Model).using(load_model_from_json)
-
-Unlike the decorator usage, this approach does not register the function
-as a default converter, meaning, to use the converter, you must supply
-the generated converter object when instantiating a
-:py:class:`~uplink.Consumer` subclass, through the :py:attr:`converter`
-constructor parameter.
-
-Notably, invoking the :py:meth:`~uplink.loads.by_default` method
-registers the generated converter object as a default converter,
-achieving parity between the two usages. Hence, the follow snippet is
-equivalent to the first example using the decorator approach:
-
-.. code-block:: python
-
-    # Registers the function as a loader for the given model class.
-    loads.from_json(Model).using(load_model_from_json).by_default()
 
 .. autoclass:: uplink.loads
     :members:
