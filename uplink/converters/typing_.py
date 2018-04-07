@@ -100,9 +100,8 @@ class TypingConverter(interfaces.ConverterFactory):
         is a port of the module available on PyPI.
 
         However, you can utilize this converter without the
-        :py:mod:`typing` module by using one of the proxies defined
-        by :py:class:`uplink.returns` (e.g.,
-        :py:attr:`uplink.returns.List`).
+        :py:mod:`typing` module by using one of the proxies defined by
+        :py:class:`uplink.returns` (e.g.,:py:attr:`uplink.types.List`).
     """
     try:
         import typing
