@@ -52,8 +52,33 @@ Here are the collection types defined in :py:class:`uplink.types`. You can
 use these or the corresponding type hints from :py:class:`typing` to leverage
 this feature:
 
-.. automodule:: uplink.types
-    :members:
+.. TODO: using autoclass:: uplink.types doesn't work when deployed to
+         uplink.readthedocs.io for some reason. Figure out why!
+
+.. autodata:: uplink.types.List
+    :annotation:
+
+    A proxy for :py:class:`typing.List` that is safe to use in type
+    hints with Python 3.4 and below.
+
+    .. code-block:: python
+
+        @get("/users")
+        def get_users(self) -> types.List[str]:
+            \"""Fetches all users\"""
+
+.. autodata:: uplink.types.Dict
+    :annotation:
+
+    A proxy for :py:class:`typing.Dict` that is safe to use in type
+    hints with Python 3.4 and below.
+
+    .. code-block:: python
+
+        @returns.json
+        @get("/users")
+        def get_users(self) -> types.Dict[str, str]:
+            \"""Fetches all users\"""
 
 Writing a Custom Converter
 ==========================
@@ -88,7 +113,7 @@ explicitly provided through the ``converter`` parameter:
 .. code-block:: python
 
     # Register the function as a default loader for the given model class.
-    @loads.install
+    @loads.publish
     @loads.from_json(Model)
     def load_model_from_json(model_type, json):
         ...

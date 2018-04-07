@@ -13,8 +13,6 @@ hints with Python 3.4 and below.
     @get("/users")
     def get_users(self) -> types.List[str]:
         \"""Fetches all users\"""
-
-.. versionadded:: v0.5.0
 """
 
 Dict = converters.TypingConverter.Dict
@@ -28,6 +26,4 @@ hints with Python 3.4 and below.
     @get("/users")
     def get_users(self) -> types.Dict[str, str]:
         \"""Fetches all users\"""
-
-.. versionadded:: v0.5.0
 """
