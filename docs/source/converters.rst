@@ -113,7 +113,7 @@ explicitly provided through the ``converter`` parameter:
 .. code-block:: python
 
     # Register the function as a default loader for the given model class.
-    @loads.publish
+    @loads.install
     @loads.from_json(Model)
     def load_model_from_json(model_type, json):
         ...
