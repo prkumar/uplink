@@ -65,7 +65,7 @@ this feature:
 
         @get("/users")
         def get_users(self) -> types.List[str]:
-            \"""Fetches all users\"""
+            """Fetches all users"""
 
 .. autodata:: uplink.types.Dict
     :annotation:
@@ -78,7 +78,7 @@ this feature:
         @returns.json
         @get("/users")
         def get_users(self) -> types.Dict[str, str]:
-            \"""Fetches all users\"""
+            """Fetches all users"""
 
 Writing a Custom Converter
 ==========================
