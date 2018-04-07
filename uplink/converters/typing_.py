@@ -101,7 +101,7 @@ class TypingConverter(interfaces.ConverterFactory):
 
         However, you can utilize this converter without the
         :py:mod:`typing` module by using one of the proxies defined by
-        :py:class:`uplink.returns` (e.g.,:py:attr:`uplink.types.List`).
+        :py:class:`uplink.returns` (e.g., :py:obj:`uplink.types.List`).
     """
     try:
         import typing
