@@ -18,8 +18,8 @@ Uplink turns your HTTP API into a Python class.
    class GitHub(Consumer):
 
       @get("users/{user}/repos")
-      def list_repos(self, user: Path, sort_by: Query("sort")):
-         """Get user's public repositories."""
+      def get_repos(self, user: Path, sort_by: Query("sort")):
+         """Retrieves the user's public repositories."""
 
 Build an instance to interact with the webservice.
 
@@ -31,7 +31,7 @@ Then, executing an HTTP request is as simply as invoking a method.
 
 .. code-block:: python
 
-   repos = github.list_repos("octocat", sort_by="created")
+   repos = github.get_repos("octocat", sort_by="created")
 
 The returned object is a friendly |requests.Response|_:
 
@@ -52,12 +52,13 @@ For sending non-blocking requests, Uplink comes with support for
 Use decorators and function annotations to describe the HTTP request:
 
 * URL parameter replacement and query parameter support
-* Convert responses into Python objects (e.g., |using marshmallow|_)
+* Convert response bodies into Python objects (e.g., using |marshmallow|_ or
+  a `custom converter <http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body>`_)
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to apply custom response and error handling
 
-.. |using marshmallow| replace:: using ``marshmallow``
-.. _`using marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
+.. |marshmallow| replace:: ``marshmallow``
+.. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 
 Installation
 ============
@@ -81,8 +82,7 @@ Extra! Extra!
 Further, uplink has optional integrations and features. You can view a full list 
 of available extras `here <http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
 
-When installing Uplink with ``pip``, you can specify any of number of extras
-using the format:
+When installing Uplink with ``pip``, you can select extras using the format:
 
 ::
 
@@ -111,8 +111,9 @@ Thank you for taking the time to improve an open source project 💜
 .. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
    :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
-.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master&service=github
-   :target: https://coveralls.io/github/prkumar/uplink?branch=master
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/prkumar/uplink.svg   
+   :alt: Codecov   
+   :target: https://codecov.io/gh/prkumar/uplink
 .. |Documentation Status| image:: https://readthedocs.org/projects/uplink/badge/?version=latest
    :target: http://uplink.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status

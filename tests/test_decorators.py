@@ -1,3 +1,7 @@
+# Standard library imports
+import collections
+
+# Third party imports
 import pytest
 
 # Local imports
@@ -57,6 +61,7 @@ class TestMethodAnnotationHandlerBuilder(object):
             method_level2
         ]
 
+
 class TestMethodAnnotationHandler(object):
 
     def test_handle_builder(self, request_builder, method_annotation_mock):
@@ -78,7 +83,7 @@ class TestMethodAnnotation(object):
     def test_call_with_class(self,
                              method_annotation,
                              request_definition_builder):
-        class Class(object):
+        class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         method_annotation(Class)
@@ -89,7 +94,7 @@ class TestMethodAnnotation(object):
     def test_static_call_with_class(
             self, mocker, request_definition_builder
     ):
-        class Class(object):
+        class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         self.FakeMethodAnnotation(Class)
@@ -110,26 +115,25 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(mocker.ANY)
 
-    def test_method_in_http_method_whitelist(self,
-                                             method_annotation,
-                                             request_definition_builder):
-        request_definition_builder.method = "GET"
-        method_annotation.http_method_whitelist = ["GET"]
-        method_annotation.modify_request_definition(
-            request_definition_builder
-        )
-        assert True
+    def test_method_in_http_method_blacklist(self, request_definition_builder):
+        class DummyAnnotation(decorators.MethodAnnotation):
+            _http_method_blacklist = ["GET"]
 
-    def test_method_not_in_http_method_whitelist(self,
-                                                 method_annotation,
+        request_definition_builder.method = "GET"
+        assert not DummyAnnotation.supports_http_method(
+            request_definition_builder.method
+        )
+
+    def test_method_not_in_http_method_blacklist(self, 
                                                  request_definition_builder):
+        class DummyAnnotation(decorators.MethodAnnotation):
+            _http_method_whitelist = ["POST"]
+
         request_definition_builder.method = "POST"
         request_definition_builder.__name__ = "dummy"
-        method_annotation.http_method_whitelist = ["GET"]
-        with pytest.raises(decorators.HttpMethodNotSupport):
-            method_annotation.modify_request_definition(
-                request_definition_builder
-            )
+        assert DummyAnnotation().supports_http_method(
+            request_definition_builder.method
+        )
 
     def test_call_with_child_class(self,
                                    method_annotation,
@@ -179,27 +183,44 @@ def test_multipart(request_builder):
 def test_json(request_builder):
     json = decorators.json()
 
-    # Verify without
+    # Verify that we add the hook
     json.modify_request(request_builder)
-    assert "json" not in request_builder.info
+    request_builder.add_transaction_hook.assert_called_with(json._hook)
 
-    # Verify with
+    # Verify
     request_builder.info["data"] = {"field_name": "field_value"}
-    json.modify_request(request_builder)
+    json.set_json_body(request_builder)
     assert request_builder.info["json"] == {"field_name": "field_value"}
+    assert len(request_builder.info["json"]) == 1
+
+    # Check delete
+    del request_builder.info["json"]["field_name"]
+    assert len(request_builder.info["json"]) == 0
     assert "data" not in request_builder.info
+
+    # Verify nested attribute
+    request_builder.info["data"] = {("outer", "inner"): "inner_value"}
+    json.set_json_body(request_builder)
+    assert request_builder.info["json"] == {"outer": {"inner": "inner_value"}}
+    assert "data" not in request_builder.info
+
+    # Verify that error is raised when path is empty
+    request_builder.info["data"] = {(): "value"}
+    with pytest.raises(ValueError):
+        json.set_json_body(request_builder)
+
+    # Verify that error is raised when paths conflict
+    request_builder.info["data"] = body = collections.OrderedDict()
+    body["key"] = "outer"
+    body["key", "inner"] = "inner value"
+    with pytest.raises(ValueError):
+        json.set_json_body(request_builder)
 
 
 def test_timeout(request_builder):
     timeout = decorators.timeout(60)
     timeout.modify_request(request_builder)
     request_builder.info["timeout"] == 60
-
-
-def test_returns(request_builder):
-    returns = decorators.returns(str)
-    returns.modify_request(request_builder)
-    assert request_builder.return_type is str
 
 
 def test_args(request_definition_builder):
@@ -217,7 +238,7 @@ def test_args_decorate_function(mocker):
         return handler
 
     mocker.patch(
-        "uplink.types.ArgumentAnnotationHandlerBuilder.from_func",
+        "uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func",
         patched
     )
     args = decorators.args(str, str, name=str)

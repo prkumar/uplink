@@ -1,10 +1,10 @@
 # Standard library imports
-import collections
 import functools
 import warnings
 
 # Local imports
 from uplink import (
+    arguments,
     auth as auth_,
     clients,
     converters,
@@ -12,10 +12,8 @@ from uplink import (
     helpers,
     hooks,
     interfaces,
-    utils,
-    types
+    utils
 )
-from uplink.converters import keys
 
 __all__ = ["build", "Consumer"]
 
@@ -34,12 +32,8 @@ class RequestPreparer(object):
 
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
-        converter = contract.get_converter(
-            keys.CONVERT_FROM_RESPONSE_BODY,
-            contract.return_type)
-        if converter is not None:
-            # Found a converter that can handle the return type.
-            chain.append(hooks.ResponseHandler(converter.convert))
+        if callable(contract.return_type):
+            chain.append(hooks.ResponseHandler(contract.return_type))
         chain.extend(self._hooks)
         return chain
 
@@ -47,7 +41,8 @@ class RequestPreparer(object):
     def apply_hooks(chain, request_builder, sender):
         hook = hooks.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
-        sender.add_callback(hook.handle_response)
+        if hook.handle_response is not None:
+            sender.add_callback(hook.handle_response)
         sender.add_exception_handler(hook.handle_exception)
 
     def prepare_request(self, request_builder):
@@ -87,8 +82,7 @@ class Builder(interfaces.CallBuilder):
         self._base_url = ""
         self._hooks = []
         self._client = clients.get_client()
-        self._converters = collections.deque()
-        self._converters.append(converters.StandardConverter())
+        self._converters = converters.get_default_converter_factories()
         self._auth = auth_.get_auth()
 
     @property
@@ -117,10 +111,14 @@ class Builder(interfaces.CallBuilder):
 
     @property
     def converters(self):
-        return iter(self._converters)
+        return self._converters
 
-    def add_converter(self, *converters_):
-        self._converters.extendleft(converters_)
+    @converters.setter
+    def converters(self, converters_):
+        if isinstance(converters_, converters.interfaces.ConverterFactory):
+            converters_ = (converters_,)
+        self._converters = tuple(converters_)
+        self._converters += converters.get_default_converter_factories()
 
     @property
     def auth(self):
@@ -184,7 +182,7 @@ class ConsumerMeta(type):
         except KeyError:
             pass
         else:
-            builder = types.ArgumentAnnotationHandlerBuilder.from_func(init)
+            builder = arguments.ArgumentAnnotationHandlerBuilder.from_func(init)
             handler = builder.build()
 
             @functools.wraps(init)
@@ -216,7 +214,7 @@ class ConsumerMeta(type):
 _Consumer = ConsumerMeta("_Consumer", (), {})
 
 
-class Consumer(_Consumer):
+class Consumer(interfaces.Consumer, _Consumer):
 
     def __init__(
             self,
@@ -228,9 +226,7 @@ class Consumer(_Consumer):
     ):
         self._builder = Builder()
         self._builder.base_url = base_url
-        if isinstance(converter, converters.interfaces.ConverterFactory):
-            converter = (converter,)
-        self._builder.add_converter(*converter)
+        self._builder.converters = converter
         if isinstance(hook, hooks.TransactionHook):
             hook = (hook,)
         self._builder.add_hook(*hook)

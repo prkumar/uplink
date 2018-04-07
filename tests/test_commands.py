@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import commands, converters, types, utils
+from uplink import commands, converters, arguments, utils
 
 
 class TestHttpMethodFactory(object):
@@ -52,12 +52,29 @@ class TestHttpMethod(object):
             return_annotation="return_annotation"
         )
         mocker.patch("uplink.utils.get_arg_spec").return_value = sig
-        returns = mocker.patch("uplink.decorators.returns")
+        returns = mocker.patch("uplink.returns.json")
         http_method = commands.HttpMethod("METHOD", uri="/{hello}")
         http_method(func)
 
         # Verify: build is wrapped with decorators.returns
         returns.assert_called_with(sig.return_annotation)
+
+    def test_call_with_args(self, mocker, annotation_mock):
+        # Setup
+        def func(): pass
+        args = mocker.patch("uplink.decorators.args")
+
+        # Verify: using sequence
+        http_method = commands.HttpMethod(
+            "METHOD", uri="/{hello}", args=(annotation_mock,))
+        http_method(func)
+        args.assert_called_with(annotation_mock)
+
+        # Verify: using mapping
+        http_method = commands.HttpMethod(
+            "METHOD", uri="/{hello}", args={"arg1": "value"})
+        http_method(func)
+        args.assert_called_with(arg1="value")
 
 
 class TestURIDefinitionBuilder(object):
@@ -137,7 +154,7 @@ class TestRequestDefinitionBuilder(object):
             mocker,
             annotation_handler_builder_mock):
         # Setup
-        argument_handler_builder = mocker.Mock(stub=types.ArgumentAnnotationHandlerBuilder)
+        argument_handler_builder = mocker.Mock(stub=arguments.ArgumentAnnotationHandlerBuilder)
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
         builder = commands.RequestDefinitionBuilder(
@@ -155,7 +172,7 @@ class TestRequestDefinitionBuilder(object):
         # Verify
         builder.build()
         argument_handler_builder.set_annotations.assert_called_with(
-            {"arg1": types.Path}
+            {"arg1": arguments.Path}
         )
 
     def test_auto_fill_when_not_done_fails(self,

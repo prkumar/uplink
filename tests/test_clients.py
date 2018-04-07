@@ -50,6 +50,10 @@ def test_get_client_with_http_client_adapter_subclass():
     assert isinstance(client, HttpClientAdapterMock)
 
 
+def test_get_client_with_unrecognized_key():
+    assert register.get_client("no client for this key") is None
+
+
 class TestRequests(object):
 
     def test_get_client(self, mocker):
@@ -76,12 +80,16 @@ class TestRequests(object):
         session_mock.request.return_value = "response"
         callback = mocker.stub()
         client = requests_.Request(session_mock)
-        client.add_callback(callback)
 
         # Run
         client.send("method", "url", {})
 
         # Verify
+        session_mock.request.assert_called_with(method="method", url="url")
+
+        # Run with callback
+        client.add_callback(callback)
+        client.send("method", "url", {})
         session_mock.request.assert_called_with(method="method", url="url")
         callback.assert_called_with(session_mock.request.return_value)
 
@@ -160,6 +168,12 @@ class TestAiohttp(object):
                 AiohttpClient()
 
     @requires_python34
+    def test_init_with_session_None(self, mocker):
+        mocker.spy(AiohttpClient, "_create_session")
+        AiohttpClient(kwarg1="value")
+        AiohttpClient._create_session.assert_called_with(kwarg1="value")
+
+    @requires_python34
     def test_get_client(self, aiohttp_session_mock):
         client = register.get_client(aiohttp_session_mock)
         assert isinstance(client, aiohttp_.AiohttpClient)
@@ -214,6 +228,27 @@ class TestAiohttp(object):
         assert value == 2
 
     @requires_python34
+    def test_wrap_callback(self, mocker):
+        import asyncio
+
+        # Setup
+        c = AiohttpClient()
+        mocker.spy(c, "_sync_callback_adapter")
+
+        # Run: with callback that is not a coroutine
+        def callback(*_):
+            pass
+
+        c.wrap_callback(callback)
+
+        # Verify: Should wrap it
+        c._sync_callback_adapter.assert_called_with(callback)
+
+        # Run: with coroutine callback
+        coroutine_callback = asyncio.coroutine(callback)
+        assert c.wrap_callback(coroutine_callback) is coroutine_callback
+
+    @requires_python34
     def test_threaded_callback(self, mocker):
         import asyncio
 
@@ -233,6 +268,15 @@ class TestAiohttp(object):
         # Verify
         response.text.assert_called_with()
         assert value == response
+
+        # Run: Verify with callback that returns new value
+        def callback(*_):
+            return 1
+        new_callback = aiohttp_.threaded_callback(callback)
+        return_value = new_callback(response)
+        loop = asyncio.get_event_loop()
+        value = loop.run_until_complete(asyncio.ensure_future(return_value))
+        assert value == 1
 
     @requires_python34
     def test_threaded_coroutine(self):
@@ -260,17 +304,22 @@ class TestAiohttp(object):
         def coroutine():
             return 1
 
+        def not_a_coroutine():
+            return 2
+
         response = mocker.Mock()
-        response.text = coroutine
+        response.coroutine = coroutine
+        response.not_coroutine = not_a_coroutine
         threaded_response = aiohttp_.ThreadedResponse(response)
 
         # Run
-        threaded_coroutine = threaded_response.text
+        threaded_coroutine = threaded_response.coroutine
         return_value = threaded_coroutine()
 
         # Verify
         assert isinstance(threaded_coroutine, aiohttp_.ThreadedCoroutine)
         assert return_value == 1
+        assert threaded_response.not_coroutine is not_a_coroutine
 
     @requires_python34
     def test_create(self, mocker):

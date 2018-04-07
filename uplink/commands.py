@@ -1,8 +1,11 @@
 # Standard library imports
+import collections
 import functools
 
 # Local imports
-from uplink import converters, decorators, exceptions, interfaces, types, utils
+from uplink import (
+    arguments, converters, decorators, exceptions, interfaces, returns, utils
+)
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
@@ -14,7 +17,7 @@ class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
     def __init__(self, missing, path_variables):
         missing, path_variables = list(missing), list(path_variables)
         self.message = self.message % "', '".join(missing)
-        if path_variables:
+        if path_variables:  # pragma: no cover
             self.message += self.implicit_message % "', '".join(path_variables)
 
 
@@ -30,32 +33,46 @@ class HttpMethodFactory(object):
     def __init__(self, method):
         self._method = method
 
-    def __call__(self, uri=None):
-        if callable(uri):
+    def __call__(self, uri=None, args=()):
+        if callable(uri) and not args:
             return HttpMethod(self._method)(uri)
         else:
-            return HttpMethod(self._method, uri)
+            return HttpMethod(self._method, uri, args)
 
 
 class HttpMethod(object):
+    @staticmethod
+    def _add_args(obj): return obj
 
-    def __init__(self, method, uri=None):
+    def __init__(self, method, uri=None, args=None):
         self._method = method
         self._uri = uri
 
+        # Register argument annotations
+        if args:
+            is_map = isinstance(args, collections.Mapping)
+            args, kwargs = ((), args) if is_map else (args, {})
+            self._add_args = decorators.args(*args, **kwargs)
+
     def __call__(self, func):
         spec = utils.get_arg_spec(func)
-        arg_handler = types.ArgumentAnnotationHandlerBuilder(func, spec.args)
+        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(func, spec.args)
         builder = RequestDefinitionBuilder(
             self._method,
             URIDefinitionBuilder(self._uri),
             arg_handler,
             decorators.MethodAnnotationHandlerBuilder()
         )
-        arg_handler.add_annotations_from_spec(spec)
+
+        # Need to add the annotations after constructing the request
+        # definition builder so it has a chance to attach its listener.
+        arg_handler.set_annotations(spec.annotations)
+
+        # Use return value type hint as expected return type
         if spec.return_annotation is not None:
-            builder = decorators.returns(spec.return_annotation)(builder)
+            builder = returns.json(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
+        builder = self._add_args(builder)
         return builder
 
 
@@ -142,7 +159,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         if still_missing:
             raise MissingArgumentAnnotations(still_missing, matching)
 
-        path_vars = dict.fromkeys(matching, types.Path)
+        path_vars = dict.fromkeys(matching, arguments.Path)
         self.argument_handler_builder.set_annotations(path_vars)
 
     def build(self):
@@ -179,7 +196,7 @@ class RequestDefinition(interfaces.RequestDefinition):
         return converters.ConverterFactoryRegistry(
             converters_,
             argument_annotations=self.argument_annotations,
-            request_annotations=self.method_annotations
+            method_annotations=self.method_annotations
         )
 
     def define_request(self, request_builder, func_args, func_kwargs):

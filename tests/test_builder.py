@@ -24,12 +24,16 @@ class TestRequestPreparer(object):
 
     def test_prepare_request(
             self,
-            uplink_builder,
+            mocker,
             request_builder,
     ):
         request_builder.method = "METHOD"
         request_builder.url = "/example/path"
-        uplink_builder.base_url = "https://example.com"
+        request_builder.return_type = None
+        request_builder.transaction_hooks = ()
+        uplink_builder = mocker.Mock(spec=builder.Builder)
+        uplink_builder.converters = ()
+        uplink_builder.hooks = ()
         request_preparer = builder.RequestPreparer(uplink_builder)
         request_preparer.prepare_request(request_builder)
         uplink_builder.client.create_request().send.assert_called_with(
@@ -86,7 +90,7 @@ class TestCallFactory(object):
 class TestBuilder(object):
     def test_init_adds_standard_converter_factory(self, uplink_builder):
         assert isinstance(
-            uplink_builder._converters[0],
+            uplink_builder.converters[-1],
             converters.StandardConverter
         )
 
@@ -105,7 +109,7 @@ class TestBuilder(object):
     def test_add_converter_factory(self,
                                    uplink_builder,
                                    converter_factory_mock):
-        uplink_builder.add_converter(converter_factory_mock)
+        uplink_builder.converters = (converter_factory_mock,)
         factory = list(uplink_builder.converters)[0]
         assert factory == converter_factory_mock
 

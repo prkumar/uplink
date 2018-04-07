@@ -1,9 +1,10 @@
 # Standard library imports
+import collections
+import functools
 import inspect
 
 # Local imports
-from uplink import exceptions, helpers, hooks, interfaces, types
-
+from uplink import arguments, helpers, hooks, interfaces, utils
 
 __all__ = [
     "headers",
@@ -11,26 +12,11 @@ __all__ = [
     "multipart",
     "json",
     "timeout",
-    "returns",
     "args",
     "response_handler",
     "error_handler",
     "inject",
 ]
-
-
-class HttpMethodNotSupport(exceptions.AnnotationError):
-    message = (
-        "Error on method `%s`: annotation %s is not supported with %s "
-        "commands."
-    )
-
-    def __init__(self, request_definition_builder, annotation):
-        self.message = self.message % (
-            request_definition_builder.__name__,
-            type(annotation),
-            request_definition_builder.method.upper()
-        )
 
 
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
@@ -67,39 +53,50 @@ class MethodAnnotationHandler(interfaces.AnnotationHandler):
             annotation.modify_request(request_builder)
 
 
+# TODO: Only decorate consumers
 class MethodAnnotation(interfaces.Annotation):
-    http_method_whitelist = None
+    _http_method_blacklist = None
+    _http_method_whitelist = None
+
+    @staticmethod
+    def _is_consumer_class(c):
+        return utils.is_subclass(c, interfaces.Consumer)
+
+    @classmethod
+    def supports_http_method(cls, method):
+        method = method.upper()
+        if cls._http_method_blacklist is not None:
+            return method not in cls._http_method_blacklist
+        if cls._http_method_whitelist is not None:
+            return method in cls._http_method_whitelist
+        return True
+
+    @classmethod
+    def _is_relevant_for_builder(cls, builder):
+        return cls.supports_http_method(builder[1].method)
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
         if super(MethodAnnotation, cls)._is_static_call(*args_, **kwargs):
             return True
         try:
-            is_class = inspect.isclass(args_[0])
+            is_consumer_class = cls._is_consumer_class(args_[0])
         except IndexError:
             return False
         else:
-            return is_class and not (kwargs or args_[1:])
+            return is_consumer_class and not (kwargs or args_[1:])
 
     def __call__(self, class_or_builder):
-        if inspect.isclass(class_or_builder):
+        if self._is_consumer_class(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
+            builders = filter(self._is_relevant_for_builder, builders)
 
-            for name, builder in builders:
-                builder.method_handler_builder.add_annotation(
-                    self,
-                    is_class=True,
-                )
-                helpers.set_api_definition(class_or_builder, name, builder)
-        else:
+            for name, b in builders:
+                b.method_handler_builder.add_annotation(self, is_class=True)
+                helpers.set_api_definition(class_or_builder, name, b)
+        elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
             class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
-
-    def modify_request_definition(self, request_definition_builder):
-        if self.http_method_whitelist is not None:
-            method = request_definition_builder.method.upper()
-            if method not in self.http_method_whitelist:
-                raise HttpMethodNotSupport(request_definition_builder, self)
 
     def modify_request(self, request_builder):
         pass
@@ -168,6 +165,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     # XXX: Let `requests` handle building urlencoded syntax.
@@ -194,6 +192,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
 
     # XXX: Let `requests` handle building multipart syntax.
@@ -207,10 +206,10 @@ class multipart(MethodAnnotation):
 class json(MethodAnnotation):
     """Use as a decorator to make JSON requests.
 
-    You should annotate a method argument with `uplink.Body` which
-    indicates that the argument's value should become the request's
-    body. :py:class:`uplink.Body` has to be either a dict or a subclass
-    of py:class:`collections.Mapping`.
+    You can annotate a method argument with :py:class:`uplink.Body`,
+    which indicates that the argument's value should become the
+    request's body. :py:class:`uplink.Body` has to be either a dict or a
+    subclass of py:class:`collections.Mapping`.
 
     Example:
         .. code-block:: python
@@ -219,15 +218,87 @@ class json(MethodAnnotation):
             @patch(/user")
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
+
+    You can alternatively use the :py:class:`uplink.Field` annotation to
+    specify JSON fields separately, across multiple arguments:
+
+    Example:
+    .. code-block:: python
+
+        @json
+        @patch(/user")
+        def update_user(self, name: Field, email: Field("e-mail"):
+            \"""Update the current user.\"""
+
+    Further, to set a nested field, you can specify the path of the
+    target field with a tuple of strings as the first argument of
+    :py:class:`uplink.Field`.
+
+    Example:
+        Consider a consumer method that sends a PATCH request with a JSON
+        body of the following format:
+
+        .. code-block:: json
+            :emphasize-lines: 3
+
+            {
+                user: {
+                    name: "<User's Name>"
+                },
+            }
+
+        The tuple :py:obj:`("user", "name")` specifies the path to the
+        highlighted inner field:
+
+        .. code-block:: python
+            :emphasize-lines: 5
+
+            @json
+            @patch(/user")
+            def update_user(
+                            self,
+                            new_name: Field(("user", "name"))
+            ):
+                \"""Update the current user.\"""
     """
+    _http_method_blacklist = {"GET"}
     _can_be_static = True
+
+    @staticmethod
+    def _sequence_path_resolver(path, value, body):
+        if not path:
+            raise ValueError("Path sequence cannot be empty.")
+        for name in path[:-1]:
+            body = body.setdefault(name, {})
+            if not isinstance(body, collections.Mapping):
+                raise ValueError(
+                    "Failed to set nested JSON attribute '%s': "
+                    "parent field '%s' is not a JSON object."
+                    % (path, name)
+                )
+        body[path[-1]] = value
 
     def modify_request(self, request_builder):
         """Modifies JSON request."""
-        try:
-            request_builder.info["json"] = request_builder.info.pop("data")
-        except KeyError:
-            pass
+        request_builder.add_transaction_hook(self._hook)
+
+    @classmethod
+    def set_json_body(cls, request_builder):
+        body = request_builder.info.setdefault("json", {})
+        old_body = request_builder.info.pop("data", {})
+        for path in old_body:
+            if isinstance(path, tuple):
+                cls._sequence_path_resolver(path, old_body[path], body)
+            else:
+                body[path] = old_body[path]
+
+    __hook = None
+
+    @property
+    def _hook(self):
+        if self.__hook is None:
+            self.__hook = hooks.RequestAuditor(self.set_json_body)
+        return self.__hook
 
 
 # noinspection PyPep8Naming
@@ -259,38 +330,6 @@ class timeout(MethodAnnotation):
     def modify_request(self, request_builder):
         """Modifies request timeout."""
         request_builder.info["timeout"] = self._seconds
-
-
-# noinspection PyPep8Naming
-class returns(MethodAnnotation):
-    """
-    Specify the function's return annotation for Python 2.7
-    compatibility.
-
-    In Python 3, to provide a consumer method's return type, you can
-    set the it as the method's return annotation:
-
-    .. code-block:: python
-
-        @get("/users/{username}")
-        def get_user(self, username) -> UserSchema:
-            \"""Get a specific user.\"""
-
-    For Python 2.7 compatibility, you can use this decorator instead:
-
-    .. code-block:: python
-
-        @returns(UserSchema)
-        @get("/users/{username}")
-        def get_user(self, username):
-            \"""Get a specific user.\"""
-    """
-
-    def __init__(self, type):
-        self._type = type
-
-    def modify_request(self, request_builder):
-        request_builder.return_type = self._type
 
 
 # noinspection PyPep8Naming
@@ -330,7 +369,7 @@ class args(MethodAnnotation):
 
     def __call__(self, obj):
         if inspect.isfunction(obj):
-            handler = types.ArgumentAnnotationHandlerBuilder.from_func(obj)
+            handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
             return obj
         else:
@@ -349,8 +388,14 @@ class _InjectableMethodAnnotation(MethodAnnotation):
         request_builder.add_transaction_hook(self)
 
 
+class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
+    def __init__(self, func):
+        functools.update_wrapper(self, func)
+        super(_BaseHandlerAnnotation, self).__init__(func)
+
+
 # noinspection PyPep8Naming
-class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
+class response_handler(_BaseHandlerAnnotation, hooks.ResponseHandler):
     """
     A decorator for creating custom response handlers.
 
@@ -393,7 +438,7 @@ class response_handler(_InjectableMethodAnnotation, hooks.ResponseHandler):
 
 
 # noinspection PyPep8Naming
-class error_handler(_InjectableMethodAnnotation, hooks.ExceptionHandler):
+class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
     """
     A decorator for creating custom error handlers.
 

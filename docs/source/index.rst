@@ -66,7 +66,8 @@ For sending non-blocking requests, Uplink comes with support for
 Use decorators and function annotations to describe the HTTP request:
 
 * URL parameter replacement and query parameter support
-* Convert responses into Python objects (e.g., using :py:mod:`marshmallow`)
+* Convert response bodies into Python objects (e.g., using
+  :py:mod:`marshmallow` or a custom converter)
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to define custom response and error handling
 
@@ -100,8 +101,9 @@ This guide details the classes and methods in Uplink's public API.
    changes.rst
 
 
-.. |Coverage Status| image:: https://coveralls.io/repos/github/prkumar/uplink/badge.svg?branch=master
-   :target: https://coveralls.io/github/prkumar/uplink?branch=master
+.. |Coverage Status| image:: https://img.shields.io/codecov/c/github/prkumar/uplink.svg
+   :alt: Codecov
+   :target: https://codecov.io/gh/prkumar/uplink
 .. |Gitter| image:: https://badges.gitter.im/python-uplink/Lobby.svg
    :target: https://gitter.im/python-uplink/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
    :alt: Join the chat at https://gitter.im/python-uplink/Lobby

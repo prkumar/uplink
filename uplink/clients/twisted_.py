@@ -6,7 +6,7 @@ returns :py:class:`twisted.internet.defer.Deferred` responses.
 # Third party imports
 try:
     from twisted.internet import threads
-except ImportError:
+except ImportError:  # pragma: no cover
     threads = None
 
 # Local imports

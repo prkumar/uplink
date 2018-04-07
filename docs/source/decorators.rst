@@ -48,3 +48,15 @@ inject
 ======
 
 .. autoclass:: uplink.inject
+
+
+returns.*
+=========
+
+Converting an HTTP response body into a custom Python object is
+straightforward with Uplink; the :py:mod:`uplink.returns` modules
+exposes optional decorators for defining the expected return type and
+data serialization format for any consumer method.
+
+.. automodule:: uplink.returns
+    :members:

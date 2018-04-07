@@ -1,6 +1,6 @@
 # Standard library imports
 import collections
-from functools import wraps
+import inspect
 
 try:
     # Python 3.2+
@@ -72,7 +72,11 @@ Signature = collections.namedtuple(
 Request = collections.namedtuple("Request", "method uri info return_type")
 
 
-def no_op(*_):
+def is_subclass(cls, class_info):
+    return inspect.isclass(cls) and issubclass(cls, class_info)
+
+
+def no_op(*_, **__):
     pass
 
 

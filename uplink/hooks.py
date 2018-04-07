@@ -20,14 +20,13 @@ class TransactionHook(object):
         """Inspects details of a request before it is sent."""
         pass
 
-    def handle_response(self, response):
-        """
-        Handles a response object from the server.
+    handle_response = None
+    """
+    Handles a response object from the server.
 
-        Args:
-            response: The received HTTP response.
-        """
-        return response
+    Args:
+        response: The received HTTP response.
+    """
 
     def handle_exception(self, exc_type, exc_val, exc_tb):  # pragma: no cover
         """
@@ -51,12 +50,15 @@ class TransactionHookChain(TransactionHook):
     method on all hooks in the chain.
     """
 
-    def __init__(self, hook, *hooks):
-        self._hooks = (hook,)
-        if not hooks:
-            self.handle_response = hook.handle_response
-        else:
-            self._hooks += hooks
+    def __init__(self, *hooks):
+        self._hooks = hooks
+
+        # TODO: Add comment about why we are doing this.
+        response_handlers = [h for h in hooks if h.handle_response is not None]
+        if not response_handlers:
+            self.handle_response = None
+        elif len(response_handlers) == 1:
+            self.handle_response = response_handlers[0].handle_response
 
     def audit_request(self, *args, **kwargs):
         for hook in self._hooks:

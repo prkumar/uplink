@@ -3,11 +3,9 @@ This module defines a converter that uses :py:mod:`marshmallow` schemas
 to deserialize and serialize values.
 """
 
-# Standard library imports
-import inspect
-
 # Local imports
-from uplink.converters import interfaces
+from uplink import utils
+from uplink.converters import interfaces, register
 
 
 class MarshmallowConverter(interfaces.ConverterFactory):
@@ -25,20 +23,15 @@ class MarshmallowConverter(interfaces.ConverterFactory):
         def get_users(self, username) -> UserSchema():
             '''Fetch a single user'''
 
-    Also, when instantiating a consumer, be sure to set this class as
-    a converter for the instance:
-
-    .. code-block:: python
-
-        github = GitHub(BASE_URL, converter=MarshmallowConverter())
-
     Note:
 
-        This converter is an optional feature and requires the :py:mod:`marshmallow`
-        package. For example, here's how to install this feature using pip::
+        This converter is an optional feature and requires the
+        :py:mod:`marshmallow` package. For example, here's how to
+        install this feature using pip::
 
             $ pip install uplink[marshmallow]
     """
+
     try:
         import marshmallow
     except ImportError:  # pragma: no cover
@@ -57,9 +50,13 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             try:
                 json = response.json()
             except AttributeError:
-                return response
-            else:
+                # Assume that the response is already json
+                json = response
+
+            try:
                 return self._schema.load(json).data
+            except MarshmallowConverter.marshmallow.exceptions.MarshmallowError:
+                return response
 
     class RequestBodyConverter(interfaces.Converter):
         def __init__(self, schema):
@@ -70,7 +67,7 @@ class MarshmallowConverter(interfaces.ConverterFactory):
 
     @classmethod
     def _get_schema(cls, type_):
-        if inspect.isclass(type_) and issubclass(type_, cls.marshmallow.Schema):
+        if utils.is_subclass(type_, cls.marshmallow.Schema):
             return type_()
         elif isinstance(type_, cls.marshmallow.Schema):
             return type_
@@ -87,20 +84,17 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             return converter_cls(schema)
 
     def make_request_body_converter(self, type_, *args, **kwargs):
-        """
-        Constructs a :py:class:`uplink.converters.interfaces.Converter`
-        subclass that serializes values using a
-        :py:class:`marshmallow.Schema`.
-        """
         return self._make_converter(self.RequestBodyConverter, type_)
 
     def make_response_body_converter(self, type_, *args, **kwargs):
-        """
-        Constructs a :py:class:`uplink.converters.interfaces.Converter`
-        subclass that deserializes values using a
-        :py:class:`marshmallow.Schema`.
-        """
         return self._make_converter(self.ResponseBodyConverter, type_)
 
-    def make_string_converter(self, type_, *args, **kwargs):
-        return None
+    @classmethod
+    def register_if_necessary(cls, register_func):
+        if cls.marshmallow is not None:
+            register_func(cls)
+
+
+MarshmallowConverter.register_if_necessary(
+    register.register_default_converter_factory
+)
