@@ -71,8 +71,7 @@ class json(_ReturnsBase):
     Specifies that the decorated consumer method should return a JSON
     object. If a :py:obj:`model` is provided, the resulting JSON object
     is converted into the :py:obj:`model` object using an appropriate
-    converter (see :py:meth:`uplink.loads.from_json`) and the final
-    object is returned.
+    converter (see :py:meth:`uplink.loads.from_json`).
 
     .. code-block:: python
 
@@ -81,7 +80,6 @@ class json(_ReturnsBase):
         @get("/users/{username}")
         def get_user(self, username):
             \"""Get a specific user.\"""
-
 
     Returning a Specific JSON Field:
 
@@ -138,10 +136,10 @@ class json(_ReturnsBase):
 
         Both usages typically require also registering a converter that
         knows how to deserialize the JSON into your data model object
-        (see :py:meth:`uplink.loads.from_json`), unless you define these
-        objects using a library for whom Uplink has built-in support,
-        such as :py:mod:`marshmallow` (see
-        :py:class:`uplink.converters.MarshmallowConverter`).
+        (see :py:meth:`uplink.loads.from_json`). This step is
+        unnecessary if these objects are defined using a library for
+        whom Uplink has built-in support, such as :py:mod:`marshmallow`
+        (see :py:class:`uplink.converters.MarshmallowConverter`).
 
     .. versionadded:: v0.5.0
     """
