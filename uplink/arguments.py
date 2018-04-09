@@ -609,8 +609,7 @@ class Body(TypedArgument):
 
     def _modify_request(self, request_builder, value):
         """Updates request body data."""
-        # TODO: Ensure that the body provides a mapping interface.
-        request_builder.info.setdefault("data", {}).update(value)
+        request_builder.info["data"] = value
 
 
 class Url(ArgumentAnnotation):

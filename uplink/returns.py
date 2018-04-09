@@ -1,8 +1,11 @@
+# Standard library imports
+import sys
+
 # Local imports
 from uplink import decorators
 from uplink.converters import keys
 
-__all__ = ["json", "from_json"]
+__all__ = ["json", "from_json", "custom"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
@@ -156,4 +159,30 @@ class json(_ReturnsBase):
         return JsonStrategy(converter, self._member)
 
 
+# noinspection PyPep8Naming
+class custom(_ReturnsBase):
+
+    def __init__(self, type):
+        self._type = type
+
+    def _get_return_type(self, return_type):
+        return self._type if return_type is None else return_type
+
+    def _make_strategy(self, converter):
+        return converter
+
+
 from_json = json
+
+
+class _ModuleObject(object):
+    old_module = sys.modules[__name__]
+
+    def __getattr__(self, item):
+        return getattr(self.old_module, item)
+
+    def __call__(self, *args, **kwargs):
+        return custom(*args, **kwargs)
+
+
+sys.modules[__name__] = _ModuleObject()
