@@ -166,13 +166,17 @@ class model(_ReturnsBase):
 
     In Python 3, to provide a consumer method's return type, you can
     set it as the method's return annotation:
+
     .. code-block:: python
+
         @get("/users/{username}")
         def get_user(self, username) -> UserSchema:
             \"""Get a specific user.\"""
 
     For Python 2.7 compatibility, you can use this decorator instead:
+
     .. code-block:: python
+
         @returns.model(UserSchema)
         @get("/users/{username}")
         def get_user(self, username):
