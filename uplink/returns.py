@@ -5,7 +5,7 @@ import sys
 from uplink import decorators
 from uplink.converters import keys
 
-__all__ = ["json", "from_json", "custom"]
+__all__ = ["json", "model"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
@@ -160,7 +160,28 @@ class json(_ReturnsBase):
 
 
 # noinspection PyPep8Naming
-class custom(_ReturnsBase):
+class model(_ReturnsBase):
+    """
+    Specifies that the function returns a specific class.
+
+    In Python 3, to provide a consumer method's return type, you can
+    set it as the method's return annotation:
+    .. code-block:: python
+        @get("/users/{username}")
+        def get_user(self, username) -> UserSchema:
+            \"""Get a specific user.\"""
+
+    For Python 2.7 compatibility, you can use this decorator instead:
+    .. code-block:: python
+        @returns.model(UserSchema)
+        @get("/users/{username}")
+        def get_user(self, username):
+            \"""Get a specific user.\"""
+
+    To have Uplink convert response bodies into the desired type, you
+    will need to define an appropriate converter (e.g., using
+    :py:class:`uplink.loads`).
+    """
 
     def __init__(self, type):
         self._type = type
@@ -172,17 +193,19 @@ class custom(_ReturnsBase):
         return converter
 
 
-from_json = json
+class _ModuleProxy(object):
+    __module = sys.modules[__name__]
 
-
-class _ModuleObject(object):
-    old_module = sys.modules[__name__]
+    model = model
+    json = json
+    from_json = json
+    __all__ = __module.__all__
 
     def __getattr__(self, item):
-        return getattr(self.old_module, item)
+        return getattr(self.__module, item)
 
     def __call__(self, *args, **kwargs):
-        return custom(*args, **kwargs)
+        return model(*args, **kwargs)
 
 
-sys.modules[__name__] = _ModuleObject()
+sys.modules[__name__] = _ModuleProxy()
