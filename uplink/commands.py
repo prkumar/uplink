@@ -70,7 +70,7 @@ class HttpMethod(object):
 
         # Use return value type hint as expected return type
         if spec.return_annotation is not None:
-            builder = returns.json(spec.return_annotation)(builder)
+            builder = returns.model(spec.return_annotation)(builder)
         functools.update_wrapper(builder, func)
         builder = self._add_args(builder)
         return builder
