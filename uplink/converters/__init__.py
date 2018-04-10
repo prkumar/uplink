@@ -22,6 +22,15 @@ __all__ = [
 ]
 
 
+install = register_default_converter_factory
+"""
+Registers the given converter as a default converter, meaning the
+converter will be included automatically with any consumer instance
+and doesn't need to be explicitly provided through the ``converter``
+parameter to be used.
+"""
+
+
 class ConverterChain(object):
 
     def __init__(self, converter_factory):
