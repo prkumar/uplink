@@ -96,7 +96,12 @@ and its subclasses:
     def load_model_from_json(model_type, json):
         ...
 
-To use the converter, you can generated converter object when
+.. note::
+
+    Unlike consumer methods, these functions should be defined outside
+    of a class scope.
+
+To use the converter, provide the generated converter object when
 instantiating a :py:class:`~uplink.Consumer` subclass, through the
 :py:attr:`converter` constructor parameter:
 
