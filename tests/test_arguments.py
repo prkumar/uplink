@@ -363,8 +363,14 @@ class TestBody(ArgumentTestCase):
     expected_converter_key = keys.CONVERT_TO_REQUEST_BODY
 
     def test_modify_request(self, request_builder):
+        # Verify with dict
         arguments.Body().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["data"] == {"hello": "world"}
+
+        # Verify with non-mapping
+        body = object()
+        arguments.Body().modify_request(request_builder, body)
+        assert request_builder.info["data"] is body
 
 
 class TestUrl(ArgumentTestCase):

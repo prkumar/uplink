@@ -6,6 +6,18 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.5.1_ - 2018-4-10
+==================
+Added
+-----
+- Decorator ``uplink.returns.model`` for specifying custom return type without
+  indicating a specific data deserialization format.
+
+Fixed
+-----
+- Have ``uplink.Body`` decorator accept any type, not just mappings.
+- Reintroduce the ``uplink.returns`` decorator.
+
 0.5.0_ - 2018-4-06
 ==================
 Added
@@ -142,6 +154,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.5.1: https://github.com/prkumar/uplink/compare/v0.5.0...v0.5.1
 .. _0.5.0: https://github.com/prkumar/uplink/compare/v0.4.1...v0.5.0
 .. _0.4.1: https://github.com/prkumar/uplink/compare/v0.4.0...v0.4.1
 .. _0.4.0: https://github.com/prkumar/uplink/compare/v0.3.0...v0.4.0

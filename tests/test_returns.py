@@ -2,6 +2,13 @@
 from uplink import returns
 
 
+def test_returns(request_builder):
+    request_builder.get_converter.return_value = str
+    custom = returns(str)
+    custom.modify_request(request_builder)
+    assert request_builder.return_type.unwrap() is str
+
+
 def test_returns_json(request_builder):
     request_builder.get_converter.return_value = str
     returns_json = returns.json(str, ())
