@@ -185,6 +185,8 @@ class model(_ReturnsBase):
     To have Uplink convert response bodies into the desired type, you
     will need to define an appropriate converter (e.g., using
     :py:class:`uplink.loads`).
+
+    .. versionadded:: v0.5.1
     """
 
     def __init__(self, type):
