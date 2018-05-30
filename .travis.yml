@@ -9,7 +9,7 @@ before_script:
   - |
     if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then
       # tox 3.0.0 dropped python 3.3.* support.
-      pip install tox <= 2.9.1
+      pip install tox==2.9.1
     else
       pip install tox
     fi
