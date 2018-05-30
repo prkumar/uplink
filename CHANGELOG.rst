@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.5.2_ - 2018-5-30
+==================
+Fixed
+-----
+- Applying ``returns.json`` decorator without arguments should produce JSON
+  responses when the decorated method is lacking a return value annotation.
+
 0.5.1_ - 2018-4-10
 ==================
 Added
@@ -154,6 +161,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.5.2: https://github.com/prkumar/uplink/compare/v0.5.1...v0.5.2
 .. _0.5.1: https://github.com/prkumar/uplink/compare/v0.5.0...v0.5.1
 .. _0.5.0: https://github.com/prkumar/uplink/compare/v0.4.1...v0.5.0
 .. _0.4.1: https://github.com/prkumar/uplink/compare/v0.4.0...v0.4.1
