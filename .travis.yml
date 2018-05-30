@@ -7,6 +7,7 @@ python:
   - '3.6'
 before_script:
   - pip install tox
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then pip install wheel==0.29.0; fi
 script:
   - tox -e py
 after_success:
