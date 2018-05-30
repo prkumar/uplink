@@ -8,8 +8,9 @@ python:
 before_script:
   - |
     if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then
-      # tox 3.0.0 dropped python 3.3.* support.
-      pip install tox==2.9.1
+      # virtualenv 16.0.0 bundles wheel 0.31.1, which drops python 3.3.* support
+      # tox 3.0.0 drops python 3.3.* support
+      pip install virtualenv==15.2.0 tox==2.9.1
     else
       pip install tox
     fi
