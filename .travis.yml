@@ -6,8 +6,13 @@ python:
   - '3.5'
   - '3.6'
 before_script:
-  - pip install tox
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then pip install wheel==0.29.0; fi
+  - |
+    if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then
+      # tox 3.0.0 dropped python 3.3.* support.
+      pip install tox <= 2.9.1
+    else
+      pip install tox
+    fi
 script:
   - tox -e py
 after_success:
