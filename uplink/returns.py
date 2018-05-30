@@ -3,9 +3,9 @@ import sys
 
 # Local imports
 from uplink import decorators
-from uplink.converters import keys
+from uplink.converters import keys, interfaces
 
-__all__ = ["json", "model"]
+__all__ = ["from_json", "json", "model"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
@@ -148,15 +148,32 @@ class json(_ReturnsBase):
     """
     _can_be_static = True
 
+    class _DummyConverter(interfaces.Converter):
+        def convert(self, response):
+            return response
+
+    __dummy_converter = _DummyConverter()
+
     def __init__(self, model=None, member=()):
         self._model = model
         self._member = member
 
     def _get_return_type(self, return_type):
-        return self._model if return_type is None else return_type
+        # If the model and return type are None, the strategy should
+        # directly return the JSON body of the HTTP response, instead of
+        # trying to deserialize it into a model. In this case, by
+        # defaulting the return type to the dummy converter, which
+        # implements this pass-through behavior, we ensure that
+        # _make_strategy is called.
+        default = self.__dummy_converter if self._model is None else self._model
+
+        return default if return_type is None else return_type
 
     def _make_strategy(self, converter):
         return JsonStrategy(converter, self._member)
+
+
+from_json = json
 
 
 # noinspection PyPep8Naming
@@ -204,7 +221,7 @@ class _ModuleProxy(object):
 
     model = model
     json = json
-    from_json = json
+    from_json = from_json
     __all__ = __module.__all__
 
     def __getattr__(self, item):
