@@ -1,7 +1,7 @@
 Uplink
 ******
 |PyPI Version| |Build Status| |Coverage Status| |Code Climate| |Documentation Status|
-|Gitter|
+|Gitter| |Code Style|
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with **Requests**, **asyncio**, and **Twisted**.
@@ -111,6 +111,9 @@ Thank you for taking the time to improve an open source project 💜
 .. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
    :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
+.. |Code Style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+   :alt: Code style: black
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/prkumar/uplink.svg   
    :alt: Codecov   
    :target: https://codecov.io/gh/prkumar/uplink
