@@ -42,11 +42,19 @@ class TestTransactionHookChain(object):
         chain.handle_response({})
         transaction_hook_mock.handle_response.assert_called_with({})
 
-    def test_delegate_handle_response_multiple(self, transaction_hook_mock):
+    def test_delegate_handle_response_multiple(self, mocker):
+        # Include one hook that can't handle responses
+        mock_response_handler = mocker.stub()
+        mock_request_auditor = mocker.stub()
+
         chain = hooks.TransactionHookChain(
-            transaction_hook_mock, transaction_hook_mock)
+            hooks.RequestAuditor(mock_request_auditor),
+            hooks.ResponseHandler(mock_response_handler),
+            hooks.ResponseHandler(mock_response_handler)
+        )
         chain.handle_response({})
-        transaction_hook_mock.call_count == 2
+        mock_response_handler.call_count == 2
+        mock_request_auditor.call_count == 1
 
     def test_delegate_handle_exception(self, transaction_hook_mock):
         chain = hooks.TransactionHookChain(transaction_hook_mock)

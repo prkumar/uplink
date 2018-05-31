@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.5.3_ - 2018-5-31
+==================
+Fixed
+-----
+- Issue where adding two or more response handlers (i.e., functions decorated
+  with ``uplink.response_handler``) to a method caused a ``TypeError``.
+
 0.5.2_ - 2018-5-30
 ==================
 Fixed
@@ -161,6 +168,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.5.3: https://github.com/prkumar/uplink/compare/v0.5.2...v0.5.3
 .. _0.5.2: https://github.com/prkumar/uplink/compare/v0.5.1...v0.5.2
 .. _0.5.1: https://github.com/prkumar/uplink/compare/v0.5.0...v0.5.1
 .. _0.5.0: https://github.com/prkumar/uplink/compare/v0.4.1...v0.5.0
