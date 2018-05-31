@@ -22,7 +22,7 @@ hints with Python 3.4 and below.
 
 .. code-block:: python
 
-    @returns.json
+    @returns.from_json
     @get("/users")
     def get_users(self) -> types.Dict[str, str]:
         \"""Fetches all users\"""
