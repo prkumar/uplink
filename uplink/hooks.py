@@ -55,6 +55,7 @@ class TransactionHookChain(TransactionHook):
 
     def __init__(self, *hooks):
         self._hooks = hooks
+        self._response_handlers = []
 
         # TODO: If more than one callback exists on the chain, the chain
         # expects it can execute each synchronously. Instead, we should
@@ -76,15 +77,15 @@ class TransactionHookChain(TransactionHook):
         elif len(response_handlers) == 1:
             self.handle_response = response_handlers[0].handle_response
 
+        self._response_handlers = response_handlers
+
     def audit_request(self, *args, **kwargs):
         for hook in self._hooks:
             hook.audit_request(*args, **kwargs)
 
     def handle_response(self, response, *args, **kwargs):
-        for hook in self._hooks:
-            if hook.handle_response is not None:
-                # This hook can handle responses:
-                response = hook.handle_response(response, *args, **kwargs)
+        for hook in self._response_handlers:
+            response = hook.handle_response(response, *args, **kwargs)
         return response
 
     def handle_exception(self, *args, **kwargs):
