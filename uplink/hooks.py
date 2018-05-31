@@ -22,7 +22,10 @@ class TransactionHook(object):
 
     handle_response = None
     """
-    Handles a response object from the server.
+    Handles a response object from the server. 
+    
+    This method can be undefined (i.e., None), indicating that this hook
+    does not handle responses.
 
     Args:
         response: The received HTTP response.
@@ -53,7 +56,20 @@ class TransactionHookChain(TransactionHook):
     def __init__(self, *hooks):
         self._hooks = hooks
 
-        # TODO: Add comment about why we are doing this.
+        # TODO: If more than one callback exists on the chain, the chain
+        # expects it can execute each synchronously. Instead, we should
+        # be smart about this and produces a chained coroutine when all
+        # callbacks are coroutines, so that the client can execute the
+        # chain asynchronously. Further, when provided both synchronous
+        # and asynchronous callbacks, we should raise an exception when
+        # the order is mixed and split into two chains (one async and
+        # the other sync) when the order permits separation.
+
+        # Adding a synchronous callback to an async request forces the
+        # request to execute synchronously while running this chain. To
+        # avoid unnecessarily executing this chain when no callbacks
+        # exists, we can set the `handle_response` method to null,
+        # indicating that this hook doesn't handle responses.
         response_handlers = [h for h in hooks if h.handle_response is not None]
         if not response_handlers:
             self.handle_response = None
@@ -66,7 +82,9 @@ class TransactionHookChain(TransactionHook):
 
     def handle_response(self, response, *args, **kwargs):
         for hook in self._hooks:
-            response = hook.handle_response(response, *args, **kwargs)
+            if hook.handle_response is not None:
+                # This hook can handle responses:
+                response = hook.handle_response(response, *args, **kwargs)
         return response
 
     def handle_exception(self, *args, **kwargs):
