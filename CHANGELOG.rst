@@ -11,7 +11,7 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 Fixed
 -----
 - Issue where adding two or more response handlers (i.e., functions decorated
-  with ``uplink.response_handler``) to a method caused a ``TypeError`.
+  with ``uplink.response_handler``) to a method caused a ``TypeError``.
 
 0.5.2_ - 2018-5-30
 ==================
