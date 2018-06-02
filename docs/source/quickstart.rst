@@ -334,15 +334,19 @@ authenticated with the access token passed in at initialization:
     # This request will include the above access token as a query parameter.
     github.update_user(bio="Beam me up, Scotty!")
 
-:py:meth:`_inject` Request Properties
-=====================================
+The Consumer's :obj:`session` Property
+======================================
 
-.. versionadded:: 0.4.0
+.. versionadded:: 0.6.0
 
-As an alternative to :ref:`annotating constructor arguments`, you can achieve
-a similar behavior with more control by using the
-:py:meth:`Consumer._inject` method. With this method, you can calculate
-request properties within plain old python methods.
+The :py:obj:`session` property exposes configuration and allows for the
+persistence of certain request properties across any request
+
+of a :py:class:`~uplink.Consumer` instances
+
+As an alternative to :ref:`annotating constructor arguments`, you can provide
+default data (such as headers or query parameters) for all requests sent from
+the consumer instance:
 
 .. code-block:: python
 
@@ -351,10 +355,16 @@ request properties within plain old python methods.
         def __init__(self, username, password)
             # Create an access token
             api_key = create_api_key(username, password)
+            self.session.params["api_key"] = api_key
 
-            # Inject it.
-            self._inject(uplink.Query("api_key").with_value(api_key))
+        # Both 'api_key' and 'sort_by' are sent by this method
+        def get_todos(self, sort: uplink.Query("sort_by")):
+            """Retrieves all todo items."""
 
-Similar to the annotation style, request properties added with
-:py:meth:`~uplink.Consumer._inject` method are applied to all requests made
-through the consumer instance.
+Similar to the annotation style, request properties added through the
+session property are applied to all requests made from the consumer instance.
+
+Further, the session's dictionary properties (e.g., :obj:`headers` and
+:obj:`params`) are merged with the corresponding method-level properties.
+Notably, the method-level properties override the session's, but the
+method-level properties are not persisted across requests.
