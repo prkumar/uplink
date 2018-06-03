@@ -31,7 +31,7 @@ def test_params(uplink_builder_mock):
     sess.params["key"] = "value"
 
     # Verify
-    uplink_builder_mock.add_hook.assert_called()
+    assert uplink_builder_mock.add_hook.called
     assert sess.params == {"key": "value"}
 
 
