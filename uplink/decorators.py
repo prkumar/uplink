@@ -8,6 +8,7 @@ from uplink import arguments, helpers, hooks, interfaces, utils
 
 __all__ = [
     "headers",
+    "params",
     "form_url_encoded",
     "multipart",
     "json",
