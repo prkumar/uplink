@@ -491,13 +491,5 @@ class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
     """
     A decorator that applies one or more hooks to a request method.
 
-    Example:
-        .. code-block:: python
-
-            @inject(Query("sort").with_value("pushed"))
-            @get("users/{user}/repos")
-            def list_repos(self, user):
-                \"""Lists user's public repos by latest pushed.\"""
-
     .. versionadded:: 0.4.0
     """
