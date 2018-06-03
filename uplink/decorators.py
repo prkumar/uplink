@@ -104,23 +104,21 @@ class MethodAnnotation(interfaces.Annotation):
 
 
 class _BaseRequestProperties(MethodAnnotation):
-    def __init__(self, __prop_name, arg, **kwargs):
-        self._name = __prop_name
-        if isinstance(arg, str):
-            key, value = self._split(arg)
-            self._values = {key: value}
-        elif isinstance(arg, list):
+    _property_name = None
+    _delimiter = None
+
+    def __init__(self, arg, **kwargs):
+        if isinstance(arg, list):
             self._values = dict(self._split(a) for a in arg)
         else:
             self._values = dict(arg, **kwargs)
 
-    @staticmethod
-    def _split(arg):
-        return map(str.strip, arg.split(":"))
+    def _split(self, arg):
+        return map(str.strip, arg.split(self._delimiter))
 
     def modify_request(self, request_builder):
         """Updates header contents."""
-        request_builder.info[self._name].update(self._values)
+        request_builder.info[self._property_name].update(self._values)
 
 
 # noinspection PyPep8Naming
@@ -151,11 +149,22 @@ class headers(_BaseRequestProperties):
         **kwargs: More header values.
     """
     def __init__(self, arg, **kwargs):
-        super(headers, self).__init__("headers", arg, **kwargs)
+        if isinstance(arg, str):
+            key, value = self._split(arg)
+            arg = {key: value}
+        super(headers, self).__init__(arg, **kwargs)
+
+    @property
+    def _delimiter(self):
+        return ":"
+
+    @property
+    def _property_name(self):
+        return "headers"
 
 
 # noinspection PyPep8Naming
-class params(MethodAnnotation):
+class params(_BaseRequestProperties):
     """
     A decorator that adds static query parameters for API calls.
 
@@ -182,7 +191,17 @@ class params(MethodAnnotation):
         **kwargs: More query parameters.
     """
     def __init__(self, arg, **kwargs):
-        super(params, self).__init__("params", arg, **kwargs)
+        if isinstance(arg, str):
+            arg = arg.split("&")
+        super(params, self).__init__(arg, **kwargs)
+
+    @property
+    def _property_name(self):
+        return "params"
+
+    @property
+    def _delimiter(self):
+        return "="
 
 
 # noinspection PyPep8Naming
