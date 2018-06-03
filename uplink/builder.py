@@ -234,7 +234,6 @@ class Consumer(interfaces.Consumer, _Consumer):
         client = GitHub("https://api.github.com/")
         client.get_user("prkumar").json()  # {'login': 'prkumar', ... }
 
-
     Args:
         base_url (:obj:`str`, optional): The base URL for any request
             sent from this consumer instance.
@@ -262,15 +261,15 @@ class Consumer(interfaces.Consumer, _Consumer):
             auth=None,
             hook=()
     ):
-        self.__builder = Builder()
-        self.__builder.base_url = base_url
-        self.__builder.converters = converter
+        builder = Builder()
+        builder.base_url = base_url
+        builder.converters = converter
         if isinstance(hook, hooks.TransactionHook):
             hook = (hook,)
-        self.__builder.add_hook(*hook)
-        self.__builder.auth = auth
-        self.__builder.client = client
-        self.__session = session.Session(self.__builder)
+        builder.add_hook(*hook)
+        builder.auth = auth
+        builder.client = client
+        self.__session = session.Session(builder)
 
     def _inject(self, hook, *more_hooks):
         self.session.inject(hook, *more_hooks)
