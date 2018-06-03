@@ -19,7 +19,7 @@ def test_headers(uplink_builder_mock):
     sess.headers["key"] = "value"
 
     # Verify
-    uplink_builder_mock.add_hook.assert_called()
+    assert uplink_builder_mock.add_hook.called
     assert sess.headers == {"key": "value"}
 
 
