@@ -157,10 +157,6 @@ class headers(_BaseRequestProperties):
 # noinspection PyPep8Naming
 class params(MethodAnnotation):
     """
-    # TODO: Update tutorial to illustrate that there you can use
-    # this class to set static query parameters, much like the
-    # the difference between Header and headers.
-
     A decorator that adds static query parameters for API calls.
 
     .. code-block:: python

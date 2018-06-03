@@ -55,19 +55,30 @@ or use the :py:class:`~uplink.Path` annotation.
     @get("group/{id}/users")
     def group_list(self, group_id: Path("id")): pass
 
-:py:class:`~uplink.Query` parameters can also be added.
+:py:class:`~uplink.Query` parameters can also be added dynamically
+by method arguments.
 
 .. code:: python
 
     @get("group/{id}/users")
     def group_list(self, group_id: Path("id"), sort: Query): pass
 
-For complex query parameter combinations, a mapping can be used:
+For complex query parameter combinations, a :py:class:`~uplink.QueryMap`
+can be used:
 
 .. code:: python
 
     @get("group/{id}/users")
-    def group_list(self, group_id: Path("id"), options: QueryMap): pass
+    def group_list(self, group_id: Path("id"), **options: QueryMap): pass
+
+You can set static query parameters for a method using the
+:py:class:`~uplink.params` decorator.
+
+.. code:: python
+
+    @params({"client_id": "my-client", "client_secret": "****"})
+    @get("users/{username}")
+    def get_user(self, username): pass
 
 
 Request Body
