@@ -40,6 +40,16 @@ arguments`):
         def __init__(self, base_url, access_token: Query)
             ...
 
+or persist it through the :obj:`session` property (see :ref:`session property`):
+
+.. code-block:: python
+
+    class GitHub(Consumer):
+
+        def __init__(self, base_url, credentials):
+            self.session.params["access_token"] = self._get_access_token(credentials)
+            ...
+
 
 Using Auth Support for Requests and aiohttp
 -------------------------------------------
