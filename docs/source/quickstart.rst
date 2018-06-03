@@ -159,7 +159,6 @@ function parameter annotation:
     def get_user(self, authorization: Header):
         """Get an authenticated user."""
 
-
 Synchronous vs. Asynchronous
 ============================
 
@@ -331,8 +330,12 @@ authenticated with the access token passed in at initialization:
 
     github = TodoApp("my-github-access-token")
 
-    # This request will include the above access token as a query parameter.
+    # This request will include the `access_token` query parameter set from
+    # the constructor argument.
     github.update_user(bio="Beam me up, Scotty!")
+
+
+.. _`session property`:
 
 The Consumer's :obj:`session` Property
 ======================================
@@ -340,13 +343,12 @@ The Consumer's :obj:`session` Property
 .. versionadded:: 0.6.0
 
 The :py:obj:`session` property exposes configuration and allows for the
-persistence of certain request properties across any request
+persistence of certain request properties across requests sent from a
+:py:class:`~uplink.Consumer` instances
 
-of a :py:class:`~uplink.Consumer` instances
-
-As an alternative to :ref:`annotating constructor arguments`, you can provide
-default data (such as headers or query parameters) for all requests sent from
-the consumer instance:
+As an alternative to :ref:`annotating constructor arguments`, you can
+provide default headers and query parameters for all requests sent from
+the consumer instance through the :py:obj:`session` property:
 
 .. code-block:: python
 
@@ -357,14 +359,14 @@ the consumer instance:
             api_key = create_api_key(username, password)
             self.session.params["api_key"] = api_key
 
-        # Both 'api_key' and 'sort_by' are sent by this method
-        def get_todos(self, sort: uplink.Query("sort_by")):
+        # Both 'api_key' and 'sort_by' are sent
+        def get_todos(self, sort_by: uplink.Query("sort_by")):
             """Retrieves all todo items."""
 
-Similar to the annotation style, request properties added through the
-session property are applied to all requests made from the consumer instance.
+Similar to the annotation style, headers and query parameters added
+through the :obj:`session` are applied to all requests sent from the
+consumer instance.
 
-Further, the session's dictionary properties (e.g., :obj:`headers` and
-:obj:`params`) are merged with the corresponding method-level properties.
-Notably, the method-level properties override the session's, but the
-method-level properties are not persisted across requests.
+Notably, in case of conflicts, the method-level headers and parameters
+override the session-level, but these method-level properties are not
+persisted across requests.
