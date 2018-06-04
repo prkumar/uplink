@@ -337,29 +337,31 @@ authenticated with the access token passed in at initialization:
 
 .. _`session property`:
 
-The Consumer's :obj:`session` Property
-======================================
+Persistence Across Requests from a :obj:`Consumer`
+==================================================
 
 .. versionadded:: 0.6.0
 
-The :py:obj:`session` property exposes configuration and allows for the
-persistence of certain request properties across requests sent from a
-:py:class:`~uplink.Consumer` instances
+The :py:obj:`session` property of a :class:`~uplink.Consumer` instance exposes
+the instance's configuration and allows for the persistence of certain
+properties across requests sent from that instance.
 
 As an alternative to :ref:`annotating constructor arguments`, you can
-provide default headers and query parameters for all requests sent from
-the consumer instance through the :py:obj:`session` property:
+provide default headers and query parameters for requests sent from a
+consumer instance through its :py:obj:`session` property:
 
 .. code-block:: python
 
     class TodoApp(uplink.Consumer):
 
         def __init__(self, username, password)
-            # Create an access token
+            # Creates the API token for this user
             api_key = create_api_key(username, password)
+
+            # Send the API token as a query parameter with each request.
             self.session.params["api_key"] = api_key
 
-        # Both 'api_key' and 'sort_by' are sent
+        # Both 'api_key' and 'sort_by' are sent.
         def get_todos(self, sort_by: uplink.Query("sort_by")):
             """Retrieves all todo items."""
 
@@ -368,5 +370,5 @@ through the :obj:`session` are applied to all requests sent from the
 consumer instance.
 
 Notably, in case of conflicts, the method-level headers and parameters
-override the session-level, but these method-level properties are not
+override the session-level, but the method-level properties are not
 persisted across requests.
