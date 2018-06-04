@@ -159,7 +159,6 @@ function parameter annotation:
     def get_user(self, authorization: Header):
         """Get an authenticated user."""
 
-
 Synchronous vs. Asynchronous
 ============================
 
@@ -331,30 +330,45 @@ authenticated with the access token passed in at initialization:
 
     github = TodoApp("my-github-access-token")
 
-    # This request will include the above access token as a query parameter.
+    # This request will include the `access_token` query parameter set from
+    # the constructor argument.
     github.update_user(bio="Beam me up, Scotty!")
 
-:py:meth:`_inject` Request Properties
-=====================================
 
-.. versionadded:: 0.4.0
+.. _`session property`:
 
-As an alternative to :ref:`annotating constructor arguments`, you can achieve
-a similar behavior with more control by using the
-:py:meth:`Consumer._inject` method. With this method, you can calculate
-request properties within plain old python methods.
+Persistence Across Requests from a :obj:`Consumer`
+==================================================
+
+.. versionadded:: 0.6.0
+
+The :py:obj:`session` property of a :class:`~uplink.Consumer` instance exposes
+the instance's configuration and allows for the persistence of certain
+properties across requests sent from that instance.
+
+As an alternative to :ref:`annotating constructor arguments`, you can
+provide default headers and query parameters for requests sent from a
+consumer instance through its :py:obj:`session` property:
 
 .. code-block:: python
 
     class TodoApp(uplink.Consumer):
 
         def __init__(self, username, password)
-            # Create an access token
+            # Creates the API token for this user
             api_key = create_api_key(username, password)
 
-            # Inject it.
-            self._inject(uplink.Query("api_key").with_value(api_key))
+            # Send the API token as a query parameter with each request.
+            self.session.params["api_key"] = api_key
 
-Similar to the annotation style, request properties added with
-:py:meth:`~uplink.Consumer._inject` method are applied to all requests made
-through the consumer instance.
+        # Both 'api_key' and 'sort_by' are sent.
+        def get_todos(self, sort_by: uplink.Query("sort_by")):
+            """Retrieves all todo items."""
+
+Similar to the annotation style, headers and query parameters added
+through the :obj:`session` are applied to all requests sent from the
+consumer instance.
+
+Notably, in case of conflicts, the method-level headers and parameters
+override the session-level, but the method-level properties are not
+persisted across requests.

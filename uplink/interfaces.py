@@ -132,8 +132,14 @@ class CallBuilder(object):
     def hooks(self):
         raise NotImplementedError
 
+    def add_hook(self, hook, *more_hooks):
+        raise NotImplementedError
+
     @property
     def auth(self):
+        raise NotImplementedError
+
+    def build(self, definition):
         raise NotImplementedError
 
 
@@ -142,5 +148,9 @@ class Auth(object):
     def __call__(self, request_builder):
         raise NotImplementedError
 
+
 class Consumer(object):
-    pass
+
+    @property
+    def session(self):
+        raise NotImplementedError

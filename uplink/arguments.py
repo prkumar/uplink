@@ -244,7 +244,7 @@ class FuncDecoratorMixin(object):
     def with_value(self, value):
         """
         Creates an object that can be used with the
-        :py:class:`Consumer._inject` method or
+        :py:class:`Session.inject` method or
         :py:class:`~uplink.inject` decorator to inject request properties
         with specific values.
 
