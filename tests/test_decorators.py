@@ -1,6 +1,5 @@
 # Standard library imports
 import collections
-
 # Third party imports
 import pytest
 
@@ -166,6 +165,30 @@ def test_headers(request_builder):
     headers_lst.modify_request(request_builder)
     header = {"key_1": "value_1", "key_2": "value_2"}
     assert request_builder.info["headers"] == header
+
+
+def test_params(request_builder):
+    params = decorators.params({"param": "value"})
+    params.modify_request(request_builder)
+    assert request_builder.info["params"] == {"param": "value"}
+
+
+def test_params_with_string(request_builder):
+    params_with_str = decorators.params("param1=value1&param2=value2")
+    params_with_str.modify_request(request_builder)
+    assert request_builder.info["params"] == {
+        "param1": "value1",
+        "param2": "value2"
+    }
+
+
+def test_params_with_list(request_builder):
+    params_list = decorators.params(["param1=value1", "param2=value2"])
+    params_list.modify_request(request_builder)
+    assert request_builder.info["params"] == {
+        "param1": "value1",
+        "param2": "value2"
+    }
 
 
 def test_form_url_encoded(request_builder):
