@@ -8,6 +8,7 @@ from uplink import arguments, helpers, hooks, interfaces, utils
 
 __all__ = [
     "headers",
+    "params",
     "form_url_encoded",
     "multipart",
     "json",
@@ -102,14 +103,32 @@ class MethodAnnotation(interfaces.Annotation):
         pass
 
 
+class _BaseRequestProperties(MethodAnnotation):
+    _property_name = None
+    _delimiter = None
+
+    def __init__(self, arg, **kwargs):
+        if isinstance(arg, list):
+            self._values = dict(self._split(a) for a in arg)
+        else:
+            self._values = dict(arg, **kwargs)
+
+    def _split(self, arg):
+        return map(str.strip, arg.split(self._delimiter))
+
+    def modify_request(self, request_builder):
+        """Updates header contents."""
+        request_builder.info[self._property_name].update(self._values)
+
+
 # noinspection PyPep8Naming
-class headers(MethodAnnotation):
+class headers(_BaseRequestProperties):
     """
     A decorator that adds static headers for API calls.
 
     .. code-block:: python
 
-        @headers({"User-Agent": "Uplink-Sample-App})
+        @headers({"User-Agent": "Uplink-Sample-App"})
         @get("/user")
         def get_user(self):
             \"""Get the current user\"""
@@ -119,32 +138,70 @@ class headers(MethodAnnotation):
 
     .. code-block:: python
 
-        @headers({"Accept": "application/vnd.github.v3.full+json")
+        @headers({"Accept": "application/vnd.github.v3.full+json"})
         class GitHub(Consumer):
             ...
 
     :py:class:`headers` takes the same arguments as :py:class:`dict`.
 
     Args:
-        *arg: A dict containing header values.
+        arg: A dict containing header values.
         **kwargs: More header values.
     """
-
     def __init__(self, arg, **kwargs):
         if isinstance(arg, str):
-            key, value = self._get_header(arg)
-            self._headers = {key: value}
-        elif isinstance(arg, list):
-            self._headers = dict(self._get_header(a) for a in arg)
-        else:
-            self._headers = dict(arg, **kwargs)
+            key, value = self._split(arg)
+            arg = {key: value}
+        super(headers, self).__init__(arg, **kwargs)
 
-    def _get_header(self, arg):
-        return map(str.strip, arg.split(":"))
+    @property
+    def _delimiter(self):
+        return ":"
 
-    def modify_request(self, request_builder):
-        """Updates header contents."""
-        request_builder.info["headers"].update(self._headers)
+    @property
+    def _property_name(self):
+        return "headers"
+
+
+# noinspection PyPep8Naming
+class params(_BaseRequestProperties):
+    """
+    A decorator that adds static query parameters for API calls.
+
+    .. code-block:: python
+
+        @params({"sort": "created"})
+        @get("/user")
+        def get_user(self):
+            \"""Get the current user\"""
+
+    When used as a class decorator, :py:class:`params` applies to
+    all consumer methods bound to the class:
+
+    .. code-block:: python
+
+        @params({"client_id": "my-app-client-id"})
+        class GitHub(Consumer):
+            ...
+
+    :py:class:`params` takes the same arguments as :py:class:`dict`.
+
+    Args:
+        arg: A dict containing query parameters.
+        **kwargs: More query parameters.
+    """
+    def __init__(self, arg, **kwargs):
+        if isinstance(arg, str):
+            arg = arg.split("&")
+        super(params, self).__init__(arg, **kwargs)
+
+    @property
+    def _property_name(self):
+        return "params"
+
+    @property
+    def _delimiter(self):
+        return "="
 
 
 # noinspection PyPep8Naming
@@ -490,14 +547,6 @@ class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
 class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
     """
     A decorator that applies one or more hooks to a request method.
-
-    Example:
-        .. code-block:: python
-
-            @inject(Query("sort").with_value("pushed"))
-            @get("users/{user}/repos")
-            def list_repos(self, user):
-                \"""Lists user's public repos by latest pushed.\"""
 
     .. versionadded:: 0.4.0
     """

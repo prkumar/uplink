@@ -12,6 +12,7 @@ from uplink import (
     helpers,
     hooks,
     interfaces,
+    session,
     utils
 )
 
@@ -164,7 +165,7 @@ class ConsumerMethod(object):
         if instance is None:
             return self._request_definition_builder
         else:
-            return instance._builder.build(self._request_definition)
+            return instance.session.create(self._request_definition)
 
 
 class ConsumerMeta(type):
@@ -193,7 +194,7 @@ class ConsumerMeta(type):
                     handler.handle_call_args, call_args=call_args
                 )
                 hook = hooks.RequestAuditor(f)
-                self._builder.add_hook(hook)
+                self.session.inject(hook)
 
             namespace["__init__"] = new_init
 
@@ -215,6 +216,42 @@ _Consumer = ConsumerMeta("_Consumer", (), {})
 
 
 class Consumer(interfaces.Consumer, _Consumer):
+    """
+    Base consumer class with which to define custom consumers.
+
+    Example usage:
+
+    .. code-block:: python
+
+        from uplink import Consumer, get
+
+        class GitHub(Consumer):
+
+            @get("/users/{user}")
+            def get_user(self, user):
+                pass
+
+        client = GitHub("https://api.github.com/")
+        client.get_user("prkumar").json()  # {'login': 'prkumar', ... }
+
+    Args:
+        base_url (:obj:`str`, optional): The base URL for any request
+            sent from this consumer instance.
+        client (optional): A supported HTTP client instance (e.g.,
+            a :class:`requests.Session`) or an adapter (e.g.,
+            :class:`~uplink.RequestsClient`).
+        converter (:class:`ConverterFactory` or :obj:`tuple`, optional):
+            One or more objects that encapsulate custom
+            (de)serialization strategies for request properties and/or
+            the response body. (E.g.,
+            :class:`~uplink.converters.MarshmallowConverter`)
+        auth (:obj:`tuple` or :obj:`callable`, optional): The
+            authentication object for this consumer instance.
+        hook (:class:`~uplink.hooks.TransactionHook` or :obj:`tuple`):
+            One or more hooks to modify behavior of request execution
+            and response handling (see :class:`~uplink.response_handler`
+            or :class:`~uplink.error_handler`).
+    """
 
     def __init__(
             self,
@@ -224,17 +261,45 @@ class Consumer(interfaces.Consumer, _Consumer):
             auth=None,
             hook=()
     ):
-        self._builder = Builder()
-        self._builder.base_url = base_url
-        self._builder.converters = converter
+        builder = Builder()
+        builder.base_url = base_url
+        builder.converters = converter
         if isinstance(hook, hooks.TransactionHook):
             hook = (hook,)
-        self._builder.add_hook(*hook)
-        self._builder.auth = auth
-        self._builder.client = client
+        builder.add_hook(*hook)
+        builder.auth = auth
+        builder.client = client
+        self.__session = session.Session(builder)
 
     def _inject(self, hook, *more_hooks):
-        self._builder.add_hook(hook, *more_hooks)
+        self.session.inject(hook, *more_hooks)
+
+    @property
+    def session(self):
+        """
+        The :class:`~uplink.session.Session` object for this consumer
+        instance.
+
+        Exposes the configuration of this :class:`~uplink.Consumer`
+        instance and allows the persistence of certain properties across
+        all requests sent from that instance.
+
+        Example usage:
+
+        .. code-block:: python
+
+            import uplink
+
+            class MyConsumer(uplink.Consumer):
+                def __init__(self, language):
+                    # Set this header for all requests of the instance.
+                    self.session.headers["Accept-Language"] = language
+                    ...
+
+        Returns:
+            :class:`~uplink.session.Session`
+        """
+        return self.__session
 
 
 def build(service_cls, *args, **kwargs):
