@@ -72,6 +72,18 @@ Use decorators and function annotations to describe the HTTP request:
 * Inject functions as **middleware** to define custom response and error handling
 
 
+User Testimonials
+===============
+
+**Or Carmi** (`@liiight`_), notifiers_ maintainer-
+    *Uplink’s intelligent usage of decorators and typing leverages the most
+    pythonic features in an elegant and dynamic way. If you need to create an
+    API abstraction layer, there is really no reason to look elsewhere.*
+
+.. _@liiight: https://github.com/liiight
+.. _notifiers: https://github.com/notifiers/notifiers
+
+
 The User Manual
 ===============
 
