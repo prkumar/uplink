@@ -37,7 +37,7 @@ Install all development dependencies using:
     $ pre-commit install
 
 
-We strongly encourage using a virtualenv_ :)
+We strongly encourage using a virtualenv_.
 
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/
 
