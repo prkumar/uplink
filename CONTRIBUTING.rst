@@ -33,13 +33,17 @@ Install all development dependencies using:
 
 ::
 
-    $ pip install -e . -r requirements.d/core.txt -r requirements.d/dev.txt
-    $ pre-commit install
+    $ pipenv install --dev
+    $ pipenv run pre-commit install
 
 
-We strongly encourage using a virtualenv_.
+If you are unfamiliar with pipenv_ but are comfortable with virtualenvs_,
+you can alternatively run ``pip install pipenv`` inside the virtualenv you are
+already using then invoke the commands from above. This will setup your
+virtualenv correctly.
 
-.. _virtualenv: https://virtualenv.pypa.io/en/stable/
+.. _pipenv: https://docs.pipenv.org/
+.. _virtualenvs: https://virtualenv.pypa.io/en/stable/
 
 Before submitting a pull request, run all tests with tox_:
 
