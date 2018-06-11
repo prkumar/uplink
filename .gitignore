@@ -101,13 +101,5 @@ ENV/
 # Jetbrains
 .idea/
 
-# Our tests require aiohttp for Python 3.4+. To allow contributors to develop
-# against Python 2.7, we'll omit the Pipfile.lock for now:
-#   Ref: https://docs.pipenv.org/basics/#general-recommendations-version-control
-#
-# If we ever decide to lock-down the development version to a Python version, we
-# can remove this entry:
-Pipfile.lock
-
 # pytest
 .pytest_cache

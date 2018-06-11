@@ -53,6 +53,16 @@ Before submitting a pull request, run all tests with tox_:
 
 .. _tox: https://tox.readthedocs.io/en/latest/
 
+.. note::
+
+    Our ``Pipfile.lock`` was created using ``pipenv`` on Python 3.6.
+    Contributors using Python 2.7 and 3.3 may experience issues during
+    installation, since some development dependencies require Python
+    3.4+. For this reason, we strongly encourage using Python 3.6.
+    However, to workaround the dependency problem for development on an
+    earlier version of Python, you can try using the ``--skip-lock``
+    flag with ``pipenv install``.
+
 
 Making Changes to the Source
 ============================
