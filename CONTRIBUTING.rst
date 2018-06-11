@@ -33,13 +33,17 @@ Install all development dependencies using:
 
 ::
 
-    $ pip install -e . -r requirements.d/core.txt -r requirements.d/dev.txt
-    $ pre-commit install
+    $ pipenv install --dev
+    $ pipenv run pre-commit install
 
 
-We strongly encourage using a virtualenv_.
+If you are unfamiliar with pipenv_ but are comfortable with virtualenvs_,
+you can alternatively run ``pip install pipenv`` inside the virtualenv you are
+already using then invoke the commands from above. This will setup your
+virtualenv correctly.
 
-.. _virtualenv: https://virtualenv.pypa.io/en/stable/
+.. _pipenv: https://docs.pipenv.org/
+.. _virtualenvs: https://virtualenv.pypa.io/en/stable/
 
 Before submitting a pull request, run all tests with tox_:
 
@@ -48,6 +52,19 @@ Before submitting a pull request, run all tests with tox_:
     $ tox
 
 .. _tox: https://tox.readthedocs.io/en/latest/
+
+
+Recommended Python Version for Development
+------------------------------------------
+
+We strongly encourage using Python 3.6 for development.
+
+Our ``Pipfile.lock`` was created using ``pipenv`` on Python 3.6.
+Contributors using Python 2.7 and 3.3 may experience issues during
+installation, since some development dependencies require Python
+3.4+. However, as a workaround for development on an earlier version
+of Pyton, you can try using the ``--skip-lock`` flag with 
+``pipenv install``.
 
 
 Making Changes to the Source

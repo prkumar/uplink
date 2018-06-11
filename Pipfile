@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[dev-packages]
+pytest = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+pre-commit = "*"
+tox = "*"
+
+
+[packages]
+"e1839a8" = {path = ".", editable = true}
+twisted = "<=17.9.0"
+aiohttp = {version = "*", markers = "python_version >= '3.4'"}
+marshmallow = "*"
+typing = "*"
