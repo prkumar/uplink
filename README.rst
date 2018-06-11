@@ -64,7 +64,7 @@ Installation
 ============
 ``uplink`` supports Python 2.7 & 3.3-3.7.
 
-To install the latest stable release, you can use ``pip``:
+To install the latest stable release, you can use ``pip`` (or ``pipenv``):
 
 ::
 
