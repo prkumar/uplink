@@ -1,5 +1,4 @@
 class Converter(object):
-
     def convert(self, value):
         raise NotImplementedError
 
@@ -17,8 +16,9 @@ class ConverterFactory(object):
     protocol.
     """
 
-    def make_response_body_converter(self, type, argument_annotations,
-                                     method_annotations):
+    def make_response_body_converter(
+        self, type, argument_annotations, method_annotations
+    ):
         """
         Returns a callable that can convert a response body into the
         specified py:obj:`type`.
@@ -28,8 +28,9 @@ class ConverterFactory(object):
         the type.
         """
 
-    def make_request_body_converter(self, type, argument_annotations,
-                                    method_annotations):
+    def make_request_body_converter(
+        self, type, argument_annotations, method_annotations
+    ):
         """
         Returns a callable that can convert `type` into an acceptable
         request body.
@@ -39,8 +40,9 @@ class ConverterFactory(object):
         the type.
         """
 
-    def make_string_converter(self, type, argument_annotations,
-                              method_annotations):
+    def make_string_converter(
+        self, type, argument_annotations, method_annotations
+    ):
         """
         Returns a callable that can convert `type` into a
         :py:class:`str`.

@@ -7,14 +7,13 @@ converter layer to identify the desired conversion type when querying a
 import functools
 
 # Local imports
-from uplink.converters import interfaces
 
 __all__ = [
     "CONVERT_TO_STRING",
     "CONVERT_TO_REQUEST_BODY",
     "CONVERT_FROM_RESPONSE_BODY",
     "Map",
-    "Sequence"
+    "Sequence",
 ]
 
 #: Object to string conversion.
@@ -34,6 +33,7 @@ class CompositeKey(object):
     Arguments:
         converter_key: The enveloped converter key.
     """
+
     def __init__(self, converter_key):
         self._converter_key = converter_key
 
@@ -65,6 +65,7 @@ class Map(CompositeKey):
         # Key for conversion of an object to a mapping of strings.
         Map(CONVERT_TO_STRING)
     """
+
     def convert(self, converter, value):
         return dict((k, converter(value[k])) for k in value)
 
@@ -79,6 +80,7 @@ class Sequence(CompositeKey):
         # Key for conversion of an object to a sequence of strings.
         Sequence(CONVERT_TO_STRING)
     """
+
     def convert(self, converter, value):
         if isinstance(value, (list, tuple)):
             return list(map(converter, value))

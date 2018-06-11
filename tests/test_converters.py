@@ -62,12 +62,17 @@ class TestStandardConverter(object):
 class TestConverterFactoryRegistry(object):
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
-    def test_init_args_are_passed_to_factory(self, converter_factory_mock, converter_mock):
+    def test_init_args_are_passed_to_factory(
+        self, converter_factory_mock, converter_mock
+    ):
         args = ("arg1", "arg2")
         kwargs = {"arg3": "arg3"}
-        converter_factory_mock.make_string_converter.return_value = converter_mock
+        converter_factory_mock.make_string_converter.return_value = (
+            converter_mock
+        )
         registry = converters.ConverterFactoryRegistry(
-            (converter_factory_mock,), *args, **kwargs)
+            (converter_factory_mock,), *args, **kwargs
+        )
         return_value = registry[converters.keys.CONVERT_TO_STRING]()
         converter_factory_mock.make_string_converter.assert_called_with(
             *args, **kwargs
@@ -80,8 +85,12 @@ class TestConverterFactoryRegistry(object):
         assert return_value is None
 
     def test_hooks(self, converter_factory_mock, converter_mock):
-        converter_factory_mock.make_string_converter.return_value = converter_mock
-        registry = converters.ConverterFactoryRegistry((converter_factory_mock,))
+        converter_factory_mock.make_string_converter.return_value = (
+            converter_mock
+        )
+        registry = converters.ConverterFactoryRegistry(
+            (converter_factory_mock,)
+        )
         registry[converters.keys.CONVERT_TO_STRING]()
         assert converter_mock.set_chain.called
 
@@ -130,7 +139,9 @@ class TestMarshmallowConverter(object):
             converters.MarshmallowConverter()
         converters.MarshmallowConverter.marshmallow = old_marshmallow
 
-    def test_make_request_body_converter(self, mocker, schema_mock_and_argument):
+    def test_make_request_body_converter(
+        self, mocker, schema_mock_and_argument
+    ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
         expected_result = "data"
@@ -158,7 +169,9 @@ class TestMarshmallowConverter(object):
         # Verify
         assert c is None
 
-    def test_make_response_body_converter(self, mocker, schema_mock_and_argument):
+    def test_make_response_body_converter(
+        self, mocker, schema_mock_and_argument
+    ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
         expected_result = "data"
@@ -186,9 +199,8 @@ class TestMarshmallowConverter(object):
         result = c.convert(data)
         assert result is data
 
-
     def test_make_response_body_converter_with_unsupported_response(
-            self, schema_mock_and_argument
+        self, schema_mock_and_argument
     ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
@@ -300,11 +312,10 @@ class TestSequence(object):
 
 
 class TestRegistry(object):
-
     @pytest.mark.parametrize(
         "converter",
         # Try with both class and instance
-        (converters.StandardConverter, converters.StandardConverter())
+        (converters.StandardConverter, converters.StandardConverter()),
     )
     def test_register_converter_factory_pass(self, converter):
         # Setup
@@ -334,8 +345,8 @@ class TestTypingConverter(object):
             (singleton.make_request_body_converter, True),
             (singleton.make_request_body_converter, False),
             (singleton.make_response_body_converter, True),
-            (singleton.make_response_body_converter, False)
-        ]
+            (singleton.make_response_body_converter, False),
+        ],
     )
 
     @inject_methods

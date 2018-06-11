@@ -18,7 +18,6 @@ class BaseTypeConverter(object):
 
 
 class ListConverter(BaseTypeConverter, interfaces.Converter):
-
     def __init__(self, elem_type):
         self._elem_type = elem_type
         self._elem_converter = None
@@ -34,7 +33,6 @@ class ListConverter(BaseTypeConverter, interfaces.Converter):
 
 
 class DictConverter(BaseTypeConverter, interfaces.Converter):
-
     def __init__(self, key_type, value_type):
         self._key_type = key_type
         self._value_type = value_type
@@ -68,7 +66,7 @@ def _get_types(try_typing=True):
     else:
         return (
             _TypeProxy(ListConverter.freeze),
-            _TypeProxy(DictConverter.freeze)
+            _TypeProxy(DictConverter.freeze),
         )
 
 
@@ -103,6 +101,7 @@ class TypingConverter(interfaces.ConverterFactory):
         :py:mod:`typing` module by using one of the proxies defined by
         :py:class:`uplink.returns` (e.g., :py:obj:`uplink.types.List`).
     """
+
     try:
         import typing
     except ImportError:  # pragma: no cover

@@ -22,13 +22,14 @@ def test_get_arg_spec():
 
 
 def test_call_args():
-    def func(pos1, *args, **kwargs): pass
+    def func(pos1, *args, **kwargs):
+        pass
+
     call_args = utils.get_call_args(func, 1, 2, named=3)
     assert call_args == {"pos1": 1, "args": (2,), "kwargs": {"named": 3}}
 
 
 class TestURIBuilder(object):
-
     def test_variables_not_string(self):
         assert utils.URIBuilder.variables(None) == set()
 
@@ -43,4 +44,3 @@ class TestURIBuilder(object):
         assert builder.remaining_variables() == set(["variable"])
         builder.set_variable(variable="resource")
         assert builder.remaining_variables() == set()
-

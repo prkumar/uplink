@@ -41,18 +41,12 @@ class TwistedClient(interfaces.HttpClientAdapter):
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-
     def __init__(self, proxy):
         self._proxy = proxy
         self._callback = None
 
     def send(self, method, url, extras):
-        deferred = threads.deferToThread(
-            self._proxy.send,
-            method,
-            url,
-            extras
-        )
+        deferred = threads.deferToThread(self._proxy.send, method, url, extras)
         if self._callback is not None:
             deferred.addCallback(self._callback)
         deferred.addErrback(self.handle_failure)

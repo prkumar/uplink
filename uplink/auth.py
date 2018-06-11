@@ -20,9 +20,7 @@ def get_auth(auth_object=None):
     elif callable(auth_object):
         return auth_object
     else:
-        raise ValueError(
-            "Invalid authentication strategy: %s" % auth_object
-        )
+        raise ValueError("Invalid authentication strategy: %s" % auth_object)
 
 
 class BasicAuth(object):
@@ -34,23 +32,18 @@ class BasicAuth(object):
 
     @property
     def _auth_str(self):
-        return auth._basic_auth_str(
-            self._username,
-            self._password
-        )
+        return auth._basic_auth_str(self._username, self._password)
 
     def __call__(self, request_builder):
         request_builder.info["headers"]["Authorization"] = self._auth_str
 
 
 class ProxyAuth(BasicAuth):
-
     def __call__(self, request_builder):
         request_builder.info["headers"]["Proxy-Authorization"] = self._auth_str
 
 
 class BearerToken(object):
-
     def __init__(self, token):
         self._auth_str = "Bearer %s" % token
 
