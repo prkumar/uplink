@@ -5,7 +5,6 @@ import functools
 # Local imports
 from uplink.converters import keys
 from uplink.converters.interfaces import ConverterFactory, Converter
-from uplink.converters.marshmallow_ import MarshmallowConverter
 from uplink.converters.register import (
     get_default_converter_factories,
     register_default_converter_factory,
@@ -13,8 +12,11 @@ from uplink.converters.register import (
 
 # Default converters - load standard first so it's ensured to be the
 # last in the converter chain.
+# fmt: off
 from uplink.converters.standard import StandardConverter
+from uplink.converters.marshmallow_ import MarshmallowConverter
 from uplink.converters.typing_ import TypingConverter
+# fmt: on
 
 __all__ = [
     # todo: remove this in v1.0.0
