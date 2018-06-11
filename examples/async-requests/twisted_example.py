@@ -11,10 +11,10 @@ from github import BASE_URL, GitHub
 
 @defer.inlineCallbacks
 def get_contributors(full_name):
-    print('Getting GitHub repository `{}`'.format(full_name))
+    print("Getting GitHub repository `{}`".format(full_name))
     response = yield gh_async.get_contributors(*full_name.split("/"))
     json = response.json()
-    print('response for {}: {}'.format(full_name, json))
+    print("response for {}: {}".format(full_name, json))
 
 
 if __name__ == "__main__":
