@@ -7,10 +7,13 @@ from uplink.decorators import json
 from uplink.models import loads, dumps
 
 
-@pytest.mark.parametrize("cls, method", [
-    (loads, "make_response_body_converter"),
-    (dumps, "make_request_body_converter")
-])
+@pytest.mark.parametrize(
+    "cls, method",
+    [
+        (loads, "make_response_body_converter"),
+        (dumps, "make_request_body_converter"),
+    ],
+)
 def test_models(mocker, cls, method):
     # Setup
     func = mocker.stub()
@@ -31,10 +34,13 @@ def test_models(mocker, cls, method):
     assert callable(value)
 
 
-@pytest.mark.parametrize("cls, method, decorator", [
-    (loads.from_json, "make_response_body_converter", returns.json()),
-    (dumps.to_json, "make_request_body_converter", json())
-])
+@pytest.mark.parametrize(
+    "cls, method, decorator",
+    [
+        (loads.from_json, "make_response_body_converter", returns.json()),
+        (dumps.to_json, "make_request_body_converter", json()),
+    ],
+)
 def test_json_builders(mocker, cls, method, decorator):
     # Setup
     func = mocker.stub()

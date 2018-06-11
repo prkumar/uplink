@@ -71,4 +71,3 @@ def request_builder(mocker):
     builder.info = collections.defaultdict(dict)
     builder.get_converter.return_value = lambda x: x
     return builder
-

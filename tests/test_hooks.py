@@ -31,11 +31,12 @@ class TestExceptionHandler(object):
 
 
 class TestTransactionHookChain(object):
-
     def test_delegate_audit_request(self, transaction_hook_mock):
         chain = hooks.TransactionHookChain(transaction_hook_mock)
         chain.audit_request("method", "url", {})
-        transaction_hook_mock.audit_request.assert_called_with("method", "url", {})
+        transaction_hook_mock.audit_request.assert_called_with(
+            "method", "url", {}
+        )
 
     def test_delegate_handle_response(self, transaction_hook_mock):
         chain = hooks.TransactionHookChain(transaction_hook_mock)
@@ -50,7 +51,7 @@ class TestTransactionHookChain(object):
         chain = hooks.TransactionHookChain(
             hooks.RequestAuditor(mock_request_auditor),
             hooks.ResponseHandler(mock_response_handler),
-            hooks.ResponseHandler(mock_response_handler)
+            hooks.ResponseHandler(mock_response_handler),
         )
         chain.handle_response({})
         mock_response_handler.call_count == 2

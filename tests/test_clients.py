@@ -6,7 +6,11 @@ import pytest
 
 # Local imports
 from uplink.clients import (
-    AiohttpClient, interfaces, requests_, twisted_, register
+    AiohttpClient,
+    interfaces,
+    requests_,
+    twisted_,
+    register,
 )
 
 try:
@@ -16,8 +20,8 @@ except (ImportError, SyntaxError):
 
 
 requires_python34 = pytest.mark.skipif(
-    not aiohttp_,
-    reason="Requires Python 3.4 or above")
+    not aiohttp_, reason="Requires Python 3.4 or above"
+)
 
 
 @contextlib.contextmanager
@@ -55,9 +59,9 @@ def test_get_client_with_unrecognized_key():
 
 
 class TestRequests(object):
-
     def test_get_client(self, mocker):
         import requests
+
         session_mock = mocker.Mock(spec=requests.Session)
         client = register.get_client(session_mock)
         assert isinstance(client, requests_.RequestsClient)
@@ -76,6 +80,7 @@ class TestRequests(object):
     def test_request_send(self, mocker):
         # Setup
         import requests
+
         session_mock = mocker.Mock(spec=requests.Session)
         session_mock.request.return_value = "response"
         callback = mocker.stub()
@@ -95,7 +100,6 @@ class TestRequests(object):
 
 
 class TestTwisted(object):
-
     def test_init_without_client(self):
         twisted = twisted_.TwistedClient()
         assert isinstance(twisted._requests, requests_.RequestsClient)
@@ -111,7 +115,7 @@ class TestTwisted(object):
             with pytest.raises(NotImplementedError):
                 twisted_.TwistedClient(http_client_mock)
 
-    def test_request_send(self, mocker,  request_mock):
+    def test_request_send(self, mocker, request_mock):
         deferToThread = mocker.patch.object(twisted_.threads, "deferToThread")
         request = twisted_.Request(request_mock)
         request.send(1, 2, 3)
@@ -156,11 +160,11 @@ class TestTwisted(object):
 @pytest.fixture
 def aiohttp_session_mock(mocker):
     import aiohttp
+
     return mocker.Mock(spec=aiohttp.ClientSession)
 
 
 class TestAiohttp(object):
-
     @requires_python34
     def test_init_when_aiohttp_is_not_installed(self):
         with _patch(aiohttp_, "aiohttp", None):
@@ -272,6 +276,7 @@ class TestAiohttp(object):
         # Run: Verify with callback that returns new value
         def callback(*_):
             return 1
+
         new_callback = aiohttp_.threaded_callback(callback)
         return_value = new_callback(response)
         loop = asyncio.get_event_loop()
