@@ -108,8 +108,8 @@ Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
-.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/a99a88d28ad37a79dbf6/maintainability
-   :target: https://codeclimate.com/github/codeclimate/codeclimate/maintainability
+.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability
+   :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
 .. |Code Style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/ambv/black
