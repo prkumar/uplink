@@ -13,14 +13,13 @@ from uplink import (
     hooks,
     interfaces,
     session,
-    utils
+    utils,
 )
 
 __all__ = ["build", "Consumer"]
 
 
 class RequestPreparer(object):
-
     def __init__(self, builder):
         self._hooks = list(builder.hooks)
         self._client = builder.client
@@ -54,9 +53,7 @@ class RequestPreparer(object):
         if chain:
             self.apply_hooks(chain, request_builder, sender)
         return sender.send(
-            request_builder.method,
-            request_builder.url,
-            request_builder.info
+            request_builder.method, request_builder.url, request_builder.info
         )
 
     def create_request_builder(self, definition):
@@ -71,7 +68,8 @@ class CallFactory(object):
 
     def __call__(self, *args, **kwargs):
         builder = self._request_preparer.create_request_builder(
-            self._request_definition)
+            self._request_definition
+        )
         self._request_definition.define_request(builder, args, kwargs)
         return self._request_preparer.prepare_request(builder)
 
@@ -157,9 +155,8 @@ class ConsumerMethod(object):
         except exceptions.InvalidRequestDefinition as error:
             # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
-                self._owner_name,
-                self._attr_name,
-                error)
+                self._owner_name, self._attr_name, error
+            )
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -169,7 +166,6 @@ class ConsumerMethod(object):
 
 
 class ConsumerMeta(type):
-
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
         if isinstance(value, interfaces.RequestDefinitionBuilder):
@@ -254,12 +250,7 @@ class Consumer(interfaces.Consumer, _Consumer):
     """
 
     def __init__(
-            self,
-            base_url="",
-            client=None,
-            converter=(),
-            auth=None,
-            hook=()
+        self, base_url="", client=None, converter=(), auth=None, hook=()
     ):
         builder = Builder()
         builder.base_url = base_url
@@ -308,7 +299,7 @@ def build(service_cls, *args, **kwargs):
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
         "To construct a consumer instance, have `{0}` inherit "
         "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(name),
-        DeprecationWarning
+        DeprecationWarning,
     )
     consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
     return consumer(*args, **kwargs)

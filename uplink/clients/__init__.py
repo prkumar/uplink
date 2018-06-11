@@ -39,10 +39,7 @@ except (ImportError, SyntaxError) as error:  # pragma: no cover
         def create_request(self):
             pass
 
-__all__ = [
-    "RequestsClient",
-    "AiohttpClient",
-    "TwistedClient",
-]
+
+__all__ = ["RequestsClient", "AiohttpClient", "TwistedClient"]
 
 register.set_default_client(RequestsClient)

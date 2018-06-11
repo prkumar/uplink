@@ -24,9 +24,7 @@ class _Annotation(object):
             return is_builder and not (kwargs or args[1:])
 
 
-Annotation = AnnotationMeta(
-    "Annotation", (_Annotation,), {}
-)
+Annotation = AnnotationMeta("Annotation", (_Annotation,), {})
 
 
 class AnnotationHandlerBuilder(object):
@@ -52,14 +50,12 @@ class AnnotationHandlerBuilder(object):
 
 
 class AnnotationHandler(object):
-
     @property
     def annotations(self):
         raise NotImplementedError
 
 
 class UriDefinitionBuilder(object):
-
     @property
     def is_static(self):
         raise NotImplementedError
@@ -84,7 +80,6 @@ class UriDefinitionBuilder(object):
 
 
 class RequestDefinitionBuilder(object):
-
     @property
     def method(self):
         raise NotImplementedError
@@ -106,7 +101,6 @@ class RequestDefinitionBuilder(object):
 
 
 class RequestDefinition(object):
-
     def make_converter_registry(self, converters):
         raise NotImplementedError
 
@@ -115,7 +109,6 @@ class RequestDefinition(object):
 
 
 class CallBuilder(object):
-
     @property
     def client(self):
         raise NotImplementedError
@@ -144,13 +137,11 @@ class CallBuilder(object):
 
 
 class Auth(object):
-
     def __call__(self, request_builder):
         raise NotImplementedError
 
 
 class Consumer(object):
-
     @property
     def session(self):
         raise NotImplementedError

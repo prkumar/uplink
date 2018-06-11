@@ -38,7 +38,6 @@ def set_api_definition(service, name, definition):
 
 
 class RequestBuilder(object):
-
     def __init__(self, converter_registry):
         self._method = None
         self._url = None

@@ -42,7 +42,6 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             raise ImportError("No module named 'marshmallow'")
 
     class ResponseBodyConverter(interfaces.Converter):
-
         def __init__(self, schema):
             self._schema = schema
 

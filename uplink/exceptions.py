@@ -1,5 +1,6 @@
 class Error(Exception):
     """Base exception for this package"""
+
     message = None
 
     def __str__(self):
@@ -8,6 +9,7 @@ class Error(Exception):
 
 class UplinkBuilderError(Error):
     """Something went wrong while building a service."""
+
     message = "`%s`: %s"
 
     def __init__(self, class_name, definition_name, error):
@@ -22,4 +24,3 @@ class InvalidRequestDefinition(Error):
 
 class AnnotationError(Error):
     """Something went wrong with an annotation."""
-

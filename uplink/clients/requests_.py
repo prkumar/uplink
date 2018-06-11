@@ -19,6 +19,7 @@ class RequestsClient(interfaces.HttpClientAdapter):
             omitted or set to :py:obj:`None`, a new session will be
             created.
     """
+
     def __init__(self, session=None, **kwargs):
         if session is None:
             session = self._create_session(**kwargs)
@@ -43,18 +44,13 @@ class RequestsClient(interfaces.HttpClientAdapter):
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-
     def __init__(self, session):
         self._session = session
         self._callback = None
 
     def send(self, method, url, extras):
         with self._exception_handler:
-            response = self._session.request(
-                method=method,
-                url=url,
-                **extras
-            )
+            response = self._session.request(method=method, url=url, **extras)
         if self._callback is not None:
             response = self._callback(response)
         return response

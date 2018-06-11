@@ -3,11 +3,7 @@ This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
 
-__all__ = [
-    "TransactionHook",
-    "RequestAuditor",
-    "ResponseHandler"
-]
+__all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
 
 
 class TransactionHook(object):

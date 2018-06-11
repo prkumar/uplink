@@ -119,7 +119,6 @@ class AiohttpClient(interfaces.HttpClientAdapter):
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-
     def __init__(self, client):
         self._client = client
         self._callback = None
@@ -138,7 +137,6 @@ class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
 
 class ThreadedCoroutine(object):
-
     def __init__(self, coroutine):
         self.__coroutine = coroutine
 
@@ -150,7 +148,6 @@ class ThreadedCoroutine(object):
 
 
 class ThreadedResponse(object):
-
     def __init__(self, response):
         self.__response = response
 

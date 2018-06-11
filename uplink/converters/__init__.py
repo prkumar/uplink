@@ -7,7 +7,7 @@ from uplink.converters import keys
 from uplink.converters.interfaces import ConverterFactory, Converter
 from uplink.converters.register import (
     get_default_converter_factories,
-    register_default_converter_factory
+    register_default_converter_factory,
 )
 
 # Default converters - load standard first so it's ensured to be the
@@ -32,7 +32,6 @@ parameter to be used.
 
 
 class ConverterChain(object):
-
     def __init__(self, converter_factory):
         self._converter_factory = converter_factory
 
@@ -73,6 +72,7 @@ class ConverterFactoryRegistry(collections.Mapping):
             appear earlier in the chain are given the opportunity to
             handle a request before those that appear later.
     """
+
     #: A mapping of keys to callables. Each callable value accepts a
     #: single argument, a :py:class:`interfaces.ConverterFactory`
     #: subclass, and returns another callable, which should return a
@@ -97,6 +97,7 @@ class ConverterFactoryRegistry(collections.Mapping):
                 converter = func(factory)(*args, **kwargs)
                 if callable(converter):
                     return converter
+
         return ConverterChain(
             functools.partial(chain, *self._args, **self._kwargs)
         )
@@ -133,9 +134,11 @@ class ConverterFactoryRegistry(collections.Mapping):
         Returns a decorator that can be used to register a callable for
         the given ``converter_key``.
         """
+
         def wrapper(func):
             cls._converter_factory_registry[converter_key] = func
             return func
+
         return wrapper
 
 

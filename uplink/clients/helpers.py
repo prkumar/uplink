@@ -1,5 +1,4 @@
 class ExceptionHandler(object):
-
     def __init__(self, exception_class=Exception):
         self._exc_cls = exception_class
         self._handler = None

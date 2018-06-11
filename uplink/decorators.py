@@ -21,7 +21,6 @@ __all__ = [
 
 
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
-
     def __init__(self):
         self._class_annotations = list()
         self._method_annotations = list()
@@ -41,7 +40,6 @@ class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
 
 class MethodAnnotationHandler(interfaces.AnnotationHandler):
-
     def __init__(self, method_annotations):
         self._method_annotations = list(method_annotations)
 
@@ -148,6 +146,7 @@ class headers(_BaseRequestProperties):
         arg: A dict containing header values.
         **kwargs: More header values.
     """
+
     def __init__(self, arg, **kwargs):
         if isinstance(arg, str):
             key, value = self._split(arg)
@@ -190,6 +189,7 @@ class params(_BaseRequestProperties):
         arg: A dict containing query parameters.
         **kwargs: More query parameters.
     """
+
     def __init__(self, arg, **kwargs):
         if isinstance(arg, str):
             arg = arg.split("&")
@@ -222,6 +222,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
+
     _http_method_blacklist = {"GET"}
     _can_be_static = True
 
@@ -249,6 +250,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
+
     _http_method_blacklist = {"GET"}
     _can_be_static = True
 
@@ -318,6 +320,7 @@ class json(MethodAnnotation):
             ):
                 \"""Update the current user.\"""
     """
+
     _http_method_blacklist = {"GET"}
     _can_be_static = True
 
@@ -330,8 +333,7 @@ class json(MethodAnnotation):
             if not isinstance(body, collections.Mapping):
                 raise ValueError(
                     "Failed to set nested JSON attribute '%s': "
-                    "parent field '%s' is not a JSON object."
-                    % (path, name)
+                    "parent field '%s' is not a JSON object." % (path, name)
                 )
         body[path[-1]] = value
 
@@ -381,6 +383,7 @@ class timeout(MethodAnnotation):
         seconds (int): An integer used to indicate how long should the
             request wait.
     """
+
     def __init__(self, seconds):
         self._seconds = seconds
 
@@ -420,6 +423,7 @@ class args(MethodAnnotation):
         **more_annotations: More annotations, targeting specific method
            arguments.
     """
+
     def __init__(self, *annotations, **more_annotations):
         self._annotations = annotations
         self._more_annotations = more_annotations

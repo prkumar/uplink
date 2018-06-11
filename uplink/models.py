@@ -20,7 +20,6 @@ class RequestBodyConverterFactory(converters.ConverterFactory):
 
 
 class _Delegate(object):
-
     def __init__(self, model_class, annotations, func):
         self._model_class = model_class
         self._annotations = annotations
@@ -32,9 +31,10 @@ class _Delegate(object):
         return types.issuperset(self._annotations)
 
     def _is_relevant(self, type_, argument_annotations, method_annotations):
-        return (
-            utils.is_subclass(type_, self._model_class) and
-            self._contains_annotations(argument_annotations, method_annotations)
+        return utils.is_subclass(
+            type_, self._model_class
+        ) and self._contains_annotations(
+            argument_annotations, method_annotations
         )
 
     def __call__(self, type_, *args, **kwargs):
@@ -43,7 +43,6 @@ class _Delegate(object):
 
 
 class _Wrapper(converters.ConverterFactory):
-
     def __init__(self, factory, func):
         self.make_response_body_converter = factory.make_response_body_converter
         self.make_request_body_converter = factory.make_request_body_converter
@@ -55,7 +54,6 @@ class _Wrapper(converters.ConverterFactory):
 
 
 class _ModelConverterBuilder(object):
-
     def __init__(self, base_class, annotations=()):
         """
         Args:
