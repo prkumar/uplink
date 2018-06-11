@@ -108,3 +108,6 @@ ENV/
 # If we ever decide to lock-down the development version to a Python version, we
 # can remove this entry:
 Pipfile.lock
+
+# pytest
+.pytest_cache
