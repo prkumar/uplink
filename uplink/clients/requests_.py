@@ -1,11 +1,11 @@
 # Standard library imports
 import atexit
 
-# Local imports
-from uplink.clients import helpers, interfaces, register
-
 # Third party imports
 import requests
+
+# Local imports
+from uplink.clients import helpers, interfaces, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):

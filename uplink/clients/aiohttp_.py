@@ -4,10 +4,10 @@ that returns awaitable responses.
 """
 # Standard library imports
 import atexit
+
 import asyncio
 import collections
 import threading
-
 from concurrent import futures
 
 # Third party imports

@@ -7,7 +7,6 @@ converter layer to identify the desired conversion type when querying a
 import functools
 
 # Local imports
-from uplink.converters import interfaces
 
 __all__ = [
     "CONVERT_TO_STRING",
