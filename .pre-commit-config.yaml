@@ -5,4 +5,4 @@ repos:
     - id: black
       args: [--line-length=80, --safe]
       python-version: python3.6
-      files: ^(uplink/.*|setup|tests/.*|examples/.*|docs/conf).py$
+      files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
