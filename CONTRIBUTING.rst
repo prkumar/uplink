@@ -63,7 +63,7 @@ Our ``Pipfile.lock`` was created using ``pipenv`` on Python 3.6.
 Contributors using Python 2.7 and 3.3 may experience issues during
 installation, since some development dependencies require Python
 3.4+. However, as a workaround for development on an earlier version
-of Pyton, you can try using the ``--skip-lock`` flag with 
+of Python, you can try using the ``--skip-lock`` flag with
 ``pipenv install``.
 
 

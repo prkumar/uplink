@@ -10,6 +10,8 @@ pytest-mock = "*"
 pytest-cov = "*"
 pre-commit = "*"
 tox = "*"
+flake8 = "*"
+flake8-bugbear = "*"
 
 
 [packages]

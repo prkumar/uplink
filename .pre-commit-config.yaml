@@ -6,3 +6,10 @@ repos:
       args: [--line-length=80, --safe]
       python-version: python3.6
       files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
+-   repo: local
+    hooks:
+    - id: flake8
+      name: flake8
+      language: system
+      entry: flake8
+      files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
