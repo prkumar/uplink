@@ -14,8 +14,10 @@ before_script:
     else
       pip install tox
     fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install flake8 flake8-bugbear; fi
 script:
   - tox -e py
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then flake8 uplink tests setup.py docs/conf.py; fi
 after_success:
   - pip install codecov
   - codecov
