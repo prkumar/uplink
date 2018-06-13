@@ -59,14 +59,16 @@ else:  # pragma: no cover
 
 
 try:
-    import urllib.parse as urlparse
+    import urllib.parse as _urlparse
 except ImportError:
-    import urlparse
+    import urlparse as _urlparse
 
 
 # Third party imports
 import uritemplate
 
+
+urlparse = _urlparse
 
 Signature = collections.namedtuple(
     "Signature", "args annotations return_annotation"
