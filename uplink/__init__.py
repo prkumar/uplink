@@ -1,11 +1,87 @@
 # Local imports
 from uplink.__about__ import __version__
 from uplink import returns, types
-from uplink.clients import *
-from uplink.converters import *
-from uplink.builder import *
-from uplink.commands import *
-from uplink.exceptions import *
-from uplink.decorators import *
-from uplink.models import *
-from uplink.arguments import *
+from uplink.clients import AiohttpClient, RequestsClient, TwistedClient
+
+# todo: remove this in v1.0.0
+from uplink.converters import MarshmallowConverter
+
+from uplink.builder import build, Consumer
+from uplink.commands import get, head, put, post, patch, delete
+from uplink.exceptions import (
+    Error,
+    UplinkBuilderError,
+    InvalidRequestDefinition,
+    AnnotationError,
+)
+from uplink.decorators import (
+    headers,
+    params,
+    form_url_encoded,
+    multipart,
+    json,
+    timeout,
+    args,
+    response_handler,
+    error_handler,
+    inject,
+)
+from uplink.models import loads, dumps
+from uplink.arguments import (
+    Path,
+    Query,
+    QueryMap,
+    Header,
+    HeaderMap,
+    Field,
+    FieldMap,
+    Part,
+    PartMap,
+    Body,
+    Url,
+)
+
+__all__ = [
+    "__version__",
+    "returns",
+    "types",
+    "AiohttpClient",
+    "RequestsClient",
+    "TwistedClient",
+    "MarshmallowConverter",
+    "build",
+    "Consumer",
+    "get",
+    "head",
+    "put",
+    "post",
+    "patch",
+    "delete",
+    "Error",
+    "UplinkBuilderError",
+    "InvalidRequestDefinition",
+    "AnnotationError",
+    "headers",
+    "params",
+    "form_url_encoded",
+    "multipart",
+    "json",
+    "timeout",
+    "args",
+    "response_handler",
+    "error_handler",
+    "inject",
+    "loads",
+    "dumps",
+    "Path",
+    "Query",
+    "QueryMap",
+    "Header",
+    "HeaderMap",
+    "Field",
+    "FieldMap",
+    "Part",
+    "PartMap",
+    "Body",
+    "Url",
+]

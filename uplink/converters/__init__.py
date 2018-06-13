@@ -19,8 +19,14 @@ from uplink.converters.typing_ import TypingConverter
 # fmt: on
 
 __all__ = [
-    # todo: remove this in v1.0.0
-    "MarshmallowConverter"
+    "StandardConverter",
+    "MarshmallowConverter",
+    "TypingConverter",
+    "get_default_converter_factories",
+    "register_default_converter_factory",
+    "ConverterFactory",
+    "Converter",
+    "keys",
 ]
 
 

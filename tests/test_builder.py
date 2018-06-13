@@ -2,7 +2,7 @@
 import pytest
 
 # Local imports
-from uplink import auth, builder, converters, exceptions, helpers, interfaces
+from uplink import auth, builder, converters, exceptions, helpers
 
 
 @pytest.fixture
