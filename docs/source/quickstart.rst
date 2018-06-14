@@ -190,21 +190,19 @@ for more.
 Deserializing the Response Body
 ===============================
 
-Uplink makes it easy and optional to convert HTTP response bodies into
-data model objects, whether you leverage Uplink's built-in support for
-libraries such as :py:mod:`marshmallow` (see
-:py:class:`uplink.converters.MarshmallowConverter`) or use
-:py:class:`uplink.loads` to write custom conversion logic that fits your
-unique needs.
+Uplink makes it easy to convert an HTTP response body into a custom
+Python object, whether you leverage Uplink's built-in support for
+libraries such as :py:mod:`marshmallow` or use :py:class:`uplink.loads`
+to write custom conversion logic that fits your unique needs.
 
 At the least, you need to specify the expected return type using a
-decorator from the :py:class:`uplink.returns` module.
-:py:class:`uplink.returns.json` is handy when working with APIs that
+decorator from the :py:class:`uplink.returns` module. For example,
+:py:class:`uplink.returns.from_json` is handy when working with APIs that
 provide JSON responses:
 
 .. code-block:: python
 
-    @returns.json(User)
+    @returns.from_json(User)
     @get("users/{username}")
     def get_user(self, username): pass
 
@@ -212,36 +210,54 @@ Python 3 users can alternatively use a return type hint:
 
 .. code-block:: python
 
-    @returns.json
+    @returns.from_json
     @get("users/{username}")
     def get_user(self, username) -> User: pass
 
-The final step is to register a strategy that converts the HTTP response
-into the expected return type. To this end, :py:meth:`uplink.loads` can
-register a function that handles such deserialization for a particular
-class and all its subclasses.
+Next, if your objects (e.g., :py:obj:`User`) are not defined
+using a library for whom Uplink has built-in support (such as
+:py:mod:`marshmallow`), you will also need to register a strategy that
+tells Uplink how to convert the HTTP response into your expected return
+type.
+
+To this end, the :py:class:`uplink.loads` class has various methods for
+defining deserialization strategies for different formats. For the above
+example, we can use :py:meth:`uplink.loads.from_json`:
 
 .. code-block:: python
 
-    # The base class for all model types, including User from above.
-    from models import ModelBase
+    @loads.from_json(User)
+    def user_loader(user_cls, json):
+        return user_cls(json["id"], json["username"])
 
-    # Tell Uplink how to deserialize JSON responses into our model classes:
-    @loads.install  # Make this available to all consumer instances.
-    @loads.from_json(ModelBase)
-    def load_model_from_json(model_cls, json_obj):
-        return model_cls.from_json(json_obj)
+The decorated function, :py:func:`user_loader`, can then be passed into the
+:py:attr:`converter` constructor parameter when instantiating a
+:py:class:`uplink.Consumer` subclass:
 
-This step is not required if you define your data model objects using a library
-for whom Uplink has built-in support, such as :py:mod:`marshmallow` (see
-:py:class:`uplink.converters.MarshmallowConverter`).
+.. code-block:: python
+
+    my_client = MyConsumer(base_url=..., converter=user_loader)
+
+Alternatively, you can add the :py:meth:`uplink.loads.install` decorator to
+register the converter function as a default converter, meaning the converter
+will be included automatically with any consumer instance and doesn't need to
+be explicitly provided through the :py:obj:`converter` parameter:
+
+.. code-block:: python
+   :emphasize-lines: 1
+
+    @loads.install
+    @loads.from_json(User)
+    def user_loader(user_cls, json):
+        return user_cls(json["id"], json["username"])
 
 .. note::
 
-    For API endpoints that return collections (such as a list of users),
-    Uplink just needs to know how to deserialize the element type (e.g.,
-    a user), offering built-in support for :ref:`converting lists and
-    mappings`.
+    For API endpoints that return collections (such as a list of
+    :py:obj:`User`), Uplink offers built-in support for :ref:`converting
+    lists and mappings`: simply define a deserialization strategy for
+    the element type (e.g., :py:obj:`User`), and Uplink handles the
+    rest!
 
 .. _`custom response handler`:
 

@@ -1,9 +1,9 @@
 Converters
 **********
 
-The ``converter`` parameter of the :py:class:`uplink.Consumer` constructor
-accepts a custom adapter class that handles serialization of HTTP
-request properties and deserialization of HTTP response objects:
+The :py:obj:`converter` parameter of the :py:class:`uplink.Consumer`
+constructor accepts a custom adapter class that handles serialization of
+HTTP request properties and deserialization of HTTP response objects:
 
 .. code-block:: python
 
@@ -63,6 +63,7 @@ this feature:
 
     .. code-block:: python
 
+        @returns.from_json
         @get("/users")
         def get_users(self) -> types.List[str]:
             """Fetches all users"""
@@ -75,7 +76,7 @@ this feature:
 
     .. code-block:: python
 
-        @returns.json
+        @returns.from_json
         @get("/users")
         def get_users(self) -> types.Dict[str, str]:
             """Fetches all users"""
@@ -113,7 +114,7 @@ Alternatively, you can add the :py:meth:`uplink.loads.install` or
 :py:meth:`uplink.dumps.install` decorator to register the converter
 function as a default converter, meaning the converter will be included
 automatically with any consumer instance and doesn't need to be
-explicitly provided through the ``converter`` parameter:
+explicitly provided through the :py:obj:``converter`` parameter:
 
 .. code-block:: python
 

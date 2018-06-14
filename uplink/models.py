@@ -120,22 +120,21 @@ class loads(_ModelConverterBuilder):
 
         .. code-block:: python
 
-            @loads.from_json(ModelBase)
-            def from_json(model_cls, json_object):
-                return model_cls.from_json(json_object)
+            @loads.from_json(User)
+            def from_json(user_cls, json):
+                return user_cls(json["id"], json["username"])
 
-        Notably, only consumer methods that have the expected return type
-        (i.e., the given base class or any subclass) and are decorated with
-        :py:class:`uplink.returns.json` can leverage the registered strategy
-        to deserialize JSON responses.
+        Notably, only consumer methods that have the expected return
+        type (i.e., the given base class or any subclass) and are
+        decorated with :py:class:`uplink.returns.from_json` can leverage
+        the registered strategy to deserialize JSON responses.
 
         For example, the following consumer method would leverage the
-        :py:func:`from_json` strategy defined above, given
-        :py:class:`User` is a subclass of :py:class:`ModelBase`:
+        :py:func:`from_json` strategy defined above:
 
         .. code-block:: python
 
-            @returns.json
+            @returns.from_json
             @get("user")
             def get_user(self) -> User: pass
 
