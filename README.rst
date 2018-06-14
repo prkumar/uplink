@@ -96,6 +96,31 @@ For instance, to install ``aiohttp`` and ``marshmallow`` support:
    $ pip install -U uplink[aiohttp, marshmallow]
 
 
+User Testimonials
+===============
+
+**Michael Kennedy** (`@mkennedy`_), host of `Talk Python`_ and `Python Bytes`_ podcasts-
+
+    Of course our first reaction when consuming HTTP resources in Python is to
+    reach for requests. But for *structured* APIs, we often want more than ad-hoc
+    calls to requests. We want a client-side API for our apps. uplink is
+    the quickest and simplest way to build just that client-side API.
+    Highly recommended.
+
+.. _@mkennedy: https://twitter.com/mkennedy
+.. _`Talk Python`: https://twitter.com/TalkPython
+.. _`Python Bytes`: https://twitter.com/pythonbytes
+
+**Or Carmi** (`@liiight`_), notifiers_ maintainer-
+
+    Uplink’s intelligent usage of decorators and typing leverages the most
+    pythonic features in an elegant and dynamic way. If you need to create an
+    API abstraction layer, there is really no reason to look elsewhere.
+
+.. _@liiight: https://github.com/liiight
+.. _notifiers: https://github.com/notifiers/notifiers
+
+
 Documentation
 =============
 For more details, check out the documentation at https://uplink.readthedocs.io/.
