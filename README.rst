@@ -103,7 +103,7 @@ User Testimonials
 
     Of course our first reaction when consuming HTTP resources in Python is to
     reach for requests. But for *structured* APIs, we often want more than ad-hoc
-    calls to requests. We want a client-side API for our apps. uplink is
+    calls to requests. We want a client-side API for our apps. Uplink is
     the quickest and simplest way to build just that client-side API.
     Highly recommended.
 
