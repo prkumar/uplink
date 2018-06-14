@@ -10,8 +10,9 @@ pytest-mock = "*"
 pytest-cov = "*"
 pre-commit = "*"
 tox = "*"
-Sphinx = "*"
-sphinx-autobuild = "*"
+Sphinx = {version = "*", markers = "python_version != '3.3'"}
+sphinx-autobuild = {version = "*", markers = "python_version != '3.3'"}
+
 
 [packages]
 "e1839a8" = {path = ".", editable = true}
