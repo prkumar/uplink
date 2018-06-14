@@ -4,7 +4,13 @@ import functools
 
 # Local imports
 from uplink import (
-    arguments, converters, decorators, exceptions, interfaces, returns, utils
+    arguments,
+    converters,
+    decorators,
+    exceptions,
+    interfaces,
+    returns,
+    utils,
 )
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
@@ -29,7 +35,6 @@ class MissingUriVariables(exceptions.InvalidRequestDefinition):
 
 
 class HttpMethodFactory(object):
-
     def __init__(self, method):
         self._method = method
 
@@ -42,7 +47,8 @@ class HttpMethodFactory(object):
 
 class HttpMethod(object):
     @staticmethod
-    def _add_args(obj): return obj
+    def _add_args(obj):
+        return obj
 
     def __init__(self, method, uri=None, args=None):
         self._method = method
@@ -56,12 +62,14 @@ class HttpMethod(object):
 
     def __call__(self, func):
         spec = utils.get_arg_spec(func)
-        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(func, spec.args)
+        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(
+            func, spec.args
+        )
         builder = RequestDefinitionBuilder(
             self._method,
             URIDefinitionBuilder(self._uri),
             arg_handler,
-            decorators.MethodAnnotationHandlerBuilder()
+            decorators.MethodAnnotationHandlerBuilder(),
         )
 
         # Need to add the annotations after constructing the request
@@ -77,7 +85,6 @@ class HttpMethod(object):
 
 
 class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
-
     def __init__(self, uri):
         self._uri = uri
         self._is_dynamic = False
@@ -118,9 +125,9 @@ class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
 
 
 class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
-
-    def __init__(self, method, uri, argument_handler_builder,
-                 method_handler_builder):
+    def __init__(
+        self, method, uri, argument_handler_builder, method_handler_builder
+    ):
         self._method = method
         self._uri = uri
         self._argument_handler_builder = argument_handler_builder
@@ -169,15 +176,11 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         method_handler = self._method_handler_builder.build()
         uri = self._uri.build()
         return RequestDefinition(
-            self._method,
-            uri,
-            argument_handler,
-            method_handler
+            self._method, uri, argument_handler, method_handler
         )
 
 
 class RequestDefinition(interfaces.RequestDefinition):
-
     def __init__(self, method, uri, argument_handler, method_handler):
         self._method = method
         self._uri = uri
@@ -196,14 +199,15 @@ class RequestDefinition(interfaces.RequestDefinition):
         return converters.ConverterFactoryRegistry(
             converters_,
             argument_annotations=self.argument_annotations,
-            method_annotations=self.method_annotations
+            method_annotations=self.method_annotations,
         )
 
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method
         request_builder.url = utils.URIBuilder(self._uri)
         self._argument_handler.handle_call(
-            request_builder, func_args, func_kwargs)
+            request_builder, func_args, func_kwargs
+        )
         self._method_handler.handle_builder(request_builder)
         request_builder.url = request_builder.url.build()
 

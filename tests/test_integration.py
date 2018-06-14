@@ -17,21 +17,22 @@ def _get_url(url):
 @uplink.timeout(10)
 @uplink.headers({"Accept": "application/vnd.github.v3.full+json"})
 class GitHubService(uplink.Consumer):
-
     @uplink.timeout(15)
     @uplink.get("/users/{user}/repos")
-    def list_repos(self, user): pass
+    def list_repos(self, user):
+        pass
 
     @uplink.returns.json
     @uplink.get("/users/{user}/repos/{repo}")
-    def get_repo(self, user, repo): pass
+    def get_repo(self, user, repo):
+        pass
 
 
 @pytest.fixture
 def github_service_and_client(http_client_mock):
     return (
         GitHubService(base_url=BASE_URL, client=http_client_mock),
-        http_client_mock
+        http_client_mock,
     )
 
 
@@ -39,17 +40,16 @@ def test_list_repo(github_service_and_client):
     service, http_client = github_service_and_client
     service.list_repos("prkumar")
     http_client.create_request().send.assert_called_with(
-        "GET", _get_url("/users/prkumar/repos"), {
-            "headers": {
-                "Accept": "application/vnd.github.v3.full+json"
-            },
-            "timeout": 15
-        }
+        "GET",
+        _get_url("/users/prkumar/repos"),
+        {
+            "headers": {"Accept": "application/vnd.github.v3.full+json"},
+            "timeout": 15,
+        },
     )
 
 
 class RequestMock(clients.interfaces.Request):
-
     def __init__(self, response):
         self._response = response
         self._callback = None

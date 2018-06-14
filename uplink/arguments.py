@@ -22,7 +22,7 @@ __all__ = [
     "Part",
     "PartMap",
     "Body",
-    "Url"
+    "Url",
 ]
 
 
@@ -74,7 +74,8 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         if annotations is not None:
             if not isinstance(annotations, collections.Mapping):
                 missing = tuple(
-                    a for a in self.missing_arguments
+                    a
+                    for a in self.missing_arguments
                     if a not in more_annotations
                 )
                 annotations = dict(zip(missing, annotations))
@@ -125,13 +126,11 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     def build(self):
         return ArgumentAnnotationHandler(
-            self._func,
-            collections.OrderedDict(self._types)
+            self._func, collections.OrderedDict(self._types)
         )
 
 
 class ArgumentAnnotationHandler(interfaces.AnnotationHandler):
-
     def __init__(self, func, arguments):
         self._func = func
         self._arguments = arguments
@@ -179,7 +178,6 @@ class ArgumentAnnotation(interfaces.Annotation):
 
 
 class TypedArgument(ArgumentAnnotation):
-
     def __init__(self, type=None):
         self._type = type
 
@@ -216,7 +214,7 @@ class NamedArgument(TypedArgument):
             self._arg_name = name
         else:
             raise AttributeError("Name is already set.")
-    
+
     @property
     def converter_key(self):  # pragma: no cover
         raise NotImplementedError
@@ -244,7 +242,7 @@ class FuncDecoratorMixin(object):
     def with_value(self, value):
         """
         Creates an object that can be used with the
-        :py:class:`Consumer._inject` method or
+        :py:class:`Session.inject` method or
         :py:class:`~uplink.inject` decorator to inject request properties
         with specific values.
 
@@ -335,9 +333,7 @@ class Query(FuncDecoratorMixin, NamedArgument):
     """
 
     class QueryStringEncodingError(exceptions.AnnotationError):
-        message = (
-            "Failed to join encoded and unencoded query parameters."
-        )
+        message = "Failed to join encoded and unencoded query parameters."
 
     def __init__(self, name=None, encoded=False, type=None):
         super(Query, self).__init__(name, type)
@@ -371,9 +367,7 @@ class Query(FuncDecoratorMixin, NamedArgument):
     def _modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
         self.update_params(
-            request_builder.info,
-            {self.name: value},
-            self._encoded
+            request_builder.info, {self.name: value}, self._encoded
         )
 
 
@@ -396,7 +390,7 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
         encoded (:obj:`bool`, optional): Specifies whether the parameter
             :py:obj:`name` and value are already URL encoded.
     """
-    
+
     def __init__(self, encoded=False, type=None):
         super(QueryMap, self).__init__(type)
         self._encoded = encoded
@@ -473,6 +467,7 @@ class Field(NamedArgument):
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
         """Used if the field chosen failed to be defined."""
+
         message = (
             "Failed to define field '%s' to request body. Another argument "
             "annotation might have overwritten the body entirely."
@@ -515,6 +510,7 @@ class FieldMap(TypedArgument):
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
         """Use when the attempt to update the request body failed."""
+
         message = (
             "Failed to update request body with field map. Another argument "
             "annotation might have overwritten the body entirely."
@@ -602,6 +598,7 @@ class Body(TypedArgument):
             def update_user(self, **info: Body):
                 \"""Update the current user.\"""
     """
+
     @property
     def converter_key(self):
         """Converts request body."""
@@ -630,6 +627,7 @@ class Url(ArgumentAnnotation):
 
     class DynamicUrlAssignmentFailed(exceptions.InvalidRequestDefinition):
         """Raised when the attempt to set dynamic url fails."""
+
         message = "Failed to set dynamic url annotation on `%s`. "
 
         def __init__(self, request_definition_builder):

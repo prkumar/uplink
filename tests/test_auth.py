@@ -6,13 +6,14 @@ from uplink import auth
 
 
 class TestGetAuth(object):
-
     def test_tuple(self):
         authentication = auth.get_auth(("username", "password"))
         assert isinstance(authentication, auth.BasicAuth)
 
     def test_callable(self):
-        def func(): None
+        def func():
+            None
+
         output = auth.get_auth(func)
         assert output is func
 

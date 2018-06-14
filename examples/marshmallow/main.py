@@ -8,8 +8,7 @@ BASE_URL = "https://api.github.com/"
 if __name__ == "__main__":
     # Create a client that uses the marshmallow converter
     gh = github.GitHub(
-        base_url=BASE_URL,
-        converter=uplink.MarshmallowConverter()
+        base_url=BASE_URL, converter=uplink.MarshmallowConverter()
     )
 
     # Get all public repositories

@@ -1,7 +1,7 @@
 Uplink
 ******
 |PyPI Version| |Build Status| |Coverage Status| |Code Climate| |Documentation Status|
-|Gitter|
+|Gitter| |Code Style|
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with **Requests**, **asyncio**, and **Twisted**.
@@ -64,7 +64,7 @@ Installation
 ============
 ``uplink`` supports Python 2.7 & 3.3-3.7.
 
-To install the latest stable release, you can use ``pip``:
+To install the latest stable release, you can use ``pip`` (or ``pipenv``):
 
 ::
 
@@ -96,6 +96,31 @@ For instance, to install ``aiohttp`` and ``marshmallow`` support:
    $ pip install -U uplink[aiohttp, marshmallow]
 
 
+User Testimonials
+===============
+
+**Michael Kennedy** (`@mkennedy`_), host of `Talk Python`_ and `Python Bytes`_ podcasts-
+
+    Of course our first reaction when consuming HTTP resources in Python is to
+    reach for Requests. But for *structured* APIs, we often want more than ad-hoc
+    calls to Requests. We want a client-side API for our apps. Uplink is
+    the quickest and simplest way to build just that client-side API.
+    Highly recommended.
+
+.. _@mkennedy: https://twitter.com/mkennedy
+.. _`Talk Python`: https://twitter.com/TalkPython
+.. _`Python Bytes`: https://twitter.com/pythonbytes
+
+**Or Carmi** (`@liiight`_), notifiers_ maintainer-
+
+    Uplink’s intelligent usage of decorators and typing leverages the most
+    pythonic features in an elegant and dynamic way. If you need to create an
+    API abstraction layer, there is really no reason to look elsewhere.
+
+.. _@liiight: https://github.com/liiight
+.. _notifiers: https://github.com/notifiers/notifiers
+
+
 Documentation
 =============
 For more details, check out the documentation at https://uplink.readthedocs.io/.
@@ -108,9 +133,12 @@ Thank you for taking the time to improve an open source project 💜
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
-.. |Code Climate| image:: https://img.shields.io/codeclimate/maintainability/prkumar/uplink.svg
+.. |Code Climate| image:: https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability
    :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
+.. |Code Style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+   :alt: Code style: black
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/prkumar/uplink.svg   
    :alt: Codecov   
    :target: https://codecov.io/gh/prkumar/uplink

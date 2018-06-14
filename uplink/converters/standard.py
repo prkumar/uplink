@@ -20,7 +20,6 @@ class Cast(interfaces.Converter):
 
 
 class RequestBodyConverter(interfaces.Converter):
-
     @staticmethod
     def _default_json_dumper(obj):
         return obj.__dict__  # pragma: no cover

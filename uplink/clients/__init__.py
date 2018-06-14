@@ -27,7 +27,6 @@ def _client_class_handler(key):
 try:
     from uplink.clients.aiohttp_ import AiohttpClient
 except (ImportError, SyntaxError) as error:  # pragma: no cover
-    from uplink.clients import interfaces
 
     class AiohttpClient(interfaces.HttpClientAdapter):
         def __init__(self, *args, **kwargs):
@@ -39,10 +38,13 @@ except (ImportError, SyntaxError) as error:  # pragma: no cover
         def create_request(self):
             pass
 
+
 __all__ = [
     "RequestsClient",
     "AiohttpClient",
     "TwistedClient",
+    "DEFAULT_CLIENT",
+    "get_client",
 ]
 
 register.set_default_client(RequestsClient)

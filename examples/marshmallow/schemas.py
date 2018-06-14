@@ -25,4 +25,3 @@ class RepoSchema(marshmallow.Schema):
     @marshmallow.post_load
     def make_repo(self, data):
         return Repo(*data["full_name"].split("/"))
-

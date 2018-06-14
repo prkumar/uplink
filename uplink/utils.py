@@ -20,7 +20,10 @@ except ImportError:  # pragma: no cover
         if arg_spec.keywords is not None:
             args.append(arg_spec.keywords)
         return Signature(args, {}, None)
+
+
 else:  # pragma: no cover
+
     def get_call_args(f, *args, **kwargs):
         sig = signature(f)
         arguments = sig.bind(*args, **kwargs).arguments
@@ -54,19 +57,21 @@ else:  # pragma: no cover
             args.append(p)
         return Signature(args, annotations, return_type)
 
+
 try:
-    import urllib.parse as urlparse
+    import urllib.parse as _urlparse
 except ImportError:
-    import urlparse
+    import urlparse as _urlparse
 
 
 # Third party imports
 import uritemplate
 
 
+urlparse = _urlparse
+
 Signature = collections.namedtuple(
-    "Signature",
-    "args annotations return_annotation"
+    "Signature", "args annotations return_annotation"
 )
 
 Request = collections.namedtuple("Request", "method uri info return_type")
@@ -81,7 +86,6 @@ def no_op(*_, **__):
 
 
 class URIBuilder(object):
-
     @staticmethod
     def variables(uri):
         try:

@@ -26,6 +26,47 @@ As we're in initial development, the project is accepting feature requests!
 To request a feature, open a GitHub issue, summarize the enhancement, and
 add the **feature request** label.
 
+Installation
+============
+
+Install all development dependencies using:
+
+::
+
+    $ pipenv install --dev
+    $ pipenv run pre-commit install
+
+
+If you are unfamiliar with pipenv_ but are comfortable with virtualenvs_,
+you can alternatively run ``pip install pipenv`` inside the virtualenv you are
+already using then invoke the commands from above. This will setup your
+virtualenv correctly.
+
+.. _pipenv: https://docs.pipenv.org/
+.. _virtualenvs: https://virtualenv.pypa.io/en/stable/
+
+Before submitting a pull request, run all tests with tox_:
+
+::
+
+    $ tox
+
+.. _tox: https://tox.readthedocs.io/en/latest/
+
+
+Recommended Python Version for Development
+------------------------------------------
+
+We strongly encourage using Python 3.6 for development.
+
+Our ``Pipfile.lock`` was created using ``pipenv`` on Python 3.6.
+Contributors using Python 2.7 and 3.3 may experience issues during
+installation, since some development dependencies require Python
+3.4+. However, as a workaround for development on an earlier version
+of Python, you can try using the ``--skip-lock`` flag with
+``pipenv install``.
+
+
 Making Changes to the Source
 ============================
 To find a feature or bug to work on, checkout the open GitHub issues with the

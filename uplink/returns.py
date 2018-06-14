@@ -9,7 +9,6 @@ __all__ = ["from_json", "json", "model"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
-
     def _get_return_type(self, return_type):  # pragma: no cover
         return return_type
 
@@ -22,19 +21,16 @@ class _ReturnsBase(decorators.MethodAnnotation):
             converter = return_type.unwrap()
         else:
             converter = request_builder.get_converter(
-                keys.CONVERT_FROM_RESPONSE_BODY,
-                return_type
+                keys.CONVERT_FROM_RESPONSE_BODY, return_type
             )
         if converter is not None:
             # Found a converter that can handle the return type.
             request_builder.return_type = _StrategyWrapper(
-                converter,
-                self._make_strategy(converter)
+                converter, self._make_strategy(converter)
             )
 
 
 class _StrategyWrapper(object):
-
     def __init__(self, converter, strategy):
         self._converter = converter
         self._strategy = strategy
@@ -112,6 +108,7 @@ class json(_ReturnsBase):
 
     .. versionadded:: v0.5.0
     """
+
     _can_be_static = True
 
     class _DummyConverter(interfaces.Converter):

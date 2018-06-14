@@ -23,7 +23,6 @@ def test_get_api_definitions_from_parent(request_definition_builder):
 
 
 class TestRequestBuilder(object):
-
     def test_return_type(self):
         # Setup
         builder = helpers.RequestBuilder({})
