@@ -52,13 +52,16 @@ For sending non-blocking requests, Uplink comes with support for
 Use decorators and function annotations to describe the HTTP request:
 
 * URL parameter replacement and query parameter support
-* Convert response bodies into Python objects (e.g., using |marshmallow|_ or
-  a `custom converter <http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body>`_)
+* Directly Convert response bodies into Python objects
+    * Built-in support for |marshmallow|_ schemas
+    * Define `custom converters`_ for your own objects
 * JSON, URL-encoded, and multipart request body and file upload
 * Inject functions as **middleware** to apply custom response and error handling
 
 .. |marshmallow| replace:: ``marshmallow``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
+.. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
+
 
 Installation
 ============
@@ -123,7 +126,11 @@ User Testimonials
 
 Documentation
 =============
-For more details, check out the documentation at https://uplink.readthedocs.io/.
+Ready to create an API client with Uplink? Get started with this
+quickstart_ guide! For more details, check out the documentation at
+https://uplink.readthedocs.io/.
+
+.. _quickstart: https://uplink.readthedocs.io/en/stable/quickstart.html
 
 Contributing
 ============
