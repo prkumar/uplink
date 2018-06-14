@@ -145,8 +145,8 @@ from_json = json
     This decorator accepts the same arguments as
     :py:class:`uplink.returns.json`.
 
-    Often, JSON responses represent models in an application. If an
-    existing Python object encapsulates this model, use the
+    Often, a JSON response body represents a model in your application.
+    If an existing Python object encapsulates this model, use the
     :py:attr:`model` argument to specify it as the return type:
 
     .. code-block:: python
