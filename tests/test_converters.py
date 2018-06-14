@@ -328,7 +328,7 @@ class TestRegistry(object):
         assert len(defaults) == 1
         assert isinstance(defaults[0], converters.StandardConverter)
 
-    def test_register_converter_factory_pass(self):
+    def test_register_converter_factory_fail(self):
         # Setup
         registry = register.Register()
 

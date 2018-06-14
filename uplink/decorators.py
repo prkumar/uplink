@@ -1,3 +1,7 @@
+"""
+This module implements the built-in class and method decorators and their
+handling classes.
+"""
 # Standard library imports
 import collections
 import functools

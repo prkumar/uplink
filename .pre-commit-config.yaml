@@ -6,3 +6,10 @@ repos:
       args: [--line-length=80, --safe]
       python-version: python3.6
       files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v1.3.0
+    hooks:
+    - id: flake8
+      name: flake8
+      python-version: python3.6
+      files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$

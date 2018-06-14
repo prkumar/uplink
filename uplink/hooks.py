@@ -18,8 +18,8 @@ class TransactionHook(object):
 
     handle_response = None
     """
-    Handles a response object from the server. 
-    
+    Handles a response object from the server.
+
     This method can be undefined (i.e., None), indicating that this hook
     does not handle responses.
 
