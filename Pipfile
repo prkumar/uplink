@@ -10,7 +10,8 @@ pytest-mock = "*"
 pytest-cov = "*"
 pre-commit = "*"
 tox = "*"
-
+Sphinx = "*"
+sphinx-autobuild = "*"
 
 [packages]
 "e1839a8" = {path = ".", editable = true}
