@@ -3,7 +3,6 @@ repos:
     rev: stable
     hooks:
     - id: black
-      args: [--line-length=80, --safe]
       python-version: python3.6
       files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
 -   repo: https://github.com/pre-commit/pre-commit-hooks
