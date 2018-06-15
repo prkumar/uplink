@@ -20,8 +20,6 @@ installing Uplink with ``pip``:
 $ pip install -U uplink[marshmallow]
 ```
 
-This makes available the class `uplink.MarshmallowConverter`.
-
 ## Overview
 
 This example includes three files:
