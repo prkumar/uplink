@@ -22,5 +22,6 @@ if __name__ == "__main__":
     for repo in repos:
         contributors = gh.get_contributors(repo.owner, repo.name)
         print(
-            "Contributors for %s:\n%s" % (repo, pformat(contributors, indent=4))
+            "Contributors for %s:\n%s\n"
+            % (repo, pformat(contributors, indent=4))
         )
