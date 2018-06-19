@@ -49,19 +49,26 @@ For sending non-blocking requests, Uplink comes with support for
 .. |aiohttp and twisted| replace:: ``aiohttp`` and ``twisted``
 .. _`aiohttp and twisted`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 
-Use decorators and function annotations to describe the HTTP request:
+Features
+========
 
-* URL parameter replacement and query parameter support
-* Directly Convert response bodies into Python objects
-    * Built-in support for |marshmallow|_ schemas
-    * Define `custom converters`_ for your own objects
-* JSON, URL-encoded, and multipart request body and file upload
-* Inject functions as **middleware** to apply custom response and error handling
+* Use decorators and function annotations to describe the HTTP request
+   * URL parameter replacement, request headers, and query parameter support
+   * JSON, URL-encoded, and multipart request body and file upload
+* Directly convert response bodies into Python objects
+   * Built-in support for |marshmallow|_ schemas
+   * Define `custom converters`_ for your own objects
+* Inject functions as **middleware** to apply `custom response and error handling`_
+* Authenticate HTTP requests to web services:
+   * Built-in support for Basic Authentication
+   * Use external auth support for Requests or Aiohttp
+* Send non-blocking HTTP requests with Aiohttp or Twisted.
+
 
 .. |marshmallow| replace:: ``marshmallow``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 .. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
-
+.. _`custom response and error handling`: http://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
 
 Installation
 ============
