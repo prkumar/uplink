@@ -53,9 +53,9 @@ metadata = dict(
         "packages": find_packages(exclude=("tests",)),
         "install_requires": install_requires,
         "extras_require": extras_require,
-    },
-    **about,
+    }
 )
+metadata = dict(metadata, **about)
 
 if __name__ == "__main__":
     setup(**metadata)
