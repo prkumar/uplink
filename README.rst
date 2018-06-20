@@ -58,12 +58,13 @@ Features
   - JSON, URL-encoded, and multipart request body and file upload.
 
 - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object for
-  greater control.
+  greater control over the underlying client.
 
 - Directly convert response bodies into Python objects:
 
   - Built-in support for |marshmallow|_ schemas
   - Define `custom converters`_ for your own objects
+  - Built-in support for `converting collections`_ (e.g., list of Users).
    
 - Inject functions as **middleware** to apply `custom response and error handling`_.
 
@@ -74,15 +75,16 @@ Features
 
 - Send non-blocking HTTP requests with Aiohttp or Twisted.
 
+Uplink officially supports Python 2.7 & 3.3-3.7.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 .. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
+.. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
 .. _`custom response and error handling`: http://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
 
 Installation
 ============
-``uplink`` supports Python 2.7 & 3.3-3.7.
 
 To install the latest stable release, you can use ``pip`` (or ``pipenv``):
 
