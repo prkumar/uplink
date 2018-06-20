@@ -63,13 +63,44 @@ For sending non-blocking requests, Uplink comes with support for
 :py:mod:`aiohttp` and :py:mod:`twisted` (`example
 <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_).
 
-Use decorators and function annotations to describe the HTTP request:
+Features
+========
 
-* URL parameter replacement and query parameter support
-* Convert response bodies into Python objects (e.g., using
-  :py:mod:`marshmallow` or a custom converter)
-* JSON, URL-encoded, and multipart request body and file upload
-* Inject functions as **middleware** to define custom response and error handling
+- **Quickly Define Structured API Clients**
+
+  - Use decorators and function annotations to describe the HTTP request.
+  - URL parameter replacement, request headers, and query parameter support.
+  - JSON, URL-encoded, and multipart request body and file upload.
+
+- **Bring Your Own HTTP Library**
+
+  - Use Requests by default.
+  - Send non-blocking HTTP requests with Aiohttp or Twisted.
+  - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
+    for greater control.
+
+- **Directly Convert Response Bodies into Python Objects**
+
+  - Built-in support for |marshmallow|_ schemas.
+  - Define `custom converters`_ for your own objects.
+  - Built-in support for `converting collections`_ (e.g., list of Users).
+
+- **Middleware**
+
+  - Inject `custom response and error handling`_.
+
+- **Authentication**:
+
+  - Built-in support for Basic Authentication.
+  - Works with external auth support for Requests or Aiohttp.
+
+Uplink officially supports Python 2.7 & 3.3-3.7.
+
+.. |marshmallow| replace:: ``marshmallow``
+.. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
+.. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
+.. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
+.. _`custom response and error handling`: http://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
 
 
 User Testimonials
