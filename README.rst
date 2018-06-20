@@ -52,28 +52,33 @@ For sending non-blocking requests, Uplink comes with support for
 Features
 ========
 
-- Use decorators and function annotations to describe the HTTP request:
+- Quickly Define Structured API Clients:
 
-  - URL parameter replacement, request headers, and query parameter support.
-  - JSON, URL-encoded, and multipart request body and file upload.
+   - Use decorators and function annotations to describe the HTTP request.
+   - URL parameter replacement, request headers, and query parameter support.
+   - JSON, URL-encoded, and multipart request body and file upload.
 
-- Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object for
-  greater control over the underlying client.
+- Bring Your Own HTTP Library:
+
+   - Use Requests by default.
+   - Send non-blocking HTTP requests with Aiohttp or Twisted.
+   - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
+     for greater control.
 
 - Directly convert response bodies into Python objects:
 
-  - Built-in support for |marshmallow|_ schemas
-  - Define `custom converters`_ for your own objects
-  - Built-in support for `converting collections`_ (e.g., list of Users).
-   
-- Inject functions as **middleware** to apply `custom response and error handling`_.
+   - Built-in support for |marshmallow|_ schemas
+   - Define `custom converters`_ for your own objects
+   - Built-in support for `converting collections`_ (e.g., list of Users).
 
-- Authenticate HTTP requests to web services:
+- Middleware
+
+   - Inject `custom response and error handling`_.
+
+- Authentication:
 
   - Built-in support for Basic Authentication
   - Works with external auth support for Requests or Aiohttp
-
-- Send non-blocking HTTP requests with Aiohttp or Twisted.
 
 Uplink officially supports Python 2.7 & 3.3-3.7.
 
