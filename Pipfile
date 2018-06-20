@@ -5,9 +5,6 @@ name = "pypi"
 
 
 [dev-packages]
-pytest = "*"
-pytest-mock = "*"
-pytest-cov = "*"
 pre-commit = "*"
 tox = "*"
 Sphinx = {version = "*", markers = "python_version != '3.3'"}
@@ -15,8 +12,4 @@ sphinx-autobuild = {version = "*", markers = "python_version != '3.3'"}
 
 
 [packages]
-"e1839a8" = {path = ".", editable = true}
-twisted = "<=17.9.0"
-aiohttp = {version = "*", markers = "python_version >= '3.4'"}
-marshmallow = "*"
-typing = "*"
+"e1839a8" = {path = ".", extras=["tests", "aiohttp", "twisted", "typing", "marshmallow"], editable = true}
