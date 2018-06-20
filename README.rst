@@ -67,8 +67,8 @@ Features
 
 - Directly convert response bodies into Python objects:
 
-  - Built-in support for |marshmallow|_ schemas
-  - Define `custom converters`_ for your own objects
+  - Built-in support for |marshmallow|_ schemas.
+  - Define `custom converters`_ for your own objects.
   - Built-in support for `converting collections`_ (e.g., list of Users).
 
 - Middleware
@@ -77,8 +77,8 @@ Features
 
 - Authentication:
 
-  - Built-in support for Basic Authentication
-  - Works with external auth support for Requests or Aiohttp
+  - Built-in support for Basic Authentication.
+  - Works with external auth support for Requests or Aiohttp.
 
 Uplink officially supports Python 2.7 & 3.3-3.7.
 
