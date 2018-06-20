@@ -49,20 +49,47 @@ For sending non-blocking requests, Uplink comes with support for
 .. |aiohttp and twisted| replace:: ``aiohttp`` and ``twisted``
 .. _`aiohttp and twisted`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 
-Use decorators and function annotations to describe the HTTP request:
+Features
+========
 
-* URL parameter replacement and query parameter support
-* Convert response bodies into Python objects (e.g., using |marshmallow|_ or
-  a `custom converter <http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body>`_)
-* JSON, URL-encoded, and multipart request body and file upload
-* Inject functions as **middleware** to apply custom response and error handling
+- **Quickly Define Structured API Clients**
+
+  - Use decorators and function annotations to describe the HTTP request.
+  - URL parameter replacement, request headers, and query parameter support.
+  - JSON, URL-encoded, and multipart request body and file upload.
+
+- **Bring Your Own HTTP Library**
+
+  - Use Requests by default.
+  - Send non-blocking HTTP requests with Aiohttp or Twisted.
+  - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
+    for greater control.
+
+- **Directly Convert Response Bodies into Python Objects**
+
+  - Built-in support for |marshmallow|_ schemas.
+  - Define `custom converters`_ for your own objects.
+  - Built-in support for `converting collections`_ (e.g., list of Users).
+
+- **Middleware**
+
+  - Inject `custom response and error handling`_.
+
+- **Authentication**:
+
+  - Built-in support for Basic Authentication.
+  - Works with external auth support for Requests or Aiohttp.
+
+Uplink officially supports Python 2.7 & 3.3-3.7.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
+.. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
+.. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
+.. _`custom response and error handling`: http://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
 
 Installation
 ============
-``uplink`` supports Python 2.7 & 3.3-3.7.
 
 To install the latest stable release, you can use ``pip`` (or ``pipenv``):
 
@@ -123,7 +150,11 @@ User Testimonials
 
 Documentation
 =============
-For more details, check out the documentation at https://uplink.readthedocs.io/.
+Ready to create an API client with Uplink? Get started with this
+quickstart_ guide! For more details, check out the documentation at
+https://uplink.readthedocs.io/.
+
+.. _quickstart: https://uplink.readthedocs.io/en/stable/quickstart.html
 
 Contributing
 ============

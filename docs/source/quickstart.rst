@@ -1,7 +1,8 @@
 Quickstart
 **********
 
-Decorators and function annotations indicate how a request will be handled.
+With Uplink, Decorators and function annotations indicate how a request will be
+handled.
 
 Request Method
 ==============
