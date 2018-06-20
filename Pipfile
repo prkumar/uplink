@@ -12,7 +12,7 @@ sphinx-autobuild = {version = "*", markers = "python_version != '3.3'"}
 
 
 [packages."e1839a8"]
-path = "*"
+path = "."
 extras = [
     "tests",
     "aiohttp",
