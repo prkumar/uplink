@@ -75,7 +75,7 @@ Features
 
   - Inject `custom response and error handling`_.
 
-- **Authentication**:
+- **Authentication**
 
   - Built-in support for Basic Authentication.
   - Works with external auth support for Requests or Aiohttp.
