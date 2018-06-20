@@ -52,23 +52,26 @@ For sending non-blocking requests, Uplink comes with support for
 Features
 ========
 
-- Use decorators and function annotations to describe the HTTP request
+- Use decorators and function annotations to describe the HTTP request:
 
-  - URL parameter replacement, request headers, and query parameter support
-  - JSON, URL-encoded, and multipart request body and file upload
-   
-- Directly convert response bodies into Python objects
+  - URL parameter replacement, request headers, and query parameter support.
+  - JSON, URL-encoded, and multipart request body and file upload.
+
+- Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object for
+  greater control.
+
+- Directly convert response bodies into Python objects:
 
   - Built-in support for |marshmallow|_ schemas
   - Define `custom converters`_ for your own objects
    
-- Inject functions as **middleware** to apply `custom response and error handling`_
+- Inject functions as **middleware** to apply `custom response and error handling`_.
 
 - Authenticate HTTP requests to web services:
 
   - Built-in support for Basic Authentication
-  - Use external auth support for Requests or Aiohttp
-   
+  - Works with external auth support for Requests or Aiohttp
+
 - Send non-blocking HTTP requests with Aiohttp or Twisted.
 
 
