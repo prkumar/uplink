@@ -54,26 +54,26 @@ Features
 
 - Quickly Define Structured API Clients:
 
-   - Use decorators and function annotations to describe the HTTP request.
-   - URL parameter replacement, request headers, and query parameter support.
-   - JSON, URL-encoded, and multipart request body and file upload.
+  - Use decorators and function annotations to describe the HTTP request.
+  - URL parameter replacement, request headers, and query parameter support.
+  - JSON, URL-encoded, and multipart request body and file upload.
 
 - Bring Your Own HTTP Library:
 
-   - Use Requests by default.
-   - Send non-blocking HTTP requests with Aiohttp or Twisted.
-   - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
-     for greater control.
+  - Use Requests by default.
+  - Send non-blocking HTTP requests with Aiohttp or Twisted.
+  - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
+    for greater control.
 
 - Directly convert response bodies into Python objects:
 
-   - Built-in support for |marshmallow|_ schemas
-   - Define `custom converters`_ for your own objects
-   - Built-in support for `converting collections`_ (e.g., list of Users).
+  - Built-in support for |marshmallow|_ schemas
+  - Define `custom converters`_ for your own objects
+  - Built-in support for `converting collections`_ (e.g., list of Users).
 
 - Middleware
 
-   - Inject `custom response and error handling`_.
+  - Inject `custom response and error handling`_.
 
 - Authentication:
 
