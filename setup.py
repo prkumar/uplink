@@ -18,10 +18,13 @@ with open(os.path.join("uplink", "__about__.py")) as fp:
 install_requires = ["requests>=2.18.0", "uritemplate>=3.0.0"]
 
 extras_require = {
-    "aiohttp": ["aiohttp>=2.3.0"],
-    "twisted": ["twisted>=17.1.0"],
     "marshmallow": ["marshmallow>=2.15.0"],
+    "aiohttp:python_version <= '3.4'": [],
+    "aiohttp:python_version >= '3.4'": "aiohttp>=2.3.0",
+    "twisted:python_version != '3.3'": "twisted>=17.1.0",
+    "twisted:python_version == '3.3'": "twisted<=17.9.0",
     "typing": ["typing>=3.6.4"],
+    "tests": ["pytest", "pytest-mock", "pytest-cov"],
 }
 
 metadata = dict(
@@ -50,9 +53,9 @@ metadata = dict(
         "packages": find_packages(exclude=("tests",)),
         "install_requires": install_requires,
         "extras_require": extras_require,
-    },
-    **about
+    }
 )
+metadata = dict(metadata, **about)
 
 if __name__ == "__main__":
     setup(**metadata)
