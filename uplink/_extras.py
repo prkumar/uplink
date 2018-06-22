@@ -34,12 +34,12 @@ def load_entry_points(
     _entry_points=_ENTRY_POINTS,
     _iter_entry_points=pkg_resources.iter_entry_points,
 ):
-    for entry_point in _entry_points:
+    for name in _entry_points:
         plugins = {
             entry_point.name: entry_point.load()
-            for entry_point in _iter_entry_points(entry_point)
+            for entry_point in _iter_entry_points(name)
         }
-        func = _entry_points[entry_point]
+        func = _entry_points[name]
         for value in plugins.values():
             func(value)
 
@@ -48,7 +48,7 @@ def install(installable, _installers=_INSTALLERS):
     cls = installable if inspect.isclass(installable) else type(installable)
     for base_cls in _installers:
         if issubclass(cls, base_cls):
-            _INSTALLERS[base_cls](cls)
+            _installers[base_cls](installable)
             break
     else:
         raise TypeError("Failed to install: '%s'" % str(installable))

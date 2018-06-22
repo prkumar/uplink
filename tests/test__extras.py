@@ -9,7 +9,10 @@ def test_load_entry_points(mocker):
     # Setup
     func = mocker.stub()
     iter_entry_points = mocker.stub()
-    iter_entry_points.return_value = {"plugin-name": "plugin-value"}
+    entry_point = mocker.Mock()
+    entry_point.name = "plugin-name"
+    entry_point.load.return_value = "plugin-value"
+    iter_entry_points.return_value = [entry_point]
     entry_points = {"entry-point": func}
 
     # Run
@@ -18,17 +21,17 @@ def test_load_entry_points(mocker):
     )
 
     # Verify
-    assert func.assert_called_with("plugin-value")
+    func.assert_called_with("plugin-value")
 
 
 def test_install(mocker):
     # Setup
     func = mocker.stub()
-    installers = {object: func}
-    obj = object()
+    installers = {list: func}
+    obj = []
 
     # Run: Success
-    _extras.install(object(), _installers=installers)
+    _extras.install(obj, _installers=installers)
 
     # Verify
     func.assert_called_with(obj)
