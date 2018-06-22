@@ -1,5 +1,6 @@
 # Local imports
 from uplink.__about__ import __version__
+from uplink._extras import install, load_entry_points as _load_entry_points
 from uplink import returns, types
 from uplink.clients import AiohttpClient, RequestsClient, TwistedClient
 
@@ -43,6 +44,7 @@ from uplink.arguments import (
 
 __all__ = [
     "__version__",
+    "install",
     "returns",
     "types",
     "AiohttpClient",
@@ -85,3 +87,5 @@ __all__ = [
     "Body",
     "Url",
 ]
+
+_load_entry_points()

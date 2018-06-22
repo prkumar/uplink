@@ -1,10 +1,10 @@
 # Standard library imports
 import collections
-import functools
 
 # Local imports
+from uplink._extras import installer, plugin
 from uplink.converters import keys
-from uplink.converters.interfaces import ConverterFactory, Converter
+from uplink.converters.interfaces import Factory, ConverterFactory, Converter
 from uplink.converters.register import (
     get_default_converter_factories,
     register_default_converter_factory,
@@ -24,7 +24,8 @@ __all__ = [
     "TypingConverter",
     "get_default_converter_factories",
     "register_default_converter_factory",
-    "ConverterFactory",
+    "Factory",
+    "ConverterFactory",  # TODO: Remove this v1.0.0
     "Converter",
     "keys",
 ]
@@ -37,6 +38,10 @@ converter will be included automatically with any consumer instance
 and doesn't need to be explicitly provided through the ``converter``
 parameter to be used.
 """
+
+# Define plugin and installer
+plugin("converters")(install)
+installer(Factory)(install)
 
 
 class ConverterChain(object):
@@ -101,14 +106,14 @@ class ConverterFactoryRegistry(collections.Mapping):
 
     def _make_chain_for_func(self, func):
         def chain(*args, **kwargs):
+            args = args + self._args
+            kwargs = dict(self._kwargs, **kwargs)
             for factory in self.factories:
                 converter = func(factory)(*args, **kwargs)
                 if callable(converter):
                     return converter
 
-        return ConverterChain(
-            functools.partial(chain, *self._args, **self._kwargs)
-        )
+        return ConverterChain(chain)
 
     def _make_chain_for_key(self, converter_key):
         return self._make_chain_for_func(
@@ -151,15 +156,15 @@ class ConverterFactoryRegistry(collections.Mapping):
 
 
 @ConverterFactoryRegistry.register(keys.CONVERT_TO_REQUEST_BODY)
-def make_request_body_converter(factory):
-    return factory.make_request_body_converter
+def create_request_body_converter(factory):
+    return factory.create_request_body_converter
 
 
 @ConverterFactoryRegistry.register(keys.CONVERT_FROM_RESPONSE_BODY)
-def make_response_body_converter(factory):
-    return factory.make_response_body_converter
+def create_response_body_converter(factory):
+    return factory.create_response_body_converter
 
 
 @ConverterFactoryRegistry.register(keys.CONVERT_TO_STRING)
-def make_string_converter(factory):
-    return factory.make_string_converter
+def create_string_converter(factory):
+    return factory.create_string_converter

@@ -114,7 +114,7 @@ class Builder(interfaces.CallBuilder):
 
     @converters.setter
     def converters(self, converters_):
-        if isinstance(converters_, converters.interfaces.ConverterFactory):
+        if isinstance(converters_, converters.interfaces.Factory):
             converters_ = (converters_,)
         self._converters = tuple(converters_)
         self._converters += converters.get_default_converter_factories()
