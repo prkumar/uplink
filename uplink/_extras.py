@@ -30,25 +30,27 @@ class installer(object):
         return func
 
 
-def load_entry_points():
-    for entry_point in _ENTRY_POINTS:
+def load_entry_points(
+    _entry_points=_ENTRY_POINTS,
+    _iter_entry_points=pkg_resources.iter_entry_points,
+):
+    for entry_point in _entry_points:
         plugins = {
             entry_point.name: entry_point.load()
-            for entry_point in pkg_resources.iter_entry_points(entry_point)
+            for entry_point in _iter_entry_points(entry_point)
         }
-        func = _ENTRY_POINTS[entry_point]
+        func = _entry_points[entry_point]
         for value in plugins.values():
             func(value)
 
 
-def install(installable):
+def install(installable, _installers=_INSTALLERS):
     cls = installable if inspect.isclass(installable) else type(installable)
-    for base_cls in _INSTALLERS:
+    for base_cls in _installers:
         if issubclass(cls, base_cls):
             _INSTALLERS[base_cls](cls)
             break
     else:
-        # TODO: Throw an appropriate error if we can't find installer
-        raise KeyError
+        raise TypeError("Failed to install: '%s'" % str(installable))
 
     return installable

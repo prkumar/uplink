@@ -25,7 +25,7 @@ __all__ = [
     "get_default_converter_factories",
     "register_default_converter_factory",
     "Factory",
-    "ConverterFactory",  # TODO: Remove this v1.0.0
+    "ConverterFactory",  # TODO: Remove this in v1.0.0
     "Converter",
     "keys",
 ]
