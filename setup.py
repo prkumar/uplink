@@ -27,34 +27,32 @@ extras_require = {
     "tests": ["pytest", "pytest-mock", "pytest-cov"],
 }
 
-metadata = dict(
-    {
-        "name": "uplink",
-        "author": "P. Raj Kumar",
-        "author_email": "raj.pritvi.kumar@gmail.com",
-        "url": "https://uplink.readthedocs.io/",
-        "license": "MIT",
-        "description": "A Declarative HTTP Client for Python.",
-        "long_description": read("README.rst"),
-        "classifiers": [
-            "Development Status :: 2 - Pre-Alpha",
-            "Intended Audience :: Developers",
-            "License :: OSI Approved :: MIT License",
-            "Programming Language :: Python :: 2",
-            "Programming Language :: Python :: 2.7",
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.3",
-            "Programming Language :: Python :: 3.4",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
-        ],
-        "keywords": "http api rest client retrofit",
-        "packages": find_packages(exclude=("tests",)),
-        "install_requires": install_requires,
-        "extras_require": extras_require,
-    }
-)
+metadata = {
+    "name": "uplink",
+    "author": "P. Raj Kumar",
+    "author_email": "raj.pritvi.kumar@gmail.com",
+    "url": "https://uplink.readthedocs.io/",
+    "license": "MIT",
+    "description": "A Declarative HTTP Client for Python.",
+    "long_description": read("README.rst"),
+    "classifiers": [
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+    ],
+    "keywords": "http api rest client retrofit",
+    "packages": find_packages(exclude=("tests",)),
+    "install_requires": install_requires,
+    "extras_require": extras_require,
+}
 metadata = dict(metadata, **about)
 
 if __name__ == "__main__":
