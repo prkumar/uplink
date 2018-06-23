@@ -36,7 +36,7 @@ metadata = {
     "description": "A Declarative HTTP Client for Python.",
     "long_description": read("README.rst"),
     "classifiers": [
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 2",
@@ -47,6 +47,8 @@ metadata = {
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
     "keywords": "http api rest client retrofit",
     "packages": find_packages(exclude=("tests",)),
