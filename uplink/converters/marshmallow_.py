@@ -5,10 +5,10 @@ to deserialize and serialize values.
 
 # Local imports
 from uplink import utils
-from uplink.converters import interfaces, register
+from uplink.converters import interfaces, register_default_converter_factory
 
 
-class MarshmallowConverter(interfaces.ConverterFactory):
+class MarshmallowConverter(interfaces.Factory):
     """
     A converter that serializes and deserializes values using
     :py:mod:`marshmallow` schemas.
@@ -82,10 +82,10 @@ class MarshmallowConverter(interfaces.ConverterFactory):
         else:
             return converter_cls(schema)
 
-    def make_request_body_converter(self, type_, *args, **kwargs):
+    def create_request_body_converter(self, type_, *args, **kwargs):
         return self._make_converter(self.RequestBodyConverter, type_)
 
-    def make_response_body_converter(self, type_, *args, **kwargs):
+    def create_response_body_converter(self, type_, *args, **kwargs):
         return self._make_converter(self.ResponseBodyConverter, type_)
 
     @classmethod
@@ -94,6 +94,4 @@ class MarshmallowConverter(interfaces.ConverterFactory):
             register_func(cls)
 
 
-MarshmallowConverter.register_if_necessary(
-    register.register_default_converter_factory
-)
+MarshmallowConverter.register_if_necessary(register_default_converter_factory)

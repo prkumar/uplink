@@ -172,7 +172,8 @@ class ArgumentAnnotation(interfaces.Annotation):
         raise NotImplementedError
 
     def modify_request(self, request_builder, value):
-        argument_type, converter_key = self.type, self.converter_key
+        argument_type = self.type or type(value)
+        converter_key = self.converter_key
         converter = request_builder.get_converter(converter_key, argument_type)
         self._modify_request(request_builder, converter(value))
 

@@ -32,7 +32,7 @@ def converter_mock(mocker):
 
 @pytest.fixture
 def converter_factory_mock(mocker):
-    return mocker.Mock(spec=converters.interfaces.ConverterFactory)
+    return mocker.Mock(spec=converters.interfaces.Factory)
 
 
 @pytest.fixture

@@ -12,10 +12,10 @@ class Register(object):
 
     def register_converter_factory(self, proxy):
         factory = proxy() if inspect.isclass(proxy) else proxy
-        if not isinstance(factory, interfaces.ConverterFactory):
+        if not isinstance(factory, interfaces.Factory):
             raise TypeError(
                 "Failed to register '%s' as a converter factory: it is not an "
-                "instance of '%s'." % (factory, interfaces.ConverterFactory)
+                "instance of '%s'." % (factory, interfaces.Factory)
             )
         self._register.appendleft(factory)
         return proxy

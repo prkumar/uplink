@@ -4,7 +4,7 @@ import functools
 import inspect
 
 # Local imports
-from uplink.converters import interfaces, register
+from uplink.converters import interfaces, register_default_converter_factory
 
 __all__ = ["TypingConverter", "ListConverter", "DictConverter"]
 
@@ -70,8 +70,8 @@ def _get_types(try_typing=True):
         )
 
 
-@register.register_default_converter_factory
-class TypingConverter(interfaces.ConverterFactory):
+@register_default_converter_factory
+class TypingConverter(interfaces.Factory):
     """
     .. versionadded: v0.5.0
 
@@ -119,10 +119,10 @@ class TypingConverter(interfaces.ConverterFactory):
             elif issubclass(type_, self.typing.Mapping):
                 return DictConverter(*type_.__args__)
 
-    def make_response_body_converter(self, type_, *args, **kwargs):
+    def create_response_body_converter(self, type_, *args, **kwargs):
         return self._base_converter(type_)
 
-    def make_request_body_converter(self, type_, *args, **kwargs):
+    def create_request_body_converter(self, type_, *args, **kwargs):
         return self._base_converter(type_)
 
 

@@ -189,18 +189,14 @@ class RequestDefinition(interfaces.RequestDefinition):
 
     @property
     def argument_annotations(self):
-        return iter(self._argument_handler.annotations)
+        return tuple(self._argument_handler.annotations)
 
     @property
     def method_annotations(self):
-        return iter(self._method_handler.annotations)
+        return tuple(self._method_handler.annotations)
 
     def make_converter_registry(self, converters_):
-        return converters.ConverterFactoryRegistry(
-            converters_,
-            argument_annotations=self.argument_annotations,
-            method_annotations=self.method_annotations,
-        )
+        return converters.ConverterFactoryRegistry(converters_, self)
 
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method

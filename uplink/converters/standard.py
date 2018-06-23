@@ -2,7 +2,7 @@
 import json
 
 # Local imports
-from uplink.converters import interfaces, register
+from uplink.converters import interfaces, register_default_converter_factory
 
 
 class Cast(interfaces.Converter):
@@ -36,20 +36,20 @@ class StringConverter(interfaces.Converter):
         return str(value)
 
 
-@register.register_default_converter_factory
-class StandardConverter(interfaces.ConverterFactory):
+@register_default_converter_factory
+class StandardConverter(interfaces.Factory):
     """
     The default converter, this class seeks to provide sane alternatives
     for (de)serialization when all else fails -- e.g., no other
     converters could handle a particular type.
     """
 
-    def make_response_body_converter(self, type_, *args, **kwargs):
+    def create_response_body_converter(self, type_, *args, **kwargs):
         if isinstance(type_, interfaces.Converter):
             return type_
 
-    def make_request_body_converter(self, type_, *args, **kwargs):
+    def create_request_body_converter(self, type_, *args, **kwargs):
         return Cast(type_, RequestBodyConverter())  # pragma: no cover
 
-    def make_string_converter(self, type_, *args, **kwargs):
+    def create_string_converter(self, type_, *args, **kwargs):
         return Cast(type_, StringConverter())  # pragma: no cover

@@ -54,9 +54,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Uplink"
-copyright = u"2018, P. Raj Kumar"
-author = u"Raj Kumar"
+project = "Uplink"
+copyright = "2018, P. Raj Kumar"
+author = "Raj Kumar"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -157,7 +157,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, "Uplink.tex", u"Uplink Documentation", u"Raj Kumar", "manual")
+    (master_doc, "Uplink.tex", "Uplink Documentation", "Raj Kumar", "manual")
 ]
 
 
@@ -165,7 +165,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "uplink", u"Uplink Documentation", [author], 1)]
+man_pages = [(master_doc, "uplink", "Uplink Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -177,7 +177,7 @@ texinfo_documents = [
     (
         master_doc,
         "Uplink",
-        u"Uplink Documentation",
+        "Uplink Documentation",
         author,
         "Uplink",
         "One line description of project.",

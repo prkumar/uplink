@@ -10,11 +10,11 @@ from uplink.models import loads, dumps
 @pytest.mark.parametrize(
     "cls, method",
     [
-        (loads, "make_response_body_converter"),
-        (dumps, "make_request_body_converter"),
+        (loads, "create_response_body_converter"),
+        (dumps, "create_request_body_converter"),
     ],
 )
-def test_models(mocker, cls, method):
+def test_models(mocker, cls, method, request_definition):
     # Setup
     func = mocker.stub()
     func.return_value = 1
@@ -26,22 +26,25 @@ def test_models(mocker, cls, method):
     assert factory(1) == 1
 
     # Verify: not relevant
-    value = getattr(factory, method)(None, (), ())
+    request_definition.argument_annotations = ()
+    request_definition.method_annotations = ()
+    value = getattr(factory, method)(None, request_definition)
     assert value is None
 
     # Verify: relevant
-    value = getattr(factory, method)(object, (object(),), ())
+    request_definition.argument_annotations = (object(),)
+    value = getattr(factory, method)(object, request_definition)
     assert callable(value)
 
 
 @pytest.mark.parametrize(
     "cls, method, decorator",
     [
-        (loads.from_json, "make_response_body_converter", returns.json()),
-        (dumps.to_json, "make_request_body_converter", json()),
+        (loads.from_json, "create_response_body_converter", returns.json()),
+        (dumps.to_json, "create_request_body_converter", json()),
     ],
 )
-def test_json_builders(mocker, cls, method, decorator):
+def test_json_builders(mocker, cls, method, decorator, request_definition):
     # Setup
     func = mocker.stub()
     func.return_value = 1
@@ -49,10 +52,13 @@ def test_json_builders(mocker, cls, method, decorator):
     factory = obj.using(func)
 
     # Verify: not relevant
-    value = getattr(factory, method)(object, (), ())
+    request_definition.argument_annotations = ()
+    request_definition.method_annotations = ()
+    value = getattr(factory, method)(object, request_definition)
     assert value is None
 
     # Verify relevant
-    value = getattr(factory, method)(object, (), (decorator,))
+    request_definition.method_annotations = (decorator,)
+    value = getattr(factory, method)(object, request_definition)
     assert callable(value)
     assert value(1) == 1
