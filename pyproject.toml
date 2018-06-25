@@ -4,7 +4,7 @@ requires = ["setuptools", "wheel"]  # PEP 508 specifications.
 
 [tool.black]
 line-length = 80
-py36 = true
+py36 = false
 safe = true
 include = '\.pyi?$'
 exclude = '''

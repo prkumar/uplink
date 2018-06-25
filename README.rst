@@ -71,9 +71,10 @@ Features
   - Define `custom converters`_ for your own objects.
   - Built-in support for `converting collections`_ (e.g., list of Users).
 
-- **Middleware**
+- **Extendable**
 
-  - Inject `custom response and error handling`_.
+  - Inject `custom response and error handling`_ as middleware.
+  - Install optional plugins for additional features (e.g., `protobuf support`_)
 
 - **Authentication**
 
@@ -84,9 +85,10 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
-.. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
+.. _`custom converters`: https://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
 .. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
-.. _`custom response and error handling`: http://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
+.. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
+.. _`protobuf support`_: https://github.com/prkumar/uplink-protobuf
 
 Installation
 ============
