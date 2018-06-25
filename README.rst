@@ -88,7 +88,7 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. _`custom converters`: https://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
 .. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
 .. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
-.. _`protobuf support`_: https://github.com/prkumar/uplink-protobuf
+.. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
 
 Installation
 ============
