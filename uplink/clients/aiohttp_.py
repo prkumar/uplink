@@ -9,6 +9,7 @@ import asyncio
 import collections
 import threading
 from concurrent import futures
+from functools import partial
 
 # Third party imports
 try:
@@ -74,7 +75,12 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         if isinstance(self._session, self.__ARG_SPEC):
             args, kwargs = self._session
             self._session = aiohttp.ClientSession(*args, **kwargs)
-            atexit.register(self._session.close)
+            atexit.register(
+                partial(
+                    asyncio.get_event_loop().run_until_complete,
+                    self._session.close(),
+                )
+            )
         return self._session
 
     def wrap_callback(self, callback):
