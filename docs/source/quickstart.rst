@@ -276,7 +276,7 @@ the :py:class:`response_handler` or :py:class:`error_handler` decorator.
     of a class scope.
 
 For instance, the function :py:func:`returns_success` defined below is a
-response handler that output whether or not the request was successful:
+response handler that outputs whether or not the request was successful:
 
 .. code-block:: python
 
