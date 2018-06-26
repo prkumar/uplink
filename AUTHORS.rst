@@ -9,3 +9,4 @@ Contributors
 - Fabio Rosado (`@fabiorosado <https://github.com/fabiorosado>`_)
 - Niko Eckerskorn (`@kadrach <https://github.com/kadrach>`_)
 - Or Carmi (`@liiight <https://github.com/liiight>`_)
+- George Kontridze (`@gkze <https://github.com/gkze>`_)
