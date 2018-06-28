@@ -76,8 +76,8 @@ Features
 
   - Use Requests by default.
   - Send non-blocking HTTP requests with Aiohttp or Twisted.
-  - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
-    for greater control.
+  - Supply your own :class:`requests.Session` or :class:`aiohttp.ClientSession`
+    object for greater control.
 
 - **Directly Convert Response Bodies into Python Objects**
 
@@ -85,9 +85,10 @@ Features
   - Define `custom converters`_ for your own objects.
   - Built-in support for `converting collections`_ (e.g., list of Users).
 
-- **Middleware**
+- **Extendable**
 
-  - Inject `custom response and error handling`_.
+  - Inject `custom response and error handling`_ as middleware.
+  - Install optional plugins for additional features (e.g., `protobuf support`_)
 
 - **Authentication**
 
@@ -101,6 +102,7 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. _`custom converters`: http://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
 .. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
 .. _`custom response and error handling`: http://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
+.. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
 
 
 User Testimonials
