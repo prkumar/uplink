@@ -1,7 +1,6 @@
 # Standard library imports
 import collections
 import functools
-import inspect
 
 # Local imports
 from uplink.converters import interfaces, register_default_converter_factory
@@ -64,10 +63,7 @@ def _get_types(try_typing=True):
     if TypingConverter.typing and try_typing:
         return TypingConverter.typing.List, TypingConverter.typing.Dict
     else:
-        return (
-            _TypeProxy(ListConverter.freeze),
-            _TypeProxy(DictConverter.freeze),
-        )
+        return (_TypeProxy(ListConverter.freeze), _TypeProxy(DictConverter.freeze))
 
 
 @register_default_converter_factory
@@ -108,15 +104,17 @@ class TypingConverter(interfaces.Factory):
         typing = None
 
     def _check_typing(self, t):
-        return self.typing and inspect.isclass(t) and hasattr(t, "__args__")
+        has_origin = hasattr(t, "__origin__")
+        has_args = hasattr(t, "__args__")
+        return self.typing and has_origin and has_args
 
     def _base_converter(self, type_):
         if isinstance(type_, BaseTypeConverter.Builder):
             return type_.build()
         elif self._check_typing(type_):
-            if issubclass(type_, self.typing.Sequence):
+            if issubclass(type_.__origin__, self.typing.Sequence):
                 return ListConverter(*type_.__args__)
-            elif issubclass(type_, self.typing.Mapping):
+            elif issubclass(type_.__origin__, self.typing.Mapping):
                 return DictConverter(*type_.__args__)
 
     def create_response_body_converter(self, type_, *args, **kwargs):

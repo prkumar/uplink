@@ -5,6 +5,8 @@ python:
   - '3.4'
   - '3.5'
   - '3.6'
+  - '3.6-dev'
+  - '3.7-dev'
 before_script:
   - |
     if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then
