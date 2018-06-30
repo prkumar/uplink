@@ -32,13 +32,14 @@ GitHub's public API:
 
 .. note::
 
-    :obj:`base_url` is especially useful to create clients for separate
-    instances of an API service; for example, we could use this GitHub
-    consumer to also create clients for any GitHub Enterprise instance,
-    not just the public https://github.com service. (Another example
-    involves creating separate clients for a company's production and
-    staging environments, which are typically not accessible from the
-    same base URL but expose the same API endpoints.)
+    :obj:`base_url` is especially useful for creating clients that
+    target separate services with similar APIs; for example, we could use
+    this GitHub consumer to also create clients for any GitHub
+    Enterprise instance, for projects hosted outside of the public
+    `GitHub.com <https://github.com>`_ service. (Another example is
+    creating separate clients for a company's production and staging
+    environments, which are typically hosted on separate domains but
+    expose the same API endpoints.)
 
 So far, this class looks like any other Python subclass. The real magic
 happens when you define methods using one of Uplink's HTTP method
@@ -52,7 +53,7 @@ Making a request with Uplink is *literally* as simple as decorating a method.
 Any method of a :class:`Consumer` subclass can be
 decorated with one of Uplink's HTTP method decorators:
 :class:`~uplink.get`, :class:`~uplink.post`, :class:`~uplink.put`,
-:class:`~uplink.patch`, and :class:`~uplink.delete`:
+:class:`~uplink.patch`, :class:`~uplink.head`, and :class:`~uplink.delete`:
 
 .. code::
 
@@ -66,7 +67,7 @@ is the relative URL path from :class:`base_url`, which we covered above):
 
 .. code:: python
 
-    @get("/repositories")
+    @get("repositories")
 
 You can also specify query parameters:
 
@@ -79,12 +80,15 @@ Finally, invoke the method to send a request:
 .. code:: python
 
     >>> github = GitHub(base_url="https://api.github.com/")
-    >>> print(github.get_repos())
+    >>> github.get_repos()
     <Response [200]>
+    >>> _.url
+    https://api.github.com/repositories
+
 
 By default, uplink uses `Requests
 <https://github.com/requests/requests>`_, so the response we get back
-from GitHub is wrapped in a :class:`requests.Response` instance.
+from GitHub is wrapped within a :class:`requests.Response` instance.
 (If you want, you can :ref:`swap out <sync_vs_async>` Requests for a
 different backing HTTP client.)
 
@@ -92,9 +96,10 @@ different backing HTTP client.)
 URL Manipulation
 ================
 
-A method's resource endpoint can be updated dynamically using `URI template
-parameters <https://tools.ietf.org/html/rfc6570>`__. A simple URI parameter
-is an alphanumeric string surrounded by ``{`` and ``}``.
+Resource endpoints can include `URI template parameters
+<https://tools.ietf.org/html/rfc6570>`__ that depend on method
+arguments. A simple URI parameter is an alphanumeric string surrounded
+by ``{`` and ``}``.
 
 To match the parameter with a method argument, either match the argument's
 name with the alphanumeric string, like so
@@ -109,7 +114,7 @@ or use the :py:class:`~uplink.Path` annotation.
 .. code:: python
 
     @get("users/{username}")
-    def get_user(self, username: Path("username")): pass
+    def get_user(self, name: Path("username")): pass
 
 :py:class:`~uplink.Query` parameters can also be added dynamically
 by method arguments.
@@ -119,8 +124,8 @@ by method arguments.
     @get("users/{username}/repos")
     def get_repos(self, username, sort: Query): pass
 
-For complex query parameter combinations, a :py:class:`~uplink.QueryMap`
-can be used:
+For "catch-all" or complex query parameter combinations, a
+:py:class:`~uplink.QueryMap` can be used:
 
 .. code:: python
 
@@ -137,7 +142,7 @@ You can set static query parameters for a method using the
     def get_user(self, username): pass
 
 :py:class:`~uplink.params` can be used as a class decorator for query
-parameters that need to be added to every request:
+parameters that need to be included with every request:
 
 .. code:: python
 
@@ -145,12 +150,11 @@ parameters that need to be added to every request:
     class GitHub(Consumer):
         ...
 
-
 Request Body
 ============
 
-A argument's value can be specified for use as an HTTP request body with the
-:py:class:`~uplink.Body` annotation:
+The :py:class:`~uplink.Body` annotation identifies a method argument as the
+the HTTP request body:
 
 .. code:: python
 
@@ -158,12 +162,19 @@ A argument's value can be specified for use as an HTTP request body with the
     def create_repo(self, repo: Body): pass
 
 This annotation works well with the **keyword arguments** parameter (denoted
-by the `**` prefix):
+by the ``**`` prefix):
 
 .. code:: python
 
     @post("user/repos")
     def create_repo(self, **repo_info: Body): pass
+
+Moreover, this annotation is useful when using supported serialization
+formats, such as :ref:`JSON <json>` and `Protocol Buffers
+<https://github.com/prkumar/uplink-protobuf>`_. We'll take a closer look at
+serialization with Uplink in a later section.
+
+.. _json:
 
 Form Encoded, Multipart, and JSON
 =================================
