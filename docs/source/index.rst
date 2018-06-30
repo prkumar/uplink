@@ -37,7 +37,7 @@ Uplink turns your HTTP API into a Python class.
    class GitHub(Consumer):
 
       @get("users/{user}/repos")
-      def list_repos(self, user: Path, sort_by: Query("sort")):
+      def get_repos(self, user: Path, sort_by: Query("sort")):
          """Get user's public repositories."""
 
 Build an instance to interact with the webservice.
@@ -50,7 +50,7 @@ Then, executing an HTTP request is as simply as invoking a method.
 
 .. code-block:: python
 
-   repos = github.list_repos("octocat", sort_by="created")
+   repos = github.get_repos("octocat", sort_by="created")
 
 The returned object is a friendly :py:class:`requests.Response`:
 
