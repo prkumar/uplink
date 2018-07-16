@@ -65,7 +65,7 @@ Features
   - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
     for greater control.
 
-- **Directly Convert Response Bodies into Python Objects**
+- **Use Type Hints to (De)serialize Python Objects**
 
   - Built-in support for |marshmallow|_ schemas.
   - Define `custom converters`_ for your own objects.

@@ -10,23 +10,13 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 
 |Release| |Python Version| |License| |Coverage Status| |Gitter|
 
-.. note::
-
-   Uplink is currently in initial development. Until the official
-   release (``v1.0.0``), the public API should be considered provisional.
-   Although we don't expect any considerable changes to the API at this point,
-   please avoid using the code in production, for now.
-
-   However, while Uplink is under construction, we invite eager users to
-   install early and provide open feedback, which can be as simple as
-   opening a GitHub issue when you notice a missing feature, latent
-   defect, documentation oversight, etc.
-
-   Moreover, for those interested in contributing, checkout the `Contribution
-   Guide on GitHub`_!
-
 .. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
 .. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
+
+.. note::
+
+   Uplink has entered beta development! The public API is still provisional,
+   but we don't expect any considerable changes at this point.
 
 Uplink turns your HTTP API into a Python class.
 
@@ -79,7 +69,7 @@ Features
   - Supply your own :class:`requests.Session` or :class:`aiohttp.ClientSession`
     object for greater control.
 
-- **Directly Convert Response Bodies into Python Objects**
+- **Use Type Hints to (De)serialize Python Objects**
 
   - Built-in support for |marshmallow|_ schemas.
   - Define `custom converters`_ for your own objects.
@@ -130,34 +120,37 @@ User Testimonials
 .. _notifiers: https://github.com/notifiers/notifiers
 
 
-The User Manual
-===============
+User Manual
+===========
 
 Follow this guide to get up and running with Uplink.
 
 .. toctree::
    :maxdepth: 2
 
-   install.rst
-   introduction.rst
-   quickstart.rst
-   advanced.rst
-   auth.rst
-   tips.rst
+   user/install.rst
+   user/quickstart.rst
+   user/auth.rst
+   user/serialization.rst
+   user/clients.rst
+   user/tips.rst
 
-The Public API
-==============
+API Reference
+=============
 
 This guide details the classes and methods in Uplink's public API.
 
 .. toctree::
+   :maxdepth: 3
+
+   dev/index
+
+Miscellaneous
+=============
+
+.. toctree::
    :maxdepth: 2
 
-   consumer.rst
-   decorators.rst
-   types.rst
-   clients.rst
-   converters.rst
    changes.rst
 
 

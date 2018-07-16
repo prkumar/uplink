@@ -103,10 +103,12 @@ html_theme_options = {
     "github_repo": "uplink",
     "github_button": "true",
     "github_banner": "true",
-    "travis_button": "true",
     "show_powered_by": "false",
     "fixed_sidebar": "true",
     "github_type": "star",
+    "show_related": "true",
+    "sidebar_collapse": "false",
+    "sidebar_showhidden": "false",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -119,14 +121,22 @@ html_static_path = ["_static"]
 #
 # This is required for the alabaster theme
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
+# html_sidebars = {
+#     "**": [
+#         "about.html",
+#         "navigation.html",
+#         "relations.html",  # needs 'show_related': True theme option to display
+#         "searchbox.html",
+#         "donate.html",
+#     ]
+# }
+
+# Custom sidebar templates, maps document names to template names.
 html_sidebars = {
-    "**": [
-        "about.html",
-        "navigation.html",
-        "relations.html",  # needs 'show_related': True theme option to display
-        "searchbox.html",
-        "donate.html",
-    ]
+    'index':    ['about.html', 'links.html', 'navigation.html', 'searchbox.html'],
+    '**':       ["about.html", 'localtoc.html', 'relations.html',
+                 'searchbox.html'],
+    'changes': ['about.html', 'searchbox.html']
 }
 
 
