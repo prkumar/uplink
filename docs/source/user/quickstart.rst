@@ -354,69 +354,28 @@ persisted across requests.
 Response and Error Handling
 ===========================
 
-You can intercept a response before it is returned (or deserialized) by using
-the :class:`~uplink.response_handler` decorator:
+Uplink offers two decorators for registering callbacks:
+
+- :class:`response_handler` registers a callback to intercept responses
+    before they are returned (or deserialized).
+- :class:`error_handler` registers a callback to handle an exception
+    thrown by the underlying HTTP client (e.g., :mod:`requests`).
+
+For example, we can use a response handler to return whether or not
+a request was successful:
 
 .. code-block:: python
 
-    def returns_success(response):
-        return response.status == 200
+    def is_ok(response):
+        """Return whether or not the response was successful."""
+        return 200 <= response.status <= 299
 
     class GitHub(Consumer):
-        @response_handler(returns_success)
+        @response_handler(is_ok)
         @json
         @post("user/repo")
         def create_repo(self, name: Field):
             """Create a new repository."""
-
-You can :
-
-.. code-block:: python
-
-    @response_handler
-    def returns_success(response):
-        return response.status == 200
-
-
-
-
-
-To register a custom response or error handler, decorate a function with
-the :py:class:`response_handler` or :py:class:`error_handler` decorator.
-
-.. note::
-
-    Unlike consumer methods, these functions should be defined outside
-    of a class scope.
-
-For instance, the function :py:func:`returns_success` defined below is a
-response handler that outputs whether or not the request was successful:
-
-.. code-block:: python
-
-    @response_handler
-    def returns_success(response):
-        return response.status == 200
-
-Now, :py:func:`returns_success` can be used as a decorator to inject its custom
-response handling into any request method:
-
-.. code-block:: python
-
-    @returns_success
-    @put("/todos")
-    def create_todo(self, title):
-        """Creates a todo with the given title."""
-
-To apply the function's handling onto all request methods of a
-:py:class:`~uplink.Consumer` subclass, we can simply use the registered
-handler as a class decorator:
-
-.. code-block:: python
-
-    @returns_success
-    class GitHub(Consumer):
-        ...
 
 Similarly, functions decorated with :py:class:`error_handler` are registered
 error handlers. When applied to a request method, these handlers are
@@ -424,9 +383,25 @@ invoked when the underlying HTTP client fails to execute a request:
 
 .. code-block:: python
 
-    @error_handler
     def raise_api_error(exc_type, exc_val, exc_tb):
-        # wrap client error with custom API error
+        """Wraps client error with custom API error"""
+        raise MyApiError(exc_val)
+
+    class GitHub(Consumer):
+        @error_handler(raise_api_error)
+        @json
+        @post("user/repo")
+        def create_repo(self, name: Field):
+            """Create a new repository."""
+
+To apply the response handler onto all request methods of a
+:py:class:`~uplink.Consumer` subclass, we can simply use the registered
+handler as a class decorator:
+
+.. code-block:: python
+
+    @response_handler(returns_success)
+    class GitHub(Consumer):
         ...
 
 Notably, handlers can be stacked on top of one another to chain their
