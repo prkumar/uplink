@@ -50,9 +50,9 @@ decorators, which we cover next.
 Making a Request
 ================
 
-Making a request with Uplink is *literally* as simple as decorating a method.
+Making a request with Uplink is as simple as invoking a method.
 
-Any method of a :class:`Consumer` subclass can be
+First, any method of a :class:`Consumer` subclass can be
 decorated with one of Uplink's HTTP method decorators:
 :class:`~uplink.get`, :class:`~uplink.post`, :class:`~uplink.put`,
 :class:`~uplink.patch`, :class:`~uplink.head`, and :class:`~uplink.delete`:
@@ -90,9 +90,10 @@ Finally, invoke the method to send a request:
 
 By default, uplink uses `Requests
 <https://github.com/requests/requests>`_, so the response we get back
-from GitHub is wrapped inside a :class:`requests.Response` instance.
-(If you want, you can :ref:`swap out <_swap_default_http_client>` Requests for a
-different backing HTTP client, such as :mod:`aiohttp <sync_vs_async>`.)
+from GitHub is wrapped inside a :class:`requests.Response` instance. (If
+you want, you can :ref:`swap out <swap_default_http_client>`
+Requests for a different backing HTTP client, such as :mod:`aiohttp
+<sync_vs_async>`.)
 
 
 URL Manipulation
@@ -311,8 +312,6 @@ decorator's ``model`` argument to select the target JSON field name:
 Persistence Across Requests from a :obj:`Consumer`
 ==================================================
 
-.. versionadded:: 0.6.0
-
 The :py:obj:`session` property of a :class:`~uplink.Consumer` instance exposes
 the instance's configuration and allows for the persistence of certain
 properties across requests sent from that instance.
@@ -354,32 +353,37 @@ persisted across requests.
 Response and Error Handling
 ===========================
 
-Uplink offers two decorators for registering callbacks:
+Sometimes, you need to validate a response before it is returned or
+even calculate a new return value from the response. Or, you may need
+to handle errors from the underlying client before they reach your
+users.
 
-- :class:`response_handler` registers a callback to intercept responses
-    before they are returned (or deserialized).
-- :class:`error_handler` registers a callback to handle an exception
-    thrown by the underlying HTTP client (e.g., :mod:`requests`).
+With Uplink, you can address these concerns by registering a callback
+with one of these decorators: :class:`~uplink.response_handler` and
+:class:`~uplink.error_handler`.
 
-For example, we can use a response handler to return whether or not
-a request was successful:
+:class:`~uplink.response_handler` registers a callback to intercept
+responses before they are returned (or deserialized):
 
 .. code-block:: python
 
-    def is_ok(response):
-        """Return whether or not the response was successful."""
-        return 200 <= response.status <= 299
+    def raise_for_status(response):
+        """Checks whether or not the response was successful."""
+        if 200 <= response.status <= 299:
+            raise UnsuccessfulRequest(response.url)
+
+        # Pass through the response.
+        return response
 
     class GitHub(Consumer):
-        @response_handler(is_ok)
-        @json
+        @response_handler(raise_for_status)
         @post("user/repo")
         def create_repo(self, name: Field):
             """Create a new repository."""
 
-Similarly, functions decorated with :py:class:`error_handler` are registered
-error handlers. When applied to a request method, these handlers are
-invoked when the underlying HTTP client fails to execute a request:
+:class:`~uplink.error_handler` registers a callback to handle an
+exception thrown by the underlying HTTP client
+(e.g., :class:`requests.Timeout`):
 
 .. code-block:: python
 
@@ -389,74 +393,25 @@ invoked when the underlying HTTP client fails to execute a request:
 
     class GitHub(Consumer):
         @error_handler(raise_api_error)
-        @json
         @post("user/repo")
         def create_repo(self, name: Field):
             """Create a new repository."""
 
-To apply the response handler onto all request methods of a
-:py:class:`~uplink.Consumer` subclass, we can simply use the registered
-handler as a class decorator:
+To apply a callback onto all methods of a :py:class:`~uplink.Consumer`
+subclass, you can simply decorate the class itself:
 
 .. code-block:: python
 
-    @response_handler(returns_success)
+    @error_handler(raise_api_error)
     class GitHub(Consumer):
         ...
 
-Notably, handlers can be stacked on top of one another to chain their
-behavior:
+Notably, the decorators can be stacked on top of one another to chain their
+behaviors:
 
 .. code-block:: python
 
-    @raise_api_error
-    @returns_success
+    @response_handler(check_expected_headers)  # Second, check headers
+    @response_handler(raise_for_status)  # First, check success
     class TodoApp(Consumer):
         ...
-
-.. _swap_default_http_client:
-
-Swapping Out the Default HTTP Client
-====================================
-
-By default, Uplink sends requests using the Requests library. You can
-configure the backing HTTP client using the :obj:`client` parameter of the
-:py:class:`~uplink Consumer` constructor:
-
-.. code-block:: python
-
-    github = GitHub(BASE_URL, client=...)
-
-For example, you can use the :obj:`client` parameter to pass in your own
-`Requests session
-<http://docs.python-requests.org/en/master/user/advanced/#session-objects>`_
-object:
-
-.. code-block:: python
-
-    session = requests.Session()
-    session.verify = False
-    github = GitHub(BASE_URL, client=session)
-
-.. _sync_vs_async:
-
-Synchronous vs. Asynchronous
-============================
-
-Notably, Requests blocks while waiting for a response from the server. For
-non-blocking requests, Uplink comes with built-in (but optional)
-support for :mod:`aiohttp` and :mod:`twisted`.
-
-For instance, you can provide the :class:`~uplink.AiohttpClient` when
-constructing a :class:`~uplink.Consumer` instance:
-
-.. code:: python
-
-   from uplink import AiohttpClient
-
-   github = GitHub(BASE_URL, client=AiohttpClient())
-
-
-Checkout `this example on GitHub
-<https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
-for more.
