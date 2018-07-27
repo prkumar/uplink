@@ -7,8 +7,8 @@ Uplink
 - Works with **Requests**, **asyncio**, and **Twisted**.
 - Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
-Usage Example: Fetch a GitHub User's Public Repos
-=================================================
+A Quick Walkthrough, with GitHub API v3
+=======================================
 Uplink turns your HTTP API into a Python class.
 
 .. code-block:: python
