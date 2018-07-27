@@ -7,8 +7,8 @@ Uplink
 - Works with **Requests**, **asyncio**, and **Twisted**.
 - Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
-A Quick Walkthrough, with GitHub API v3
-=======================================
+Usage Example: Fetch a GitHub User's Public Repos
+=================================================
 Uplink turns your HTTP API into a Python class.
 
 .. code-block:: python
@@ -60,35 +60,35 @@ Features
 
 - **Bring Your Own HTTP Library**
 
-  - Use Requests by default.
-  - Send non-blocking HTTP requests with Aiohttp or Twisted.
-  - Supply your own ``requests.Session`` or ``aiohttp.ClientSession`` object
-    for greater control.
+  - Supply your own ``requests.Session`` instance for greater control.
+  - Support for non-blocking I/O with Aiohttp and Twisted.
 
-- **Use Type Hints to (De)serialize Python Objects**
+- **Easy and Transparent Deserialization/Serialization**
 
-  - Built-in support for |marshmallow|_ schemas.
-  - Define `custom converters`_ for your own objects.
-  - Built-in support for `converting collections`_ (e.g., list of Users).
+  - Support for |marshmallow|_ schemas and `converting collections`_ (e.g., list of Users).
+  - Define `custom converters`_ for your own classes.
 
 - **Extendable**
 
-  - Inject `custom response and error handling`_ as middleware.
+  - Inject `custom response and error handling`_ functions as composable middleware.
   - Install optional plugins for additional features (e.g., `protobuf support`_)
 
 - **Authentication**
 
   - Built-in support for Basic Authentication.
-  - Works with external auth support for Requests or Aiohttp.
+  - Works with external auth support for Requests and Aiohttp (e.g.,
+    |requests-oauthlib|_)
 
 Uplink officially supports Python 2.7 & 3.3-3.7.
 
 .. |marshmallow| replace:: ``marshmallow``
+.. |requests-oauthlib| replace:: ``requests-oauthlib``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 .. _`custom converters`: https://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
 .. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
 .. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
 .. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
+.. _`requests-oauthlib`: https://github.com/requests/requests-oauthlib
 
 Installation
 ============
@@ -126,7 +126,7 @@ For instance, to install ``aiohttp`` and ``marshmallow`` support:
 
 
 User Testimonials
-===============
+=================
 
 **Michael Kennedy** (`@mkennedy`_), host of `Talk Python`_ and `Python Bytes`_ podcasts-
 
