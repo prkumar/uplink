@@ -16,7 +16,7 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 .. note::
 
    Uplink is in beta development. The public API is still evolving,
-   but we don't expect any considerable changes at this point.
+   but we expect most changes to be backwards compatible at this point.
 
 Uplink turns your HTTP API into a Python class.
 
@@ -25,6 +25,7 @@ Uplink turns your HTTP API into a Python class.
    from uplink import Consumer, get, headers, Path, Query
 
    class GitHub(Consumer):
+      """A Python Client for the GitHub API."""
 
       @get("users/{user}/repos")
       def get_repos(self, user: Path, sort_by: Query("sort")):
@@ -40,7 +41,7 @@ Then, executing an HTTP request is as simply as invoking a method.
 
 .. code-block:: python
 
-   repos = github.get_repos("octocat", sort_by="created")
+   repos = github.get_repos(user="octocat", sort_by="created")
 
 The returned object is a friendly :py:class:`requests.Response`:
 
@@ -58,30 +59,29 @@ Features
 
 - **Quickly Define Structured API Clients**
 
-  - Use decorators and function annotations to describe the HTTP request.
-  - URL parameter replacement, request headers, and query parameter support.
-  - JSON, URL-encoded, and multipart request body and file upload.
+  - JSON, URL-encoded, and multipart request body and file upload
+  - Use decorators and function annotations to describe each HTTP request
+  - URL parameter replacement, request headers, and query parameter support
 
 - **Bring Your Own HTTP Library**
 
-  - Supply your own :class:`requests.Session` instance for greater control.
-  - Support for non-blocking I/O with Aiohttp and Twisted.
+  - Non-blocking I/O support with Aiohttp and Twisted
+  - Supply your own session instances (e.g., :class:`requests.Session`) for greater control
 
 - **Easy and Transparent Deserialization/Serialization**
 
-  - Support for |marshmallow|_ schemas and `converting collections`_ (e.g., list of Users).
-  - Define `custom converters`_ for your own classes.
+  - Define `custom converters`_ for your own classes
+  - Support for |marshmallow|_ schemas and `handling collections`_ (e.g., list of Users)
 
 - **Extendable**
 
-  - Inject `custom response and error handling`_ functions as composable middleware.
   - Install optional plugins for additional features (e.g., `protobuf support`_)
+  - Compose `custom response and error handling`_ functions as middleware
 
 - **Authentication**
 
-  - Built-in support for Basic Authentication.
-  - Works with external auth support for Requests and Aiohttp (e.g.,
-    |requests-oauthlib|_)
+  - Built-in support for Basic Authentication
+  - Use existing auth libraries for supported clients (e.g., |requests-oauthlib|_)
 
 Uplink officially supports Python 2.7 & 3.3-3.7.
 
@@ -89,7 +89,7 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 .. _`custom converters`: https://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
-.. _`converting collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
+.. _`handling collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
 .. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
 .. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
 .. _`requests-oauthlib`: https://github.com/requests/requests-oauthlib
@@ -102,7 +102,7 @@ User Testimonials
 
    Of course our first reaction when consuming HTTP resources in Python is to
    reach for Requests. But for *structured* APIs, we often want more than ad-hoc
-   calls to Requests. We want a client-side API for our apps. uplink is
+   calls to Requests. We want a client-side API for our apps. Uplink is
    the quickest and simplest way to build just that client-side API.
    Highly recommended.
 
