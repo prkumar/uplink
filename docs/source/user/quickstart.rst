@@ -6,7 +6,11 @@ Quickstart
 Ready to write your first API client with Uplink? This guide will
 walk you through what you'll need to know to get started.
 
-**First**, make sure you've :ref:`installed (or updated) Uplink <install>`!
+**First**, make sure you've :ref:`installed (or updated) Uplink <install>`:
+
+::
+
+    $ pip install -U uplink
 
 Defining an API Client
 ======================

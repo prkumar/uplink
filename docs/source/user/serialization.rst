@@ -3,11 +3,74 @@
 Serialization
 *************
 
+For sending structured data (such as a list of repositories, a single
+user, or a comment on a blog post) over the network, webservices deliver
+representations of the data based on a particular serialization
+protocol. For example, many modern public APIs (e.g., `GitHub API v3
+<https://developer.github.com/v3/>`_) communicate using JSON, but other
+protocols exist (such as `Protocol Buffers
+<https://developers.google.com/protocol-buffers/>`_).
+
+With Uplink, you can easily write API consumers that convert Python
+objects to and from these representations, using existing serialization
+libraries like :mod:`marshmallow` or building your custom conversions
+strategies.
+
+
 Using Marshmallow Schemas
 =========================
 
-Uplink supports converting objects to and from HTTP requests and
-responses, using :class:`marshmallow`.
+:mod:`marshmallow` is a framework-agnostic, object serialization library
+for Python. If you are already using this awesome library (or want to
+check it out), you can integrate your schemas with Uplink for **double**
+the fun!
+
+First, create a :class:`marshmallow.Schema`, declaring any necessary
+conversions and validations:
+
+.. code-block:: python
+
+   import marshmallow
+
+   class RepoSchema(marshmallow.Schema):
+       full_name = marshmallow.fields.Str()
+
+       @marshmallow.post_load
+       def make_repo(self, data):
+           owner, repo_name = data["full_name"].split("/")
+           return Repo(owner=owner, name=repo_name)
+
+
+Then, leverage the schema using the :class:`uplink.returns` decorator:
+
+.. code-block:: python
+
+   class GitHub(Consumer):
+      @returns(RepoSchema(many=True))
+      @get("users/{username}/repos")
+      def get_repos(self, username):
+         """Get the user's public repositories."""
+
+Python 3 users can use a return type hint instead:
+
+.. code-block:: python
+
+   class GitHub(Consumer):
+      @get("users/{username}/repos")
+      def get_repos(self, username) -> RepoSchema(many=True)
+         """Get the user's public repositories."""
+
+Your consumer should now return Python objects based on your Marshmallow
+schema:
+
+.. code-block:: python
+
+   github = GitHub(base_url="https://api.github.com")
+   print(github.get_repos("octocat"))
+   # Output: [Repo(owner="octocat", name="linguist"), ...]
+
+For a more complete example of Uplink's :mod:`marshmallow` support,
+check out `this example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_.
 
 (De)serialization of Custom Objects
 ===================================

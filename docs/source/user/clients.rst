@@ -1,7 +1,6 @@
 Clients
 *******
 
-
 .. _swap_default_http_client:
 
 Swapping Out the Default HTTP Client
@@ -9,7 +8,7 @@ Swapping Out the Default HTTP Client
 
 By default, Uplink sends requests using the Requests library. You can
 configure the backing HTTP client using the :obj:`client` parameter of the
-:py:class:`~uplink Consumer` constructor:
+:py:class:`~uplink.Consumer` constructor:
 
 .. code-block:: python
 
@@ -48,3 +47,4 @@ constructing a :class:`~uplink.Consumer` instance:
 Checkout `this example on GitHub
 <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
 for more.
+
