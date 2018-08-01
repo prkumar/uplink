@@ -217,6 +217,16 @@ def test_json(request_builder):
         json.set_json_body(request_builder)
 
 
+def test_json_list(request_builder):
+    json = decorators.json()
+
+    # Verify nested attribute
+    request_builder.info["data"] = ["one", "two", "three"]
+    json.set_json_body(request_builder)
+    assert request_builder.info["json"] == ["one", "two", "three"]
+    assert "data" not in request_builder.info
+
+
 def test_timeout(request_builder):
     timeout = decorators.timeout(60)
     timeout.modify_request(request_builder)

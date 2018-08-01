@@ -284,13 +284,16 @@ class json(MethodAnnotation):
 
     @classmethod
     def set_json_body(cls, request_builder):
-        body = request_builder.info.setdefault("json", {})
         old_body = request_builder.info.pop("data", {})
-        for path in old_body:
-            if isinstance(path, tuple):
-                cls._sequence_path_resolver(path, old_body[path], body)
-            else:
-                body[path] = old_body[path]
+        if isinstance(old_body, collections.Mapping):
+            body = request_builder.info.setdefault("json", {})
+            for path in old_body:
+                if isinstance(path, tuple):
+                    cls._sequence_path_resolver(path, old_body[path], body)
+                else:
+                    body[path] = old_body[path]
+        else:
+            request_builder.info.setdefault("json", old_body)
 
     __hook = None
 
