@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.5.5_ - 2018-8-01
+==================
+Fixed
+-----
+- Issue with sending JSON list ``Body`` using ``@json`` annotation.
+
 0.5.4_ - 2018-6-26
 ==================
 Fixed
@@ -175,6 +181,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.5.5: https://github.com/prkumar/uplink/compare/v0.5.4...v0.5.5
 .. _0.5.4: https://github.com/prkumar/uplink/compare/v0.5.3...v0.5.4
 .. _0.5.3: https://github.com/prkumar/uplink/compare/v0.5.2...v0.5.3
 .. _0.5.2: https://github.com/prkumar/uplink/compare/v0.5.1...v0.5.2
