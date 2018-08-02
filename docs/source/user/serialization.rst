@@ -3,30 +3,33 @@
 Serialization
 *************
 
-For sending structured data (such as a list of repositories, a single
-user, or a comment on a blog post) over the network, webservices deliver
-representations of the data based on a particular serialization
-protocol. For example, many modern public APIs (e.g., `GitHub API v3
-<https://developer.github.com/v3/>`_) communicate using JSON, but other
-protocols exist (such as `Protocol Buffers
-<https://developers.google.com/protocol-buffers/>`_).
+Webservices use serialization formats to transmit structured data (a
+list of repositories, a single user, a comment on a blog post, etc.)
+over the network as a stream of bytes. For example, many modern public
+APIs (e.g., `GitHub API v3 <https://developer.github.com/v3/>`_) support
+JSON, while a private API used strictly within an organization may use a
+more compact format, such as `Protocol Buffers
+<https://developers.google.com/protocol-buffers/>`_.
 
-With Uplink, you can easily write API consumers that convert Python
-objects to and from these representations, using existing serialization
-libraries like :mod:`marshmallow` or building your custom conversions
-strategies.
+Regardless what serialization format your API uses, with a little bit of
+help, Uplink can automatically decode responses and encode request
+bodies to and from Python objects using the selected format. This neatly
+abstracts the HTTP layer from the callers of your API client.
 
+This document walks you through how to leverage Uplink's serialization support,
+including integrations for third-party serialization libraries like
+:mod:`marshmallow` and tools for writing custom conversion strategy that
+fit your unique needs.
 
 Using Marshmallow Schemas
 =========================
 
 :mod:`marshmallow` is a framework-agnostic, object serialization library
-for Python. If you are already using this awesome library (or want to
-check it out), you can integrate your schemas with Uplink for **double**
-the fun!
+for Python. Uplink comes with built-in support for Marshmallow; you can
+integrate your Marshmallow schemas with Uplink for easy serialization.
 
 First, create a :class:`marshmallow.Schema`, declaring any necessary
-conversions and validations:
+conversions and validations. Here's a simple example:
 
 .. code-block:: python
 
@@ -41,9 +44,10 @@ conversions and validations:
            return Repo(owner=owner, name=repo_name)
 
 
-Then, leverage the schema using the :class:`uplink.returns` decorator:
+Then, specify the schema using the :class:`uplink.returns` decorator:
 
 .. code-block:: python
+   :emphasize-lines: 2
 
    class GitHub(Consumer):
       @returns(RepoSchema(many=True))
@@ -54,6 +58,7 @@ Then, leverage the schema using the :class:`uplink.returns` decorator:
 Python 3 users can use a return type hint instead:
 
 .. code-block:: python
+   :emphasize-lines: 3
 
    class GitHub(Consumer):
       @get("users/{username}/repos")
@@ -72,8 +77,8 @@ schema:
 For a more complete example of Uplink's :mod:`marshmallow` support,
 check out `this example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_.
 
-(De)serialization of Custom Objects
-===================================
+Custom Conversion
+=================
 
 Uplink makes it easy to convert an HTTP response body into a custom
 Python object, whether you leverage Uplink's built-in support for
