@@ -59,18 +59,18 @@ Features
 
 - **Quickly Define Structured API Clients**
 
+  - Use decorators and type hints to describe each HTTP request
   - JSON, URL-encoded, and multipart request body and file upload
-  - Use decorators and function annotations to describe each HTTP request
   - URL parameter replacement, request headers, and query parameter support
 
 - **Bring Your Own HTTP Library**
 
-  - Non-blocking I/O support with Aiohttp and Twisted
-  - Supply your own session instances (e.g., :class:`requests.Session`) for greater control
+  - `Non-blocking I/O support`_ for Aiohttp and Twisted
+  - `Supply your own session`_ (e.g., :class:`requests.Session`) for greater control
 
 - **Easy and Transparent Deserialization/Serialization**
 
-  - Define `custom converters`_ for your own classes
+  - Define `custom converters`_ for your own objects
   - Support for |marshmallow|_ schemas and `handling collections`_ (e.g., list of Users)
 
 - **Extendable**
@@ -80,20 +80,22 @@ Features
 
 - **Authentication**
 
-  - Built-in support for Basic Authentication
+  - Built-in support for `Basic Authentication`_
   - Use existing auth libraries for supported clients (e.g., |requests-oauthlib|_)
 
 Uplink officially supports Python 2.7 & 3.3-3.7.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
+.. _`Non-blocking I/O support`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
+.. _`Supply your own session`: https://uplink.readthedocs.io/en/latest/user/clients.html#swapping-out-the-default-http-client
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
-.. _`custom converters`: https://uplink.readthedocs.io/en/latest/quickstart.html#deserializing-the-response-body
-.. _`handling collections`: https://uplink.readthedocs.io/en/latest/converters.html#converting-collections
-.. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/quickstart.html#custom-response-and-error-handling
+.. _`custom converters`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#deserializing-the-response-body
+.. _`handling collections`: https://uplink.readthedocs.io/en/latest/user/serialization.html#converting-collections
+.. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#custom-response-and-error-handling
 .. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
 .. _`requests-oauthlib`: https://github.com/requests/requests-oauthlib
-
+.. _`Basic Authentication`: https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication
 
 User Testimonials
 ===============
