@@ -77,8 +77,8 @@ schema:
 For a more complete example of Uplink's :mod:`marshmallow` support,
 check out `this example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_.
 
-Custom Conversion
-=================
+Custom Serialization
+====================
 
 Uplink makes it easy to convert an HTTP response body into a custom
 Python object, whether you leverage Uplink's built-in support for

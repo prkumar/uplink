@@ -90,7 +90,7 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. _`Non-blocking I/O support`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 .. _`Supply your own session`: https://uplink.readthedocs.io/en/latest/user/clients.html#swapping-out-the-default-http-client
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
-.. _`custom converters`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#deserializing-the-response-body
+.. _`custom converters`: https://uplink.readthedocs.io/en/latest/user/serialization.html#custom-serialization
 .. _`handling collections`: https://uplink.readthedocs.io/en/latest/user/serialization.html#converting-collections
 .. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#custom-response-and-error-handling
 .. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
