@@ -19,9 +19,10 @@ Authentication with all requests:
 Other Authentication
 --------------------
 
-Often, APIs accept credentials as header values or query parameters.
-Your request method can handle these types of authentication by simply
-accepting the user's credentials as an argument:
+Often, APIs accept credentials as header values (e.g., Bearer tokens) or
+query parameters. Your request method can handle these types of
+authentication by simply accepting the user's credentials as an
+argument:
 
 .. code-block:: python
 
@@ -29,25 +30,15 @@ accepting the user's credentials as an argument:
     def update_user(self, access_token: Query, **info: Body):
         """Update the user associated to the given access token."""
 
-If more than one request requires authentication, you can make the token
-an argument of your consumer constructor (see :ref:`annotating constructor
-arguments`):
+If several request methods require authentication, you can persist the token
+through the consumer's :obj:`session <uplink.Consumer.session>` property:
 
 .. code-block:: python
 
     class GitHub(Consumer):
 
-        def __init__(self, base_url, access_token: Query)
-            ...
-
-or persist it through the :obj:`session` property (see :ref:`session property`):
-
-.. code-block:: python
-
-    class GitHub(Consumer):
-
-        def __init__(self, base_url, credentials):
-            self.session.params["access_token"] = self._get_access_token(credentials)
+        def __init__(self, access_token):
+            self.session.params["access_token"] = access_token
             ...
 
 

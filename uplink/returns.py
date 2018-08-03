@@ -5,7 +5,7 @@ import sys
 from uplink import decorators
 from uplink.converters import keys, interfaces
 
-__all__ = ["from_json", "json", "model"]
+__all__ = ["json", "from_json", "model"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
