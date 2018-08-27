@@ -286,12 +286,12 @@ class json(MethodAnnotation):
     specify JSON fields separately, across multiple arguments:
 
     Example:
-    .. code-block:: python
+        .. code-block:: python
 
-        @json
-        @patch(/user")
-        def update_user(self, name: Field, email: Field("e-mail"):
-            \"""Update the current user.\"""
+            @json
+            @patch(/user")
+            def update_user(self, name: Field, email: Field("e-mail"):
+                \"""Update the current user.\"""
 
     Further, to set a nested field, you can specify the path of the
     target field with a tuple of strings as the first argument of
