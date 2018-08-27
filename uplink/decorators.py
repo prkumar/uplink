@@ -290,7 +290,7 @@ class json(MethodAnnotation):
 
             @json
             @patch(/user")
-            def update_user(self, name: Field, email: Field("e-mail"):
+            def update_user(self, name: Field, email: Field("e-mail")):
                 \"""Update the current user.\"""
 
     Further, to set a nested field, you can specify the path of the
