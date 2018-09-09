@@ -50,6 +50,8 @@ For sending non-blocking requests, Uplink comes with support for
 .. |aiohttp and twisted| replace:: ``aiohttp`` and ``twisted``
 .. _`aiohttp and twisted`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 
+Ready to launch your first API client with Uplink? Start with this `quick tutorial`_!
+
 Features
 ========
 
@@ -155,11 +157,8 @@ User Testimonials
 
 Documentation
 =============
-Ready to create an API client with Uplink? Get started with this
-quickstart_ guide! For more details, check out the documentation at
+For more details, check out the documentation at
 https://uplink.readthedocs.io/.
-
-.. _quickstart: https://uplink.readthedocs.io/en/stable/quickstart.html
 
 Contributing
 ============
@@ -190,3 +189,4 @@ Thank you for taking the time to improve an open source project 💜
    :target: https://pypi.python.org/pypi/uplink
 
 .. _`Contribution Guide`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
+.. _`quick tutorial`: https://uplink.readthedocs.io/en/latest/user/quickstart.html

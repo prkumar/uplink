@@ -3,22 +3,22 @@
 Serialization
 *************
 
-Webservices use serialization formats to transmit structured data (a
-list of repositories, a single user, a comment on a blog post, etc.)
-over the network as a stream of bytes. For example, many modern public
-APIs (e.g., `GitHub API v3 <https://developer.github.com/v3/>`_) support
-JSON, while a private API used strictly within an organization may use a
-more compact format, such as `Protocol Buffers
-<https://developers.google.com/protocol-buffers/>`_.
+Various serialization formats exist for transmitting structured data
+over the network: JSON is a popular choice amongst many public APIs
+partly because its human readable, while a more compact format, such as
+`Protocol Buffers <https://developers.google.com/protocol-buffers/>`_,
+may be more appropriate for a private API used within an organization.
 
-Regardless what serialization format your API uses, with a little bit of
-help, Uplink can automatically decode responses and encode request
-bodies to and from Python objects using the selected format. This neatly
-abstracts the HTTP layer from the callers of your API client.
+Regardless what serialization format your API uses, Uplink -- with a
+little bit of help -- can automatically decode responses and encode
+request bodies to and from Python objects using the selected format.
+This neatly abstracts the HTTP layer from your API client, so callers
+can operate on objects that make sense to your model instead of directly
+dealing with the underlying protocol.
 
 This document walks you through how to leverage Uplink's serialization support,
 including integrations for third-party serialization libraries like
-:mod:`marshmallow` and tools for writing custom conversion strategy that
+:mod:`marshmallow` and tools for writing custom conversion strategies that
 fit your unique needs.
 
 Using Marshmallow Schemas
@@ -26,7 +26,7 @@ Using Marshmallow Schemas
 
 :mod:`marshmallow` is a framework-agnostic, object serialization library
 for Python. Uplink comes with built-in support for Marshmallow; you can
-integrate your Marshmallow schemas with Uplink for easy serialization.
+integrate your Marshmallow schemas with Uplink for easy JSON (de)serialization.
 
 First, create a :class:`marshmallow.Schema`, declaring any necessary
 conversions and validations. Here's a simple example:
@@ -77,32 +77,34 @@ schema:
 For a more complete example of Uplink's :mod:`marshmallow` support,
 check out `this example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_.
 
-Custom Serialization
-====================
+.. _custom_json_deserialization:
 
-Uplink makes it easy to convert an HTTP response body into a custom
-Python object, whether you leverage Uplink's built-in support for
-libraries such as :py:mod:`marshmallow` or use :py:class:`uplink.loads`
-to write custom conversion logic that fits your unique needs.
+Custom JSON Deserialization
+===========================
 
-At the least, you need to specify the expected return type using a
-decorator from the :py:class:`uplink.returns` module. For example,
-:py:class:`uplink.returns.from_json` is handy when working with APIs that
-provide JSON responses:
+Recognizing JSON's popularity amongst public APIs, Uplink provides
+some out-of-the-box utilities to adding JSON serialization support for
+your objects simple.
+
+For one, :py:class:`uplink.returns.from_json` is handy when working with
+APIs that provide JSON responses. As its leading positional argument, the decorator
+accepts a class that represents the expected schema of JSON body:
 
 .. code-block:: python
 
-    @returns.from_json(User)
-    @get("users/{username}")
-    def get_user(self, username): pass
+   class GitHub(Consumer):
+       @returns.from_json(User)
+       @get("users/{username}")
+       def get_user(self, username): pass
 
 Python 3 users can alternatively use a return type hint:
 
 .. code-block:: python
 
-    @returns.from_json
-    @get("users/{username}")
-    def get_user(self, username) -> User: pass
+    class GitHub(Consumer):
+       @returns.from_json
+       @get("users/{username}")
+       def get_user(self, username) -> User: pass
 
 Next, if your objects (e.g., :py:obj:`User`) are not defined
 using a library for whom Uplink has built-in support (such as
@@ -110,11 +112,11 @@ using a library for whom Uplink has built-in support (such as
 tells Uplink how to convert the HTTP response into your expected return
 type.
 
-To this end, the :py:class:`uplink.loads` class has various methods for
-defining deserialization strategies for different formats. For the above
-example, we can use :py:meth:`uplink.loads.from_json`:
+To this end, we can use :py:meth:`uplink.loads.from_json`:
 
 .. code-block:: python
+
+   from uplink import loads
 
     @loads.from_json(User)
     def user_loader(user_cls, json):
@@ -128,7 +130,7 @@ The decorated function, :py:func:`user_loader`, can then be passed into the
 
     my_client = MyConsumer(base_url=..., converter=user_loader)
 
-Alternatively, you can add the :py:meth:`uplink.loads.install` decorator to
+Alternatively, you can add the :py:func:`uplink.install` decorator to
 register the converter function as a default converter, meaning the converter
 will be included automatically with any consumer instance and doesn't need to
 be explicitly provided through the :py:obj:`converter` parameter:
@@ -136,25 +138,163 @@ be explicitly provided through the :py:obj:`converter` parameter:
 .. code-block:: python
    :emphasize-lines: 1
 
-    @loads.install
+   from uplink import loads, install
+
+    @install
     @loads.from_json(User)
     def user_loader(user_cls, json):
         return user_cls(json["id"], json["username"])
 
-.. note::
 
-    For API endpoints that return collections (such as a list of
-    :py:obj:`User`), Uplink offers built-in support for :ref:`converting
-    lists and mappings`: simply define a deserialization strategy for
-    the element type (e.g., :py:obj:`User`), and Uplink handles the
-    rest!
 
 Converting Collections
 ======================
 
-This section is a work in progress!
+Data-driven web applications, such as social networks and forums, devise
+a lot of functionality around large queries on related data. And, these
+APIs normally encode the results of these queries as collections of a
+common **type**. Examples include a curated feed of **posts** from
+subscribed accounts, the top **restaurants** in your area, upcoming
+**tasks** on a checklist, etc.
 
-Other Serialization Formats (e.g., Protocol Buffers)
-====================================================
+You can use the other strategies in this section to add serialization
+support for a specific type, such as a **post** or a **restaurant**.
+Importantly, once added, this support automatically extends to
+collections of that type, such as sequences and mappings.
 
-This section is a work in progress!
+For example, consider a hypothetical Task Management API that supports
+adding tasks to one or more user-created checklists. Here's the JSON
+array that the API returns when we query pending tasks on a checklist
+titled "home":
+
+.. code-block:: json
+
+  [
+      {
+         "id": 4139
+         "name": "Groceries"
+         "due_date": "Monday, September 3, 2018 10:00:00 AM PST"
+      },
+      {
+         "id": 4140
+         "title": "Laundry"
+         "due_date": "Monday, September 3, 2018 2:00:00 PM PST"
+      }
+  ]
+
+In this example, the common type could be modeled in Python as a
+:class:`~collections.namedtuple`, which we'll name :class:`Task`:
+
+.. code-block:: python
+
+   Task = collections.namedtuple("Task", ["id", "name", "due_date"])
+
+Next, to add JSON deserialization support for this type, we could
+register a custom converter with :meth:`loads.from_json
+<uplink.loads.from_json>`, which is a strategy covered in the subsection
+:ref:`custom_json_deserialization`. For the sake of brevity, I'll omit the
+implementation here, but you can follow the link above for details.
+
+Now, Uplink lets us leverage the added support to handle collections of
+type :class:`Task`. The :mod:`uplink.types` module exposes two
+collection types, :data:`~uplink.List` and :data:`~uplink.types.Dict`,
+to be used as function return type annotations. In our example, the
+query for pending tasks returns a list:
+
+.. code-block:: python
+   :emphasize-lines: 6
+
+   from uplink import Consumer, returns, get, types
+
+   class TaskApi(Consumer):
+      @returns.json
+      @get("tasks/{checklist}?due=today")
+      def get_pending_tasks(self, checklist) -> types.List[Task]
+
+If you are a Python 3.5+ user that is already leveraging the
+:mod:`typing` module to support type hints as specified by :pep:`484`
+and :pep:`526`, you can safely use :class:`typing.List` and :class:`typing.Dict`
+here instead of the annotations from :mod:`uplink.types`:
+
+.. code-block:: python
+   :emphasize-lines: 7
+
+   import typing
+   from uplink import Consumer, returns, get
+
+   class TaskApi(Consumer):
+      @returns.json
+      @get("tasks/{checklist}?due=today")
+      def get_pending_tasks(self, checklist) -> typing.List[Task]
+
+Now, the consumer can handle these queries with ease:
+
+.. code-block:: python
+
+   >>> task_api.get_pending_tasks("home")
+   [Task(id=4139, name='Groceries', due_date='Monday, September 3, 2018 10:00:00 AM PST'),
+    Task(id=4140, name='Laundry', due_date='Monday, September 3, 2018 2:00:00 PM PST')]
+
+Note that this feature works with any serialization format, not just JSON.
+
+Writing A Custom Converter
+==========================
+
+Extending Uplink's support for other serialization formats or libraries
+(e.g., XML, Thrift, Avro) is pretty straightforward.
+
+When adding support for a new serialization library, create a subclass
+of :class:`converters.Factory <uplink.converters.Factory>`, which
+defines abstract methods for different serialization scenarios
+(deserializing the response body, serializing the request body, etc.),
+and override each relevant method to return a callable that
+handles the method's corresponding scenario.
+
+For example, a factory that adds support for Python's :mod:`pickle` protocol
+could look like:
+
+.. code-block:: python
+
+   import pickle
+
+   from uplink import converters
+
+   class PickleFactory(converters.Factory):
+      """Adapter for Python's Pickle protocol."""
+
+      def create_response_body_converter(self, cls, request_definition):
+         # Return callable that deserialize response body into Python object.
+         return lambda response: pickle.loads(response.content)
+
+      def create_request_body_converter(self, cls, request_definition):
+         # Return callable that serialize Python object into bytes.
+         return pickle.dumps
+
+Then, when instantiating a new consumer, you can supply this
+implementation through the ``converter`` constructor argument of any
+:class:`Consumer` subclass:
+
+.. code-block:: python
+
+   client = MyApiClient(BASE_URL, converter=PickleFactory())
+
+If the added support should apply broadly, you can alternatively decorate your
+:class:`converters.Factory <uplink.converters.Factory>` subclass with
+the :meth:`uplink.install` decorator, which ensures that Uplink
+automatically adds the factory to new instances of any
+:class:`Consumer` subclass. This way you don't have to explicitly supply
+the factory each time you instantiate a consumer.
+
+.. code-block:: python
+   :emphasize-lines: 3
+
+   from uplink import converters, install
+
+   @install
+   class PickleFactory(converters.Factory):
+      ...
+
+For a concrete example of extending support for a new serialization
+format or library with this approach, checkout `this Protobuf extension
+<https://github.com/prkumar/uplink-protobuf/blob/master/uplink_protobuf/converter.py>`_
+for Uplink.

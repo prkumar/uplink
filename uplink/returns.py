@@ -118,6 +118,8 @@ class json(_ReturnsBase):
     __dummy_converter = _DummyConverter()
 
     def __init__(self, model=None, member=()):
+        # TODO: Consider renaming `model` and `member` to `schema` and
+        # `key`, respectively.
         self._model = model
         self._member = member
 

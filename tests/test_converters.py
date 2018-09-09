@@ -381,7 +381,7 @@ class TestTypingConverter(object):
 
         # Verify with non-list: use element converter
         output = converter(1)
-        assert output == "1"
+        assert output == ["1"]
 
     def test_dict_converter(self):
         # Setup

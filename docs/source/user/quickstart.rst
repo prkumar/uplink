@@ -17,22 +17,22 @@ Defining an API Client
 
 Writing a **structured** API client with Uplink is very simple.
 
-The first step is to define a :class:`Consumer` subclass for your API client.
-For example, here's the beginning of our GitHub client (we'll add some
-methods to this class soon):
+To start, create a subclass of :class:`~uplink.Consumer`. For example,
+here's the beginning of our GitHub client (we'll add some methods to
+this class soon):
 
-.. code:: python
+.. code-block:: python
 
    from uplink import Consumer
 
    class GitHub(Consumer):
       ...
 
-When creating an instance of this client, we can use the :obj:`base_url`
+When creating an instance of this consumer, we can use the :obj:`base_url`
 constructor argument to identify the target service. In our case, it's
 GitHub's public API:
 
-.. code:: python
+.. code-block:: python
 
    github = GitHub(base_url="https://api.github.com/")
 
@@ -47,43 +47,46 @@ GitHub's public API:
     environments, which are typically hosted on separate domains but
     expose the same API endpoints.)
 
-So far, this class looks like any other Python subclass. The real magic
-happens when you define methods using one of Uplink's HTTP method
-decorators, which we cover next.
+So far, this class looks like any other Python class. The real magic
+happens when you define methods to interact with the webservice using
+Uplink's HTTP method decorators, which we cover next.
 
 Making a Request
 ================
 
-Making a request with Uplink is as simple as invoking a method.
+With Uplink, making a request to a webservice is as simple as
+invoking a method.
 
-First, any method of a :class:`Consumer` subclass can be
+Any method of a :class:`Consumer` subclass can be
 decorated with one of Uplink's HTTP method decorators:
 :class:`~uplink.get`, :class:`~uplink.post`, :class:`~uplink.put`,
 :class:`~uplink.patch`, :class:`~uplink.head`, and :class:`~uplink.delete`:
 
-.. code::
+.. code-block:: python
 
     class GitHub(Consumer):
         @get("repositories")
         def get_repos(self):
             """List all public repositories."""
 
+As shown above, the method's body can be left empty.
+
 The decorator's first argument is the resource endpoint (this
 is the relative URL path from :class:`base_url`, which we covered above):
 
-.. code:: python
+.. code-block:: python
 
     @get("repositories")
 
 You can also specify query parameters:
 
-.. code:: python
+.. code-block:: python
 
     @get("repositories?since=364")
 
 Finally, invoke the method to send a request:
 
-.. code:: python
+.. code-block:: python
 
     >>> github = GitHub(base_url="https://api.github.com/")
     >>> github.get_repos()
@@ -111,14 +114,14 @@ by ``{`` and ``}``.
 To match the parameter with a method argument, either match the argument's
 name with the alphanumeric string, like so:
 
-.. code:: python
+.. code-block:: python
 
     @get("users/{username}")
     def get_user(self, username): pass
 
 or use the :py:class:`~uplink.Path` annotation.
 
-.. code:: python
+.. code-block:: python
 
     @get("users/{username}")
     def get_user(self, name: Path("username")): pass
@@ -126,7 +129,7 @@ or use the :py:class:`~uplink.Path` annotation.
 :py:class:`~uplink.Query` parameters can also be added dynamically
 by method arguments.
 
-.. code:: python
+.. code-block:: python
 
     @get("users/{username}/repos")
     def get_repos(self, username, sort: Query): pass
@@ -134,7 +137,7 @@ by method arguments.
 For "catch-all" or complex query parameter combinations, a
 :py:class:`~uplink.QueryMap` can be used:
 
-.. code:: python
+.. code-block:: python
 
     @get("users/{username}/repos")
     def get_repos(self, username, **options: QueryMap): pass
@@ -142,7 +145,7 @@ For "catch-all" or complex query parameter combinations, a
 You can set static query parameters for a method using the
 :py:class:`~uplink.params` decorator.
 
-.. code:: python
+.. code-block:: python
 
     @params({"client_id": "my-client", "client_secret": "****"})
     @get("users/{username}")
@@ -151,7 +154,7 @@ You can set static query parameters for a method using the
 :py:class:`~uplink.params` can be used as a class decorator for query
 parameters that need to be included with every request:
 
-.. code:: python
+.. code-block:: python
 
     @params({"client_id": "my-client", "client_secret": "****"})
     class GitHub(Consumer):
@@ -163,7 +166,7 @@ Header Manipulation
 You can set static headers for a method using the :py:class:`~uplink.headers`
 decorator.
 
-.. code:: python
+.. code-block:: python
 
     @headers({
         "Accept": "application/vnd.github.v3.full+json",
@@ -175,7 +178,7 @@ decorator.
 :py:class:`~uplink.headers` can be used as a class decorator for headers that
 need to be added to every request:
 
-.. code:: python
+.. code-block:: python
 
     @headers({
         "Accept": "application/vnd.github.v3.full+json",
@@ -187,7 +190,7 @@ need to be added to every request:
 A request header can depend on the value of a method argument by using
 the :py:class:`~uplink.Header` function parameter annotation:
 
-.. code:: python
+.. code-block:: python
 
     @get("user")
     def get_user(self, authorization: Header("Authorization"):
@@ -199,7 +202,7 @@ Request Body
 The :py:class:`~uplink.Body` annotation identifies a method argument as the
 the HTTP request body:
 
-.. code:: python
+.. code-block:: python
 
     @post("user/repos")
     def create_repo(self, repo: Body): pass
@@ -207,7 +210,7 @@ the HTTP request body:
 This annotation works well with the **keyword arguments** parameter (denoted
 by the ``**`` prefix):
 
-.. code:: python
+.. code-block:: python
 
     @post("user/repos")
     def create_repo(self, **repo_info: Body): pass
@@ -228,7 +231,7 @@ Form-encoded data is sent when :py:class:`~uplink.form_url_encoded` decorates
 the method. Each key-value pair is annotated with a :py:class:`~uplink.Field`
 annotation:
 
-.. code:: python
+.. code-block:: python
 
     @form_url_encoded
     @patch("user")
@@ -237,7 +240,7 @@ annotation:
 Multipart requests are used when :py:class:`~uplink.multipart` decorates the
 method. Parts are declared using the :py:class:`~uplink.Part` annotation:
 
-.. code:: python
+.. code-block:: python
 
     @multipart
     @put("user/photo")
@@ -246,7 +249,7 @@ method. Parts are declared using the :py:class:`~uplink.Part` annotation:
 JSON data is sent when :py:class:`~uplink.json` decorates the method. The
 :py:class:`~uplink.Body` annotation declares the JSON payload:
 
-.. code:: python
+.. code-block:: python
 
     @json
     @patch("user")
@@ -256,7 +259,7 @@ JSON data is sent when :py:class:`~uplink.json` decorates the method. The
 Alternatively, the :py:class:`~uplink.Field` annotation declares a JSON
 field:
 
-.. code:: python
+.. code-block:: python
 
     @json
     @patch("user")
@@ -287,7 +290,7 @@ invoked:
     >>> github.get_user("prkumar")
     {'login': 'prkumar', 'id': 10181244, ...
 
-When targeting a subset of the JSON response, you can use the
+You can also target a specific field of the JSON response by using the
 decorator's ``model`` argument to select the target JSON field name:
 
 .. code-block:: python

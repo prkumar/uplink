@@ -43,8 +43,6 @@ constructing a :class:`~uplink.Consumer` instance:
 
    github = GitHub(BASE_URL, client=AiohttpClient())
 
-
 Checkout `this example on GitHub
 <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
 for more.
-

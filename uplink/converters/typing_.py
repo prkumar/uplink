@@ -22,13 +22,14 @@ class ListConverter(BaseTypeConverter, interfaces.Converter):
         self._elem_converter = None
 
     def set_chain(self, chain):
-        self._elem_converter = chain(self._elem_type)
+        self._elem_converter = chain(self._elem_type) or self._elem_type
 
     def convert(self, value):
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, collections.Sequence):
             return list(map(self._elem_converter, value))
         else:
-            return self._elem_converter(value)
+            # TODO: Handle the case where the value is not an sequence.
+            return [self._elem_converter(value)]
 
 
 class DictConverter(BaseTypeConverter, interfaces.Converter):
@@ -39,14 +40,15 @@ class DictConverter(BaseTypeConverter, interfaces.Converter):
         self._value_converter = None
 
     def set_chain(self, chain):
-        self._key_converter = chain(self._key_type)
-        self._value_converter = chain(self._value_type)
+        self._key_converter = chain(self._key_type) or self._key_type
+        self._value_converter = chain(self._value_type) or self._value_type
 
     def convert(self, value):
         if isinstance(value, collections.Mapping):
             key_c, val_c = self._key_converter, self._value_converter
             return dict((key_c(k), val_c(value[k])) for k in value)
         else:
+            # TODO: Handle the case where the value is not a mapping.
             return self._value_converter(value)
 
 
@@ -63,7 +65,10 @@ def _get_types(try_typing=True):
     if TypingConverter.typing and try_typing:
         return TypingConverter.typing.List, TypingConverter.typing.Dict
     else:
-        return (_TypeProxy(ListConverter.freeze), _TypeProxy(DictConverter.freeze))
+        return (
+            _TypeProxy(ListConverter.freeze),
+            _TypeProxy(DictConverter.freeze),
+        )
 
 
 @register_default_converter_factory

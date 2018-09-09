@@ -98,7 +98,7 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. _`Basic Authentication`: https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication
 
 User Testimonials
-===============
+=================
 
 **Michael Kennedy** (`@mkennedy`_), host of `Talk Python`_ and `Python Bytes`_ podcasts-
 

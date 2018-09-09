@@ -7,10 +7,10 @@ from uplink import (
     arguments,
     auth as auth_,
     clients,
-    converters,
+    converters as converters_,
     exceptions,
     helpers,
-    hooks,
+    hooks as hooks_,
     interfaces,
     session,
     utils,
@@ -33,13 +33,13 @@ class RequestPreparer(object):
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
         if callable(contract.return_type):
-            chain.append(hooks.ResponseHandler(contract.return_type))
+            chain.append(hooks_.ResponseHandler(contract.return_type))
         chain.extend(self._hooks)
         return chain
 
     @staticmethod
     def apply_hooks(chain, request_builder, sender):
-        hook = hooks.TransactionHookChain(*chain)
+        hook = hooks_.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
         if hook.handle_response is not None:
             sender.add_callback(hook.handle_response)
@@ -81,7 +81,7 @@ class Builder(interfaces.CallBuilder):
         self._base_url = ""
         self._hooks = []
         self._client = clients.get_client()
-        self._converters = converters.get_default_converter_factories()
+        self._converters = converters_.get_default_converter_factories()
         self._auth = auth_.get_auth()
 
     @property
@@ -97,8 +97,8 @@ class Builder(interfaces.CallBuilder):
     def hooks(self):
         return iter(self._hooks)
 
-    def add_hook(self, *hooks_):
-        self._hooks.extend(hooks_)
+    def add_hook(self, *hooks):
+        self._hooks.extend(hooks)
 
     @property
     def base_url(self):
@@ -113,11 +113,11 @@ class Builder(interfaces.CallBuilder):
         return self._converters
 
     @converters.setter
-    def converters(self, converters_):
-        if isinstance(converters_, converters.interfaces.Factory):
-            converters_ = (converters_,)
-        self._converters = tuple(converters_)
-        self._converters += converters.get_default_converter_factories()
+    def converters(self, converters):
+        if isinstance(converters, converters_.interfaces.Factory):
+            converters = (converters,)
+        self._converters = tuple(converters)
+        self._converters += converters_.get_default_converter_factories()
 
     @property
     def auth(self):
@@ -189,7 +189,7 @@ class ConsumerMeta(type):
                 f = functools.partial(
                     handler.handle_call_args, call_args=call_args
                 )
-                hook = hooks.RequestAuditor(f)
+                hook = hooks_.RequestAuditor(f)
                 self.session.inject(hook)
 
             namespace["__init__"] = new_init
@@ -236,28 +236,35 @@ class Consumer(interfaces.Consumer, _Consumer):
         client (optional): A supported HTTP client instance (e.g.,
             a :class:`requests.Session`) or an adapter (e.g.,
             :class:`~uplink.RequestsClient`).
-        converter (:class:`ConverterFactory` or :obj:`tuple`, optional):
+        converters (:class:`ConverterFactory` or :obj:`tuple`, optional):
             One or more objects that encapsulate custom
             (de)serialization strategies for request properties and/or
             the response body. (E.g.,
             :class:`~uplink.converters.MarshmallowConverter`)
         auth (:obj:`tuple` or :obj:`callable`, optional): The
             authentication object for this consumer instance.
-        hook (:class:`~uplink.hooks.TransactionHook` or :obj:`tuple`):
+        hooks (:class:`~uplink.hooks.TransactionHook` or :obj:`tuple`):
             One or more hooks to modify behavior of request execution
             and response handling (see :class:`~uplink.response_handler`
             or :class:`~uplink.error_handler`).
     """
 
     def __init__(
-        self, base_url="", client=None, converter=(), auth=None, hook=()
+        self,
+        base_url="",
+        client=None,
+        converters=(),
+        auth=None,
+        hooks=(),
+        **kwargs
     ):
         builder = Builder()
         builder.base_url = base_url
-        builder.converters = converter
-        if isinstance(hook, hooks.TransactionHook):
-            hook = (hook,)
-        builder.add_hook(*hook)
+        builder.converters = kwargs.pop("converter", converters)
+        hooks = kwargs.pop("hook", hooks)
+        if isinstance(hooks, hooks_.TransactionHook):
+            hooks = (hooks,)
+        builder.add_hook(*hooks)
         builder.auth = auth
         builder.client = client
         self.__session = session.Session(builder)
