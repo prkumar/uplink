@@ -151,16 +151,16 @@ Converting Collections
 ======================
 
 Data-driven web applications, such as social networks and forums, devise
-a lot of functionality around large queries on related data. And, these
-APIs normally encode the results of these queries as collections of a
-common **type**. Examples include a curated feed of **posts** from
-subscribed accounts, the top **restaurants** in your area, upcoming
-**tasks** on a checklist, etc.
+a lot of functionality around large queries on related data. Their APIs
+normally encode the results of these queries as collections of a common
+**type**. Examples include a curated feed of **posts** from subscribed
+accounts, the top **restaurants** in your area, upcoming *tasks** on a
+checklist, etc.
 
 You can use the other strategies in this section to add serialization
 support for a specific type, such as a **post** or a **restaurant**.
-Importantly, once added, this support automatically extends to
-collections of that type, such as sequences and mappings.
+Once added, this support automatically extends to collections of that
+type, such as sequences and mappings.
 
 For example, consider a hypothetical Task Management API that supports
 adding tasks to one or more user-created checklists. Here's the JSON
@@ -195,11 +195,11 @@ register a custom converter with :meth:`loads.from_json
 :ref:`custom_json_deserialization`. For the sake of brevity, I'll omit the
 implementation here, but you can follow the link above for details.
 
-Now, Uplink lets us leverage the added support to handle collections of
-type :class:`Task`. The :mod:`uplink.types` module exposes two
-collection types, :data:`~uplink.List` and :data:`~uplink.types.Dict`,
-to be used as function return type annotations. In our example, the
-query for pending tasks returns a list:
+Notably, Uplink lets us leverage the added support to also handle
+collections of type :class:`Task`. The :mod:`uplink.types` module
+exposes two collection types, :data:`~uplink.List` and
+:data:`~uplink.types.Dict`, to be used as function return type
+annotations. In our example, the query for pending tasks returns a list:
 
 .. code-block:: python
    :emphasize-lines: 6
@@ -263,11 +263,11 @@ could look like:
       """Adapter for Python's Pickle protocol."""
 
       def create_response_body_converter(self, cls, request_definition):
-         # Return callable that deserialize response body into Python object.
+         # Return callable to deserialize response body into Python object.
          return lambda response: pickle.loads(response.content)
 
       def create_request_body_converter(self, cls, request_definition):
-         # Return callable that serialize Python object into bytes.
+         # Return callable to serialize Python object into bytes.
          return pickle.dumps
 
 Then, when instantiating a new consumer, you can supply this
