@@ -6,7 +6,7 @@ To use a common English metaphor: Uplink stands on the shoulders of giants.
 Uplink doesn't implement any code to handle HTTP protocol stuff
 directly; for that, the library delegates to an actual HTTP client, such
 as Requests or Aiohttp. Whatever backing client you choose, when a
-request method on a :class:`Consumer` subclass is invoked, Uplink
+request method on a :class:`~uplink.Consumer` subclass is invoked, Uplink
 ultimately interacts with the backing library's interface, at minimum to
 submit requests and read responses.
 
@@ -38,8 +38,8 @@ object:
     session.verify = False
     github = GitHub(BASE_URL, client=session)
 
-This also go for session objects from other HTTP client libraries that
-Uplink supports, such as :mod:`aiohttp` (i.e., a custom
+Further, this also applies for session objects from other HTTP client
+libraries that Uplink supports, such as :mod:`aiohttp` (i.e., a custom
 :class:`~aiohttp.ClientSession` works here, as well).
 
 Following the above example, the :obj:`client` parameter also accepts an
