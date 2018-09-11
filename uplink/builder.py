@@ -236,14 +236,14 @@ class Consumer(interfaces.Consumer, _Consumer):
         client (optional): A supported HTTP client instance (e.g.,
             a :class:`requests.Session`) or an adapter (e.g.,
             :class:`~uplink.RequestsClient`).
-        converters (:class:`ConverterFactory` or :obj:`tuple`, optional):
+        converters (:class:`ConverterFactory`, optional):
             One or more objects that encapsulate custom
             (de)serialization strategies for request properties and/or
             the response body. (E.g.,
             :class:`~uplink.converters.MarshmallowConverter`)
         auth (:obj:`tuple` or :obj:`callable`, optional): The
             authentication object for this consumer instance.
-        hooks (:class:`~uplink.hooks.TransactionHook` or :obj:`tuple`):
+        hooks (:class:`~uplink.hooks.TransactionHook`, optional):
             One or more hooks to modify behavior of request execution
             and response handling (see :class:`~uplink.response_handler`
             or :class:`~uplink.error_handler`).
