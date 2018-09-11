@@ -86,14 +86,14 @@ Recognizing JSON's popularity amongst public APIs, Uplink provides
 some out-of-the-box utilities to adding JSON serialization support for
 your objects simple.
 
-For one, :py:class:`uplink.returns.from_json` is handy when working with
+For one, :class:`returns.json <uplink.returns.json>` is handy when working with
 APIs that provide JSON responses. As its leading positional argument, the decorator
 accepts a class that represents the expected schema of JSON body:
 
 .. code-block:: python
 
    class GitHub(Consumer):
-       @returns.from_json(User)
+       @returns.json(User)
        @get("users/{username}")
        def get_user(self, username): pass
 
@@ -102,7 +102,7 @@ Python 3 users can alternatively use a return type hint:
 .. code-block:: python
 
     class GitHub(Consumer):
-       @returns.from_json
+       @returns.json
        @get("users/{username}")
        def get_user(self, username) -> User: pass
 
@@ -144,8 +144,6 @@ be explicitly provided through the :py:obj:`converter` parameter:
     @loads.from_json(User)
     def user_loader(user_cls, json):
         return user_cls(json["id"], json["username"])
-
-
 
 Converting Collections
 ======================
