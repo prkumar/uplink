@@ -194,10 +194,11 @@ class TestMarshmallowConverter(object):
         schema_mock.load.assert_called_with(data)
         assert expected_result == result
 
-        # Run & Verify: with not compatible
+        # Run & Verify: raise validation errors for user to handle.
         schema_mock.load.side_effect = marshmallow.exceptions.MarshmallowError
-        result = c.convert(data)
-        assert result is data
+
+        with pytest.raises(marshmallow.exceptions.MarshmallowError):
+            c.convert(data)
 
     def test_create_response_body_converter_with_unsupported_response(
         self, schema_mock_and_argument
