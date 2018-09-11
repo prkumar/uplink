@@ -31,5 +31,4 @@ deploy:
   on:
     tags: true
     python: '3.6'
-    condition: $TRAVIS_BRANCH == stable
   distributions: "sdist bdist_wheel"
