@@ -27,6 +27,12 @@ Fixed
 - ``RuntimeWarning`` that "``ClientSession.close`` was never awaited" when
   using ``aiohttp >= 3.0``.
 
+Changed
+-------
+- When using the ``marshmallow`` integration, Uplink no longer suppresses
+  ``Schema`` validation errors on deserialization; users can now handle these
+  exceptions directly.
+
 0.5.5_ - 2018-8-01
 ==================
 Fixed

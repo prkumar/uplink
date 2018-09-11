@@ -194,7 +194,7 @@ class TestMarshmallowConverter(object):
         schema_mock.load.assert_called_with(data)
         assert expected_result == result
 
-        # Run & Verify: propagate validation errors for user to handle.
+        # Run & Verify: raise validation errors for user to handle.
         schema_mock.load.side_effect = marshmallow.exceptions.MarshmallowError
 
         with pytest.raises(marshmallow.exceptions.MarshmallowError):
