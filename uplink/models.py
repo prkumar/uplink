@@ -2,25 +2,24 @@
 import functools
 
 # Local imports
-from uplink import converters, decorators, returns, utils
+from uplink import converters, decorators, install as _install, returns, utils
 
 __all__ = ["loads", "dumps"]
 
 _get_classes = functools.partial(map, type)
 
 
-class ResponseBodyConverterFactory(converters.ConverterFactory):
+class ResponseBodyConverterFactory(converters.Factory):
     def __init__(self, delegate):
-        self.make_response_body_converter = delegate
+        self.create_response_body_converter = delegate
 
 
-class RequestBodyConverterFactory(converters.ConverterFactory):
+class RequestBodyConverterFactory(converters.Factory):
     def __init__(self, delegate):
-        self.make_request_body_converter = delegate
+        self.create_request_body_converter = delegate
 
 
 class _Delegate(object):
-
     def __init__(self, model_class, annotations, func):
         self._model_class = model_class
         self._annotations = annotations
@@ -31,10 +30,12 @@ class _Delegate(object):
         types.update(_get_classes(method_annotations))
         return types.issuperset(self._annotations)
 
-    def _is_relevant(self, type_, argument_annotations, method_annotations):
-        return (
-            utils.is_subclass(type_, self._model_class) and
-            self._contains_annotations(argument_annotations, method_annotations)
+    def _is_relevant(self, type_, request_definition):
+        return utils.is_subclass(
+            type_, self._model_class
+        ) and self._contains_annotations(
+            request_definition.argument_annotations,
+            request_definition.method_annotations,
         )
 
     def __call__(self, type_, *args, **kwargs):
@@ -42,12 +43,11 @@ class _Delegate(object):
             return functools.partial(self._func, type_)
 
 
-class _Wrapper(converters.ConverterFactory):
-
-    def __init__(self, factory, func):
-        self.make_response_body_converter = factory.make_response_body_converter
-        self.make_request_body_converter = factory.make_request_body_converter
-        self.make_string_converter = factory.make_string_converter
+class _Wrapper(converters.Factory):
+    def __init__(self, w, func):
+        self.create_response_body_converter = w.create_response_body_converter
+        self.create_request_body_converter = w.create_request_body_converter
+        self.create_string_converter = w.create_string_converter
         self._func = func
 
     def __call__(self, *args, **kwargs):
@@ -55,7 +55,6 @@ class _Wrapper(converters.ConverterFactory):
 
 
 class _ModelConverterBuilder(object):
-
     def __init__(self, base_class, annotations=()):
         """
         Args:
@@ -77,7 +76,7 @@ class _ModelConverterBuilder(object):
         functools.update_wrapper(converter, func)
         return converter
 
-    install = converters.register_default_converter_factory
+    install = _install
 
     @classmethod
     def _make_builder(cls, base_class, annotations, *more_annotations):
@@ -122,22 +121,21 @@ class loads(_ModelConverterBuilder):
 
         .. code-block:: python
 
-            @loads.from_json(ModelBase)
-            def from_json(model_cls, json_object):
-                return model_cls.from_json(json_object)
+            @loads.from_json(User)
+            def from_json(user_cls, json):
+                return user_cls(json["id"], json["username"])
 
-        Notably, only consumer methods that have the expected return type
-        (i.e., the given base class or any subclass) and are decorated with
-        :py:class:`uplink.returns.json` can leverage the registered strategy
-        to deserialize JSON responses.
+        Notably, only consumer methods that have the expected return
+        type (i.e., the given base class or any subclass) and are
+        decorated with :py:class:`uplink.returns.from_json` can leverage
+        the registered strategy to deserialize JSON responses.
 
         For example, the following consumer method would leverage the
-        :py:func:`from_json` strategy defined above, given
-        :py:class:`User` is a subclass of :py:class:`ModelBase`:
+        :py:func:`from_json` strategy defined above:
 
         .. code-block:: python
 
-            @returns.json
+            @returns.from_json
             @get("user")
             def get_user(self) -> User: pass
 

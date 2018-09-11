@@ -1,10 +1,9 @@
 # Standard library imports
 import collections
 import functools
-import inspect
 
 # Local imports
-from uplink.converters import interfaces, register
+from uplink.converters import interfaces, register_default_converter_factory
 
 __all__ = ["TypingConverter", "ListConverter", "DictConverter"]
 
@@ -18,23 +17,22 @@ class BaseTypeConverter(object):
 
 
 class ListConverter(BaseTypeConverter, interfaces.Converter):
-
     def __init__(self, elem_type):
         self._elem_type = elem_type
         self._elem_converter = None
 
     def set_chain(self, chain):
-        self._elem_converter = chain(self._elem_type)
+        self._elem_converter = chain(self._elem_type) or self._elem_type
 
     def convert(self, value):
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, collections.Sequence):
             return list(map(self._elem_converter, value))
         else:
-            return self._elem_converter(value)
+            # TODO: Handle the case where the value is not an sequence.
+            return [self._elem_converter(value)]
 
 
 class DictConverter(BaseTypeConverter, interfaces.Converter):
-
     def __init__(self, key_type, value_type):
         self._key_type = key_type
         self._value_type = value_type
@@ -42,14 +40,15 @@ class DictConverter(BaseTypeConverter, interfaces.Converter):
         self._value_converter = None
 
     def set_chain(self, chain):
-        self._key_converter = chain(self._key_type)
-        self._value_converter = chain(self._value_type)
+        self._key_converter = chain(self._key_type) or self._key_type
+        self._value_converter = chain(self._value_type) or self._value_type
 
     def convert(self, value):
         if isinstance(value, collections.Mapping):
             key_c, val_c = self._key_converter, self._value_converter
             return dict((key_c(k), val_c(value[k])) for k in value)
         else:
+            # TODO: Handle the case where the value is not a mapping.
             return self._value_converter(value)
 
 
@@ -68,12 +67,12 @@ def _get_types(try_typing=True):
     else:
         return (
             _TypeProxy(ListConverter.freeze),
-            _TypeProxy(DictConverter.freeze)
+            _TypeProxy(DictConverter.freeze),
         )
 
 
-@register.register_default_converter_factory
-class TypingConverter(interfaces.ConverterFactory):
+@register_default_converter_factory
+class TypingConverter(interfaces.Factory):
     """
     .. versionadded: v0.5.0
 
@@ -103,27 +102,30 @@ class TypingConverter(interfaces.ConverterFactory):
         :py:mod:`typing` module by using one of the proxies defined by
         :py:class:`uplink.returns` (e.g., :py:obj:`uplink.types.List`).
     """
+
     try:
         import typing
     except ImportError:  # pragma: no cover
         typing = None
 
     def _check_typing(self, t):
-        return self.typing and inspect.isclass(t) and hasattr(t, "__args__")
+        has_origin = hasattr(t, "__origin__")
+        has_args = hasattr(t, "__args__")
+        return self.typing and has_origin and has_args
 
     def _base_converter(self, type_):
         if isinstance(type_, BaseTypeConverter.Builder):
             return type_.build()
         elif self._check_typing(type_):
-            if issubclass(type_, self.typing.Sequence):
+            if issubclass(type_.__origin__, self.typing.Sequence):
                 return ListConverter(*type_.__args__)
-            elif issubclass(type_, self.typing.Mapping):
+            elif issubclass(type_.__origin__, self.typing.Mapping):
                 return DictConverter(*type_.__args__)
 
-    def make_response_body_converter(self, type_, *args, **kwargs):
+    def create_response_body_converter(self, type_, *args, **kwargs):
         return self._base_converter(type_)
 
-    def make_request_body_converter(self, type_, *args, **kwargs):
+    def create_request_body_converter(self, type_, *args, **kwargs):
         return self._base_converter(type_)
 
 

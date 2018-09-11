@@ -5,7 +5,7 @@ __all__ = ["List", "Dict"]
 
 List = converters.TypingConverter.List
 """
-A proxy for :py:class:`typing.List` that is safe to use in type 
+A proxy for :py:class:`typing.List` that is safe to use in type
 hints with Python 3.4 and below.
 
 .. code-block:: python
@@ -17,12 +17,12 @@ hints with Python 3.4 and below.
 
 Dict = converters.TypingConverter.Dict
 """
-A proxy for :py:class:`typing.Dict` that is safe to use in type 
+A proxy for :py:class:`typing.Dict` that is safe to use in type
 hints with Python 3.4 and below.
 
 .. code-block:: python
 
-    @returns.json
+    @returns.from_json
     @get("/users")
     def get_users(self) -> types.Dict[str, str]:
         \"""Fetches all users\"""

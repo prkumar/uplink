@@ -32,7 +32,7 @@ def converter_mock(mocker):
 
 @pytest.fixture
 def converter_factory_mock(mocker):
-    return mocker.Mock(spec=converters.interfaces.ConverterFactory)
+    return mocker.Mock(spec=converters.interfaces.Factory)
 
 
 @pytest.fixture
@@ -71,4 +71,3 @@ def request_builder(mocker):
     builder.info = collections.defaultdict(dict)
     builder.get_converter.return_value = lambda x: x
     return builder
-

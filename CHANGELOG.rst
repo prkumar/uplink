@@ -6,6 +6,33 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.6.0_ - 2018-9-14
+==================
+Added
+-----
+- The ``session`` property to the ``Consumer`` base class, exposing the
+  consumer instance's configuration and allowing for the persistence of
+  certain properties across requests sent from that instance.
+- The ``params`` decorator, which when applied to a method of a ``Consumer``
+  subclass, can add static query parameters to each API call.
+- The ``converters.Factory`` base class for defining integrations with
+  other serialization formats and libraries.
+- The ``uplink.install`` decorator for registering extensions, such as a
+  custom ``converters.Factory`` implementation, to be applied broadly.
+
+Fixed
+-----
+- Issue with detecting ``typing.List`` and ``typing.Dict`` for converting
+  collections on Python 3.7.
+- ``RuntimeWarning`` that "``ClientSession.close`` was never awaited" when
+  using ``aiohttp >= 3.0``.
+
+Changed
+-------
+- When using the ``marshmallow`` integration, Uplink no longer suppresses
+  ``Schema`` validation errors on deserialization; users can now handle these
+  exceptions directly.
+
 0.5.5_ - 2018-8-01
 ==================
 Fixed
@@ -24,7 +51,7 @@ Fixed
 Fixed
 -----
 - Issue where adding two or more response handlers (i.e., functions decorated
-  with ``uplink.response_handler``) to a method caused a ``TypeError`.
+  with ``uplink.response_handler``) to a method caused a ``TypeError``.
 
 0.5.2_ - 2018-5-30
 ==================
@@ -181,6 +208,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.6.0: https://github.com/prkumar/uplink/compare/v0.5.5...v0.6.0
 .. _0.5.5: https://github.com/prkumar/uplink/compare/v0.5.4...v0.5.5
 .. _0.5.4: https://github.com/prkumar/uplink/compare/v0.5.3...v0.5.4
 .. _0.5.3: https://github.com/prkumar/uplink/compare/v0.5.2...v0.5.3

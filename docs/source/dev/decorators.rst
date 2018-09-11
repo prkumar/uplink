@@ -9,6 +9,12 @@ headers
 
 .. autoclass:: uplink.headers
 
+
+params
+======
+
+.. autoclass:: uplink.params
+
 json
 ====
 

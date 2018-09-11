@@ -7,19 +7,19 @@ from uplink import (
     arguments,
     auth as auth_,
     clients,
-    converters,
+    converters as converters_,
     exceptions,
     helpers,
-    hooks,
+    hooks as hooks_,
     interfaces,
-    utils
+    session,
+    utils,
 )
 
 __all__ = ["build", "Consumer"]
 
 
 class RequestPreparer(object):
-
     def __init__(self, builder):
         self._hooks = list(builder.hooks)
         self._client = builder.client
@@ -33,13 +33,13 @@ class RequestPreparer(object):
     def _get_hook_chain(self, contract):
         chain = list(contract.transaction_hooks)
         if callable(contract.return_type):
-            chain.append(hooks.ResponseHandler(contract.return_type))
+            chain.append(hooks_.ResponseHandler(contract.return_type))
         chain.extend(self._hooks)
         return chain
 
     @staticmethod
     def apply_hooks(chain, request_builder, sender):
-        hook = hooks.TransactionHookChain(*chain)
+        hook = hooks_.TransactionHookChain(*chain)
         hook.audit_request(request_builder)
         if hook.handle_response is not None:
             sender.add_callback(hook.handle_response)
@@ -53,9 +53,7 @@ class RequestPreparer(object):
         if chain:
             self.apply_hooks(chain, request_builder, sender)
         return sender.send(
-            request_builder.method,
-            request_builder.url,
-            request_builder.info
+            request_builder.method, request_builder.url, request_builder.info
         )
 
     def create_request_builder(self, definition):
@@ -70,7 +68,8 @@ class CallFactory(object):
 
     def __call__(self, *args, **kwargs):
         builder = self._request_preparer.create_request_builder(
-            self._request_definition)
+            self._request_definition
+        )
         self._request_definition.define_request(builder, args, kwargs)
         return self._request_preparer.prepare_request(builder)
 
@@ -82,7 +81,7 @@ class Builder(interfaces.CallBuilder):
         self._base_url = ""
         self._hooks = []
         self._client = clients.get_client()
-        self._converters = converters.get_default_converter_factories()
+        self._converters = converters_.get_default_converter_factories()
         self._auth = auth_.get_auth()
 
     @property
@@ -98,8 +97,8 @@ class Builder(interfaces.CallBuilder):
     def hooks(self):
         return iter(self._hooks)
 
-    def add_hook(self, *hooks_):
-        self._hooks.extend(hooks_)
+    def add_hook(self, *hooks):
+        self._hooks.extend(hooks)
 
     @property
     def base_url(self):
@@ -114,11 +113,11 @@ class Builder(interfaces.CallBuilder):
         return self._converters
 
     @converters.setter
-    def converters(self, converters_):
-        if isinstance(converters_, converters.interfaces.ConverterFactory):
-            converters_ = (converters_,)
-        self._converters = tuple(converters_)
-        self._converters += converters.get_default_converter_factories()
+    def converters(self, converters):
+        if isinstance(converters, converters_.interfaces.Factory):
+            converters = (converters,)
+        self._converters = tuple(converters)
+        self._converters += converters_.get_default_converter_factories()
 
     @property
     def auth(self):
@@ -156,19 +155,17 @@ class ConsumerMethod(object):
         except exceptions.InvalidRequestDefinition as error:
             # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
-                self._owner_name,
-                self._attr_name,
-                error)
+                self._owner_name, self._attr_name, error
+            )
 
     def __get__(self, instance, owner):
         if instance is None:
             return self._request_definition_builder
         else:
-            return instance._builder.build(self._request_definition)
+            return instance.session.create(self._request_definition)
 
 
 class ConsumerMeta(type):
-
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
         if isinstance(value, interfaces.RequestDefinitionBuilder):
@@ -192,8 +189,8 @@ class ConsumerMeta(type):
                 f = functools.partial(
                     handler.handle_call_args, call_args=call_args
                 )
-                hook = hooks.RequestAuditor(f)
-                self._builder.add_hook(hook)
+                hook = hooks_.RequestAuditor(f)
+                self.session.inject(hook)
 
             namespace["__init__"] = new_init
 
@@ -215,26 +212,92 @@ _Consumer = ConsumerMeta("_Consumer", (), {})
 
 
 class Consumer(interfaces.Consumer, _Consumer):
+    """
+    Base consumer class with which to define custom consumers.
+
+    Example usage:
+
+    .. code-block:: python
+
+        from uplink import Consumer, get
+
+        class GitHub(Consumer):
+
+            @get("/users/{user}")
+            def get_user(self, user):
+                pass
+
+        client = GitHub("https://api.github.com/")
+        client.get_user("prkumar").json()  # {'login': 'prkumar', ... }
+
+    Args:
+        base_url (:obj:`str`, optional): The base URL for any request
+            sent from this consumer instance.
+        client (optional): A supported HTTP client instance (e.g.,
+            a :class:`requests.Session`) or an adapter (e.g.,
+            :class:`~uplink.RequestsClient`).
+        converters (:class:`ConverterFactory`, optional):
+            One or more objects that encapsulate custom
+            (de)serialization strategies for request properties and/or
+            the response body. (E.g.,
+            :class:`~uplink.converters.MarshmallowConverter`)
+        auth (:obj:`tuple` or :obj:`callable`, optional): The
+            authentication object for this consumer instance.
+        hooks (:class:`~uplink.hooks.TransactionHook`, optional):
+            One or more hooks to modify behavior of request execution
+            and response handling (see :class:`~uplink.response_handler`
+            or :class:`~uplink.error_handler`).
+    """
 
     def __init__(
-            self,
-            base_url="",
-            client=None,
-            converter=(),
-            auth=None,
-            hook=()
+        self,
+        base_url="",
+        client=None,
+        converters=(),
+        auth=None,
+        hooks=(),
+        **kwargs
     ):
-        self._builder = Builder()
-        self._builder.base_url = base_url
-        self._builder.converters = converter
-        if isinstance(hook, hooks.TransactionHook):
-            hook = (hook,)
-        self._builder.add_hook(*hook)
-        self._builder.auth = auth
-        self._builder.client = client
+        builder = Builder()
+        builder.base_url = base_url
+        builder.converters = kwargs.pop("converter", converters)
+        hooks = kwargs.pop("hook", hooks)
+        if isinstance(hooks, hooks_.TransactionHook):
+            hooks = (hooks,)
+        builder.add_hook(*hooks)
+        builder.auth = auth
+        builder.client = client
+        self.__session = session.Session(builder)
 
     def _inject(self, hook, *more_hooks):
-        self._builder.add_hook(hook, *more_hooks)
+        self.session.inject(hook, *more_hooks)
+
+    @property
+    def session(self):
+        """
+        The :class:`~uplink.session.Session` object for this consumer
+        instance.
+
+        Exposes the configuration of this :class:`~uplink.Consumer`
+        instance and allows the persistence of certain properties across
+        all requests sent from that instance.
+
+        Example usage:
+
+        .. code-block:: python
+
+            import uplink
+
+            class MyConsumer(uplink.Consumer):
+                def __init__(self, language):
+                    # Set this header for all requests of the instance.
+                    self.session.headers["Accept-Language"] = language
+                    ...
+
+        Returns:
+            :class:`~uplink.session.Session`
+        """
+        return self.__session
 
 
 def build(service_cls, *args, **kwargs):
@@ -243,7 +306,7 @@ def build(service_cls, *args, **kwargs):
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
         "To construct a consumer instance, have `{0}` inherit "
         "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(name),
-        DeprecationWarning
+        DeprecationWarning,
     )
     consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
     return consumer(*args, **kwargs)

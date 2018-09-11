@@ -1,3 +1,7 @@
+"""
+This module implements the built-in class and method decorators and their
+handling classes.
+"""
 # Standard library imports
 import collections
 import functools
@@ -8,6 +12,7 @@ from uplink import arguments, helpers, hooks, interfaces, utils
 
 __all__ = [
     "headers",
+    "params",
     "form_url_encoded",
     "multipart",
     "json",
@@ -20,7 +25,6 @@ __all__ = [
 
 
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
-
     def __init__(self):
         self._class_annotations = list()
         self._method_annotations = list()
@@ -40,7 +44,6 @@ class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
 
 class MethodAnnotationHandler(interfaces.AnnotationHandler):
-
     def __init__(self, method_annotations):
         self._method_annotations = list(method_annotations)
 
@@ -102,14 +105,32 @@ class MethodAnnotation(interfaces.Annotation):
         pass
 
 
+class _BaseRequestProperties(MethodAnnotation):
+    _property_name = None
+    _delimiter = None
+
+    def __init__(self, arg, **kwargs):
+        if isinstance(arg, list):
+            self._values = dict(self._split(a) for a in arg)
+        else:
+            self._values = dict(arg, **kwargs)
+
+    def _split(self, arg):
+        return map(str.strip, arg.split(self._delimiter))
+
+    def modify_request(self, request_builder):
+        """Updates header contents."""
+        request_builder.info[self._property_name].update(self._values)
+
+
 # noinspection PyPep8Naming
-class headers(MethodAnnotation):
+class headers(_BaseRequestProperties):
     """
     A decorator that adds static headers for API calls.
 
     .. code-block:: python
 
-        @headers({"User-Agent": "Uplink-Sample-App})
+        @headers({"User-Agent": "Uplink-Sample-App"})
         @get("/user")
         def get_user(self):
             \"""Get the current user\"""
@@ -119,32 +140,72 @@ class headers(MethodAnnotation):
 
     .. code-block:: python
 
-        @headers({"Accept": "application/vnd.github.v3.full+json")
+        @headers({"Accept": "application/vnd.github.v3.full+json"})
         class GitHub(Consumer):
             ...
 
     :py:class:`headers` takes the same arguments as :py:class:`dict`.
 
     Args:
-        *arg: A dict containing header values.
+        arg: A dict containing header values.
         **kwargs: More header values.
     """
 
     def __init__(self, arg, **kwargs):
         if isinstance(arg, str):
-            key, value = self._get_header(arg)
-            self._headers = {key: value}
-        elif isinstance(arg, list):
-            self._headers = dict(self._get_header(a) for a in arg)
-        else:
-            self._headers = dict(arg, **kwargs)
+            key, value = self._split(arg)
+            arg = {key: value}
+        super(headers, self).__init__(arg, **kwargs)
 
-    def _get_header(self, arg):
-        return map(str.strip, arg.split(":"))
+    @property
+    def _delimiter(self):
+        return ":"
 
-    def modify_request(self, request_builder):
-        """Updates header contents."""
-        request_builder.info["headers"].update(self._headers)
+    @property
+    def _property_name(self):
+        return "headers"
+
+
+# noinspection PyPep8Naming
+class params(_BaseRequestProperties):
+    """
+    A decorator that adds static query parameters for API calls.
+
+    .. code-block:: python
+
+        @params({"sort": "created"})
+        @get("/user")
+        def get_user(self):
+            \"""Get the current user\"""
+
+    When used as a class decorator, :py:class:`params` applies to
+    all consumer methods bound to the class:
+
+    .. code-block:: python
+
+        @params({"client_id": "my-app-client-id"})
+        class GitHub(Consumer):
+            ...
+
+    :py:class:`params` takes the same arguments as :py:class:`dict`.
+
+    Args:
+        arg: A dict containing query parameters.
+        **kwargs: More query parameters.
+    """
+
+    def __init__(self, arg, **kwargs):
+        if isinstance(arg, str):
+            arg = arg.split("&")
+        super(params, self).__init__(arg, **kwargs)
+
+    @property
+    def _property_name(self):
+        return "params"
+
+    @property
+    def _delimiter(self):
+        return "="
 
 
 # noinspection PyPep8Naming
@@ -165,6 +226,7 @@ class form_url_encoded(MethodAnnotation):
             def update_user(self, first_name: Field, last_name: Field):
                 \"""Update the current user.\"""
     """
+
     _http_method_blacklist = {"GET"}
     _can_be_static = True
 
@@ -192,6 +254,7 @@ class multipart(MethodAnnotation):
             def update_user(self, photo: Part, description: Part):
                 \"""Upload a user profile photo.\"""
     """
+
     _http_method_blacklist = {"GET"}
     _can_be_static = True
 
@@ -223,12 +286,12 @@ class json(MethodAnnotation):
     specify JSON fields separately, across multiple arguments:
 
     Example:
-    .. code-block:: python
+        .. code-block:: python
 
-        @json
-        @patch(/user")
-        def update_user(self, name: Field, email: Field("e-mail"):
-            \"""Update the current user.\"""
+            @json
+            @patch(/user")
+            def update_user(self, name: Field, email: Field("e-mail")):
+                \"""Update the current user.\"""
 
     Further, to set a nested field, you can specify the path of the
     target field with a tuple of strings as the first argument of
@@ -261,6 +324,7 @@ class json(MethodAnnotation):
             ):
                 \"""Update the current user.\"""
     """
+
     _http_method_blacklist = {"GET"}
     _can_be_static = True
 
@@ -273,8 +337,7 @@ class json(MethodAnnotation):
             if not isinstance(body, collections.Mapping):
                 raise ValueError(
                     "Failed to set nested JSON attribute '%s': "
-                    "parent field '%s' is not a JSON object."
-                    % (path, name)
+                    "parent field '%s' is not a JSON object." % (path, name)
                 )
         body[path[-1]] = value
 
@@ -327,6 +390,7 @@ class timeout(MethodAnnotation):
         seconds (int): An integer used to indicate how long should the
             request wait.
     """
+
     def __init__(self, seconds):
         self._seconds = seconds
 
@@ -366,6 +430,7 @@ class args(MethodAnnotation):
         **more_annotations: More annotations, targeting specific method
            arguments.
     """
+
     def __init__(self, *annotations, **more_annotations):
         self._annotations = annotations
         self._more_annotations = more_annotations
@@ -493,14 +558,6 @@ class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
 class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
     """
     A decorator that applies one or more hooks to a request method.
-
-    Example:
-        .. code-block:: python
-
-            @inject(Query("sort").with_value("pushed"))
-            @get("users/{user}/repos")
-            def list_repos(self, user):
-                \"""Lists user's public repos by latest pushed.\"""
 
     .. versionadded:: 0.4.0
     """

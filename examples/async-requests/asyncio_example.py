@@ -11,10 +11,10 @@ from github import BASE_URL, GitHub
 
 @asyncio.coroutine
 def get_contributors(full_name):
-    print('Getting GitHub repository `{}`'.format(full_name))
+    print("Getting GitHub repository `{}`".format(full_name))
     response = yield from gh_async.get_contributors(*full_name.split("/"))
     json = yield from response.json()
-    print('response for {}: {}'.format(full_name, json))
+    print("response for {}: {}".format(full_name, json))
     return json
 
 

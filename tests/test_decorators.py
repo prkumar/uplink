@@ -24,11 +24,9 @@ def method_handler_builder():
 
 
 class TestMethodAnnotationHandlerBuilder(object):
-
-    def test_add_annotation(self,
-                            mocker,
-                            method_handler_builder,
-                            method_annotation_mock):
+    def test_add_annotation(
+        self, mocker, method_handler_builder, method_annotation_mock
+    ):
         method_handler_builder.listener = mocker.stub()
         method_handler_builder.add_annotation(method_annotation_mock)
         method_handler_builder.listener.assert_called_with(
@@ -43,7 +41,7 @@ class TestMethodAnnotationHandlerBuilder(object):
         assert list(handler.annotations) == [method_annotation]
 
     def test_class_level_appears_before_method_level_annotations(
-            self, method_handler_builder
+        self, method_handler_builder
     ):
         method_level1 = decorators.MethodAnnotation()
         method_level2 = decorators.MethodAnnotation()
@@ -58,12 +56,11 @@ class TestMethodAnnotationHandlerBuilder(object):
             class_level1,
             class_level2,
             method_level1,
-            method_level2
+            method_level2,
         ]
 
 
 class TestMethodAnnotationHandler(object):
-
     def test_handle_builder(self, request_builder, method_annotation_mock):
         handler = decorators.MethodAnnotationHandler([method_annotation_mock])
         handler.handle_builder(request_builder)
@@ -80,20 +77,19 @@ class TestMethodAnnotation(object):
     class FakeMethodAnnotation(decorators.MethodAnnotation):
         _can_be_static = True
 
-    def test_call_with_class(self,
-                             method_annotation,
-                             request_definition_builder):
+    def test_call_with_class(
+        self, method_annotation, request_definition_builder
+    ):
         class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         method_annotation(Class)
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(
-            method_annotation, is_class=True)
+            method_annotation, is_class=True
+        )
 
-    def test_static_call_with_class(
-            self, mocker, request_definition_builder
-    ):
+    def test_static_call_with_class(self, mocker, request_definition_builder):
         class Class(interfaces.Consumer):
             builder = request_definition_builder
 
@@ -101,16 +97,14 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(mocker.ANY, is_class=True)
 
-    def test_call_with_builder(self,
-                               method_annotation,
-                               request_definition_builder):
+    def test_call_with_builder(
+        self, method_annotation, request_definition_builder
+    ):
         method_annotation(request_definition_builder)
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(method_annotation)
 
-    def test_static_call_with_builder(self,
-                                      mocker,
-                                      request_definition_builder):
+    def test_static_call_with_builder(self, mocker, request_definition_builder):
         self.FakeMethodAnnotation(request_definition_builder)
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(mocker.ANY)
@@ -124,8 +118,9 @@ class TestMethodAnnotation(object):
             request_definition_builder.method
         )
 
-    def test_method_not_in_http_method_blacklist(self, 
-                                                 request_definition_builder):
+    def test_method_not_in_http_method_blacklist(
+        self, request_definition_builder
+    ):
         class DummyAnnotation(decorators.MethodAnnotation):
             _http_method_whitelist = ["POST"]
 
@@ -135,9 +130,9 @@ class TestMethodAnnotation(object):
             request_definition_builder.method
         )
 
-    def test_call_with_child_class(self,
-                                   method_annotation,
-                                   request_definition_builder):
+    def test_call_with_child_class(
+        self, method_annotation, request_definition_builder
+    ):
         class Parent(object):
             builder = request_definition_builder
 
@@ -149,6 +144,7 @@ class TestMethodAnnotation(object):
         method_annotation(Child)
         builder = request_definition_builder.method_handler_builder
         assert not builder.add_annotation.called
+
 
 # TODO: Refactor test cases for method annotations into test case class.
 
@@ -166,6 +162,30 @@ def test_headers(request_builder):
     headers_lst.modify_request(request_builder)
     header = {"key_1": "value_1", "key_2": "value_2"}
     assert request_builder.info["headers"] == header
+
+
+def test_params(request_builder):
+    params = decorators.params({"param": "value"})
+    params.modify_request(request_builder)
+    assert request_builder.info["params"] == {"param": "value"}
+
+
+def test_params_with_string(request_builder):
+    params_with_str = decorators.params("param1=value1&param2=value2")
+    params_with_str.modify_request(request_builder)
+    assert request_builder.info["params"] == {
+        "param1": "value1",
+        "param2": "value2",
+    }
+
+
+def test_params_with_list(request_builder):
+    params_list = decorators.params(["param1=value1", "param2=value2"])
+    params_list.modify_request(request_builder)
+    assert request_builder.info["params"] == {
+        "param1": "value1",
+        "param2": "value2",
+    }
 
 
 def test_form_url_encoded(request_builder):
@@ -248,8 +268,7 @@ def test_args_decorate_function(mocker):
         return handler
 
     mocker.patch(
-        "uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func",
-        patched
+        "uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func", patched
     )
     args = decorators.args(str, str, name=str)
     func = mocker.stub()

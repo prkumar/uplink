@@ -100,3 +100,19 @@ ENV/
 
 # Jetbrains
 .idea/
+
+# pytest
+.pytest_cache
+
+# Pipfile & Pipfile.lock
+#
+# When developing libraries, it is generally recommended to exclude
+# Pipfile and Pipfile.lock from version control [1]. Notably, including
+# Pipfile in the repo is fine when it is used to specify development
+# dependencies (e.g., tox), as long as the file does not repeat abstract
+# dependencies that are already defined within setup.py [2].
+#
+# [1]: https://github.com/pypa/pipenv/issues/1911#issuecomment-379422008
+# [2]: https://docs.pipenv.org/advanced/#pipfile-vs-setup-py
+#
+Pipfile.lock

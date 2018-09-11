@@ -6,8 +6,9 @@ Here are a few ways to simplify consumer definitions.
 Decorating All Request Methods in a Class
 =========================================
 
-To apply a decorator across all methods in a class, you can simply
-decorate the class rather than each method individually:
+To apply a decorator of this library across all methods of a
+:class:`uplink.Consumer` subclass, you can simply decorate the class
+rather than each method individually:
 
 .. code-block:: python
    :emphasize-lines: 1,2
@@ -37,7 +38,6 @@ slightly more verbose definition:
         @uplink.get("/organizations")
         def get_organizations(self):
             """List all organizations."""
-
 
 Adopting the Argument's Name
 ============================
@@ -134,3 +134,4 @@ When using Python 3, you can use these classes as function annotations
         @uplink.get
         def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
             pass
+

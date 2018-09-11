@@ -6,29 +6,33 @@ from uplink import commands, converters, arguments, utils
 
 
 class TestHttpMethodFactory(object):
-
     def test_call_as_decorator_with_no_args(self):
         @commands.HttpMethodFactory(None)
-        def func(): pass
+        def func():
+            pass
+
         assert isinstance(func, commands.RequestDefinitionBuilder)
 
     def test_call_as_decorator_with_args(self):
         method_factory = commands.HttpMethodFactory(None)
 
         @method_factory(None)
-        def func(): pass
+        def func():
+            pass
+
         assert isinstance(func, commands.RequestDefinitionBuilder)
 
 
 class TestHttpMethod(object):
-
     def test_call(self, mocker, annotation_mock):
         # Setup
-        def func(): pass
+        def func():
+            pass
+
         sig = utils.Signature(
             args=["self", "arg1", "arg2"],
             annotations={"arg1": annotation_mock},
-            return_annotation=None
+            return_annotation=None,
         )
         mocker.patch("uplink.utils.get_arg_spec").return_value = sig
 
@@ -45,11 +49,11 @@ class TestHttpMethod(object):
 
     def test_call_with_return_annotation(self, mocker):
         # Setup
-        def func(): pass
+        def func():
+            pass
+
         sig = utils.Signature(
-            args=[],
-            annotations={},
-            return_annotation="return_annotation"
+            args=[], annotations={}, return_annotation="return_annotation"
         )
         mocker.patch("uplink.utils.get_arg_spec").return_value = sig
         returns = mocker.patch("uplink.returns.model")
@@ -61,24 +65,27 @@ class TestHttpMethod(object):
 
     def test_call_with_args(self, mocker, annotation_mock):
         # Setup
-        def func(): pass
+        def func():
+            pass
+
         args = mocker.patch("uplink.decorators.args")
 
         # Verify: using sequence
         http_method = commands.HttpMethod(
-            "METHOD", uri="/{hello}", args=(annotation_mock,))
+            "METHOD", uri="/{hello}", args=(annotation_mock,)
+        )
         http_method(func)
         args.assert_called_with(annotation_mock)
 
         # Verify: using mapping
         http_method = commands.HttpMethod(
-            "METHOD", uri="/{hello}", args={"arg1": "value"})
+            "METHOD", uri="/{hello}", args={"arg1": "value"}
+        )
         http_method(func)
         args.assert_called_with(arg1="value")
 
 
 class TestURIDefinitionBuilder(object):
-
     def test_is_static(self):
         assert not commands.URIDefinitionBuilder(None).is_static
 
@@ -120,20 +127,18 @@ class TestURIDefinitionBuilder(object):
 
 
 class TestRequestDefinitionBuilder(object):
-
-    def test_method_handler_builder_getter(self,
-                                           annotation_handler_builder_mock):
+    def test_method_handler_builder_getter(
+        self, annotation_handler_builder_mock
+    ):
         builder = commands.RequestDefinitionBuilder(
             None,
             None,
             type(annotation_handler_builder_mock)(),
-            annotation_handler_builder_mock
+            annotation_handler_builder_mock,
         )
         assert builder.method_handler_builder is annotation_handler_builder_mock
 
-    def test_build(self,
-                   mocker,
-                   annotation_handler_builder_mock):
+    def test_build(self, mocker, annotation_handler_builder_mock):
         argument_handler_builder = type(annotation_handler_builder_mock)()
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
@@ -141,7 +146,7 @@ class TestRequestDefinitionBuilder(object):
             "method",
             uri_definition_builder,
             argument_handler_builder,
-            method_handler_builder
+            method_handler_builder,
         )
         definition = builder.build()
         assert isinstance(definition, commands.RequestDefinition)
@@ -150,18 +155,19 @@ class TestRequestDefinitionBuilder(object):
         assert method_handler_builder.build.called
 
     def test_auto_fill_when_not_done(
-            self,
-            mocker,
-            annotation_handler_builder_mock):
+        self, mocker, annotation_handler_builder_mock
+    ):
         # Setup
-        argument_handler_builder = mocker.Mock(stub=arguments.ArgumentAnnotationHandlerBuilder)
+        argument_handler_builder = mocker.Mock(
+            stub=arguments.ArgumentAnnotationHandlerBuilder
+        )
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
         builder = commands.RequestDefinitionBuilder(
             "method",
             uri_definition_builder,
             argument_handler_builder,
-            method_handler_builder
+            method_handler_builder,
         )
 
         # Setup success condition
@@ -175,9 +181,9 @@ class TestRequestDefinitionBuilder(object):
             {"arg1": arguments.Path}
         )
 
-    def test_auto_fill_when_not_done_fails(self,
-                   mocker,
-                   annotation_handler_builder_mock):
+    def test_auto_fill_when_not_done_fails(
+        self, mocker, annotation_handler_builder_mock
+    ):
         # Setup
         argument_handler_builder = annotation_handler_builder_mock
         method_handler_builder = annotation_handler_builder_mock
@@ -186,7 +192,7 @@ class TestRequestDefinitionBuilder(object):
             "method",
             uri_definition_builder,
             argument_handler_builder,
-            method_handler_builder
+            method_handler_builder,
         )
 
         # Setup fail condition: Argument is missing annotation
@@ -218,7 +224,8 @@ class TestRequestDefinition(object):
         method = "method"
         uri = "uri"
         definition = commands.RequestDefinition(
-            method, uri, mocker.Mock(), mocker.Mock())
+            method, uri, mocker.Mock(), mocker.Mock()
+        )
         definition.define_request(request_builder, (), {})
         assert request_builder.method == method
         assert request_builder.url == uri

@@ -5,6 +5,8 @@ python:
   - '3.4'
   - '3.5'
   - '3.6'
+  - '3.6-dev'
+  - '3.7-dev'
 before_script:
   - |
     if [[ $TRAVIS_PYTHON_VERSION == 3.3 ]]; then
@@ -14,8 +16,10 @@ before_script:
     else
       pip install tox
     fi
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install flake8 flake8-bugbear; fi
 script:
   - tox -e py
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then flake8 uplink tests setup.py docs/conf.py; fi
 after_success:
   - pip install codecov
   - codecov
@@ -27,4 +31,5 @@ deploy:
   on:
     tags: true
     python: '3.6'
+    condition: $TRAVIS_BRANCH == stable
   distributions: "sdist bdist_wheel"

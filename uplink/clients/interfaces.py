@@ -1,4 +1,3 @@
-
 class HttpClientAdapter(object):
     """An adapter of an HTTP client library."""
 
@@ -7,7 +6,6 @@ class HttpClientAdapter(object):
 
 
 class Request(object):
-
     def send(self, method, url, extras):
         raise NotImplementedError
 
