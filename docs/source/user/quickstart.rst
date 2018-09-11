@@ -41,11 +41,11 @@ GitHub's public API:
     :obj:`base_url` is especially useful for creating clients that
     target separate services with similar APIs; for example, we could use
     this GitHub consumer to also create clients for any GitHub
-    Enterprise instance, for projects hosted outside of the public
-    `GitHub.com <https://github.com>`_ service. (Another example is
+    Enterprise instance for projects hosted outside of the public
+    `GitHub.com <https://github.com>`_ service. Another example is
     creating separate clients for a company's production and staging
     environments, which are typically hosted on separate domains but
-    expose the same API endpoints.)
+    expose the same API.
 
 So far, this class looks like any other Python class. The real magic
 happens when you define methods to interact with the webservice using
@@ -99,9 +99,9 @@ By default, uplink uses `Requests
 <https://github.com/requests/requests>`_, so the response we get back
 from GitHub is wrapped inside a :class:`requests.Response` instance. (If
 you want, you can :ref:`swap out <swap_default_http_client>`
-Requests for a different backing HTTP client, such as :mod:`aiohttp
-<sync_vs_async>`.)
+Requests for a different backing HTTP client, such as :ref:`aiohttp <sync_vs_async>`.)
 
+.. |aiohttp| replace:: ``aiohttp``
 
 URL Manipulation
 ================
@@ -291,7 +291,7 @@ invoked:
     {'login': 'prkumar', 'id': 10181244, ...
 
 You can also target a specific field of the JSON response by using the
-decorator's ``model`` argument to select the target JSON field name:
+decorator's ``member`` argument to select the target JSON field name:
 
 .. code-block:: python
 
@@ -311,7 +311,7 @@ decorator's ``model`` argument to select the target JSON field name:
     JSON responses may represent existing Python classes in your
     application (for example, a ``GitHubUser``). Uplink supports this
     kind of conversion (i.e., deserialization), and we detail this
-    support in :ref:`this guide <serialization>`.
+    support in :ref:`the next guide <serialization>`.
 
 
 .. _`session`:
