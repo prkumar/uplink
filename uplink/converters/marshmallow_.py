@@ -52,10 +52,7 @@ class MarshmallowConverter(interfaces.Factory):
                 # Assume that the response is already json
                 json = response
 
-            try:
-                return self._schema.load(json).data
-            except MarshmallowConverter.marshmallow.exceptions.MarshmallowError:
-                return response
+            return self._schema.load(json).data
 
     class RequestBodyConverter(interfaces.Converter):
         def __init__(self, schema):
