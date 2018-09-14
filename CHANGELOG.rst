@@ -6,7 +6,19 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
-0.6.0_ - 2018-9-14
+0.6.1_ - 2018-9-14
+==================
+Fixed
+-----
+- When the ``type`` parameter of a function argument annotation, such as
+  ``Query`` or ``Body``, is omitted, Uplink no longer resorts to using the
+  type of the annotated argument's value at runtime to convert that value
+  to a request property (e.g., a query parameter or request header value);
+  this change prevents any unintended conversion and restores behavior to
+  that of v0.5, where the argument's value is converted only when the
+  ``type`` parameter is set.
+
+0.6.0_ - 2018-9-11
 ==================
 Added
 -----
@@ -208,6 +220,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.6.1: https://github.com/prkumar/uplink/compare/v0.6.0...v0.6.1
 .. _0.6.0: https://github.com/prkumar/uplink/compare/v0.5.5...v0.6.0
 .. _0.5.5: https://github.com/prkumar/uplink/compare/v0.5.4...v0.5.5
 .. _0.5.4: https://github.com/prkumar/uplink/compare/v0.5.3...v0.5.4
