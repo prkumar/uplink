@@ -145,6 +145,8 @@ be explicitly provided through the :py:obj:`converter` parameter:
     def user_loader(user_cls, json):
         return user_cls(json["id"], json["username"])
 
+.. _converting_collections:
+
 Converting Collections
 ======================
 
