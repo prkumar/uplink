@@ -88,11 +88,11 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. |marshmallow| replace:: ``marshmallow``
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
 .. _`Non-blocking I/O support`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
-.. _`Supply your own session`: https://uplink.readthedocs.io/en/latest/user/clients.html#swapping-out-the-default-http-client
+.. _`Supply your own session`: https://uplink.readthedocs.io/en/latest/user/clients.html#swapping-out-the-default-http-session
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
-.. _`custom converters`: https://uplink.readthedocs.io/en/latest/user/serialization.html#custom-serialization
+.. _`custom converters`: https://uplink.readthedocs.io/en/latest/user/serialization.html#custom-json-deserialization
 .. _`handling collections`: https://uplink.readthedocs.io/en/latest/user/serialization.html#converting-collections
-.. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#custom-response-and-error-handling
+.. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#response-and-error-handling
 .. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
 .. _`requests-oauthlib`: https://github.com/requests/requests-oauthlib
 .. _`Basic Authentication`: https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication
