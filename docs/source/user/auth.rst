@@ -3,6 +3,8 @@ Authentication
 
 This section covers how to do authentication with Uplink.
 
+.. _basic_authentication:
+
 Basic Authentication
 --------------------
 
