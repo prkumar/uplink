@@ -8,15 +8,13 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 
 0.6.1_ - 2018-9-14
 ==================
-Fixed
------
+Changed
+-------
 - When the ``type`` parameter of a function argument annotation, such as
-  ``Query`` or ``Body``, is omitted, Uplink no longer resorts to using the
-  type of the annotated argument's value at runtime to convert that value
-  to a request property (e.g., a query parameter or request header value);
-  this change prevents any unintended conversion and restores behavior to
-  that of v0.5, where the argument's value is converted only when the
-  ``type`` parameter is set.
+  ``Query`` or ``Body``, is omitted, the type of the annotated argument's
+  value is no longer used to determine how to convert the value before it's
+  passed to the backing client; the argument's value is converted only when
+  its ``type`` is explicitly set.
 
 0.6.0_ - 2018-9-11
 ==================
