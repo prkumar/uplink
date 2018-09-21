@@ -9,8 +9,15 @@ Contributor = collections.namedtuple(
 Repo = collections.namedtuple("Repo", field_names=["owner", "name"])
 
 
+class SchemaBase(marshmallow.Schema):
+    class Meta:
+        # Pass EXCLUDE as Meta option to keep marshmallow 2 behavior
+        # ref: https://marshmallow.readthedocs.io/en/3.0/upgrading.html
+        unknown = getattr(marshmallow, "EXCLUDE", None)
+
+
 # == Schemas == #
-class ContributorSchema(marshmallow.Schema):
+class ContributorSchema(SchemaBase):
     login = marshmallow.fields.Str(attribute="username")
     contributions = marshmallow.fields.Int()
 
@@ -19,7 +26,7 @@ class ContributorSchema(marshmallow.Schema):
         return Contributor(**data)
 
 
-class RepoSchema(marshmallow.Schema):
+class RepoSchema(SchemaBase):
     full_name = marshmallow.fields.Str()
 
     @marshmallow.post_load

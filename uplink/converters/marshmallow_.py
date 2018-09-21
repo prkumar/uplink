@@ -8,6 +8,12 @@ from uplink import utils
 from uplink.converters import interfaces, register_default_converter_factory
 
 
+def _extract_data(m):
+    # After marshmallow 3.0, Schema().load and Schema().dump don't
+    # return a (data, errors) tuple any more. Only `data` is returned.
+    return m if MarshmallowConverter.is_marshmallow_3 else m.data
+
+
 class MarshmallowConverter(interfaces.Factory):
     """
     A converter that serializes and deserializes values using
@@ -36,6 +42,9 @@ class MarshmallowConverter(interfaces.Factory):
         import marshmallow
     except ImportError:  # pragma: no cover
         marshmallow = None
+        is_marshmallow_3 = None
+    else:
+        is_marshmallow_3 = marshmallow.__version__ >= "3.0"
 
     def __init__(self):
         if self.marshmallow is None:
@@ -52,14 +61,14 @@ class MarshmallowConverter(interfaces.Factory):
                 # Assume that the response is already json
                 json = response
 
-            return self._schema.load(json).data
+            return _extract_data(self._schema.load(json))
 
     class RequestBodyConverter(interfaces.Converter):
         def __init__(self, schema):
             self._schema = schema
 
         def convert(self, value):
-            return self._schema.dump(value).data
+            return _extract_data(self._schema.dump(value))
 
     @classmethod
     def _get_schema(cls, type_):
