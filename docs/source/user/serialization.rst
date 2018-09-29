@@ -44,7 +44,7 @@ conversions and validations. Here's a simple example:
            return Repo(owner=owner, name=repo_name)
 
 
-Then, specify the schema using the :class:`uplink.returns` decorator:
+Then, specify the schema using the :class:`@returns <uplink.returns>` decorator:
 
 .. code-block:: python
    :emphasize-lines: 2
@@ -86,7 +86,7 @@ Recognizing JSON's popularity amongst public APIs, Uplink provides
 some out-of-the-box utilities to adding JSON serialization support for
 your objects simple.
 
-For one, :class:`returns.json <uplink.returns.json>` is handy when working with
+For one, :class:`@returns.json <uplink.returns.json>` is handy when working with
 APIs that provide JSON responses. As its leading positional argument, the decorator
 accepts a class that represents the expected schema of JSON body:
 
@@ -112,7 +112,7 @@ using a library for whom Uplink has built-in support (such as
 tells Uplink how to convert the HTTP response into your expected return
 type.
 
-To this end, we can use :py:meth:`uplink.loads.from_json`:
+To this end, we can use :py:meth:`@loads.from_json <uplink.loads.from_json>`:
 
 .. code-block:: python
 
@@ -130,7 +130,7 @@ The decorated function, :py:func:`user_loader`, can then be passed into the
 
     my_client = MyConsumer(base_url=..., converter=user_loader)
 
-Alternatively, you can add the :py:func:`uplink.install` decorator to
+Alternatively, you can add the :py:func:`@uplink.install <uplink.install>` decorator to
 register the converter function as a default converter, meaning the converter
 will be included automatically with any consumer instance and doesn't need to
 be explicitly provided through the :py:obj:`converter` parameter:
@@ -190,10 +190,11 @@ In this example, the common type could be modeled in Python as a
    Task = collections.namedtuple("Task", ["id", "name", "due_date"])
 
 Next, to add JSON deserialization support for this type, we could
-register a custom converter with :meth:`loads.from_json
-<uplink.loads.from_json>`, which is a strategy covered in the subsection
-:ref:`custom_json_deserialization`. For the sake of brevity, I'll omit the
-implementation here, but you can follow the link above for details.
+create a custom converter using the :meth:`@loads.from_json
+<uplink.loads.from_json>` decorator, which is a strategy covered in the
+subsection :ref:`custom_json_deserialization`. For the sake of brevity,
+I'll omit the implementation here, but you can follow the link above for
+details.
 
 Notably, Uplink lets us leverage the added support to also handle
 collections of type :class:`Task`. The :mod:`uplink.types` module
@@ -280,7 +281,7 @@ implementation through the ``converter`` constructor argument of any
 
 If the added support should apply broadly, you can alternatively decorate your
 :class:`converters.Factory <uplink.converters.Factory>` subclass with
-the :meth:`uplink.install` decorator, which ensures that Uplink
+the :meth:`@uplink.install <uplink.install>` decorator, which ensures that Uplink
 automatically adds the factory to new instances of any
 :class:`Consumer` subclass. This way you don't have to explicitly supply
 the factory each time you instantiate a consumer.
