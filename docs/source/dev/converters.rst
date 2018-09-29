@@ -81,18 +81,20 @@ this feature:
         def get_users(self) -> types.Dict[str, str]:
             """Fetches all users"""
 
-Writing a Custom Converter
-==========================
+Writing Custom JSON Converters
+==============================
 
-You can define custom converters by using :py:class:`uplink.loads` and
-:py:class:`uplink.dumps`.
+As a shorthand, you can define custom JSON converters using the
+:py:class:`@loads.from_json <uplink.loads.from_json>` (deserialization) and
+:py:class:`@dumps.to_json <uplink.dumps.to_json>` (serialization) decorators.
 
 These classes can be used as decorators to create converters of a class
 and its subclasses:
 
 .. code-block:: python
 
-    # Registers the function as a loader for the given model class.
+    # Creates a converter that can deserialize the given `json` in to an
+    # instance of a `Model` subtype.
     @loads.from_json(Model)
     def load_model_from_json(model_type, json):
         ...
@@ -110,16 +112,18 @@ instantiating a :py:class:`~uplink.Consumer` subclass, through the
 
     github = GitHub(BASE_URL, converter=load_model_from_json)
 
-Alternatively, you can add the :py:meth:`uplink.loads.install` or
-:py:meth:`uplink.dumps.install` decorator to register the converter
-function as a default converter, meaning the converter will be included
-automatically with any consumer instance and doesn't need to be
-explicitly provided through the :py:obj:``converter`` parameter:
+Alternatively, you can add the :py:func:`@install <uplink.install>` decorator to
+register the converter function as a default converter, meaning the
+converter will be included automatically with any consumer instance and
+doesn't need to be explicitly provided through the :py:obj:``converter``
+parameter:
 
 .. code-block:: python
 
+    from uplink import install, loads
+
     # Register the function as a default loader for the given model class.
-    @loads.install
+    @install
     @loads.from_json(Model)
     def load_model_from_json(model_type, json):
         ...
