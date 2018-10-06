@@ -268,6 +268,7 @@ class Consumer(interfaces.Consumer, _Consumer):
         builder.auth = auth
         builder.client = client
         self.__session = session.Session(builder)
+        self.__exceptions = builder.client.exceptions()
 
     def _inject(self, hook, *more_hooks):
         self.session.inject(hook, *more_hooks)
@@ -298,6 +299,10 @@ class Consumer(interfaces.Consumer, _Consumer):
             :class:`~uplink.session.Session`
         """
         return self.__session
+
+    @property
+    def exceptions(self):
+        return self.__exceptions
 
 
 def build(service_cls, *args, **kwargs):

@@ -1,8 +1,18 @@
+# Local imports
+from uplink.clients import exceptions
+
+
 class HttpClientAdapter(object):
     """An adapter of an HTTP client library."""
 
+    __exceptions = exceptions.Exceptions()
+
     def create_request(self):
         raise NotImplementedError
+
+    @property
+    def exceptions(self):
+        return self.__exceptions
 
 
 class Request(object):
