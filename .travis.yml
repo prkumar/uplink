@@ -1,7 +1,7 @@
 language: python
 python:
   - '2.7'
-  - '3.3'
+  # - '3.3'
   - '3.4'
   - '3.5'
   - '3.6'
@@ -14,7 +14,6 @@ before_script:
       # tox 3.0.0 drops python 3.3.* support
       pip install virtualenv==15.2.0 tox==2.9.1
     else
-      pip install -U pip==18.0
       pip install tox
     fi
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install flake8 flake8-bugbear; fi
