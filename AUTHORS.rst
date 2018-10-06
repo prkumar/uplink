@@ -10,3 +10,4 @@ Contributors
 - Niko Eckerskorn (`@kadrach <https://github.com/kadrach>`_)
 - Or Carmi (`@liiight <https://github.com/liiight>`_)
 - George Kontridze (`@gkze <https://github.com/gkze>`_)
+- Sean Chambers (`@schambers <https://github.com/schambers>`_)
