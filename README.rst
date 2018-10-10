@@ -4,7 +4,7 @@ Uplink
 |Gitter| |Code Style|
 
 - Builds Reusable Objects for Consuming Web APIs.
-- Works with **Requests**, **asyncio**, and **Twisted**.
+- Works with **Requests**, **aiohttp**, and **Twisted**.
 - Inspired by `Retrofit <http://square.github.io/retrofit/>`__.
 
 A Quick Walkthrough, with GitHub API v3
