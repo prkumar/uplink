@@ -7,8 +7,9 @@ purpose and add a short description to the "Table of Contents" section below.
 
 ## Table of Contents
 
-- **[async-requests](examples/async-requests)**: Use [`aiohttp`](https://github.com/aio-libs/aiohttp) or 
+- **[async-requests](async-requests)**: Use [`aiohttp`](https://github.com/aio-libs/aiohttp) or 
   [`twisted`](https://github.com/twisted/twisted) for non-blocking I/O
-- **[github-api](examples/github-api)**: Consume the GitHub API to serve a downstream HTTP service with Flask.
-- **[marshmallow](examples/marshmallow)**: Create clients that automatically deserialize responses with the 
+- **[github-api](github-api)**: Consume the GitHub API to serve a downstream HTTP service with Flask.
+- **[handler_callbacks](handler_callbacks)**: Handle client errors and responses using callbacks.
+- **[marshmallow](marshmallow)**: Create clients that automatically deserialize responses with the 
   help of [`marshmallow`](https://marshmallow.readthedocs.io/en/latest/).
