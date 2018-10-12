@@ -5,6 +5,7 @@ class AnnotationMeta(type):
             self(args[0])
             return args[0]
         else:
+            print(kwargs)
             return super(AnnotationMeta, cls).__call__(*args, **kwargs)
 
 

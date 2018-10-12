@@ -12,7 +12,7 @@ class TransactionHook(object):
     points of an HTTP transaction.
     """
 
-    def audit_request(self, request_builder):  # pragma: no cover
+    def audit_request(self, consumer, request_builder):  # pragma: no cover
         """Inspects details of a request before it is sent."""
         pass
 
@@ -27,12 +27,15 @@ class TransactionHook(object):
         response: The received HTTP response.
     """
 
-    def handle_exception(self, exc_type, exc_val, exc_tb):  # pragma: no cover
+    def handle_exception(
+        self, consumer, exc_type, exc_val, exc_tb
+    ):  # pragma: no cover
         """
         Handles an exception thrown while waiting for a response from
         the server.
 
         Args:
+            consumer: The consumer that spawned the failing request.
             exc_type: The type of the exception.
             exc_val: The exception instance raised.
             exc_tb: A traceback instance.
@@ -79,9 +82,9 @@ class TransactionHookChain(TransactionHook):
         for hook in self._hooks:
             hook.audit_request(*args, **kwargs)
 
-    def handle_response(self, response, *args, **kwargs):
+    def handle_response(self, consumer, response, *args, **kwargs):
         for hook in self._response_handlers:
-            response = hook.handle_response(response, *args, **kwargs)
+            response = hook.handle_response(consumer, response, *args, **kwargs)
         return response
 
     def handle_exception(self, *args, **kwargs):

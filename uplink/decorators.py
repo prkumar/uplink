@@ -457,9 +457,26 @@ class _InjectableMethodAnnotation(MethodAnnotation):
 
 
 class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
-    def __init__(self, func):
+    def __new__(cls, func=None, with_consumer=False):
+        if func is None:
+            # The decorator is being called with args
+            return lambda f: cls.__new__(cls, f, with_consumer)
+        return super(_BaseHandlerAnnotation, cls).__new__(cls)
+
+    def __init__(self, func, with_consumer=False):
         functools.update_wrapper(self, func)
+        func = self._wrap_with_consumer(func, with_consumer)
         super(_BaseHandlerAnnotation, self).__init__(func)
+
+    @staticmethod
+    def _wrap_with_consumer(func, with_consumer):
+        if not with_consumer:
+
+            def wrapper(_, *args_, **kwargs):
+                return func(*args_, **kwargs)
+
+            return wrapper
+        return func
 
 
 # noinspection PyPep8Naming
