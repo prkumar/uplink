@@ -268,7 +268,8 @@ class Consumer(interfaces.Consumer, _Consumer):
         builder.auth = auth
         builder.client = client
         self.__session = session.Session(builder)
-        self.__exceptions = builder.client.exceptions()
+        self.__client = builder.client
+        self.__exceptions = None  # Lazy-loaded
 
     def _inject(self, hook, *more_hooks):
         self.session.inject(hook, *more_hooks)
@@ -302,6 +303,8 @@ class Consumer(interfaces.Consumer, _Consumer):
 
     @property
     def exceptions(self):
+        if self.__exceptions is None:
+            self.__exceptions = self.__client.exceptions()
         return self.__exceptions
 
 
