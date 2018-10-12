@@ -98,6 +98,30 @@ class TestRequests(object):
         session_mock.request.assert_called_with(method="method", url="url")
         callback.assert_called_with(session_mock.request.return_value)
 
+    def test_exceptions(self):
+        import requests
+
+        exceptions = requests_.RequestsClient.exceptions
+
+        with pytest.raises(exceptions.BaseClientException):
+            raise requests.RequestException()
+
+        with pytest.raises(exceptions.BaseClientException):
+            # Test polymorphism
+            raise requests.exceptions.InvalidURL()
+
+        with pytest.raises(exceptions.ConnectionError):
+            raise requests.exceptions.ConnectionError()
+
+        with pytest.raises(exceptions.Timeout):
+            raise requests.exceptions.Timeout()
+
+        with pytest.raises(exceptions.SSLError):
+            raise requests.exceptions.SSLError()
+
+        with pytest.raises(exceptions.InvalidURL):
+            raise requests.exceptions.InvalidURL()
+
 
 class TestTwisted(object):
     def test_init_without_client(self):
