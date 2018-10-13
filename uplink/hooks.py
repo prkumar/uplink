@@ -3,7 +3,31 @@ This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
 
+# Local imports
+from uplink import utils
+
 __all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
+
+
+def _count_positional_args(func):
+    try:
+        signature = utils.get_arg_spec(func)
+    except TypeError:
+        return -1
+    else:
+        return -1 if signature.has_varargs else len(signature.positional_args)
+
+
+def _wrap_if_necessary(hook, num_expected_args, default):
+    num_actual_args = max(default, _count_positional_args(hook))
+    return _wrap(hook, max(0, num_expected_args - num_actual_args))
+
+
+def _wrap(hook, skip):
+    def wrapper(*args):
+        return hook(*(args[skip:]))
+
+    return wrapper
 
 
 class TransactionHook(object):
@@ -78,18 +102,18 @@ class TransactionHookChain(TransactionHook):
 
         self._response_handlers = response_handlers
 
-    def audit_request(self, *args, **kwargs):
+    def audit_request(self, consumer, request_handler):
         for hook in self._hooks:
-            hook.audit_request(*args, **kwargs)
+            hook.audit_request(consumer, request_handler)
 
-    def handle_response(self, consumer, response, *args, **kwargs):
+    def handle_response(self, consumer, response):
         for hook in self._response_handlers:
-            response = hook.handle_response(consumer, response, *args, **kwargs)
+            response = hook.handle_response(consumer, response)
         return response
 
-    def handle_exception(self, *args, **kwargs):
+    def handle_exception(self, consumer, exc_type, exc_val, exc_tb):
         for hook in self._hooks:
-            hook.handle_exception(*args, **kwargs)
+            hook.handle_exception(consumer, exc_type, exc_val, exc_tb)
 
 
 class RequestAuditor(TransactionHook):
@@ -99,7 +123,7 @@ class RequestAuditor(TransactionHook):
     """
 
     def __init__(self, auditor):
-        self.audit_request = auditor
+        self.audit_request = _wrap_if_necessary(auditor, 2, 1)
 
 
 class ResponseHandler(TransactionHook):
@@ -109,7 +133,7 @@ class ResponseHandler(TransactionHook):
     """
 
     def __init__(self, handler):
-        self.handle_response = handler
+        self.handle_response = _wrap_if_necessary(handler, 2, 1)
 
 
 class ExceptionHandler(TransactionHook):
@@ -119,4 +143,4 @@ class ExceptionHandler(TransactionHook):
     """
 
     def __init__(self, exception_handler):
-        self.handle_exception = exception_handler
+        self.handle_exception = _wrap_if_necessary(exception_handler, 4, 3)

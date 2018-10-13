@@ -40,12 +40,7 @@ class RequestPreparer(object):
 
     def _wrap_hook(self, func):
         if func is not None:
-
-            def wrapper(*args, **kwargs):
-                func(self._consumer, *args, **kwargs)
-
-            return wrapper
-        return func
+            return functools.partial(func, self._consumer)
 
     def apply_hooks(self, chain, request_builder, sender):
         hook = hooks_.TransactionHookChain(*chain)
@@ -198,7 +193,7 @@ class ConsumerMeta(type):
                 f = functools.partial(
                     handler.handle_call_args, call_args=call_args
                 )
-                hook = hooks_.RequestAuditor(lambda _, r: f(r))
+                hook = hooks_.RequestAuditor(f)
                 self.session.inject(hook)
 
             namespace["__init__"] = new_init

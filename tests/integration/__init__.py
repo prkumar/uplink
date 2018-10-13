@@ -133,6 +133,7 @@ class _MockRequest(helpers.ExceptionHandlerMixin, clients.interfaces.Request):
         with self._exception_handler:
             response = self._mock_request.send(method, url, extras)
         for callback in self._callbacks:
+            print(callback)
             response = callback(response)
         return response
 
