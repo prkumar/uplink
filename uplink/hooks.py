@@ -18,8 +18,8 @@ def _count_positional_args(func):
         return -1 if signature.has_varargs else len(signature.positional_args)
 
 
-def _wrap_if_necessary(hook, num_expected_args, default):
-    num_actual_args = max(default, _count_positional_args(hook))
+def _wrap_if_necessary(hook, num_expected_args, minimum):
+    num_actual_args = max(minimum, _count_positional_args(hook))
     return _wrap(hook, max(0, num_expected_args - num_actual_args))
 
 
