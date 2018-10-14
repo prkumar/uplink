@@ -371,3 +371,28 @@ class TestAiohttp(object):
 
         # Verify: session created with args
         session_cls_mock.assert_called_with(*positionals, **keywords)
+
+    @requires_python34
+    def test_exceptions(self):
+        import aiohttp
+
+        exceptions = aiohttp_.AiohttpClient.exceptions
+
+        with pytest.raises(exceptions.BaseClientException):
+            raise aiohttp.ClientError()
+
+        with pytest.raises(exceptions.BaseClientException):
+            # Test polymorphism
+            raise aiohttp.InvalidURL("invalid")
+
+        with pytest.raises(exceptions.ConnectionError):
+            raise aiohttp.ClientConnectionError()
+
+        with pytest.raises(exceptions.Timeout):
+            raise aiohttp.ServerTimeoutError()
+
+        with pytest.raises(exceptions.SSLError):
+            raise aiohttp.ClientSSLError.__new__(aiohttp.ClientSSLError)
+
+        with pytest.raises(exceptions.InvalidURL):
+            raise aiohttp.InvalidURL("invalid")
