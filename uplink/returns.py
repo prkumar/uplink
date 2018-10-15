@@ -1,11 +1,12 @@
 # Standard library imports
 import sys
+import warnings
 
 # Local imports
 from uplink import decorators
 from uplink.converters import keys, interfaces
 
-__all__ = ["json", "from_json", "model"]
+__all__ = ["json", "from_json", "schema"]
 
 
 class _ReturnsBase(decorators.MethodAnnotation):
@@ -46,16 +47,16 @@ class JsonStrategy(object):
     # TODO: Consider moving this under json decorator
     # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
 
-    def __init__(self, converter, member=()):
+    def __init__(self, converter, key=()):
         self._converter = converter
 
-        if not isinstance(member, (list, tuple)):
-            member = (member,)
-        self._member = member
+        if not isinstance(key, (list, tuple)):
+            key = (key,)
+        self._key = key
 
     def __call__(self, response):
         content = response.json()
-        for name in self._member:
+        for name in self._key:
             content = content[name]
         content = self._converter(content)
         return content
@@ -117,43 +118,53 @@ class json(_ReturnsBase):
 
     __dummy_converter = _DummyConverter()
 
-    def __init__(self, model=None, member=()):
-        # TODO: Consider renaming `model` and `member` to `schema` and
-        # `key`, respectively.
-        self._model = model
-        self._member = member
+    def __init__(self, type=None, key=(), model=None, member=()):
+        if model:  # pragma: no cover
+            warnings.warn(
+                "The `model` argument of @returns.json is deprecated and will"
+                "be removed in v1.0.0. Use `type` instead.",
+                DeprecationWarning,
+            )
+        if member:  # pragma: no cover
+            warnings.warn(
+                "The `member` argument of @returns.json is deprecated and will"
+                "be removed in v1.0.0. Use `key` instead.",
+                DeprecationWarning,
+            )
+        self._type = type or model
+        self._key = key or member
 
     def _get_return_type(self, return_type):
-        # If the model and return type are None, the strategy should
+        # If self._type and return_type are None, the strategy should
         # directly return the JSON body of the HTTP response, instead of
-        # trying to deserialize it into a model. In this case, by
+        # trying to deserialize it into a certain type. In this case, by
         # defaulting the return type to the dummy converter, which
         # implements this pass-through behavior, we ensure that
         # _make_strategy is called.
-        default = self.__dummy_converter if self._model is None else self._model
+        default = self.__dummy_converter if self._type is None else self._type
 
         return default if return_type is None else return_type
 
     def _make_strategy(self, converter):
-        return JsonStrategy(converter, self._member)
+        return JsonStrategy(converter, self._key)
 
 
 from_json = json
 """
     Specifies that the decorated consumer method should produce
-    instances of a :py:obj:`model` class using a registered
+    instances of a :py:obj:`type` class using a registered
     deserialization strategy (see :py:meth:`uplink.loads.from_json`)
 
     This decorator accepts the same arguments as
     :py:class:`uplink.returns.json`.
 
-    Often, a JSON response body represents a model in your application.
-    If an existing Python object encapsulates this model, use the
-    :py:attr:`model` argument to specify it as the return type:
+    Often, a JSON response body represents a schema in your application.
+    If an existing Python object encapsulates this schema, use the
+    :py:attr:`type` argument to specify it as the return type:
 
     .. code-block:: python
 
-        @returns.from_json(model=User)
+        @returns.from_json(type=User)
         @get("/users/{username}")
         def get_user(self, username):
             \"""Get a specific user.\"""
@@ -170,20 +181,19 @@ from_json = json
             \"""Get a specific user.\"""
 
     Both usages typically require also registering a converter that
-    knows how to deserialize the JSON into your data model object (see
-    :py:meth:`uplink.loads.from_json`). This step is unnecessary if
-    these objects are defined using a library for whom Uplink has
+    knows how to deserialize the JSON into the specified :py:attr:`type`
+    (see :py:meth:`uplink.loads.from_json`). This step is unnecessary if
+    the :py:attr:`type` is defined using a library for which Uplink has
     built-in support, such as :py:mod:`marshmallow`.
 
     .. versionadded:: v0.6.0
-
 """
 
 
 # noinspection PyPep8Naming
-class model(_ReturnsBase):
+class schema(_ReturnsBase):
     """
-    Specifies that the function returns a specific class.
+    Specifies that the function returns a specific type of response.
 
     In Python 3, to provide a consumer method's return type, you can
     set it as the method's return annotation:
@@ -198,7 +208,7 @@ class model(_ReturnsBase):
 
     .. code-block:: python
 
-        @returns.model(UserSchema)
+        @returns.schema(UserSchema)
         @get("/users/{username}")
         def get_user(self, username):
             \"""Get a specific user.\"""
@@ -211,10 +221,10 @@ class model(_ReturnsBase):
     """
 
     def __init__(self, type):
-        self._type = type
+        self._schema = type
 
     def _get_return_type(self, return_type):
-        return self._type if return_type is None else return_type
+        return self._schema if return_type is None else return_type
 
     def _make_strategy(self, converter):
         return converter
@@ -223,7 +233,7 @@ class model(_ReturnsBase):
 class _ModuleProxy(object):
     __module = sys.modules[__name__]
 
-    model = model
+    schema = model = schema
     json = json
     from_json = from_json
     __all__ = __module.__all__
@@ -232,7 +242,7 @@ class _ModuleProxy(object):
         return getattr(self.__module, item)
 
     def __call__(self, *args, **kwargs):
-        return model(*args, **kwargs)
+        return schema(*args, **kwargs)
 
 
 sys.modules[__name__] = _ModuleProxy()
