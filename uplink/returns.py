@@ -81,7 +81,7 @@ class json(_ReturnsBase):
 
     Returning a Specific JSON Field:
 
-        The :py:attr:`member` argument accepts a string or tuple that
+        The :py:attr:`key` argument accepts a string or tuple that
         specifies the path of an internal field in the JSON document.
 
         For instance, consider an API that returns JSON responses that,
@@ -97,12 +97,12 @@ class json(_ReturnsBase):
             }
 
         If returning the list of errors is unnecessary, we can use the
-        :py:attr:`member` argument to strictly return the inner field
+        :py:attr:`key` argument to strictly return the inner field
         :py:attr:`data`:
 
         .. code-block:: python
 
-            @returns.json(member="data")
+            @returns.json(key="data")
             @get("/users/{username}")
             def get_user(self, username):
                 \"""Get a specific user.\"""
