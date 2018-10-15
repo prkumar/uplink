@@ -12,6 +12,10 @@ class HttpClientAdapter(object):
 
     @property
     def exceptions(self):
+        """
+        uplink.clients.exceptions.Exceptions: The mapped types for known
+        client exceptions.
+        """
         return self.__exceptions
 
 

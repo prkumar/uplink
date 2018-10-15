@@ -3,6 +3,8 @@ class _UnmappedClientException(BaseException):
 
 
 class Exceptions(object):
+    """Mappings of known client exceptions."""
+
     BaseClientException = _UnmappedClientException
     """Base class for client errors."""
 
