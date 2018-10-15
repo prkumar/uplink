@@ -303,20 +303,21 @@ class Consumer(interfaces.Consumer, _Consumer):
     @property
     def exceptions(self):
         """
-        uplink.clients.exceptions.Exceptions: A listing of mapped types
-        for known client exceptions.
+        uplink.clients.exceptions.Exceptions: An enum of standard HTTP
+        client exceptions that can be handled.
 
-        This property enables the handling of exceptions from the
-        backing HTTP client. For instance, to handle the timeout of a
-        request:
+        This property enables the handling of specific exceptions from
+        the backing HTTP client.
 
-        .. code-block:: python
+        Example:
 
-            try:
-                client.get_user(user_id)
-            except client.exceptions.Timeout:
-                # Handle the request timeout
-                ...
+            .. code-block:: python
+
+                try:
+                    consumer.get_user(user_id)
+                except consumer.exceptions.Timeout:
+                    # Handle the timeout of the request
+                    ...
         """
         return self.__client.exceptions
 

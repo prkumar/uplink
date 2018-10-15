@@ -13,8 +13,9 @@ class HttpClientAdapter(object):
     @property
     def exceptions(self):
         """
-        uplink.clients.exceptions.Exceptions: The mapped types for known
-        client exceptions.
+        uplink.clients.exceptions.Exceptions: An enum of standard HTTP
+        client errors that have been mapped to client specific
+        exceptions.
         """
         return self.__exceptions
 
