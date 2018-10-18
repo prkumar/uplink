@@ -113,8 +113,11 @@ class TestRequests(object):
         with pytest.raises(exceptions.ConnectionError):
             raise requests.exceptions.ConnectionError()
 
-        with pytest.raises(exceptions.Timeout):
-            raise requests.exceptions.Timeout()
+        with pytest.raises(exceptions.ConnectionTimeout):
+            raise requests.exceptions.ConnectTimeout()
+
+        with pytest.raises(exceptions.ServerTimeout):
+            raise requests.exceptions.ReadTimeout()
 
         with pytest.raises(exceptions.SSLError):
             raise requests.exceptions.SSLError()
@@ -388,7 +391,12 @@ class TestAiohttp(object):
         with pytest.raises(exceptions.ConnectionError):
             raise aiohttp.ClientConnectionError()
 
-        with pytest.raises(exceptions.Timeout):
+        with pytest.raises(exceptions.ConnectionTimeout):
+            raise aiohttp.ClientConnectorError.__new__(
+                aiohttp.ClientConnectorError
+            )
+
+        with pytest.raises(exceptions.ServerTimeout):
             raise aiohttp.ServerTimeoutError()
 
         with pytest.raises(exceptions.SSLError):

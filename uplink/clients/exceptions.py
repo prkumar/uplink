@@ -11,8 +11,14 @@ class Exceptions(object):
     ConnectionError = _UnmappedClientException
     """A connection error occurred."""
 
-    Timeout = _UnmappedClientException
-    """The request timed out."""
+    ConnectionTimeout = _UnmappedClientException
+    """The request timed out while trying to connect to the remote server.
+
+    Requests that produce this error are typically safe to retry.
+    """
+
+    ServerTimeout = _UnmappedClientException
+    """The server did not send any data in the allotted amount of time."""
 
     SSLError = _UnmappedClientException
     """An SSL error occurred."""

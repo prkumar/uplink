@@ -207,6 +207,7 @@ class AsyncioExecutor(futures.Executor):
 # === Register client exceptions === #
 AiohttpClient.exceptions.BaseClientException = aiohttp.ClientError
 AiohttpClient.exceptions.ConnectionError = aiohttp.ClientConnectionError
-AiohttpClient.exceptions.Timeout = aiohttp.ServerTimeoutError
+AiohttpClient.exceptions.ConnectionTimeout = aiohttp.ClientConnectorError
+AiohttpClient.exceptions.ServerTimeout = aiohttp.ServerTimeoutError
 AiohttpClient.exceptions.SSLError = aiohttp.ClientSSLError
 AiohttpClient.exceptions.InvalidURL = aiohttp.InvalidURL

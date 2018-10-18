@@ -314,8 +314,8 @@ class Consumer(interfaces.Consumer, _Consumer):
             .. code-block:: python
 
                 try:
-                    consumer.get_user(user_id)
-                except consumer.exceptions.Timeout:
+                    github.get_user(user_id)
+                except github.exceptions.ServerTimeout:
                     # Handle the timeout of the request
                     ...
         """

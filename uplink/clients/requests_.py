@@ -64,6 +64,7 @@ class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 # === Register client exceptions === #
 RequestsClient.exceptions.BaseClientException = requests.RequestException
 RequestsClient.exceptions.ConnectionError = requests.ConnectionError
-RequestsClient.exceptions.Timeout = requests.Timeout
+RequestsClient.exceptions.ConnectionTimeout = requests.ConnectTimeout
+RequestsClient.exceptions.ServerTimeout = requests.ReadTimeout
 RequestsClient.exceptions.SSLError = requests.exceptions.SSLError
 RequestsClient.exceptions.InvalidURL = requests.exceptions.InvalidURL
