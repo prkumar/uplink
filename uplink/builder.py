@@ -303,8 +303,8 @@ class Consumer(interfaces.Consumer, _Consumer):
     @property
     def exceptions(self):
         """
-        uplink.clients.exceptions.Exceptions: An enum of standard HTTP
-        client exceptions that can be handled.
+        :class:`uplink.clients.exceptions.Exceptions`: An enum of
+        standard HTTP client exceptions that can be handled.
 
         This property enables the handling of specific exceptions from
         the backing HTTP client.

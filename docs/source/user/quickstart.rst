@@ -420,5 +420,5 @@ behaviors:
 
     @response_handler(check_expected_headers)  # Second, check headers
     @response_handler(raise_for_status)  # First, check success
-    class TodoApp(Consumer):
+    class GitHub(Consumer):
         ...
