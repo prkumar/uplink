@@ -90,7 +90,7 @@ HTTP client exceptions that can be handled:
 .. code-block:: python
 
     try:
-        repo = github.create_repo(name="", auto_init=True)
+        repo = github.create_repo(name="myproject", auto_init=True)
     except github.exceptions.ConnectionError:
         # Handle client socket error:
         ...
@@ -115,6 +115,6 @@ for example:
 .. code-block:: python
 
     try:
-        repo = github.create_repo(name="", auto_init=True)
+        repo = github.create_repo(name="myproject", auto_init=True)
     except aiohttp.ContentTypeError:
         ...
