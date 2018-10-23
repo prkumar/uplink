@@ -79,3 +79,42 @@ constructing a :class:`~uplink.Consumer` instance:
 Checkout `this example on GitHub
 <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_
 for more.
+
+Handling Exceptions From the Underlying HTTP Client Library
+===========================================================
+
+Each :class:`~uplink.Consumer` instance has an :attr:`exceptions
+<uplink.Consumer.exceptions>` property that exposes an enum of standard
+HTTP client exceptions that can be handled:
+
+.. code-block:: python
+
+    try:
+        repo = github.create_repo(name="myproject", auto_init=True)
+    except github.exceptions.ConnectionError:
+        # Handle client socket error:
+        ...
+
+This approach to handling exceptions decouples your code from the
+backing HTTP client, improving code reuse and testability.
+
+Here are the HTTP client exceptions that are exposed through this property:
+  - :class:`BaseClientException`: Base exception for client connection errors.
+  - :class:`ConnectionError`: A client socket error occurred.
+  - :class:`ConnectionTimeout`: The request timed out while trying to connect to the remote server.
+  - :class:`ServerTimeout`: The server did not send any data in the allotted amount of time.
+  - :class:`SSLError`: An SSL error occurred.
+  - :class:`InvalidURL`: URL used for fetching is malformed.
+
+Of course, you can also explicitly catch a particular client error from
+the backing client (e.g., :class:`requests.FileModeWarning`). This may
+be useful for handling exceptions that are not exposed through the
+:attr:`Consumer.exceptions <uplink.Consumer.exceptions>` property,
+for example:
+
+.. code-block:: python
+
+    try:
+        repo = github.create_repo(name="myproject", auto_init=True)
+    except aiohttp.ContentTypeError:
+        ...

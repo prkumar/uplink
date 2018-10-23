@@ -1,12 +1,13 @@
 # Local imports
 from uplink import utils, clients
-from uplink.clients import helpers
+from uplink.clients import helpers, exceptions as client_exceptions
 
 
 class MockClient(clients.interfaces.HttpClientAdapter):
     def __init__(self, request):
         self._mocked_request = request
         self._request = _HistoryMaintainingRequest(_MockRequest(request))
+        self._exceptions = client_exceptions.Exceptions()
 
     def create_request(self):
         return self._request
@@ -16,8 +17,12 @@ class MockClient(clients.interfaces.HttpClientAdapter):
         return self
 
     def with_side_effect(self, error):
-        self._mocked_request.side_effect = error
+        self._mocked_request.send.side_effect = error
         return self
+
+    @property
+    def exceptions(self):
+        return self._exceptions
 
     @property
     def history(self):

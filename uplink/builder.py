@@ -268,6 +268,7 @@ class Consumer(interfaces.Consumer, _Consumer):
         builder.auth = auth
         builder.client = client
         self.__session = session.Session(builder)
+        self.__client = builder.client
 
     def _inject(self, hook, *more_hooks):
         self.session.inject(hook, *more_hooks)
@@ -298,6 +299,27 @@ class Consumer(interfaces.Consumer, _Consumer):
             :class:`~uplink.session.Session`
         """
         return self.__session
+
+    @property
+    def exceptions(self):
+        """
+        :class:`uplink.clients.exceptions.Exceptions`: An enum of
+        standard HTTP client exceptions that can be handled.
+
+        This property enables the handling of specific exceptions from
+        the backing HTTP client.
+
+        Example:
+
+            .. code-block:: python
+
+                try:
+                    github.get_user(user_id)
+                except github.exceptions.ServerTimeout:
+                    # Handle the timeout of the request
+                    ...
+        """
+        return self.__client.exceptions
 
 
 def build(service_cls, *args, **kwargs):
