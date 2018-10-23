@@ -291,12 +291,12 @@ invoked:
     {'login': 'prkumar', 'id': 10181244, ...
 
 You can also target a specific field of the JSON response by using the
-decorator's ``member`` argument to select the target JSON field name:
+decorator's ``key`` argument to select the target JSON field name:
 
 .. code-block:: python
 
     class GitHub(Consumer):
-        @returns.json(member="blog")
+        @returns.json(key="blog")
         @get("users/{username}")
         def get_blog_url(self, username):
             """Get the user's blog URL."""
