@@ -98,6 +98,33 @@ class TestRequests(object):
         session_mock.request.assert_called_with(method="method", url="url")
         callback.assert_called_with(session_mock.request.return_value)
 
+    def test_exceptions(self):
+        import requests
+
+        exceptions = requests_.RequestsClient.exceptions
+
+        with pytest.raises(exceptions.BaseClientException):
+            raise requests.RequestException()
+
+        with pytest.raises(exceptions.BaseClientException):
+            # Test polymorphism
+            raise requests.exceptions.InvalidURL()
+
+        with pytest.raises(exceptions.ConnectionError):
+            raise requests.exceptions.ConnectionError()
+
+        with pytest.raises(exceptions.ConnectionTimeout):
+            raise requests.exceptions.ConnectTimeout()
+
+        with pytest.raises(exceptions.ServerTimeout):
+            raise requests.exceptions.ReadTimeout()
+
+        with pytest.raises(exceptions.SSLError):
+            raise requests.exceptions.SSLError()
+
+        with pytest.raises(exceptions.InvalidURL):
+            raise requests.exceptions.InvalidURL()
+
 
 class TestTwisted(object):
     def test_init_without_client(self):
@@ -347,3 +374,33 @@ class TestAiohttp(object):
 
         # Verify: session created with args
         session_cls_mock.assert_called_with(*positionals, **keywords)
+
+    @requires_python34
+    def test_exceptions(self):
+        import aiohttp
+
+        exceptions = aiohttp_.AiohttpClient.exceptions
+
+        with pytest.raises(exceptions.BaseClientException):
+            raise aiohttp.ClientError()
+
+        with pytest.raises(exceptions.BaseClientException):
+            # Test polymorphism
+            raise aiohttp.InvalidURL("invalid")
+
+        with pytest.raises(exceptions.ConnectionError):
+            raise aiohttp.ClientConnectionError()
+
+        with pytest.raises(exceptions.ConnectionTimeout):
+            raise aiohttp.ClientConnectorError.__new__(
+                aiohttp.ClientConnectorError
+            )
+
+        with pytest.raises(exceptions.ServerTimeout):
+            raise aiohttp.ServerTimeoutError()
+
+        with pytest.raises(exceptions.SSLError):
+            raise aiohttp.ClientSSLError.__new__(aiohttp.ClientSSLError)
+
+        with pytest.raises(exceptions.InvalidURL):
+            raise aiohttp.InvalidURL("invalid")

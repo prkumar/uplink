@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import helpers, interfaces, register
+from uplink.clients import exceptions, helpers, interfaces, register
 
 
 def threaded_callback(callback):
@@ -53,6 +53,8 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             argument is omitted or set to :py:obj:`None`, a new session
             will be created.
     """
+
+    exceptions = exceptions.Exceptions()
 
     # TODO: Update docstrings to include aiohttp constructor parameters.
 
@@ -200,3 +202,12 @@ class AsyncioExecutor(futures.Executor):
         self._loop.call_soon_threadsafe(self._loop.stop)
         if wait:  # pragma: no cover
             self._thread.join()
+
+
+# === Register client exceptions === #
+AiohttpClient.exceptions.BaseClientException = aiohttp.ClientError
+AiohttpClient.exceptions.ConnectionError = aiohttp.ClientConnectionError
+AiohttpClient.exceptions.ConnectionTimeout = aiohttp.ClientConnectorError
+AiohttpClient.exceptions.ServerTimeout = aiohttp.ServerTimeoutError
+AiohttpClient.exceptions.SSLError = aiohttp.ClientSSLError
+AiohttpClient.exceptions.InvalidURL = aiohttp.InvalidURL

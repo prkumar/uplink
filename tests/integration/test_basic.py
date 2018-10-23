@@ -1,3 +1,6 @@
+# Third party imports
+import pytest
+
 # Local imports.
 import uplink
 
@@ -46,3 +49,37 @@ def test_get_repo(mock_client, mock_response):
 
     # Verify
     assert expected_json == actual_json
+
+
+def test_handle_client_exceptions(mock_client):
+    # Setup: mock client exceptions
+
+    class MockBaseClientException(Exception):
+        pass
+
+    class MockInvalidURL(MockBaseClientException):
+        pass
+
+    mock_client.exceptions.BaseClientException = MockBaseClientException
+    mock_client.exceptions.InvalidURL = MockInvalidURL
+
+    # Setup: instantiate service
+    service = GitHubService(base_url=BASE_URL, client=mock_client)
+
+    # Run: Catch base exception
+    mock_client.with_side_effect(MockBaseClientException)
+
+    with pytest.raises(service.exceptions.BaseClientException):
+        service.list_repos("prkumar")
+
+    # Run: Catch leaf exception
+    mock_client.with_side_effect(MockInvalidURL)
+
+    with pytest.raises(service.exceptions.InvalidURL):
+        service.list_repos("prkumar")
+
+    # Run: Try polymorphism
+    mock_client.with_side_effect(MockInvalidURL)
+
+    with pytest.raises(service.exceptions.BaseClientException):
+        service.list_repos("prkumar")
