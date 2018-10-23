@@ -21,6 +21,8 @@ including integrations for third-party serialization libraries like
 :mod:`marshmallow` and tools for writing custom conversion strategies that
 fit your unique needs.
 
+.. _using_marshmallow_schemas:
+
 Using Marshmallow Schemas
 =========================
 
@@ -77,20 +79,56 @@ schema:
 For a more complete example of Uplink's :mod:`marshmallow` support,
 check out `this example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_.
 
+Serializing Method Arguments
+============================
+
+Most method argument annotations like :class:`~uplink.Field` and
+:class:`~uplink.Body` accept a :obj:`type` parameter that specifies the
+method argument's expected type or schema, for the sake of
+serialization.
+
+For example, following the :mod:`marshmallow` example from above, we can
+specify the :class:`RepoSchema` as the :obj:`type` of a
+:class:`~uplink.Body` argument:
+
+.. code-block:: python
+
+   from uplink import Consumer, Body
+
+   class GitHub(Consumer):
+      @json
+      @post("user/repos")
+      def create_repo(self, repo: Body(type=RepoSchema)):
+         """Creates a new repository for the authenticated user."""
+
+Then, the :obj:`repo` argument should accept instances of :class:`Repo`,
+to be serialized appropriately using the :class:`RepoSchema` with
+Uplink's :mod:`marshmallow` integration (see
+:ref:`using_marshmallow_schemas` for the full setup).
+
+.. code-block:: python
+
+   repo = Repo(name="my_favorite_new_project")
+   github.create_repo(repo)
+
 .. _custom_json_deserialization:
 
-Custom JSON Deserialization
-===========================
+Custom JSON Conversion
+======================
 
 Recognizing JSON's popularity amongst public APIs, Uplink provides
 some out-of-the-box utilities to adding JSON serialization support for
 your objects simple.
 
-For one, :class:`@returns.json <uplink.returns.json>` is handy when working with
+Deserialization
+---------------
+
+:class:`@returns.json <uplink.returns.json>` is handy when working with
 APIs that provide JSON responses. As its leading positional argument, the decorator
 accepts a class that represents the expected schema of JSON body:
 
 .. code-block:: python
+   :emphasize-lines: 2
 
    class GitHub(Consumer):
        @returns.json(User)
@@ -100,6 +138,7 @@ accepts a class that represents the expected schema of JSON body:
 Python 3 users can alternatively use a return type hint:
 
 .. code-block:: python
+   :emphasize-lines: 4
 
     class GitHub(Consumer):
        @returns.json
@@ -107,28 +146,29 @@ Python 3 users can alternatively use a return type hint:
        def get_user(self, username) -> User: pass
 
 Next, if your objects (e.g., :py:obj:`User`) are not defined
-using a library for whom Uplink has built-in support (such as
-:py:mod:`marshmallow`), you will also need to register a strategy that
+using a library for which Uplink has built-in support (such as
+:py:mod:`marshmallow`), you will also need to register a converter that
 tells Uplink how to convert the HTTP response into your expected return
 type.
 
-To this end, we can use :py:meth:`@loads.from_json <uplink.loads.from_json>`:
+To this end, we can use :py:meth:`@loads.from_json <uplink.loads.from_json>`
+to define a simple JSON reader for :class:`User`:
 
 .. code-block:: python
 
    from uplink import loads
 
     @loads.from_json(User)
-    def user_loader(user_cls, json):
+    def user_json_reader(user_cls, json):
         return user_cls(json["id"], json["username"])
 
-The decorated function, :py:func:`user_loader`, can then be passed into the
+The decorated function, :py:func:`user_json_reader`, can then be passed into the
 :py:attr:`converter` constructor parameter when instantiating a
 :py:class:`uplink.Consumer` subclass:
 
 .. code-block:: python
 
-    my_client = MyConsumer(base_url=..., converter=user_loader)
+    github = GitHub(base_url=..., converter=user_json_reader)
 
 Alternatively, you can add the :py:func:`@uplink.install <uplink.install>` decorator to
 register the converter function as a default converter, meaning the converter
@@ -142,8 +182,83 @@ be explicitly provided through the :py:obj:`converter` parameter:
 
     @install
     @loads.from_json(User)
-    def user_loader(user_cls, json):
+    def user_json_reader(user_cls, json):
         return user_cls(json["id"], json["username"])
+
+At last, calling the :meth:`GitHub.get_user` method should now return an
+instance of our :class:`User` class:
+
+.. code-block:: python
+
+   github.get_user("octocat")
+   # Output: [User(id=583231, name="The Octocat"), ...]
+
+Serialization
+-------------
+
+:class:`@json <uplink.json>` is a decorator for :class:`~uplink.Consumer`
+methods that send JSON requests. Using this decorator requires annotating
+your arguments with either :class:`~uplink.Field` or :class:`~uplink.Body`.
+Both annotations support an optional :obj:`type` argument for the purpose
+of serialization:
+
+.. code-block:: python
+   :emphasize-lines: 6
+
+   from uplink import Consumer, Body
+
+   class GitHub(Consumer):
+      @json
+      @post("user/repos")
+      def create_repo(self, user: Body(type=Repo)):
+         """Creates a new repository for the authenticated user."""
+
+Similar to deserialization case, we must register a converter that tells
+Uplink how to turn the :py:obj:`Repo` object to JSON, since the class
+is not defined using a library for which Uplink has built-in support
+(such as :py:mod:`marshmallow`).
+
+To this end, we can use :py:meth:`@dumps.to_json <uplink.dumps.to_json>`
+to define a simple JSON writer for :class:`Repo`:
+
+.. code-block:: python
+
+   from uplink import dumps
+
+    @dumps.to_json(Repo)
+    def repo_json_writer(repo_cls, repo):
+        return {"name": repo.name, "private": repo.is_private()}
+
+The decorated function, :py:func:`repo_json_writer`, can then be passed into the
+:py:attr:`converter` constructor parameter when instantiating a
+:py:class:`uplink.Consumer` subclass:
+
+.. code-block:: python
+
+    github = GitHub(base_url=..., converter=repo_json_writer)
+
+Alternatively, you can add the :py:func:`@uplink.install <uplink.install>` decorator to
+register the converter function as a default converter, meaning the converter
+will be included automatically with any consumer instance and doesn't need to
+be explicitly provided through the :py:obj:`converter` parameter:
+
+.. code-block:: python
+   :emphasize-lines: 1
+
+   from uplink import loads, install
+
+    @install
+    @dumps.to_json(Repo)
+    def repo_json_writer(user_cls, json):
+        return {"name": repo.name, "private": repo.is_private()}
+
+Now, we should be able to invoke the :meth:`GitHub.create_repo` method
+with an instance of :class:`Repo`:
+
+.. code-block:: python
+
+   repo = Repo(name="my_new_project", private=True)
+   github.create_repo(repo)
 
 .. _converting_collections:
 
