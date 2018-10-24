@@ -2,30 +2,19 @@
 This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
-
-# Local imports
-from uplink import utils
-
 __all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
 
 
-def _count_positional_args(func):
-    try:
-        signature = utils.get_arg_spec(func)
-    except TypeError:
-        return -1
-    else:
-        return -1 if signature.has_varargs else len(signature.positional_args)
+def _wrap_if_necessary(hook, include_consumer):
+    if not include_consumer:
+        return _pass_through_consumer(hook)
+    return hook
 
 
-def _wrap_if_necessary(hook, num_expected_args, minimum):
-    num_actual_args = max(minimum, _count_positional_args(hook))
-    return _wrap(hook, max(0, num_expected_args - num_actual_args))
-
-
-def _wrap(hook, skip):
-    def wrapper(*args):
-        return hook(*(args[skip:]))
+def _pass_through_consumer(hook):
+    def wrapper(_, *args, **kwargs):
+        # Expects that consumer is the first argument
+        return hook(*args, **kwargs)
 
     return wrapper
 
@@ -122,8 +111,8 @@ class RequestAuditor(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, auditor):
-        self.audit_request = _wrap_if_necessary(auditor, 2, 1)
+    def __init__(self, auditor, uses_consumer=False):
+        self.audit_request = _wrap_if_necessary(auditor, uses_consumer)
 
 
 class ResponseHandler(TransactionHook):
@@ -132,8 +121,8 @@ class ResponseHandler(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, handler):
-        self.handle_response = _wrap_if_necessary(handler, 2, 1)
+    def __init__(self, handler, uses_consumer=False):
+        self.handle_response = _wrap_if_necessary(handler, uses_consumer)
 
 
 class ExceptionHandler(TransactionHook):
@@ -142,5 +131,7 @@ class ExceptionHandler(TransactionHook):
     a response, using the provided function.
     """
 
-    def __init__(self, exception_handler):
-        self.handle_exception = _wrap_if_necessary(exception_handler, 4, 3)
+    def __init__(self, exception_handler, uses_consumer=False):
+        self.handle_exception = _wrap_if_necessary(
+            exception_handler, uses_consumer
+        )

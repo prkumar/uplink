@@ -457,9 +457,12 @@ class _InjectableMethodAnnotation(MethodAnnotation):
 
 
 class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
-    def __init__(self, func):
+    def __new__(cls, func=None, *args, **kwargs):
+        if func is None:
+            return lambda f: cls(f, *args, **kwargs)
+        self = super(_BaseHandlerAnnotation, cls).__new__(cls)
         functools.update_wrapper(self, func)
-        super(_BaseHandlerAnnotation, self).__init__(func)
+        return self
 
 
 # noinspection PyPep8Naming

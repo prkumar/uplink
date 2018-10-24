@@ -39,8 +39,7 @@ class RequestPreparer(object):
         return chain
 
     def _wrap_hook(self, func):
-        if func is not None:
-            return functools.partial(func, self._consumer)
+        return functools.partial(func, self._consumer)
 
     def apply_hooks(self, chain, request_builder, sender):
         hook = hooks_.TransactionHookChain(*chain)
