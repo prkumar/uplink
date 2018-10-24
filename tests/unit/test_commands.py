@@ -33,9 +33,6 @@ class TestHttpMethod(object):
             args=["self", "arg1", "arg2"],
             annotations={"arg1": annotation_mock},
             return_annotation=None,
-            positional_args=["self", "arg1", "arg2"],
-            has_varargs=False,
-            has_keywords=True,
         )
         mocker.patch("uplink.utils.get_arg_spec").return_value = sig
 
@@ -56,12 +53,7 @@ class TestHttpMethod(object):
             pass
 
         sig = utils.Signature(
-            args=[],
-            annotations={},
-            return_annotation="return_annotation",
-            positional_args=[],
-            has_varargs=False,
-            has_keywords=True,
+            args=[], annotations={}, return_annotation="return_annotation"
         )
         mocker.patch("uplink.utils.get_arg_spec").return_value = sig
         returns = mocker.patch("uplink.returns.schema")

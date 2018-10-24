@@ -15,15 +15,11 @@ except ImportError:  # pragma: no cover
     def get_arg_spec(f):
         arg_spec = _getargspec(f)
         args = arg_spec.args
-        positionals = tuple(args)
-        has_varargs = has_keywords = False
         if arg_spec.varargs is not None:
             args.append(arg_spec.varargs)
-            has_varargs = True
         if arg_spec.keywords is not None:
             args.append(arg_spec.keywords)
-            has_keywords = True
-        return Signature(args, {}, None, positionals, has_varargs, has_keywords)
+        return Signature(args, {}, None)
 
 
 else:  # pragma: no cover
@@ -52,35 +48,14 @@ else:  # pragma: no cover
         sig = signature(f)
         parameters = sig.parameters
         args = []
-        positional_args = []
         annotations = collections.OrderedDict()
         has_return_type = sig.return_annotation is not sig.empty
         return_type = sig.return_annotation if has_return_type else None
-        has_varargs = has_keywords = False
         for p in parameters:
-            parameter = parameters[p]
-            if parameter.annotation is not sig.empty:
-                annotations[p] = parameter.annotation
-            if parameter.kind in (
-                parameter.POSITIONAL_ONLY,
-                parameter.POSITIONAL_OR_KEYWORD,
-            ):
-                positional_args.append(p)
-            has_varargs = (
-                has_varargs or parameter.kind == parameter.VAR_POSITIONAL
-            )
-            has_keywords = (
-                has_keywords or parameter.kind == parameter.VAR_KEYWORD
-            )
+            if parameters[p].annotation is not sig.empty:
+                annotations[p] = parameters[p].annotation
             args.append(p)
-        return Signature(
-            args,
-            annotations,
-            return_type,
-            positional_args,
-            has_varargs,
-            has_keywords,
-        )
+        return Signature(args, annotations, return_type)
 
 
 try:
@@ -96,10 +71,9 @@ import uritemplate
 urlparse = _urlparse
 
 Signature = collections.namedtuple(
-    "Signature",
-    "args annotations return_annotation positional_args "
-    "has_varargs has_keywords",
+    "Signature", "args annotations return_annotation"
 )
+
 Request = collections.namedtuple("Request", "method uri info return_type")
 
 
