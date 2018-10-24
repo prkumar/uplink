@@ -205,7 +205,7 @@ class AsyncioExecutor(futures.Executor):
 
 
 # === Register client exceptions === #
-if aiohttp is not None:
+if aiohttp is not None:  # pragma: no cover
     AiohttpClient.exceptions.BaseClientException = aiohttp.ClientError
     AiohttpClient.exceptions.ConnectionError = aiohttp.ClientConnectionError
     AiohttpClient.exceptions.ConnectionTimeout = aiohttp.ClientConnectorError
