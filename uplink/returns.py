@@ -121,13 +121,13 @@ class json(_ReturnsBase):
     def __init__(self, type=None, key=(), model=None, member=()):
         if model:  # pragma: no cover
             warnings.warn(
-                "The `model` argument of @returns.json is deprecated and will"
+                "The `model` argument of @returns.json is deprecated and will "
                 "be removed in v1.0.0. Use `type` instead.",
                 DeprecationWarning,
             )
         if member:  # pragma: no cover
             warnings.warn(
-                "The `member` argument of @returns.json is deprecated and will"
+                "The `member` argument of @returns.json is deprecated and will "
                 "be removed in v1.0.0. Use `key` instead.",
                 DeprecationWarning,
             )
