@@ -5,7 +5,7 @@ import uplink
 BASE_URL = "https://example.com/"
 
 
-@uplink.response_handler(uses_consumer=True)
+@uplink.response_handler(requires_consumer=True)
 def handle_response_with_consumer(consumer, response):
     consumer.flagged = True
     return response
@@ -22,7 +22,7 @@ class WrappedException(Exception):
         self.exception = exception
 
 
-@uplink.error_handler(uses_consumer=True)
+@uplink.error_handler(requires_consumer=True)
 def handle_error_with_consumer(consumer, exc_type, exc_value, exc_tb):
     consumer.flagged = True
     raise WrappedException(exc_value)

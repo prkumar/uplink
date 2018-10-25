@@ -5,13 +5,13 @@ points of an HTTP transaction.
 __all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
 
 
-def _wrap_if_necessary(hook, include_consumer):
-    if not include_consumer:
-        return _pass_through_consumer(hook)
+def _wrap_if_necessary(hook, requires_consumer):
+    if not requires_consumer:
+        return _wrap_to_ignore_consumer(hook)
     return hook
 
 
-def _pass_through_consumer(hook):
+def _wrap_to_ignore_consumer(hook):
     def wrapper(_, *args, **kwargs):
         # Expects that consumer is the first argument
         return hook(*args, **kwargs)
@@ -111,8 +111,8 @@ class RequestAuditor(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, auditor, uses_consumer=False):
-        self.audit_request = _wrap_if_necessary(auditor, uses_consumer)
+    def __init__(self, auditor, requires_consumer=False):
+        self.audit_request = _wrap_if_necessary(auditor, requires_consumer)
 
 
 class ResponseHandler(TransactionHook):
@@ -121,8 +121,8 @@ class ResponseHandler(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, handler, uses_consumer=False):
-        self.handle_response = _wrap_if_necessary(handler, uses_consumer)
+    def __init__(self, handler, requires_consumer=False):
+        self.handle_response = _wrap_if_necessary(handler, requires_consumer)
 
 
 class ExceptionHandler(TransactionHook):
@@ -131,7 +131,7 @@ class ExceptionHandler(TransactionHook):
     a response, using the provided function.
     """
 
-    def __init__(self, exception_handler, uses_consumer=False):
+    def __init__(self, exception_handler, requires_consumer=False):
         self.handle_exception = _wrap_if_necessary(
-            exception_handler, uses_consumer
+            exception_handler, requires_consumer
         )
