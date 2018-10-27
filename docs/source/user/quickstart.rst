@@ -423,26 +423,21 @@ behaviors:
     class GitHub(Consumer):
         ...
 
-Lastly, both :class:`@error_handler <uplink.error_handler>` and
-:class:`@response_handler <uplink.response_handler>` support the
-optional argument ``requires_consumer``. When
-``requires_consumer`` is :obj:`True`, the registered callback
-receives a reference to the :class:`~Consumer` instance as its first
-argument:
+Lastly, both decorators support the optional argument
+:obj:`requires_consumer`. When this option is set to :obj:`True`, the
+registered callback should accept a reference to the :class:`~Consumer`
+instance as its leading argument:
 
 .. code-block:: python
-   :emphasize-lines: 1, 10
+   :emphasize-lines: 1-2, 11
 
+    @error_handler(requires_consumer=True)
     def raise_api_error(consumer, exc_type, exc_val, exc_tb):
         """Wraps client error with custom API error"""
-        raise MyApiError(consumer.api_key, exc_val)
+        ...
 
     class GitHub(Consumer):
-        def __init__(self, api_key):
-            self.api_key = api_key
-            ...
-
-        @error_handler(raise_api_error, requires_consumer=True)
+        @raise_api_error
         @post("user/repo")
         def create_repo(self, name: Field):
             """Create a new repository."""

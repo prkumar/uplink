@@ -504,6 +504,18 @@ class response_handler(_BaseHandlerAnnotation, hooks.ResponseHandler):
             class GitHub(Consumer):
                ...
 
+    Lastly, the decorator supports the optional argument
+    :obj:`requires_consumer`. When this option is set to :obj:`True`,
+    the registered callback should accept a reference to the
+    :class:`~Consumer` instance as its leading argument:
+
+    Example:
+        .. code-block:: python
+
+            @response_handler(requires_consumer=True)
+            def raise_for_status(consumer, response):
+                ...
+
     .. versionadded:: 0.4.0
     """
 
@@ -547,6 +559,18 @@ class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
             @raise_api_error
             class GitHub(Consumer):
                ...
+
+    Lastly, the decorator supports the optional argument
+    :obj:`requires_consumer`. When this option is set to :obj:`True`,
+    the registered callback should accept a reference to the
+    :class:`~Consumer` instance as its leading argument:
+
+    Example:
+        .. code-block:: python
+
+             @error_handler(requires_consumer=True)
+             def raise_api_error(consumer, exc_type, exc_val, exc_tb):
+                ...
 
     .. versionadded:: 0.4.0
 
