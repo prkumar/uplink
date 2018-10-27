@@ -265,4 +265,4 @@ style. Checkout `this page
 <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
 for examples of Google Python Style Guide docstrings.
 
-.. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide
+.. _`Google Python Style Guide`: https://github.com/google/styleguide/blob/gh-pages/pyguide.md
