@@ -404,7 +404,7 @@ exception thrown by the underlying HTTP client
         def create_repo(self, name: Field):
             """Create a new repository."""
 
-To apply a callback onto all methods of a :py:class:`~uplink.Consumer`
+To apply a handler onto all methods of a :py:class:`~uplink.Consumer`
 subclass, you can simply decorate the class itself:
 
 .. code-block:: python
@@ -422,3 +422,27 @@ behaviors:
     @response_handler(raise_for_status)  # First, check success
     class GitHub(Consumer):
         ...
+
+Lastly, both :class:`@error_handler <uplink.error_handler>` and
+:class:`@response_handler <uplink.response_handler>` support the
+optional argument ``requires_consumer``. When
+``requires_consumer`` is :obj:`True`, the registered callback
+receives a reference to the :class:`~Consumer` instance as its first
+argument:
+
+.. code-block:: python
+   :emphasize-lines: 1, 10
+
+    def raise_api_error(consumer, exc_type, exc_val, exc_tb):
+        """Wraps client error with custom API error"""
+        raise MyApiError(consumer.api_key, exc_val)
+
+    class GitHub(Consumer):
+        def __init__(self, api_key):
+            self.api_key = api_key
+            ...
+
+        @error_handler(raise_api_error, requires_consumer=True)
+        @post("user/repo")
+        def create_repo(self, name: Field):
+            """Create a new repository."""

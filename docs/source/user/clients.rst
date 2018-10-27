@@ -118,3 +118,15 @@ for example:
         repo = github.create_repo(name="myproject", auto_init=True)
     except aiohttp.ContentTypeError:
         ...
+
+Handling Client Exceptions from :code:`@error_handler` Callback:
+----------------------------------------------------------------
+
+:class:`@error_handler <uplink.error_handler>` registers a callback that
+is invoked when any decorated :class:`Consumer` method experiences a
+failure by the backing HTTP client. Setting :class:`@error_handler
+<uplink.error_handler>`'s optional argument :attr:`requires_consumer` to
+:obj:`True` indicates that the registered callback expects a reference
+to the :class:`Consumer` instance at runtime as the callback's leading
+argument; this feature exposes the :attr:`Consumer.exceptions
+<uplink.Consumer.exceptions>` property to
