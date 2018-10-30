@@ -118,3 +118,35 @@ for example:
         repo = github.create_repo(name="myproject", auto_init=True)
     except aiohttp.ContentTypeError:
         ...
+
+Handling Client Exceptions within an :code:`@error_handler`
+-----------------------------------------------------------
+
+The :class:`@error_handler <uplink.error_handler>` decorator registers a
+callback to deal with exceptions thrown by the backing HTTP client.
+
+To provide the decorated callback a reference to the :class:`Consumer`
+instance at runtime, set the decorator's optional argument
+:attr:`requires_consumer` to :obj:`True`. This enables the error handler
+to leverage the consumer's :attr:`exceptions
+<uplink.Consumer.exceptions>` property:
+
+
+.. code-block:: python
+   :emphasize-lines: 1-2, 9
+
+    @error_handler(requires_consumer=True)
+    def raise_api_error(consumer, exc_type, exc_val, exc_tb):
+        """Wraps client error with custom API error"""
+        if isinstance(exc_val, consumer.exceptions.ServerTimeout):
+            # Handle the server timeout specifically:
+            ...
+
+    class GitHub(Consumer):
+        @raise_api_error
+        @post("user/repo")
+        def create_repo(self, name: Field):
+            """Create a new repository."""
+
+
+

@@ -20,12 +20,13 @@ __all__ = ["build", "Consumer"]
 
 
 class RequestPreparer(object):
-    def __init__(self, builder):
+    def __init__(self, builder, consumer=None):
         self._hooks = list(builder.hooks)
         self._client = builder.client
         self._base_url = str(builder.base_url)
         self._converters = list(builder.converters)
         self._auth = builder.auth
+        self._consumer = consumer
 
     def _join_url_with_base(self, url):
         return utils.urlparse.urljoin(self._base_url, url)
@@ -37,13 +38,15 @@ class RequestPreparer(object):
         chain.extend(self._hooks)
         return chain
 
-    @staticmethod
-    def apply_hooks(chain, request_builder, sender):
+    def _wrap_hook(self, func):
+        return functools.partial(func, self._consumer)
+
+    def apply_hooks(self, chain, request_builder, sender):
         hook = hooks_.TransactionHookChain(*chain)
-        hook.audit_request(request_builder)
+        hook.audit_request(self._consumer, request_builder)
         if hook.handle_response is not None:
-            sender.add_callback(hook.handle_response)
-        sender.add_exception_handler(hook.handle_exception)
+            sender.add_callback(self._wrap_hook(hook.handle_response))
+        sender.add_exception_handler(self._wrap_hook(hook.handle_exception))
 
     def prepare_request(self, request_builder):
         request_builder.url = self._join_url_with_base(request_builder.url)
@@ -128,12 +131,12 @@ class Builder(interfaces.CallBuilder):
         if auth is not None:
             self._auth = auth_.get_auth(auth)
 
-    def build(self, definition):
+    def build(self, definition, consumer=None):
         """
         Creates a callable that uses the provided definition to execute
         HTTP requests when invoked.
         """
-        return CallFactory(RequestPreparer(self), definition)
+        return CallFactory(RequestPreparer(self, consumer), definition)
 
 
 class ConsumerMethod(object):
@@ -162,7 +165,7 @@ class ConsumerMethod(object):
         if instance is None:
             return self._request_definition_builder
         else:
-            return instance.session.create(self._request_definition)
+            return instance.session.create(instance, self._request_definition)
 
 
 class ConsumerMeta(type):

@@ -2,8 +2,21 @@
 This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
-
 __all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
+
+
+def _wrap_if_necessary(hook, requires_consumer):
+    if not requires_consumer:
+        return _wrap_to_ignore_consumer(hook)
+    return hook
+
+
+def _wrap_to_ignore_consumer(hook):
+    def wrapper(_, *args, **kwargs):
+        # Expects that consumer is the first argument
+        return hook(*args, **kwargs)
+
+    return wrapper
 
 
 class TransactionHook(object):
@@ -12,7 +25,7 @@ class TransactionHook(object):
     points of an HTTP transaction.
     """
 
-    def audit_request(self, request_builder):  # pragma: no cover
+    def audit_request(self, consumer, request_builder):  # pragma: no cover
         """Inspects details of a request before it is sent."""
         pass
 
@@ -27,12 +40,15 @@ class TransactionHook(object):
         response: The received HTTP response.
     """
 
-    def handle_exception(self, exc_type, exc_val, exc_tb):  # pragma: no cover
+    def handle_exception(
+        self, consumer, exc_type, exc_val, exc_tb
+    ):  # pragma: no cover
         """
         Handles an exception thrown while waiting for a response from
         the server.
 
         Args:
+            consumer: The consumer that spawned the failing request.
             exc_type: The type of the exception.
             exc_val: The exception instance raised.
             exc_tb: A traceback instance.
@@ -75,18 +91,18 @@ class TransactionHookChain(TransactionHook):
 
         self._response_handlers = response_handlers
 
-    def audit_request(self, *args, **kwargs):
+    def audit_request(self, consumer, request_handler):
         for hook in self._hooks:
-            hook.audit_request(*args, **kwargs)
+            hook.audit_request(consumer, request_handler)
 
-    def handle_response(self, response, *args, **kwargs):
+    def handle_response(self, consumer, response):
         for hook in self._response_handlers:
-            response = hook.handle_response(response, *args, **kwargs)
+            response = hook.handle_response(consumer, response)
         return response
 
-    def handle_exception(self, *args, **kwargs):
+    def handle_exception(self, consumer, exc_type, exc_val, exc_tb):
         for hook in self._hooks:
-            hook.handle_exception(*args, **kwargs)
+            hook.handle_exception(consumer, exc_type, exc_val, exc_tb)
 
 
 class RequestAuditor(TransactionHook):
@@ -95,8 +111,8 @@ class RequestAuditor(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, auditor):
-        self.audit_request = auditor
+    def __init__(self, auditor, requires_consumer=False):
+        self.audit_request = _wrap_if_necessary(auditor, requires_consumer)
 
 
 class ResponseHandler(TransactionHook):
@@ -105,8 +121,8 @@ class ResponseHandler(TransactionHook):
     time of instantiation.
     """
 
-    def __init__(self, handler):
-        self.handle_response = handler
+    def __init__(self, handler, requires_consumer=False):
+        self.handle_response = _wrap_if_necessary(handler, requires_consumer)
 
 
 class ExceptionHandler(TransactionHook):
@@ -115,5 +131,7 @@ class ExceptionHandler(TransactionHook):
     a response, using the provided function.
     """
 
-    def __init__(self, exception_handler):
-        self.handle_exception = exception_handler
+    def __init__(self, exception_handler, requires_consumer=False):
+        self.handle_exception = _wrap_if_necessary(
+            exception_handler, requires_consumer
+        )

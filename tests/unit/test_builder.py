@@ -45,7 +45,9 @@ class TestRequestPreparer(object):
         uplink_builder.add_hook(transaction_hook_mock)
         request_preparer = builder.RequestPreparer(uplink_builder)
         request_preparer.prepare_request(request_builder)
-        transaction_hook_mock.audit_request.assert_called_with(request_builder)
+        transaction_hook_mock.audit_request.assert_called_with(
+            None, request_builder
+        )
         uplink_builder.client.create_request().send.assert_called_with(
             request_builder.method, request_builder.url, request_builder.info
         )
