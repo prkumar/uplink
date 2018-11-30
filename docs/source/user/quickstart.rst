@@ -376,11 +376,11 @@ responses before they are returned (or deserialized):
 
     def raise_for_status(response):
         """Checks whether or not the response was successful."""
-        if 200 <= response.status <= 299:
-            raise UnsuccessfulRequest(response.url)
+        if 200 <= response.status_code < 300:
+            # Pass through the response.
+            return response
 
-        # Pass through the response.
-        return response
+        raise UnsuccessfulRequest(response.url)
 
     class GitHub(Consumer):
         @response_handler(raise_for_status)
