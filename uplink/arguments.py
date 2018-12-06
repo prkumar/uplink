@@ -327,17 +327,32 @@ class Query(FuncDecoratorMixin, NamedArgument):
             def search(self, search_term: Query("q", encoded=True)):
                 \"""Search all commits with the given search term.\"""
 
+        To specify if and how :py:obj:`None` values should be encoded, use the
+        optional :py:obj:`encode_none` argument:
+
+        .. code-block:: python
+
+            @get("/search/commits")
+            def search(self, search_term: Query("q"),
+                       search_order: Query("o", encode_none="null")):
+                '''Search all commits with the given search term using the
+                optional search order.'''
+
     Args:
         encoded (:obj:`bool`, optional): Specifies whether the parameter
             :py:obj:`name` and value are already URL encoded.
+        encode_none (:obj:`str`, optional): Specifies an optional string with
+            which :py:obj:`None` values should be encoded. If not specified,
+            parameters with a value of :py:obj:`None` will not be sent.
     """
 
     class QueryStringEncodingError(exceptions.AnnotationError):
         message = "Failed to join encoded and unencoded query parameters."
 
-    def __init__(self, name=None, encoded=False, type=None):
+    def __init__(self, name=None, encoded=False, type=None, encode_none=None):
         super(Query, self).__init__(name, type)
         self._encoded = encoded
+        self._encode_none = encode_none
 
     @staticmethod
     def _update_params(info, existing, new_params, encoded):
@@ -369,6 +384,14 @@ class Query(FuncDecoratorMixin, NamedArgument):
         self.update_params(
             request_builder.info, {self.name: value}, self._encoded
         )
+
+    def modify_request(self, request_builder, value):
+        if value is None:
+            # ignore value if it is None and shouldn't be encoded
+            if self._encode_none is not None:
+                self._modify_request(request_builder, self._encode_none)
+        else:
+            super(Query, self).modify_request(request_builder, value)
 
 
 class QueryMap(FuncDecoratorMixin, TypedArgument):
