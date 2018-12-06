@@ -335,8 +335,10 @@ class Query(FuncDecoratorMixin, NamedArgument):
             @get("/search/commits")
             def search(self, search_term: Query("q"),
                        search_order: Query("o", encode_none="null")):
-                '''Search all commits with the given search term using the
-                optional search order.'''
+                \"""
+                Search all commits with the given search term using the
+                optional search order.
+                \"""
 
     Args:
         encoded (:obj:`bool`, optional): Specifies whether the parameter
