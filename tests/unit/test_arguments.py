@@ -275,6 +275,18 @@ class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
                 request_builder, "value2"
             )
 
+    def test_skip_none(self, request_builder):
+        arguments.Query("name").modify_request(
+            request_builder, None
+        )
+        assert request_builder.info["params"] == {}
+
+    def test_encode_none(self, request_builder):
+        arguments.Query("name", encode_none="null").modify_request(
+            request_builder, None
+        )
+        assert request_builder.info["params"] == {"name": "null"}
+
     def test_converter_key_with_encoded(self):
         query = arguments.Query("name", encoded=True)
         assert query.converter_key == keys.CONVERT_TO_STRING
