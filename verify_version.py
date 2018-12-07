@@ -3,7 +3,11 @@ import argparse
 import os
 import re
 
-DEVELOPMENT_BRANCH_NAME = "master"
+RELEASE_BRANCH = "stable"
+
+
+def is_release(version):
+    return re.match(r'^([1-9]\d*!)?(0|[1-9]\d*)(\.(0|[1-9]\d*))*$', version) is not None
 
 
 def is_canonical(version):
@@ -17,14 +21,18 @@ def _get_current_version():
     return about.get("__version__", None)
 
 
-def verify_version(tag):
+def verify_version(branch, tag):
     # Get version defined in package or from the tag
     version = _get_current_version()
+    assert branch is not None, "The branch is not defined."
     assert version is not None, "The version is not defined in uplink/__about__.py."
-    assert tag is not None, "The tag is not defined."
+
+    # Avoid official releases on development branches
+    if branch != RELEASE_BRANCH:
+        assert not is_release(version), "Cannot deploy official release [%s] from development branch" % version
 
     # Make sure the tag version and version in __about__.py are the same
-    if tag is not None:
+    if tag:
         assert tag == ("v" + version), "The tag [%s] does not match the current version in uplink/__about__.py [%s]" % (tag, version)
 
     assert is_canonical(version), "The version string [%s] violates PEP-440"
@@ -33,10 +41,11 @@ def verify_version(tag):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--branch", required=True)
     parser.add_argument("--tag", nargs="?")
     args = parser.parse_args()
 
-    print(verify_version(args.tag))
+    print(verify_version(args.branch, args.tag))
 
 
 if __name__ == "__main__":
