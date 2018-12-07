@@ -56,7 +56,7 @@ class TestHttpMethod(object):
             args=[], annotations={}, return_annotation="return_annotation"
         )
         mocker.patch("uplink.utils.get_arg_spec").return_value = sig
-        returns = mocker.patch("uplink.returns.model")
+        returns = mocker.patch("uplink.returns.schema")
         http_method = commands.HttpMethod("METHOD", uri="/{hello}")
         http_method(func)
 

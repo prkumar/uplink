@@ -16,8 +16,8 @@ class Session(object):
         self.__params = None
         self.__headers = None
 
-    def create(self, definition):
-        return self.__builder.build(definition)
+    def create(self, consumer, definition):
+        return self.__builder.build(definition, consumer)
 
     @property
     def base_url(self):

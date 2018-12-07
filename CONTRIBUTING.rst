@@ -180,20 +180,80 @@ require merging your work into one or two target branches (typically one is
 5. Once all checks have passed and the assigned reviewers have approved,
    a maintainer will merge your pull requests into the base branch by
    selecting "Merge Pull Request" (i.e., a ``--no-ff`` merge).
-6. If the base branch fails the Travis CI build ran immediately following
-   your merge, revert the merge commit, address the issue locally, update the
-   candidate branch, then revisit step 3.
+6. If the Travis CI build for the merge commit fails, you should revert the
+   merge commit,  address the issue locally, update the candidate branch,
+   then revisit step 3.
 
 Tests
 =====
-We use the unit testing framework ``pytest``. Kept under the `tests`
-directory, unit tests are written in Python modules with the filename
-pattern ``test_*.py``.
+We use the unit testing framework ``pytest``. Unit and integrations
+tests are kept under the `tests` directory, written in Python modules
+that match the filename pattern ``test_*.py``.
 
-Notably, ``conftest.py`` defines several `pytest fixtures
-<https://docs.pytest.org/en/latest/fixture.html>`_, for injecting an
+Notably, the ``conftest.py`` files define several `pytest fixtures
+<https://docs.pytest.org/en/latest/fixture.html>`_, for injecting a mock
 instance of an interface (defined in ``uplink.interfaces``) or utility
-(defined in ``uplink.helpers``) class into your tests.
+class (defined in ``uplink.helpers``) into your tests.
+
+Writing an Integration Test
+---------------------------
+As a rule of thumb, an integration test should not exercise an actual
+API -- i.e., a mocked HTTP client should be used instead. This guideline
+facilitates efficient CI builds, produces side-effect free tests, and
+makes everyone happy 🤗.
+
+To that end, the following pytest fixtures are available when writing
+integration tests:
+
+- ``mock_client``:
+   A fake HTTP client adapter that can be passed into the ``client``
+   constructor parameter of any ``Consumer`` subclass:
+
+   ::
+
+    api = MyConsumer(base_url=..., client=mock_client)
+
+   Further, this fixture keeps a ``history`` of "requests", which is helpful
+   when we want to assert what the server should have received:
+
+   ::
+
+    api = MyConsumer(base_url=..., client=mock_client)
+
+    # Makes a "mocked" HTTP request
+    api.get_user("prkumar")
+
+    # Retrieve details of the above request
+    request = mock_client.history[-1]
+
+    assert "GET" == request.method, "The HTTP Method should be GET"
+
+   Check out the definition of ``RequestInvocation`` in
+   ``tests/integration/__init__.py`` for the full set of exposed request
+   attributes available for assertion.
+
+   At minimum, most integrations tests require the ``mock_client`` fixture.
+
+- ``mock_response``:
+   An HTTP response builder that can creates a fake response to be returned
+   by ``mock_client``:
+
+   ::
+
+    # Mock user response
+    mock_response.with_json({"id": 123, "username": "prkumar"})
+    mock_client.with_response(mock_response)
+
+    api = MyConsumer(base_url=..., client=mock_client)
+
+    # Verify user is returned
+    response = api.get_user("prkumar")
+    assert {"id": 123, "username": "prkumar"} == response.json()
+
+For a more concrete example of how to use these fixtures (and how to write
+integration tests in general), check out any one of the existing integration
+tests under the ``tests/integration`` package.
+
 
 Style Guide
 ===========
@@ -205,4 +265,4 @@ style. Checkout `this page
 <http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
 for examples of Google Python Style Guide docstrings.
 
-.. _`Google Python Style Guide`: https://google.github.io/styleguide/pyguide
+.. _`Google Python Style Guide`: https://github.com/google/styleguide/blob/gh-pages/pyguide.md

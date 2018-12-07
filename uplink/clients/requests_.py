@@ -5,7 +5,7 @@ import atexit
 import requests
 
 # Local imports
-from uplink.clients import helpers, interfaces, register
+from uplink.clients import exceptions, helpers, interfaces, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
@@ -19,6 +19,8 @@ class RequestsClient(interfaces.HttpClientAdapter):
             omitted or set to :py:obj:`None`, a new session will be
             created.
     """
+
+    exceptions = exceptions.Exceptions()
 
     def __init__(self, session=None, **kwargs):
         if session is None:
@@ -57,3 +59,12 @@ class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
 
     def add_callback(self, callback):
         self._callback = callback
+
+
+# === Register client exceptions === #
+RequestsClient.exceptions.BaseClientException = requests.RequestException
+RequestsClient.exceptions.ConnectionError = requests.ConnectionError
+RequestsClient.exceptions.ConnectionTimeout = requests.ConnectTimeout
+RequestsClient.exceptions.ServerTimeout = requests.ReadTimeout
+RequestsClient.exceptions.SSLError = requests.exceptions.SSLError
+RequestsClient.exceptions.InvalidURL = requests.exceptions.InvalidURL

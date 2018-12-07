@@ -6,6 +6,31 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.7.0_ - 2018-12-06
+===================
+Added
+-----
+- ``Consumer.exceptions`` property for handling common client exceptions in a 
+  client-agnostic way. (`#117 <https://github.com/prkumar/uplink/pull/117>`_)
+- Optional argument ``requires_consumer`` for ``response_handler`` and
+  ``error_handler``; when set to ``True``, the registered callback should accept 
+  a reference to a ``Consumer`` instance as its leading argument.
+  (`#118 <https://github.com/prkumar/uplink/pull/118>`_)
+
+Changed
+-------
+- For a ``Query``-annotated argument, a ``None`` value indicates that the query 
+  parameter should be excluded from the request. Previous behavior was to encode
+  the parameter as ``...?name=None``. To retain this behavior, specify the 
+  new ``encode_none`` parameter (i.e., ``Query(..., encode_none="None")``). 
+  (`#126 <https://github.com/prkumar/uplink/pull/126>`_ by 
+  `@nphilipp <https://github.com/nphilipp>`_)
+
+Fixed
+-----
+- Support for changes to ``Schema().load`` and ``Schema().dump`` in ``marshmallow`` v3. 
+  (`#109 <https://github.com/prkumar/uplink/pull/109>`_)
+
 0.6.1_ - 2018-9-14
 ==================
 Changed
@@ -218,6 +243,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.7.0: https://github.com/prkumar/uplink/compare/v0.6.1...v0.7.0
 .. _0.6.1: https://github.com/prkumar/uplink/compare/v0.6.0...v0.6.1
 .. _0.6.0: https://github.com/prkumar/uplink/compare/v0.5.5...v0.6.0
 .. _0.5.5: https://github.com/prkumar/uplink/compare/v0.5.4...v0.5.5

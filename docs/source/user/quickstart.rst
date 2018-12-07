@@ -59,8 +59,8 @@ invoking a method.
 
 Any method of a :class:`Consumer` subclass can be
 decorated with one of Uplink's HTTP method decorators:
-:class:`~uplink.get`, :class:`~uplink.post`, :class:`~uplink.put`,
-:class:`~uplink.patch`, :class:`~uplink.head`, and :class:`~uplink.delete`:
+:class:`@get <uplink.get>`, :class:`@post <uplink.post>`, :class:`@put <uplink.put>`,
+:class:`@patch <uplink.patch>`, :class:`@head <uplink.head>`, and :class:`@delete <uplink.delete>`:
 
 .. code-block:: python
 
@@ -143,7 +143,7 @@ For "catch-all" or complex query parameter combinations, a
     def get_repos(self, username, **options: QueryMap): pass
 
 You can set static query parameters for a method using the
-:py:class:`~uplink.params` decorator.
+:py:class:`@params <uplink.params>` decorator.
 
 .. code-block:: python
 
@@ -151,7 +151,7 @@ You can set static query parameters for a method using the
     @get("users/{username}")
     def get_user(self, username): pass
 
-:py:class:`~uplink.params` can be used as a class decorator for query
+:py:class:`@params <uplink.params>` can be used as a class decorator for query
 parameters that need to be included with every request:
 
 .. code-block:: python
@@ -163,7 +163,7 @@ parameters that need to be included with every request:
 Header Manipulation
 ===================
 
-You can set static headers for a method using the :py:class:`~uplink.headers`
+You can set static headers for a method using the :py:class:`@headers <uplink.headers>`
 decorator.
 
 .. code-block:: python
@@ -175,7 +175,7 @@ decorator.
     @get("users/{username}")
     def get_user(self, username): pass
 
-:py:class:`~uplink.headers` can be used as a class decorator for headers that
+:py:class:`@headers <uplink.headers>` can be used as a class decorator for headers that
 need to be added to every request:
 
 .. code-block:: python
@@ -227,7 +227,7 @@ Form Encoded, Multipart, and JSON Requests
 
 Methods can also be declared to send form-encoded, multipart, and JSON data.
 
-Form-encoded data is sent when :py:class:`~uplink.form_url_encoded` decorates
+Form-encoded data is sent when :py:class:`@form_url_encoded <uplink.form_url_encoded>` decorates
 the method. Each key-value pair is annotated with a :py:class:`~uplink.Field`
 annotation:
 
@@ -237,7 +237,7 @@ annotation:
     @patch("user")
     def update_user(self, name: Field, email: Field): pass
 
-Multipart requests are used when :py:class:`~uplink.multipart` decorates the
+Multipart requests are used when :py:class:`@multipart <uplink.multipart>` decorates the
 method. Parts are declared using the :py:class:`~uplink.Part` annotation:
 
 .. code-block:: python
@@ -246,7 +246,7 @@ method. Parts are declared using the :py:class:`~uplink.Part` annotation:
     @put("user/photo")
     def upload_photo(self, photo: Part, description: Part): pass
 
-JSON data is sent when :py:class:`~uplink.json` decorates the method. The
+JSON data is sent when :py:class:`@json <uplink.json>` decorates the method. The
 :py:class:`~uplink.Body` annotation declares the JSON payload:
 
 .. code-block:: python
@@ -272,7 +272,7 @@ Handling JSON Responses
 Many modern public APIs serve JSON responses to their clients.
 
 If your :class:`~uplink.Consumer` subclass accesses a JSON API, you can
-decorate any method with :class:`returns.json <uplink.returns.json>` to
+decorate any method with :class:`@returns.json <uplink.returns.json>` to
 directly return the JSON response, instead of a response object, when
 invoked:
 
@@ -291,12 +291,12 @@ invoked:
     {'login': 'prkumar', 'id': 10181244, ...
 
 You can also target a specific field of the JSON response by using the
-decorator's ``member`` argument to select the target JSON field name:
+decorator's ``key`` argument to select the target JSON field name:
 
 .. code-block:: python
 
     class GitHub(Consumer):
-        @returns.json(member="blog")
+        @returns.json(key="blog")
         @get("users/{username}")
         def get_blog_url(self, username):
             """Get the user's blog URL."""
@@ -366,21 +366,21 @@ to handle errors from the underlying client before they reach your
 users.
 
 With Uplink, you can address these concerns by registering a callback
-with one of these decorators: :class:`~uplink.response_handler` and
-:class:`~uplink.error_handler`.
+with one of these decorators: :class:`@response_handler <uplink.response_handler>` and
+:class:`@error_handler <uplink.error_handler>`.
 
-:class:`~uplink.response_handler` registers a callback to intercept
+:class:`@response_handler <uplink.response_handler>` registers a callback to intercept
 responses before they are returned (or deserialized):
 
 .. code-block:: python
 
     def raise_for_status(response):
         """Checks whether or not the response was successful."""
-        if 200 <= response.status <= 299:
-            raise UnsuccessfulRequest(response.url)
+        if 200 <= response.status_code < 300:
+            # Pass through the response.
+            return response
 
-        # Pass through the response.
-        return response
+        raise UnsuccessfulRequest(response.url)
 
     class GitHub(Consumer):
         @response_handler(raise_for_status)
@@ -388,7 +388,7 @@ responses before they are returned (or deserialized):
         def create_repo(self, name: Field):
             """Create a new repository."""
 
-:class:`~uplink.error_handler` registers a callback to handle an
+:class:`@error_handler <uplink.error_handler>` registers a callback to handle an
 exception thrown by the underlying HTTP client
 (e.g., :class:`requests.Timeout`):
 
@@ -404,7 +404,7 @@ exception thrown by the underlying HTTP client
         def create_repo(self, name: Field):
             """Create a new repository."""
 
-To apply a callback onto all methods of a :py:class:`~uplink.Consumer`
+To apply a handler onto all methods of a :py:class:`~uplink.Consumer`
 subclass, you can simply decorate the class itself:
 
 .. code-block:: python
@@ -420,5 +420,24 @@ behaviors:
 
     @response_handler(check_expected_headers)  # Second, check headers
     @response_handler(raise_for_status)  # First, check success
-    class TodoApp(Consumer):
+    class GitHub(Consumer):
         ...
+
+Lastly, both decorators support the optional argument
+:obj:`requires_consumer`. When this option is set to :obj:`True`, the
+registered callback should accept a reference to the :class:`~Consumer`
+instance as its leading argument:
+
+.. code-block:: python
+   :emphasize-lines: 1-2, 11
+
+    @error_handler(requires_consumer=True)
+    def raise_api_error(consumer, exc_type, exc_val, exc_tb):
+        """Wraps client error with custom API error"""
+        ...
+
+    class GitHub(Consumer):
+        @raise_api_error
+        @post("user/repo")
+        def create_repo(self, name: Field):
+            """Create a new repository."""

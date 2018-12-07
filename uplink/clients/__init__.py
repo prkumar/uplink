@@ -26,7 +26,7 @@ def _client_class_handler(key):
 
 try:
     from uplink.clients.aiohttp_ import AiohttpClient
-except (ImportError, SyntaxError) as error:  # pragma: no cover
+except (ImportError, SyntaxError):  # pragma: no cover
 
     class AiohttpClient(interfaces.HttpClientAdapter):
         def __init__(self, *args, **kwargs):
