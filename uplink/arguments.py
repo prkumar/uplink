@@ -316,7 +316,7 @@ class Query(FuncDecoratorMixin, NamedArgument):
 
             @get("/search/commits")
             def search(self, search_term: Query("q")):
-                '''Search all commits with the given search term.'''
+                \"""Search all commits with the given search term.\"""
 
         To specify whether or not the query parameter is already URL encoded,
         use the optional :py:obj:`encoded` argument:
