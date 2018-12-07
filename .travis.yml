@@ -23,7 +23,6 @@ script:
 after_success:
   - pip install codecov
   - codecov
-before_deploy:
   - export SHOULD_DEPLOY=$(verify_deploy.py --tag $TRAVIS_TAG --branch $TRAVIS_BRANCH)
 deploy:
   provider: pypi
