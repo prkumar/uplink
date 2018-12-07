@@ -44,7 +44,6 @@ def main():
     parser.add_argument("--branch", required=True)
     parser.add_argument("--tag", nargs="?")
     args = parser.parse_args()
-
     print(verify_version(args.branch, args.tag))
 
 
