@@ -24,7 +24,7 @@ after_success:
   - pip install codecov
   - codecov
 before_deploy:
-  - python verify_deploy.py --branch $TRAVIS_BRANCH --tag $TRAVIS_TAG
+  - python verify_deploy.py --tag $TRAVIS_TAG
 deploy:
   provider: pypi
   user: prkumar
