@@ -1,5 +1,5 @@
 # Local imports
-from uplink.clients.backend import state
+from uplink.clients.io import state
 
 
 def wait(seconds):

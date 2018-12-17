@@ -3,7 +3,7 @@ from twisted.internet import reactor, defer, task
 from twisted.python import failure
 
 # Local imports
-from uplink.clients.backend import interfaces
+from uplink.clients.io import interfaces
 
 
 class TwistedStrategy(interfaces.ExecutionStrategy):

@@ -1,6 +1,6 @@
 # Local imports
-from uplink.clients.backend import interfaces
-from uplink.clients.backend import state
+from uplink.clients.io import interfaces
+from uplink.clients.io import state
 
 
 class BasicRequestContext(interfaces.RequestContext):

@@ -1,5 +1,5 @@
 # Local imports
-from uplink.clients.backend import interfaces
+from uplink.clients.io import interfaces
 
 
 class _BaseState(interfaces.RequestState):

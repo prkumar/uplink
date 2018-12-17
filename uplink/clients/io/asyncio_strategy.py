@@ -2,7 +2,7 @@
 import asyncio
 
 # Local models
-from uplink.clients.backend import interfaces
+from uplink.clients.io import interfaces
 
 
 class AsyncioStrategy(interfaces.ExecutionStrategy):
