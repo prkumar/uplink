@@ -6,7 +6,7 @@ from uplink.clients.io import RequestTemplate, transitions
 
 
 class DefaultRequestTemplate(RequestTemplate):
-    """The fallback behaviors for all templates."""
+    """The fallback behaviors for all hooks."""
 
     def before_request(self, request):
         return transitions.send(request)
@@ -19,7 +19,7 @@ class DefaultRequestTemplate(RequestTemplate):
 
 
 class CompositeRequestTemplate(RequestTemplate):
-    """Chains together many templates with a fallback behavior."""
+    """A chain of many templates with fallback behaviors."""
 
     def _get_transition(self, method, *args, **kwargs):
         caller = operator.methodcaller(method, *args, **kwargs)
