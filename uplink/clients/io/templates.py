@@ -21,6 +21,8 @@ class DefaultRequestTemplate(RequestTemplate):
 class CompositeRequestTemplate(RequestTemplate):
     """A chain of many templates with fallback behaviors."""
 
+    __FALLBACK = DefaultRequestTemplate()
+
     def _get_transition(self, method, *args, **kwargs):
         caller = operator.methodcaller(method, *args, **kwargs)
         for template in self._templates:
@@ -30,7 +32,7 @@ class CompositeRequestTemplate(RequestTemplate):
         else:
             return caller(self._fallback)
 
-    def __init__(self, templates, fallback=DefaultRequestTemplate()):
+    def __init__(self, templates, fallback=__FALLBACK):
         self._templates = list(templates)
         self._fallback = fallback
 
