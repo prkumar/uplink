@@ -3,7 +3,7 @@ from uplink.clients.io import interfaces
 from uplink.clients.io import state
 
 
-class BasicRequestContext(interfaces.RequestContext):
+class BasicExecutionContext(interfaces.ExecutionContext):
     def __init__(self, client, backend, template, request):
         self._client = client
         self._template = template
@@ -33,8 +33,8 @@ class BasicRequestContext(interfaces.RequestContext):
     def send(self, request, callback):
         return self._backend.send(self._client, request, callback)
 
-    def wait(self, duration, callback):
-        return self._backend.wait(duration, callback)
+    def sleep(self, duration, callback):
+        return self._backend.sleep(duration, callback)
 
     def finish(self, response):
         return self._backend.finish(response)

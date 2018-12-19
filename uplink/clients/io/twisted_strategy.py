@@ -6,7 +6,12 @@ from twisted.python import failure
 from uplink.clients.io import interfaces
 
 
+__all__ = ["TwistedStrategy"]
+
+
 class TwistedStrategy(interfaces.ExecutionStrategy):
+    """A non-blocking execution strategy using asyncio."""
+
     _deferred = None
 
     def send(self, client, request, callback):
@@ -17,7 +22,7 @@ class TwistedStrategy(interfaces.ExecutionStrategy):
         )
         return deferred
 
-    def wait(self, duration, callback):
+    def sleep(self, duration, callback):
         return task.deferLater(reactor, duration, callback.on_success)
 
     def finish(self, response):

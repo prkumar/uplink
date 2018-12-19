@@ -6,21 +6,21 @@ class _BaseState(interfaces.RequestState):
     def __init__(self, request):
         self._request = request
 
-    def send(self, executor, request):
-        executor.state = SendRequest(request)
+    def send(self, request):
+        return SendRequest(request)
 
-    def fail(self, executor, exc_type, exc_val, exc_tb):
+    def fail(self, exc_type, exc_val, exc_tb):
         # Terminal
-        executor.state = Fail(self._request, exc_type, exc_val, exc_tb)
+        return Fail(self._request, exc_type, exc_val, exc_tb)
 
-    def finish(self, executor, response):
+    def finish(self, response):
         # Terminal
-        executor.state = Finish(self._request, response)
+        return Finish(self._request, response)
 
-    def wait(self, executor, duration):
-        executor.state = WaitState(self._request, duration)
+    def sleep(self, duration):
+        return SleepState(self._request, duration)
 
-    def execute(self, executor):
+    def execute(self, context):
         raise NotImplementedError
 
     @property
@@ -29,33 +29,33 @@ class _BaseState(interfaces.RequestState):
 
 
 class BeforeRequest(_BaseState):
-    def execute(self, executor):
-        return executor.before_request(self._request)
+    def execute(self, context):
+        return context.before_request(self._request)
 
 
-class WaitState(interfaces.RequestState):
-    class _Callback(interfaces.WaitCallback):
-        def __init__(self, executor, request):
-            self._executor = executor
+class SleepState(interfaces.RequestState):
+    class _Callback(interfaces.SleepCallback):
+        def __init__(self, context, request):
+            self._context = context
             self._request = request
 
         def on_success(self):
-            self._executor.state = BeforeRequest(self._request)
-            return self._executor.execute()
+            self._context.state = BeforeRequest(self._request)
+            return self._context.execute()
 
         def on_failure(self, exc_type, exc_val, exc_tb):
-            self._executor.state = AfterException(
+            self._context.state = AfterException(
                 self._request, exc_type, exc_val, exc_tb
             )
-            return self._executor.execute()
+            return self._context.execute()
 
     def __init__(self, request, duration):
         self._request = request
         self._duration = duration
 
-    def execute(self, executor):
-        return executor.wait(
-            self._duration, self._Callback(executor, self._request)
+    def execute(self, context):
+        return context.sleep(
+            self._duration, self._Callback(context, self._request)
         )
 
     @property
@@ -68,23 +68,23 @@ class SendRequest(interfaces.RequestState):
         self._request = request
 
     class _Callback(interfaces.SendCallback):
-        def __init__(self, executor, request):
-            self._executor = executor
+        def __init__(self, context, request):
+            self._context = context
             self._request = request
 
         def on_success(self, response):
-            self._executor.state = AfterResponse(self._request, response)
-            return self._executor.execute()
+            self._context.state = AfterResponse(self._request, response)
+            return self._context.execute()
 
         def on_failure(self, exc_type, exc_val, exc_tb):
-            self._executor.state = AfterException(
+            self._context.state = AfterException(
                 self._request, exc_type, exc_val, exc_tb
             )
-            return self._executor.execute()
+            return self._context.execute()
 
-    def execute(self, executor):
-        return executor.send(
-            self._request, self._Callback(executor, self._request)
+    def execute(self, context):
+        return context.send(
+            self._request, self._Callback(context, self._request)
         )
 
     @property
@@ -93,8 +93,8 @@ class SendRequest(interfaces.RequestState):
 
 
 class BaseAfterRequest(SendRequest):
-    def prepare(self, executor, request):
-        executor.state = BeforeRequest(request)
+    def prepare(self, request):
+        return BeforeRequest(request)
 
 
 class AfterResponse(BaseAfterRequest):
@@ -102,8 +102,8 @@ class AfterResponse(BaseAfterRequest):
         super(AfterResponse, self).__init__(request)
         self._response = response
 
-    def execute(self, executor):
-        return executor.after_response(self._request, self._response)
+    def execute(self, context):
+        return context.after_response(self._request, self._response)
 
 
 class AfterException(BaseAfterRequest):
@@ -113,8 +113,8 @@ class AfterException(BaseAfterRequest):
         self._exc_val = exc_val
         self._exc_tb = exc_tb
 
-    def execute(self, executor):
-        return executor.after_exception(
+    def execute(self, context):
+        return context.after_exception(
             self._request, self._exc_type, self._exc_val, self._exc_tb
         )
 
@@ -127,7 +127,7 @@ class TerminalState(interfaces.RequestState):
     def request(self):
         return self._request
 
-    def execute(self, handler, executor):
+    def execute(self, context):
         raise NotImplementedError
 
 
@@ -138,8 +138,8 @@ class Fail(TerminalState):
         self._exc_val = exc_val
         self._exc_tb = exc_tb
 
-    def execute(self, executor):
-        return executor.fail(self._exc_type, self._exc_val, self._exc_tb)
+    def execute(self, context):
+        return context.fail(self._exc_type, self._exc_val, self._exc_tb)
 
 
 class Finish(TerminalState):
@@ -147,5 +147,5 @@ class Finish(TerminalState):
         super(Finish, self).__init__(request)
         self._response = response
 
-    def execute(self, executor):
-        return executor.finish(self._response)
+    def execute(self, context):
+        return context.finish(self._response)

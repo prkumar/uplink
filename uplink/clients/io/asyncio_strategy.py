@@ -4,8 +4,12 @@ import asyncio
 # Local models
 from uplink.clients.io import interfaces
 
+__all__ = ["AsyncioStrategy"]
+
 
 class AsyncioStrategy(interfaces.ExecutionStrategy):
+    """A non-blocking execution strategy using asyncio."""
+
     async def send(self, client, request, callback):
         try:
             response = await client.send(request)
@@ -15,7 +19,7 @@ class AsyncioStrategy(interfaces.ExecutionStrategy):
         else:
             return await callback.on_success(response)
 
-    async def wait(self, duration, callback):
+    async def sleep(self, duration, callback):
         await asyncio.sleep(duration)
         return await callback.on_success()
 
