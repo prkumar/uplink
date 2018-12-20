@@ -223,6 +223,18 @@ class RequestTemplate(object):
         """
 
 
+class Client(object):
+    """An HTTP Client implementation."""
+
+    def send(self, request):
+        """
+        Sends the given request.
+
+        Args:
+            request: The intended request data to be sent.
+        """
+
+
 class ExecutionStrategy(object):
     """An adapter for a specific I/O model."""
 
@@ -231,8 +243,8 @@ class ExecutionStrategy(object):
         Sends the given request using the provided client.
 
         Args:
-            client: An HTTP client that should abide by the I/O framework of
-                this strategy.
+            client (Client): An HTTP client that should abide by the
+                I/O framework of this strategy.
             request: The intended request data to be sent.
             callback (:obj:`SendCallback`): A callback that resumes
                 execution after the request is sent.
