@@ -6,6 +6,9 @@ class _BaseState(interfaces.RequestState):
     def __init__(self, request):
         self._request = request
 
+    def prepare(self, request):
+        return BeforeRequest(request)
+
     def send(self, request):
         return SendRequest(request)
 
@@ -92,12 +95,7 @@ class SendRequest(interfaces.RequestState):
         return self._request
 
 
-class BaseAfterRequest(SendRequest):
-    def prepare(self, request):
-        return BeforeRequest(request)
-
-
-class AfterResponse(BaseAfterRequest):
+class AfterResponse(_BaseState):
     def __init__(self, request, response):
         super(AfterResponse, self).__init__(request)
         self._response = response
@@ -106,7 +104,7 @@ class AfterResponse(BaseAfterRequest):
         return context.after_response(self._request, self._response)
 
 
-class AfterException(BaseAfterRequest):
+class AfterException(_BaseState):
     def __init__(self, request, exc_type, exc_val, exc_tb):
         super(AfterException, self).__init__(request)
         self._exc_type = exc_type
