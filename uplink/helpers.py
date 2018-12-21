@@ -39,10 +39,11 @@ def set_api_definition(service, name, definition):
 
 
 class RequestBuilder(object):
-    def __init__(self, converter_registry):
+    def __init__(self, client, converter_registry):
         self._method = None
         self._url = None
         self._return_type = None
+        self._client = client
 
         # TODO: Pass this in as constructor parameter
         # TODO: Delegate instantiations to uplink.HTTPClientAdapter
@@ -51,6 +52,10 @@ class RequestBuilder(object):
         self._converter_registry = converter_registry
         self._transaction_hooks = []
         self._request_templates = []
+
+    @property
+    def client(self):
+        return self._client
 
     @property
     def method(self):

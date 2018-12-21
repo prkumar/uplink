@@ -16,8 +16,8 @@ class MockClient(clients.interfaces.HttpClientAdapter):
         self._mocked_request.send.return_value = response
         return self
 
-    def with_side_effect(self, error):
-        self._mocked_request.send.side_effect = error
+    def with_side_effect(self, side_effect):
+        self._mocked_request.send.side_effect = side_effect
         return self
 
     @property

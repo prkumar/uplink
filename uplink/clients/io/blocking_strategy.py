@@ -21,7 +21,7 @@ class BlockingStrategy(interfaces.ExecutionStrategy):
 
     def sleep(self, duration, callback):
         time.sleep(duration)
-        callback.on_success()
+        return callback.on_success()
 
     def finish(self, response):
         return response
