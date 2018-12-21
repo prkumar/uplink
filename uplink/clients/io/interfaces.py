@@ -233,6 +233,7 @@ class Client(object):
         Args:
             request: The intended request data to be sent.
         """
+        raise NotImplementedError
 
 
 class ExecutionStrategy(object):

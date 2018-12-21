@@ -1,6 +1,6 @@
 # Local imports
 from uplink import utils, clients
-from uplink.clients import helpers, exceptions as client_exceptions
+from uplink.clients import helpers, io, exceptions as client_exceptions
 
 
 class MockClient(clients.interfaces.HttpClientAdapter):
@@ -27,6 +27,9 @@ class MockClient(clients.interfaces.HttpClientAdapter):
     @property
     def history(self):
         return self._request.history
+
+    def io(self):
+        return io.BlockingStrategy()
 
 
 class MockResponse(object):

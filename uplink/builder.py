@@ -51,12 +51,14 @@ class RequestPreparer(object):
     def prepare_request(self, request_builder):
         request_builder.url = self._join_url_with_base(request_builder.url)
         self._auth(request_builder)
-        sender = self._client.create_request()
+        request = self._client.create_request()
         chain = self._get_hook_chain(request_builder)
         if chain:
-            self.apply_hooks(chain, request_builder, sender)
-        return sender.send(
-            request_builder.method, request_builder.url, request_builder.info
+            self.apply_hooks(chain, request_builder, request)
+        return self._client.send(
+            request,
+            request_builder.request_template,
+            (request_builder.method, request_builder.url, request_builder.info),
         )
 
     def create_request_builder(self, definition):

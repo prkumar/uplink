@@ -2,6 +2,8 @@
 from uplink.clients.io import interfaces
 from uplink.clients.io import state
 
+__all__ = ["BasicExecutionContext"]
+
 
 class BasicExecutionContext(interfaces.ExecutionContext):
     def __init__(self, client, backend, template, request):

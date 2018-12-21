@@ -5,7 +5,7 @@ import atexit
 import requests
 
 # Local imports
-from uplink.clients import exceptions, helpers, interfaces, register
+from uplink.clients import exceptions, helpers, io, interfaces, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
@@ -43,6 +43,9 @@ class RequestsClient(interfaces.HttpClientAdapter):
         for key in kwargs:
             setattr(session, key, kwargs[key])
         return session
+
+    def io(self):
+        return io.BlockingStrategy()
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):

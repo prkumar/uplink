@@ -27,13 +27,16 @@ class TestRequestPreparer(object):
         request_builder.url = "/example/path"
         request_builder.return_type = None
         request_builder.transaction_hooks = ()
+        request_builder.request_template = "request_template"
         uplink_builder = mocker.Mock(spec=builder.Builder)
         uplink_builder.converters = ()
         uplink_builder.hooks = ()
         request_preparer = builder.RequestPreparer(uplink_builder)
         request_preparer.prepare_request(request_builder)
-        uplink_builder.client.create_request().send.assert_called_with(
-            request_builder.method, request_builder.url, request_builder.info
+        uplink_builder.client.send.assert_called_with(
+            uplink_builder.client.create_request(),
+            request_builder.request_template,
+            (request_builder.method, request_builder.url, request_builder.info),
         )
 
     def test_prepare_request_with_transaction_hook(
@@ -41,6 +44,7 @@ class TestRequestPreparer(object):
     ):
         request_builder.method = "METHOD"
         request_builder.url = "/example/path"
+        request_builder.request_template = "request_template"
         uplink_builder.base_url = "https://example.com"
         uplink_builder.add_hook(transaction_hook_mock)
         request_preparer = builder.RequestPreparer(uplink_builder)
@@ -48,8 +52,10 @@ class TestRequestPreparer(object):
         transaction_hook_mock.audit_request.assert_called_with(
             None, request_builder
         )
-        uplink_builder.client.create_request().send.assert_called_with(
-            request_builder.method, request_builder.url, request_builder.info
+        uplink_builder.client.send.assert_called_with(
+            uplink_builder.client.create_request(),
+            request_builder.request_template,
+            (request_builder.method, request_builder.url, request_builder.info),
         )
 
     def test_create_request_builder(self, uplink_builder, request_definition):

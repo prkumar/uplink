@@ -1,5 +1,5 @@
 # Local imports
-from uplink.clients import exceptions
+from uplink.clients import exceptions, io
 
 
 class HttpClientAdapter(object):
@@ -10,6 +10,10 @@ class HttpClientAdapter(object):
     def create_request(self):
         raise NotImplementedError
 
+    def io(self):
+        """Returns the execution strategy for this client."""
+        raise NotImplementedError
+
     @property
     def exceptions(self):
         """
@@ -18,6 +22,13 @@ class HttpClientAdapter(object):
         exceptions.
         """
         return self.__exceptions
+
+    def send(self, request, template, data):
+        class Client(io.Client):
+            def send(self, r):
+                return request.send(*r)
+
+        return io.execute(Client(), self.io(), template, data)
 
 
 class Request(object):

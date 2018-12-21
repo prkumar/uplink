@@ -4,10 +4,10 @@ import time
 # Local models
 from uplink.clients.io import interfaces
 
-__all__ = ["DefaultStrategy"]
+__all__ = ["BlockingStrategy"]
 
 
-class DefaultStrategy(interfaces.ExecutionStrategy):
+class BlockingStrategy(interfaces.ExecutionStrategy):
     """A blocking execution strategy."""
 
     def send(self, client, request, callback):
@@ -15,9 +15,9 @@ class DefaultStrategy(interfaces.ExecutionStrategy):
             response = client.send(request)
         except Exception as error:
             # TODO: retrieve traceback
-            callback.on_failure(type(error), error, None)
+            return callback.on_failure(type(error), error, None)
         else:
-            callback.on_success(response)
+            return callback.on_success(response)
 
     def sleep(self, duration, callback):
         time.sleep(duration)

@@ -3,6 +3,7 @@ import collections
 
 # Local imports
 from uplink import interfaces
+from uplink.clients import io
 
 
 def get_api_definitions(service):
@@ -49,6 +50,7 @@ class RequestBuilder(object):
 
         self._converter_registry = converter_registry
         self._transaction_hooks = []
+        self._request_templates = []
 
     @property
     def method(self):
@@ -85,5 +87,12 @@ class RequestBuilder(object):
     def return_type(self, return_type):
         self._return_type = return_type
 
+    @property
+    def request_template(self):
+        return io.CompositeRequestTemplate(self._request_templates)
+
     def add_transaction_hook(self, hook):
         self._transaction_hooks.append(hook)
+
+    def add_request_template(self, template):
+        self._request_templates.append(template)

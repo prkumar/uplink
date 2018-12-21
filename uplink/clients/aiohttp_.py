@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import exceptions, helpers, interfaces, register
+from uplink.clients import exceptions, helpers, io, interfaces, register
 
 
 def threaded_callback(callback):
@@ -132,6 +132,9 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         """
         session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)
+
+    def io(self):
+        return io.AsyncioStrategy()
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
