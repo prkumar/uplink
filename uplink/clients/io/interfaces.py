@@ -72,6 +72,8 @@ class Executable(collections.Iterator):
     def __next__(self):
         return self.execute()
 
+    next = __next__
+
     def execute(self):
         """Start or continue the request's execution."""
         raise NotImplementedError
