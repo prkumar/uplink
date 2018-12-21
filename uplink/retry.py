@@ -1,9 +1,11 @@
 # Standard library imports
-import math
+import sys
 
 # Local imports
 from uplink import decorators
 from uplink.clients.io import RequestTemplate, transitions
+
+MAX_VALUE = sys.maxsize
 
 
 def _clamp_generator(iterator, size):
@@ -13,7 +15,7 @@ def _clamp_generator(iterator, size):
         count += 1
 
 
-def _exponential_back_off(base=2, alpha=1, max_value=math.inf):
+def _exponential_back_off(base=2, alpha=1, max_value=MAX_VALUE):
     exponent = 0
     while True:
         delay = alpha * base ** exponent
