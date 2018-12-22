@@ -8,21 +8,6 @@ from uplink.clients.io import RequestTemplate, transitions
 MAX_VALUE = sys.maxsize
 
 
-def _clamp_generator(iterator, size):
-    count = 0
-    while size > count:
-        yield next(iterator)
-        count += 1
-
-
-def _exponential_back_off(base=2, alpha=1, max_value=MAX_VALUE):
-    exponent = 0
-    while True:
-        delay = alpha * base ** exponent
-        yield min(delay, max_value)
-        exponent += 1
-
-
 class RetryTemplate(RequestTemplate):
     def __init__(self, back_off_iterator, failure_tester):
         self._back_off_iterator = back_off_iterator
@@ -41,15 +26,44 @@ class RetryTemplate(RequestTemplate):
 
 # noinspection PyPep8Naming
 class retry(decorators.MethodAnnotation):
-    def __init__(self, max_attempts=5):
-        self._max_attempts = max_attempts
-        self._back_off_func = _exponential_back_off
+    _DEFAULT_MAX_ATTEMPTS = 5
+
+    @staticmethod
+    def exponential_backoff(base=2, multiplier=1, minimum=1, maximum=MAX_VALUE):
+        def wait_iterator():
+            delay = multiplier * base
+            while minimum >= delay:
+                delay *= base
+            while True:
+                yield min(delay, maximum)
+                delay *= base
+
+        return wait_iterator
+
+    # noinspection PyPep8Naming
+    @staticmethod
+    def stop_after_attempt(num):
+        class _AfterAttemptStopper(object):
+            _attempt = 0
+
+            def __call__(self, *_):
+                self._attempt += 1
+                return num > self._attempt
+
+        return _AfterAttemptStopper
+
+    def __init__(self, max_attempts=None, stop=None, wait=None):
+        if max_attempts is not None:
+            self._stop = self.stop_after_attempt(max_attempts)
+        elif stop is None:
+            self._stop = self.stop_after_attempt(self._DEFAULT_MAX_ATTEMPTS)
+        else:
+            self._stop = stop
+
+        self._wait = self.exponential_backoff() if wait is None else wait
 
     def modify_request(self, request_builder):
         request_builder.add_request_template(self._create_template())
 
-    def _create_back_off_iterator(self):
-        return _clamp_generator(self._back_off_func(), self._max_attempts - 1)
-
     def _create_template(self):
-        return RetryTemplate(self._create_back_off_iterator(), lambda *_: True)
+        return RetryTemplate(self._wait(), self._stop())
