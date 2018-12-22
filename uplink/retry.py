@@ -5,6 +5,9 @@ import sys
 from uplink import decorators
 from uplink.clients.io import RequestTemplate, transitions
 
+__all__ = ["retry"]
+
+# Constants
 MAX_VALUE = sys.maxsize
 
 
