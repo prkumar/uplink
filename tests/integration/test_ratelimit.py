@@ -16,7 +16,7 @@ class GitHub(uplink.Consumer):
 # Tests
 
 
-def test_ratelimit(mock_client):
+def test_limit_exceeded_by_1(mock_client):
     # Setup
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
@@ -28,3 +28,16 @@ def test_ratelimit(mock_client):
 
     # Verify
     assert elapsed_time >= 1
+
+
+def test_exact_limit(mock_client):
+    # Setup
+    github = GitHub(base_url=BASE_URL, client=mock_client)
+
+    # Run
+    start_time = now()
+    github.get_user("prkumar")
+    elapsed_time = now() - start_time
+
+    # Verify
+    assert elapsed_time <= 1
