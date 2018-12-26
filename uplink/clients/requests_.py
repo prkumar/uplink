@@ -27,6 +27,12 @@ class RequestsClient(interfaces.HttpClientAdapter):
             session = self._create_session(**kwargs)
         self.__session = session
 
+    def __del__(self):
+        try:
+            self.__session.close()
+        except AttributeError:
+            pass            
+        
     def create_request(self):
         return Request(self.__session)
 
@@ -39,7 +45,6 @@ class RequestsClient(interfaces.HttpClientAdapter):
     @staticmethod
     def _create_session(**kwargs):
         session = requests.Session()
-        atexit.register(session.close)
         for key in kwargs:
             setattr(session, key, kwargs[key])
         return session
