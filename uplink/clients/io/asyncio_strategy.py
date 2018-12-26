@@ -10,21 +10,29 @@ __all__ = ["AsyncioStrategy"]
 class AsyncioStrategy(interfaces.IOStrategy):
     """A non-blocking execution strategy using asyncio."""
 
-    async def send(self, client, request, callback):
+    @asyncio.coroutine
+    def send(self, client, request, callback):
         try:
-            response = await client.send(request)
+            response = yield from client.send(request)
         except Exception as error:
             # TODO: Include traceback
-            return await callback.on_failure(type(error), error, None)
+            response = yield from callback.on_failure(type(error), error, None)
         else:
-            return await callback.on_success(response)
-
-    async def sleep(self, duration, callback):
-        await asyncio.sleep(duration)
-        return await callback.on_success()
-
-    async def finish(self, response):
+            response = yield from callback.on_success(response)
         return response
 
-    async def execute(self, executable):
-        return await executable.execute()
+    @asyncio.coroutine
+    def sleep(self, duration, callback):
+        yield from asyncio.sleep(duration)
+        response = yield from callback.on_success()
+        return response
+
+    @asyncio.coroutine
+    def finish(self, response):
+        yield
+        return response
+
+    @asyncio.coroutine
+    def execute(self, executable):
+        response = yield from executable.execute()
+        return response

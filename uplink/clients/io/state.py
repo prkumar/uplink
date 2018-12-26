@@ -188,7 +188,6 @@ class Fail(TerminalState):
         self._exc_tb = exc_tb
 
     def execute(self, execution):
-        print("Fail: ", execution)
         return execution.fail(self._exc_type, self._exc_val, self._exc_tb)
 
     @property

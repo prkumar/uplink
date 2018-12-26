@@ -18,7 +18,6 @@ class TwistedStrategy(interfaces.IOStrategy):
         try:
             response = yield client.send(request)
         except Exception as error:
-            print("Failure: ", type(error))
             response = yield callback.on_failure(type(error), error, None)
         else:
             response = yield callback.on_success(response)
@@ -37,7 +36,6 @@ class TwistedStrategy(interfaces.IOStrategy):
 
     @defer.inlineCallbacks
     def fail(self, exc_type, exc_val, exc_tb):
-        print("F")
         yield
         super(TwistedStrategy, self).fail(exc_type, exc_val, exc_tb)
 
