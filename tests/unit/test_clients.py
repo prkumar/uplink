@@ -11,6 +11,7 @@ from uplink.clients import (
     requests_,
     twisted_,
     register,
+    io,
 )
 
 try:
@@ -125,6 +126,9 @@ class TestRequests(object):
         with pytest.raises(exceptions.InvalidURL):
             raise requests.exceptions.InvalidURL()
 
+    def test_io(self):
+        assert isinstance(requests_.RequestsClient.io(), io.BlockingStrategy)
+
 
 class TestTwisted(object):
     def test_init_without_client(self):
@@ -182,6 +186,13 @@ class TestTwisted(object):
         exception_handler.assert_called_with(
             failure.type, failure.value, failure.getTracebackObject()
         )
+
+    def test_exceptions(self, http_client_mock):
+        twisted_client = twisted_.TwistedClient(http_client_mock)
+        assert http_client_mock.exceptions == twisted_client.exceptions
+
+    def test_io(self):
+        assert isinstance(twisted_.TwistedClient.io(), io.TwistedStrategy)
 
 
 @pytest.fixture
@@ -404,3 +415,7 @@ class TestAiohttp(object):
 
         with pytest.raises(exceptions.InvalidURL):
             raise aiohttp.InvalidURL("invalid")
+
+    @requires_python34
+    def test_io(self):
+        assert isinstance(twisted_.TwistedClient.io(), io.TwistedStrategy)

@@ -27,6 +27,31 @@ class RetryTemplate(RequestTemplate):
                 return transitions.sleep(delay)
 
 
+class _AfterAttemptStopper(object):
+    def __init__(self, num):
+        self._num = num
+        self._attempt = 0
+
+    def __call__(self, *_):
+        self._attempt += 1
+        return self._num > self._attempt
+
+    @property
+    def num(self):
+        return self._num
+
+    @property
+    def attempt(self):
+        return self._attempt
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, _AfterAttemptStopper)
+            and other.num == self.num
+            and other.attempt == self.attempt
+        )
+
+
 # noinspection PyPep8Naming
 class retry(decorators.MethodAnnotation):
     _DEFAULT_MAX_ATTEMPTS = 5
@@ -34,8 +59,8 @@ class retry(decorators.MethodAnnotation):
     @staticmethod
     def exponential_backoff(base=2, multiplier=1, minimum=1, maximum=MAX_VALUE):
         def wait_iterator():
-            delay = multiplier * base
-            while minimum >= delay:
+            delay = multiplier
+            while minimum > delay:
                 delay *= base
             while True:
                 yield min(delay, maximum)
@@ -43,17 +68,12 @@ class retry(decorators.MethodAnnotation):
 
         return wait_iterator
 
-    # noinspection PyPep8Naming
     @staticmethod
     def stop_after_attempt(num):
-        class _AfterAttemptStopper(object):
-            _attempt = 0
+        def stop():
+            return _AfterAttemptStopper(num)
 
-            def __call__(self, *_):
-                self._attempt += 1
-                return num > self._attempt
-
-        return _AfterAttemptStopper
+        return stop
 
     def __init__(self, max_attempts=None, stop=None, wait=None):
         if max_attempts is not None:
@@ -70,3 +90,11 @@ class retry(decorators.MethodAnnotation):
 
     def _create_template(self):
         return RetryTemplate(self._wait(), self._stop())
+
+    @property
+    def stop(self):
+        return self._stop
+
+    @property
+    def wait(self):
+        return self._wait

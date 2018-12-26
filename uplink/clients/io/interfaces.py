@@ -283,7 +283,6 @@ class IOStrategy(object):
             exc_val: The exception object.
             exc_tb: The exception's stacktrace.
         """
-        # TODO: Reraise properly
         raise exc_val
 
     def execute(self, executable):

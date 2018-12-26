@@ -133,7 +133,8 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)
 
-    def io(self):
+    @staticmethod
+    def io():
         return io.AsyncioStrategy()
 
 

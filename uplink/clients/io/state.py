@@ -21,9 +21,9 @@ class _BaseState(interfaces.RequestState):
         return Finish(self._request, response)
 
     def sleep(self, duration):
-        return SleepState(self._request, duration)
+        return Sleep(self._request, duration)
 
-    def execute(self, execution):
+    def execute(self, execution):  # pragma: no cover
         raise NotImplementedError
 
     @property
@@ -35,8 +35,13 @@ class BeforeRequest(_BaseState):
     def execute(self, execution):
         return execution.before_request(self._request)
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, BeforeRequest) and self.request == other.request
+        )
 
-class SleepState(interfaces.RequestState):
+
+class Sleep(interfaces.RequestState):
     class _Callback(interfaces.SleepCallback):
         def __init__(self, execution, request):
             self._context = execution
@@ -64,6 +69,17 @@ class SleepState(interfaces.RequestState):
     @property
     def request(self):
         return self._request
+
+    @property
+    def duration(self):
+        return self._duration
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Sleep)
+            and self.request == other.request
+            and self.duration == other.duration
+        )
 
 
 class SendRequest(interfaces.RequestState):
@@ -94,6 +110,9 @@ class SendRequest(interfaces.RequestState):
     def request(self):
         return self._request
 
+    def __eq__(self, other):
+        return isinstance(other, SendRequest) and self.request == other.request
+
 
 class AfterResponse(_BaseState):
     def __init__(self, request, response):
@@ -103,6 +122,17 @@ class AfterResponse(_BaseState):
     def execute(self, execution):
         return execution.after_response(self._request, self._response)
 
+    @property
+    def response(self):
+        return self._response
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, AfterResponse)
+            and self.request == other.request
+            and self.response == other.response
+        )
+
 
 class AfterException(_BaseState):
     def __init__(self, request, exc_type, exc_val, exc_tb):
@@ -111,9 +141,30 @@ class AfterException(_BaseState):
         self._exc_val = exc_val
         self._exc_tb = exc_tb
 
+    @property
+    def exc_type(self):
+        return self._exc_type
+
+    @property
+    def exc_val(self):
+        return self._exc_val
+
+    @property
+    def exc_tb(self):
+        return self._exc_tb
+
     def execute(self, execution):
         return execution.after_exception(
             self._request, self._exc_type, self._exc_val, self._exc_tb
+        )
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, AfterException)
+            and self.request == other.request
+            and self.exc_type == other.exc_type
+            and self.exc_val == other.exc_val
+            and self.exc_tb == other.exc_tb
         )
 
 
@@ -125,7 +176,7 @@ class TerminalState(interfaces.RequestState):
     def request(self):
         return self._request
 
-    def execute(self, execution):
+    def execute(self, execution):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -137,7 +188,29 @@ class Fail(TerminalState):
         self._exc_tb = exc_tb
 
     def execute(self, execution):
+        print("Fail: ", execution)
         return execution.fail(self._exc_type, self._exc_val, self._exc_tb)
+
+    @property
+    def exc_type(self):
+        return self._exc_type
+
+    @property
+    def exc_val(self):
+        return self._exc_val
+
+    @property
+    def exc_tb(self):
+        return self._exc_tb
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Fail)
+            and self.request == other.request
+            and self.exc_type == other.exc_type
+            and self.exc_val == other.exc_val
+            and self.exc_tb == other.exc_tb
+        )
 
 
 class Finish(TerminalState):
@@ -147,3 +220,14 @@ class Finish(TerminalState):
 
     def execute(self, execution):
         return execution.finish(self._response)
+
+    @property
+    def response(self):
+        return self._response
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, Finish)
+            and self.request == other.request
+            and self.response == other.response
+        )

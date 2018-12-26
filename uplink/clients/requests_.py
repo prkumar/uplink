@@ -44,7 +44,8 @@ class RequestsClient(interfaces.HttpClientAdapter):
             setattr(session, key, kwargs[key])
         return session
 
-    def io(self):
+    @staticmethod
+    def io():
         return io.BlockingStrategy()
 
 

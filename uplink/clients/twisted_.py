@@ -39,10 +39,12 @@ class TwistedClient(interfaces.HttpClientAdapter):
     def create_request(self):
         return Request(self._requests.create_request())
 
+    @property
     def exceptions(self):
         return self._requests.exceptions
 
-    def io(self):
+    @staticmethod
+    def io():
         return io.TwistedStrategy()
 
 

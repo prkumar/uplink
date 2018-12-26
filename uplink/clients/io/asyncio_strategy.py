@@ -15,7 +15,7 @@ class AsyncioStrategy(interfaces.IOStrategy):
             response = await client.send(request)
         except Exception as error:
             # TODO: Include traceback
-            return await callback.on_failure(error, type(error), None)
+            return await callback.on_failure(type(error), error, None)
         else:
             return await callback.on_success(response)
 

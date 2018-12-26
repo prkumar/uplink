@@ -1,6 +1,5 @@
 # Third party imports
 from twisted.internet import reactor, defer, task
-from twisted.python import failure
 
 # Local imports
 from uplink.clients.io import interfaces
@@ -14,24 +13,35 @@ class TwistedStrategy(interfaces.IOStrategy):
 
     _deferred = None
 
+    @defer.inlineCallbacks
     def send(self, client, request, callback):
-        deferred = client.send(request)
-        deferred.addCallbacks(
-            callback.on_success,
-            lambda f: callback.on_failure(f.exc_type, f.exc_val, f.exc_tb),
-        )
-        return deferred
+        try:
+            response = yield client.send(request)
+        except Exception as error:
+            print("Failure: ", type(error))
+            response = yield callback.on_failure(type(error), error, None)
+        else:
+            response = yield callback.on_success(response)
+        defer.returnValue(response)
 
+    @defer.inlineCallbacks
     def sleep(self, duration, callback):
-        return task.deferLater(reactor, duration, callback.on_success)
+        yield task.deferLater(reactor, duration, lambda: None)
+        response = yield callback.on_success()
+        defer.returnValue(response)
 
+    @defer.inlineCallbacks
     def finish(self, response):
-        self._deferred.callback(response)
+        yield
+        defer.returnValue(response)
 
+    @defer.inlineCallbacks
     def fail(self, exc_type, exc_val, exc_tb):
-        self._deferred.errback(failure.Failure(exc_val, exc_type, exc_tb))
+        print("F")
+        yield
+        super(TwistedStrategy, self).fail(exc_type, exc_val, exc_tb)
 
+    @defer.inlineCallbacks
     def execute(self, executable):
-        self._deferred = defer.Deferred()
-        executable.execute()
-        return self._deferred
+        response = yield executable.execute()
+        defer.returnValue(response)

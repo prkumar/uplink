@@ -24,7 +24,7 @@ extras_require = {
     "twisted:python_version != '3.3'": "twisted>=17.1.0",
     "twisted:python_version == '3.3'": "twisted<=17.9.0",
     "typing": ["typing>=3.6.4"],
-    "tests": ["pytest", "pytest-mock", "pytest-cov"],
+    "tests": ["pytest", "pytest-mock", "pytest-cov", "pytest-twisted"],
 }
 
 metadata = {
