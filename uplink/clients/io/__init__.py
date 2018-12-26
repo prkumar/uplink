@@ -4,7 +4,7 @@ from uplink.clients.io.interfaces import (
     ExecutionStrategy,
     RequestTemplate,
 )
-from uplink.clients.io.context import BasicExecutionContext
+from uplink.clients.io.execution import DefaultRequestExecution
 from uplink.clients.io.templates import CompositeRequestTemplate
 from uplink.clients.io.blocking_strategy import BlockingStrategy
 from uplink.clients.io.twisted_strategy import TwistedStrategy
@@ -34,5 +34,5 @@ except (ImportError, SyntaxError):  # pragma: no cover
 
 
 def execute(client, execution, template, request):
-    context_ = BasicExecutionContext(client, execution, template, request)
+    context_ = DefaultRequestExecution(client, execution, template, request)
     return execution.execute(context_)

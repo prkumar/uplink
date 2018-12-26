@@ -23,7 +23,7 @@ class _BaseState(interfaces.RequestState):
     def sleep(self, duration):
         return SleepState(self._request, duration)
 
-    def execute(self, context):
+    def execute(self, execution):
         raise NotImplementedError
 
     @property
@@ -32,14 +32,14 @@ class _BaseState(interfaces.RequestState):
 
 
 class BeforeRequest(_BaseState):
-    def execute(self, context):
-        return context.before_request(self._request)
+    def execute(self, execution):
+        return execution.before_request(self._request)
 
 
 class SleepState(interfaces.RequestState):
     class _Callback(interfaces.SleepCallback):
-        def __init__(self, context, request):
-            self._context = context
+        def __init__(self, execution, request):
+            self._context = execution
             self._request = request
 
         def on_success(self):
@@ -56,9 +56,9 @@ class SleepState(interfaces.RequestState):
         self._request = request
         self._duration = duration
 
-    def execute(self, context):
-        return context.sleep(
-            self._duration, self._Callback(context, self._request)
+    def execute(self, execution):
+        return execution.sleep(
+            self._duration, self._Callback(execution, self._request)
         )
 
     @property
@@ -71,8 +71,8 @@ class SendRequest(interfaces.RequestState):
         self._request = request
 
     class _Callback(interfaces.SendCallback):
-        def __init__(self, context, request):
-            self._context = context
+        def __init__(self, execution, request):
+            self._context = execution
             self._request = request
 
         def on_success(self, response):
@@ -85,9 +85,9 @@ class SendRequest(interfaces.RequestState):
             )
             return self._context.execute()
 
-    def execute(self, context):
-        return context.send(
-            self._request, self._Callback(context, self._request)
+    def execute(self, execution):
+        return execution.send(
+            self._request, self._Callback(execution, self._request)
         )
 
     @property
@@ -100,8 +100,8 @@ class AfterResponse(_BaseState):
         super(AfterResponse, self).__init__(request)
         self._response = response
 
-    def execute(self, context):
-        return context.after_response(self._request, self._response)
+    def execute(self, execution):
+        return execution.after_response(self._request, self._response)
 
 
 class AfterException(_BaseState):
@@ -111,8 +111,8 @@ class AfterException(_BaseState):
         self._exc_val = exc_val
         self._exc_tb = exc_tb
 
-    def execute(self, context):
-        return context.after_exception(
+    def execute(self, execution):
+        return execution.after_exception(
             self._request, self._exc_type, self._exc_val, self._exc_tb
         )
 
@@ -125,7 +125,7 @@ class TerminalState(interfaces.RequestState):
     def request(self):
         return self._request
 
-    def execute(self, context):
+    def execute(self, execution):
         raise NotImplementedError
 
 
@@ -136,8 +136,8 @@ class Fail(TerminalState):
         self._exc_val = exc_val
         self._exc_tb = exc_tb
 
-    def execute(self, context):
-        return context.fail(self._exc_type, self._exc_val, self._exc_tb)
+    def execute(self, execution):
+        return execution.fail(self._exc_type, self._exc_val, self._exc_tb)
 
 
 class Finish(TerminalState):
@@ -145,5 +145,5 @@ class Finish(TerminalState):
         super(Finish, self).__init__(request)
         self._response = response
 
-    def execute(self, context):
-        return context.finish(self._response)
+    def execute(self, execution):
+        return execution.finish(self._response)

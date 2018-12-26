@@ -79,7 +79,7 @@ class Executable(collections.Iterator):
         raise NotImplementedError
 
 
-class ExecutionContext(Executable):
+class RequestExecution(Executable):
     """A state machine representing the execution lifecycle of a request."""
 
     @property
@@ -166,7 +166,7 @@ class RequestState(object):
     def fail(self, exc_type, exc_val, exc_tb):
         raise IllegalRequestStateTransition(self, "fail")
 
-    def execute(self, context):
+    def execute(self, execution):
         raise NotImplementedError
 
 

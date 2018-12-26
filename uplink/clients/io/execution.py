@@ -2,10 +2,10 @@
 from uplink.clients.io import interfaces
 from uplink.clients.io import state
 
-__all__ = ["BasicExecutionContext"]
+__all__ = ["DefaultRequestExecution"]
 
 
-class BasicExecutionContext(interfaces.ExecutionContext):
+class DefaultRequestExecution(interfaces.RequestExecution):
     def __init__(self, client, backend, template, request):
         self._client = client
         self._template = template
