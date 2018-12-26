@@ -9,7 +9,7 @@ from uplink.clients.io import interfaces
 __all__ = ["TwistedStrategy"]
 
 
-class TwistedStrategy(interfaces.ExecutionStrategy):
+class TwistedStrategy(interfaces.IOStrategy):
     """A non-blocking execution strategy using asyncio."""
 
     _deferred = None

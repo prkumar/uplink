@@ -238,7 +238,7 @@ class Client(object):
         raise NotImplementedError
 
 
-class ExecutionStrategy(object):
+class IOStrategy(object):
     """An adapter for a specific I/O model."""
 
     def send(self, client, request, callback):

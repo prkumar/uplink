@@ -7,7 +7,7 @@ from uplink.clients.io import interfaces
 __all__ = ["BlockingStrategy"]
 
 
-class BlockingStrategy(interfaces.ExecutionStrategy):
+class BlockingStrategy(interfaces.IOStrategy):
     """A blocking execution strategy."""
 
     def send(self, client, request, callback):

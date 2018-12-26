@@ -1,7 +1,7 @@
 from uplink.clients.io.interfaces import (
     Client,
     Executable,
-    ExecutionStrategy,
+    IOStrategy,
     RequestTemplate,
 )
 from uplink.clients.io.execution import DefaultRequestExecution
@@ -13,7 +13,7 @@ __all__ = [
     "Client",
     "CompositeRequestTemplate",
     "Executable",
-    "ExecutionStrategy",
+    "IOStrategy",
     "RequestTemplate",
     "BlockingStrategy",
     "AsyncioStrategy",
@@ -25,7 +25,7 @@ try:
     from uplink.clients.io.asyncio_strategy import AsyncioStrategy
 except (ImportError, SyntaxError):  # pragma: no cover
 
-    class AsyncioStrategy(ExecutionStrategy):
+    class AsyncioStrategy(IOStrategy):
         def __init__(self, *args, **kwargs):
             raise NotImplementedError(
                 "Failed to load `asyncio` execution strategy: you may be using a version "

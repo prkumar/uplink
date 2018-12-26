@@ -7,7 +7,7 @@ from uplink.clients.io import interfaces
 __all__ = ["AsyncioStrategy"]
 
 
-class AsyncioStrategy(interfaces.ExecutionStrategy):
+class AsyncioStrategy(interfaces.IOStrategy):
     """A non-blocking execution strategy using asyncio."""
 
     async def send(self, client, request, callback):
