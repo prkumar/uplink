@@ -68,7 +68,9 @@ class retry(decorators.MethodAnnotation):
             retries. If not specified, exponential backoff is used.
     """
 
-    _DEFAULT_MAX_ATTEMPTS = 5
+    @staticmethod
+    def stop_never():
+        return lambda x: True
 
     @staticmethod
     def exponential_backoff(base=2, multiplier=1, minimum=1, maximum=MAX_VALUE):
@@ -95,10 +97,7 @@ class retry(decorators.MethodAnnotation):
         elif max_attempts is not None:
             self._stop = self.stop_after_attempt(max_attempts)
         else:
-            raise RuntimeError(
-                "retry decorator requires either the `max_attempts` or "
-                "the `stop` argument to be not None."
-            )
+            self._stop = self.stop_never
 
         self._wait = self.exponential_backoff() if wait is None else wait
 

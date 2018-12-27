@@ -10,7 +10,7 @@ def test_exponential_backoff_minimum():
 
 def test_retry_stop_default():
     decorator = retry()
-    assert retry.stop_after_attempt(5)() == decorator.stop()
+    assert retry.stop_never == decorator.stop
 
 
 def test_retry_custom_stop():
