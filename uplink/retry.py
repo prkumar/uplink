@@ -54,6 +54,20 @@ class _AfterAttemptStopper(object):
 
 # noinspection PyPep8Naming
 class retry(decorators.MethodAnnotation):
+    """
+    A decorator that adds retry support to a consumer method or to an
+    entire consumer.
+
+    Args:
+        max_attempts (int, optional): The number of retries to attempt.
+            If specified, retries are capped at this limit.
+        stop (:obj:`callable`, optional): A function that creates
+            predicates that decide when to stop retrying a request.
+        wait (:obj:`callable`, optional): A function that creates
+            an iterator over the ordered sequence of timeouts between
+            retries. If not specified, exponential backoff is used.
+    """
+
     _DEFAULT_MAX_ATTEMPTS = 5
 
     @staticmethod
@@ -76,12 +90,15 @@ class retry(decorators.MethodAnnotation):
         return stop
 
     def __init__(self, max_attempts=None, stop=None, wait=None):
-        if max_attempts is not None:
-            self._stop = self.stop_after_attempt(max_attempts)
-        elif stop is None:
-            self._stop = self.stop_after_attempt(self._DEFAULT_MAX_ATTEMPTS)
-        else:
+        if stop is not None:
             self._stop = stop
+        elif max_attempts is not None:
+            self._stop = self.stop_after_attempt(max_attempts)
+        else:
+            raise RuntimeError(
+                "retry decorator requires either the `max_attempts` or "
+                "the `stop` argument to be not None."
+            )
 
         self._wait = self.exponential_backoff() if wait is None else wait
 
