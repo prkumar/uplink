@@ -418,4 +418,4 @@ class TestAiohttp(object):
 
     @requires_python34
     def test_io(self):
-        assert isinstance(twisted_.TwistedClient.io(), io.TwistedStrategy)
+        assert isinstance(aiohttp_.AiohttpClient.io(), io.AsyncioStrategy())
