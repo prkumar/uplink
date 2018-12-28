@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
     threads = None
 
 # Local imports
-from uplink.clients import helpers, interfaces, register
+from uplink.clients import helpers, interfaces, io, register
 
 
 class TwistedClient(interfaces.HttpClientAdapter):
@@ -38,6 +38,14 @@ class TwistedClient(interfaces.HttpClientAdapter):
 
     def create_request(self):
         return Request(self._requests.create_request())
+
+    @property
+    def exceptions(self):
+        return self._requests.exceptions
+
+    @staticmethod
+    def io():
+        return io.TwistedStrategy()
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):

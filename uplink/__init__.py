@@ -41,6 +41,8 @@ from uplink.arguments import (
     Body,
     Url,
 )
+from uplink.ratelimit import ratelimit
+from uplink.retry import retry
 
 __all__ = [
     "__version__",
@@ -86,6 +88,8 @@ __all__ = [
     "PartMap",
     "Body",
     "Url",
+    "retry",
+    "ratelimit",
 ]
 
 _load_entry_points()

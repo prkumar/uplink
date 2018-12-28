@@ -66,3 +66,15 @@ data serialization format for any consumer method.
 
 .. automodule:: uplink.returns
     :members:
+
+
+retry
+=====
+
+.. autoclass:: uplink.retry
+    :members:
+
+ratelimit
+=========
+
+.. autoclass:: uplink.ratelimit

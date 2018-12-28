@@ -3,6 +3,7 @@ import collections
 
 # Local imports
 from uplink import interfaces
+from uplink.clients import io
 
 
 def get_api_definitions(service):
@@ -38,10 +39,11 @@ def set_api_definition(service, name, definition):
 
 
 class RequestBuilder(object):
-    def __init__(self, converter_registry):
+    def __init__(self, client, converter_registry):
         self._method = None
         self._url = None
         self._return_type = None
+        self._client = client
 
         # TODO: Pass this in as constructor parameter
         # TODO: Delegate instantiations to uplink.HTTPClientAdapter
@@ -49,6 +51,11 @@ class RequestBuilder(object):
 
         self._converter_registry = converter_registry
         self._transaction_hooks = []
+        self._request_templates = []
+
+    @property
+    def client(self):
+        return self._client
 
     @property
     def method(self):
@@ -85,5 +92,12 @@ class RequestBuilder(object):
     def return_type(self, return_type):
         self._return_type = return_type
 
+    @property
+    def request_template(self):
+        return io.CompositeRequestTemplate(self._request_templates)
+
     def add_transaction_hook(self, hook):
         self._transaction_hooks.append(hook)
+
+    def add_request_template(self, template):
+        self._request_templates.append(template)

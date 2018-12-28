@@ -1,6 +1,6 @@
 # Local imports
 from uplink import utils, clients
-from uplink.clients import helpers, exceptions as client_exceptions
+from uplink.clients import helpers, io, exceptions as client_exceptions
 
 
 class MockClient(clients.interfaces.HttpClientAdapter):
@@ -8,6 +8,7 @@ class MockClient(clients.interfaces.HttpClientAdapter):
         self._mocked_request = request
         self._request = _HistoryMaintainingRequest(_MockRequest(request))
         self._exceptions = client_exceptions.Exceptions()
+        self._io = io.BlockingStrategy()
 
     def create_request(self):
         return self._request
@@ -16,8 +17,8 @@ class MockClient(clients.interfaces.HttpClientAdapter):
         self._mocked_request.send.return_value = response
         return self
 
-    def with_side_effect(self, error):
-        self._mocked_request.send.side_effect = error
+    def with_side_effect(self, side_effect):
+        self._mocked_request.send.side_effect = side_effect
         return self
 
     @property
@@ -27,6 +28,13 @@ class MockClient(clients.interfaces.HttpClientAdapter):
     @property
     def history(self):
         return self._request.history
+
+    def with_io(self, io_):
+        self._io = io_
+        return self
+
+    def io(self):
+        return self._io
 
 
 class MockResponse(object):
