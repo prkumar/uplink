@@ -56,6 +56,17 @@ class RateLimiterTemplate(RequestTemplate):
 
 # noinspection PyPep8Naming
 class ratelimit(decorators.MethodAnnotation):
+    """
+    A decorator that constrains the decorated consumer method or
+    consumer to making a specified maximum number of requests within a
+    defined time period (e.g., 15 calls every 15 minutes).
+
+    Args:
+        calls (int): The maximum number of allowed calls that the
+            consumer can make within the time period.
+        period (float): The duration of each time period in seconds.
+    """
+
     def __init__(self, calls=15, period=900, clock=now):
         self._max_calls = max(1, min(sys.maxsize, math.floor(calls)))
         self._period = period
