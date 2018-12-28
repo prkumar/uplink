@@ -64,7 +64,7 @@ class retry(decorators.MethodAnnotation):
     which should benefit performance with remote services under high
     contention.
 
-    Args:exception
+    Args:
         max_attempts (int, optional): The number of retries to attempt.
             If specified, retries are capped at this limit.
         when_raises (:class:`Exception`, optional): The base exception
@@ -84,7 +84,7 @@ class retry(decorators.MethodAnnotation):
         if stop is not None:
             self._stop = stop
         elif max_attempts is not None:
-            self._stop = self.stop_after_attempt(max_attempts)
+            self._stop = self.stop_after_attempts(max_attempts)
         else:
             self._stop = self.STOP_NEVER
 
@@ -151,7 +151,7 @@ class retry(decorators.MethodAnnotation):
         return wait_iterator
 
     @staticmethod
-    def stop_after_attempt(attempts):
+    def stop_after_attempts(attempts):
         """Stops retrying after the specified number of ``attempts``."""
 
         def stop():
