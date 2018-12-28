@@ -1,4 +1,5 @@
 # Standard library imports
+import random
 import sys
 
 # Local imports
@@ -58,6 +59,11 @@ class retry(decorators.MethodAnnotation):
     A decorator that adds retry support to a consumer method or to an
     entire consumer.
 
+    Unless you override the ``wait`` argument, this decorator uses
+    `capped exponential backoff and jitter <https://amzn.to/2xc2nK2>`_,
+    which should benefit performance with remote services under high
+    contention.
+
     Args:
         max_attempts (int, optional): The number of retries to attempt.
             If specified, retries are capped at this limit.
@@ -69,25 +75,68 @@ class retry(decorators.MethodAnnotation):
     """
 
     @staticmethod
-    def stop_never():
-        return lambda x: True
+    def _stop_never():
+        return lambda *_: True
+
+    STOP_NEVER = _stop_never
 
     @staticmethod
-    def exponential_backoff(base=2, multiplier=1, minimum=1, maximum=MAX_VALUE):
+    def jittered_backoff(base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
+        """
+        Waits using capped exponential backoff and full jitter.
+
+        The implementation is discussed in `this AWS Architecture Blog
+        post <https://amzn.to/2xc2nK2>`_, which recommends this approach
+        for any remote clients, as it minimizes the total completion
+        time of competing clients in a distributed system experiencing
+        high contention.
+        """
+
         def wait_iterator():
-            delay = multiplier
-            while minimum > delay:
-                delay *= base
-            while True:
-                yield min(delay, maximum)
-                delay *= base
+            backoff = retry.exponential_backoff(
+                base, multiplier, minimum, maximum
+            )
+            for delay in backoff:
+                yield random.uniform(0, 1) * delay
 
         return wait_iterator
 
     @staticmethod
-    def stop_after_attempt(num):
+    def exponential_backoff(base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
+        """
+        Waits using capped exponential backoff, meaning that the delay
+        is multiplied by a constant ``base`` after each attempt, up to
+        an optional ``maximum`` value.
+        """
+
+        def wait_iterator():
+            delay = base * multiplier
+            while minimum > delay:
+                delay *= base
+            while maximum >= delay:
+                yield delay
+                delay *= base
+            while True:
+                yield maximum
+
+        return wait_iterator
+
+    @staticmethod
+    def fixed_backoff(seconds):
+        """Waits for a fixed number of ``seconds`` before each retry."""
+
+        def wait_iterator():
+            while True:
+                yield seconds
+
+        return wait_iterator
+
+    @staticmethod
+    def stop_after_attempt(attempts):
+        """Stops retrying after the specified number of ``attempts``."""
+
         def stop():
-            return _AfterAttemptStopper(num)
+            return _AfterAttemptStopper(attempts)
 
         return stop
 
@@ -97,9 +146,9 @@ class retry(decorators.MethodAnnotation):
         elif max_attempts is not None:
             self._stop = self.stop_after_attempt(max_attempts)
         else:
-            self._stop = self.stop_never
+            self._stop = self.STOP_NEVER
 
-        self._wait = self.exponential_backoff() if wait is None else wait
+        self._wait = self.jittered_backoff() if wait is None else wait
 
     def modify_request(self, request_builder):
         request_builder.add_request_template(self._create_template())
