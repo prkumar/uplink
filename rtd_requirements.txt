@@ -1,0 +1,33 @@
+# This requirements file is used to build the documentation at https://uplink.readthedocs.io/
+# This file will become unnecessary after RTD adds support for Pipfiles: https://github.com/rtfd/readthedocs.org/issues/3181
+-i https://pypi.org/simple
+-e .[aiohttp,marshmallow,tests,twisted,typing]
+aiohttp==3.4.4
+async-timeout==3.0.0
+atomicwrites==1.2.1 ; python_version != '3.3.*' and python_version >= '2.7' and python_version != '3.0.*' and python_version != '3.1.*' and python_version != '3.2.*'
+attrs==18.2.0
+automat==0.7.0
+certifi==2018.8.24
+chardet==3.0.4
+constantly==15.1.0
+coverage==4.5.1
+hyperlink==18.0.0
+idna==2.7
+incremental==17.5.0
+marshmallow==2.15.6
+more-itertools==4.3.0
+multidict==4.4.2 ; python_version >= '3.4.1'
+pluggy==0.7.1 ; python_version != '3.1.*' and python_version != '3.2.*' and python_version != '3.0.*' and python_version != '3.3.*' and python_version >= '2.7'
+py==1.6.0 ; python_version != '3.1.*' and python_version != '3.2.*' and python_version != '3.0.*' and python_version != '3.3.*' and python_version >= '2.7'
+pyhamcrest==1.9.0
+pytest-cov==2.6.0 ; python_version != '3.3.*' and python_version >= '2.7' and python_version != '3.0.*' and python_version != '3.1.*' and python_version != '3.2.*'
+pytest-mock==1.10.0
+pytest==3.8.2 ; python_version != '3.3.*' and python_version >= '2.7' and python_version != '3.0.*' and python_version != '3.1.*' and python_version != '3.2.*'
+requests==2.19.1
+six==1.11.0
+twisted==18.7.0
+typing==3.6.6
+uritemplate==3.0.0
+urllib3==1.23
+yarl==1.2.6
+zope.interface==4.5.0
