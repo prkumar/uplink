@@ -4,7 +4,6 @@ import sys
 
 # Local imports
 from uplink import decorators
-from uplink.clients.exceptions import Exceptions
 from uplink.clients.io import RequestTemplate, transitions
 
 __all__ = ["retry"]
@@ -43,8 +42,11 @@ class _ClientExceptionProxy(object):
     def __init__(self, getter):
         self._getter = getter
 
+    @classmethod
+    def wrap_proxy_if_necessary(cls, exc):
+        return exc if isinstance(exc, cls) else (lambda exceptions: exc)
+
     def __call__(self, exceptions):
-        assert isinstance(exceptions, Exceptions)
         return self._getter(exceptions)
 
 
@@ -116,12 +118,9 @@ class retry(decorators.MethodAnnotation):
         high contention.
         """
         backoff = retry.exponential_backoff(base, multiplier, minimum, maximum)
-
-        def wait_iterator():
-            for delay in backoff():
-                yield random.uniform(0, 1) * delay
-
-        return wait_iterator
+        return lambda *_: iter(
+            random.uniform(0, 1) * delay for delay in backoff()
+        )
 
     @staticmethod
     def exponential_backoff(base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
@@ -132,7 +131,7 @@ class retry(decorators.MethodAnnotation):
         """
 
         def wait_iterator():
-            delay = base * multiplier
+            delay = multiplier
             while minimum > delay:
                 delay *= base
             while True:
@@ -165,10 +164,10 @@ class retry(decorators.MethodAnnotation):
         """
         Attempts retry when the raised exception type is ``exc_type``.
         """
-        is_proxy = isinstance(exc_type, _ClientExceptionProxy)
+        proxy = _ClientExceptionProxy.wrap_proxy_if_necessary(exc_type)
 
         def when_func(rb):
-            type_ = exc_type(rb.client.exceptions) if is_proxy else exc_type
+            type_ = proxy(rb.client.exceptions)
 
             def should_retry(et, ev, tb):
                 return isinstance(ev, type_)
