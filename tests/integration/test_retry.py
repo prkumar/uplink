@@ -29,6 +29,11 @@ class GitHub(uplink.Consumer):
     def get_issue(self, user, repo, issue):
         pass
 
+    @uplink.retry(max_attempts=2, when_raises=uplink.retry.CONNECTION_TIMEOUT)
+    @uplink.get("/{user}/{repo}/{project}")
+    def get_project(self, user, repo, project):
+        pass
+
 
 # Tests
 
@@ -55,10 +60,29 @@ def test_retry_fail(mock_client, mock_response):
 
     # Run
     with pytest.raises(Exception):
-        github.get_user("prkumar")
+        github.get_issue("prkumar", "uplink", "#1")
 
     # Verify
     assert len(mock_client.history) == 2
+
+
+def test_retry_with_client_exception(mock_client, mock_response):
+    # Setup
+    mock_response.with_json({"id": 123, "name": "prkumar"})
+    mock_client.exceptions.ConnectionTimeout = type(
+        "ConnectionTimeout", (Exception,), {}
+    )
+    mock_client.with_side_effect(
+        [mock_client.exceptions.ConnectionTimeout, mock_response]
+    )
+    github = GitHub(base_url=BASE_URL, client=mock_client)
+
+    # Run
+    response = github.get_project("prkumar", "uplink", "1")
+
+    # Verify
+    assert len(mock_client.history) == 2
+    assert response.json() == {"id": 123, "name": "prkumar"}
 
 
 def test_retry_fail_because_of_wait(mock_client, mock_response):

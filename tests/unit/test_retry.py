@@ -11,6 +11,7 @@ def test_exponential_backoff_minimum():
 def test_retry_stop_default():
     decorator = retry()
     assert retry.STOP_NEVER == decorator.stop
+    assert not decorator.stop()()
 
 
 def test_retry_custom_stop():

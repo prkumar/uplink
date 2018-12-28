@@ -4,6 +4,7 @@ import sys
 
 # Local imports
 from uplink import decorators
+from uplink.clients.exceptions import Exceptions
 from uplink.clients.io import RequestTemplate, transitions
 
 __all__ = ["retry"]
@@ -35,22 +36,16 @@ class _AfterAttemptStopper(object):
 
     def __call__(self, *_):
         self._attempt += 1
-        return self._num > self._attempt
+        return self._num <= self._attempt
 
-    @property
-    def num(self):
-        return self._num
 
-    @property
-    def attempt(self):
-        return self._attempt
+class _ClientExceptionProxy(object):
+    def __init__(self, getter):
+        self._getter = getter
 
-    def __eq__(self, other):
-        return (
-            isinstance(other, _AfterAttemptStopper)
-            and other.num == self.num
-            and other.attempt == self.attempt
-        )
+    def __call__(self, exceptions):
+        assert isinstance(exceptions, Exceptions)
+        return self._getter(exceptions)
 
 
 # noinspection PyPep8Naming
@@ -59,14 +54,21 @@ class retry(decorators.MethodAnnotation):
     A decorator that adds retry support to a consumer method or to an
     entire consumer.
 
-    Unless you override the ``wait`` argument, this decorator uses
+    Unless you specify the ``max_attempts`` or ``stop`` argument, this
+    decorator continues retrying until the server returns a response.
+
+    Unless you specify the ``wait`` argument, this decorator uses
     `capped exponential backoff and jitter <https://amzn.to/2xc2nK2>`_,
     which should benefit performance with remote services under high
     contention.
 
-    Args:
+    Args:exception
         max_attempts (int, optional): The number of retries to attempt.
             If specified, retries are capped at this limit.
+        when_raises (:class:`Exception`, optional): The base exception
+            type that should prompt a retry attempt. The default value
+            is :class:`Exception`, meaning all failed requests are
+            retried.
         stop (:obj:`callable`, optional): A function that creates
             predicates that decide when to stop retrying a request.
         wait (:obj:`callable`, optional): A function that creates
@@ -74,11 +76,33 @@ class retry(decorators.MethodAnnotation):
             retries. If not specified, exponential backoff is used.
     """
 
+    def __init__(
+        self, max_attempts=None, when_raises=Exception, stop=None, wait=None
+    ):
+        if stop is not None:
+            self._stop = stop
+        elif max_attempts is not None:
+            self._stop = self.stop_after_attempt(max_attempts)
+        else:
+            self._stop = self.STOP_NEVER
+
+        self._wait = self.jittered_backoff() if wait is None else wait
+        self._when = self._when_exception_type_is(when_raises)
+
+    BASE_CLIENT_EXCEPTION = _ClientExceptionProxy(
+        lambda ex: ex.BaseClientException
+    )
+    CONNECTION_ERROR = _ClientExceptionProxy(lambda ex: ex.ConnectionError)
+    CONNECTION_TIMEOUT = _ClientExceptionProxy(lambda ex: ex.ConnectionTimeout)
+    SERVER_TIMEOUT = _ClientExceptionProxy(lambda ex: ex.ServerTimeout)
+    SSL_ERROR = _ClientExceptionProxy(lambda ex: ex.SSLError)
+
     @staticmethod
     def _stop_never():
-        return lambda *_: True
+        return lambda *_: False
 
     STOP_NEVER = _stop_never
+    """Continues retrying until the request is successful"""
 
     @staticmethod
     def jittered_backoff(base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
@@ -91,12 +115,10 @@ class retry(decorators.MethodAnnotation):
         time of competing clients in a distributed system experiencing
         high contention.
         """
+        backoff = retry.exponential_backoff(base, multiplier, minimum, maximum)
 
         def wait_iterator():
-            backoff = retry.exponential_backoff(
-                base, multiplier, minimum, maximum
-            )
-            for delay in backoff:
+            for delay in backoff():
                 yield random.uniform(0, 1) * delay
 
         return wait_iterator
@@ -113,11 +135,9 @@ class retry(decorators.MethodAnnotation):
             delay = base * multiplier
             while minimum > delay:
                 delay *= base
-            while maximum >= delay:
-                yield delay
-                delay *= base
             while True:
-                yield maximum
+                yield min(delay, maximum)
+                delay *= base
 
         return wait_iterator
 
@@ -140,21 +160,39 @@ class retry(decorators.MethodAnnotation):
 
         return stop
 
-    def __init__(self, max_attempts=None, stop=None, wait=None):
-        if stop is not None:
-            self._stop = stop
-        elif max_attempts is not None:
-            self._stop = self.stop_after_attempt(max_attempts)
-        else:
-            self._stop = self.STOP_NEVER
+    @staticmethod
+    def _when_exception_type_is(exc_type):
+        """
+        Attempts retry when the raised exception type is ``exc_type``.
+        """
+        is_proxy = isinstance(exc_type, _ClientExceptionProxy)
 
-        self._wait = self.jittered_backoff() if wait is None else wait
+        def when_func(rb):
+            type_ = exc_type(rb.client.exceptions) if is_proxy else exc_type
+
+            def should_retry(et, ev, tb):
+                return isinstance(ev, type_)
+
+            return should_retry
+
+        return when_func
 
     def modify_request(self, request_builder):
-        request_builder.add_request_template(self._create_template())
+        request_builder.add_request_template(
+            self._create_template(request_builder)
+        )
 
-    def _create_template(self):
-        return RetryTemplate(self._wait(), self._stop())
+    def _create_template(self, request_builder):
+        return RetryTemplate(
+            self._backoff_iterator(), self._when(request_builder)
+        )
+
+    def _backoff_iterator(self):
+        stop = self._stop()
+        for delay in self._wait():
+            if stop():
+                break
+            yield delay
 
     @property
     def stop(self):
