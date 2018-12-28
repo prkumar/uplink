@@ -120,7 +120,7 @@ class retry(decorators.MethodAnnotation):
         backoff = retry.exponential_backoff(base, multiplier, minimum, maximum)
         return lambda *_: iter(
             random.uniform(0, 1) * delay for delay in backoff()
-        )
+        )  # pragma: no cover
 
     @staticmethod
     def exponential_backoff(base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
