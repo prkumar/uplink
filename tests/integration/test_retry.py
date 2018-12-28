@@ -72,17 +72,18 @@ def test_retry_fail_with_client_exception(mock_client, mock_response):
     mock_client.exceptions.ConnectionTimeout = type(
         "ConnectionTimeout", (Exception,), {}
     )
+    CustomException = type("CustomException", (Exception,), {})
     mock_client.with_side_effect(
         [
             mock_client.exceptions.ConnectionTimeout,
-            BlockingIOError,
+            CustomException,
             mock_response,
         ]
     )
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
     # Run
-    with pytest.raises(BlockingIOError):
+    with pytest.raises(CustomException):
         github.get_project("prkumar", "uplink", "1")
 
     # Verify
