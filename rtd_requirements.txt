@@ -2,5 +2,7 @@
 # https://uplink.readthedocs.io/. This file will become unnecessary after RTD
 # adds support for Pipfiles: https://github.com/rtfd/readthedocs.org/issues/3181
 
--i https://pypi.org/simple
--e .[aiohttp,marshmallow,tests,twisted,typing]
+aiohttp
+marshmallow
+requests
+twisted
