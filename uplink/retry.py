@@ -67,9 +67,9 @@ class retry(decorators.MethodAnnotation):
     Args:
         max_attempts (int, optional): The number of retries to attempt.
             If specified, retries are capped at this limit.
-        when_raises (:class:`Exception`, optional): The base exception
-            type that should prompt a retry attempt. The default value
-            is :class:`Exception`, meaning all failed requests are
+        on_exception (:class:`Exception`, optional): The exception type
+            that should prompt a retry attempt. The default value is
+            :class:`Exception`, meaning all failed requests are
             retried.
         stop (:obj:`callable`, optional): A function that creates
             predicates that decide when to stop retrying a request.
@@ -79,7 +79,7 @@ class retry(decorators.MethodAnnotation):
     """
 
     def __init__(
-        self, max_attempts=None, when_raises=Exception, stop=None, wait=None
+        self, max_attempts=None, on_exception=Exception, stop=None, wait=None
     ):
         if stop is not None:
             self._stop = stop
@@ -89,7 +89,7 @@ class retry(decorators.MethodAnnotation):
             self._stop = self.STOP_NEVER
 
         self._wait = self.jittered_backoff() if wait is None else wait
-        self._when = self._when_exception_type_is(when_raises)
+        self._when = self._when_exception_type_is(on_exception)
 
     BASE_CLIENT_EXCEPTION = _ClientExceptionProxy(
         lambda ex: ex.BaseClientException

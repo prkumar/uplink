@@ -29,7 +29,7 @@ class GitHub(uplink.Consumer):
     def get_issue(self, user, repo, issue):
         pass
 
-    @uplink.retry(max_attempts=3, when_raises=uplink.retry.CONNECTION_TIMEOUT)
+    @uplink.retry(max_attempts=3, on_exception=uplink.retry.CONNECTION_TIMEOUT)
     @uplink.get("/{user}/{repo}/{project}")
     def get_project(self, user, repo, project):
         pass
