@@ -702,7 +702,7 @@ class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
 
     @property
     def converter_key(self):
-        """Do not Convert passed argument."""
+        """Do not convert passed argument."""
         return keys.Identity()
 
     def _modify_request(self, request_builder, value):
