@@ -93,15 +93,14 @@ class Identity(object):
     Identity conversion - pass value as is
     """
 
-    def __eq__(self, other):
-        return isinstance(other, Identity) and type(other) is type(self)
-
     def __call__(self, converter_registry):
+        return self._identity_factory
 
-        def factory_wrapper(*args, **kwargs):
-            return self._identity
+    def __eq__(self, other):
+        return type(other) is type(self)
 
-        return factory_wrapper
+    def _identity_factory(self, *args, **kwargs):
+        return self._identity
 
     def _identity(self, value):
         return value
