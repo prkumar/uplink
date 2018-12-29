@@ -40,6 +40,7 @@ from uplink.arguments import (
     PartMap,
     Body,
     Url,
+    Timeout,
 )
 from uplink.ratelimit import ratelimit
 from uplink.retry import retry
@@ -88,6 +89,7 @@ __all__ = [
     "PartMap",
     "Body",
     "Url",
+    "Timeout",
     "retry",
     "ratelimit",
 ]

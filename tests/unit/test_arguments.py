@@ -1,3 +1,7 @@
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 import pytest
 
 # Local imports
@@ -424,3 +428,12 @@ class TestUrl(ArgumentTestCase):
     def test_modify_request(self, request_builder):
         arguments.Url().modify_request(request_builder, "/some/path")
         assert request_builder.url == "/some/path"
+
+
+class TestTimeout(ArgumentTestCase, FuncDecoratorTestCase):
+    type_cls = arguments.Timeout
+    expected_converter_key = mock.ANY
+
+    def test_modify_request(self, request_builder):
+        arguments.Timeout().modify_request(request_builder, 10)
+        assert request_builder.info["timeout"] == 10
