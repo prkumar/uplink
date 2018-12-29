@@ -23,6 +23,7 @@ __all__ = [
     "PartMap",
     "Body",
     "Url",
+    "Timeout",
 ]
 
 
