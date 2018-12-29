@@ -1,17 +1,6 @@
-################################################################################
-# This requirements file has been automatically generated from `Pipfile` with
-# `pipenv-to-requirements`
-#
-#
-# This has been done to maintain backward compatibility with tools and services
-# that do not support `Pipfile` yet.
-#
-# Do NOT edit it directly, use `pipenv install [-d]` to modify `Pipfile` and
-# `Pipfile.lock` and then regenerate `requirements*.txt`.
-################################################################################
-
 # This requirements file is used to build the documentation at
 # https://uplink.readthedocs.io/. This file will become unnecessary after RTD
 # adds support for Pipfiles: https://github.com/rtfd/readthedocs.org/issues/3181
 
--e .[tests, aiohttp, marshmallow, twisted, typing]
+-i https://pypi.org/simple
+-e .[aiohttp,marshmallow,tests,twisted,typing]
