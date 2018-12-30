@@ -77,9 +77,29 @@ retry
 retry.backoff
 -------------
 
-The :mod:`~uplink.retry` decorator's ``backoff`` argument allows you to override
-the default backoff strategy. The :mod:`uplink.retry.backoff` module exposes
-alternative backoff approaches:
+Retrying failed requests typically involves backoff: the client can wait
+some time before the next retry attempt to avoid high contention on the remote
+service.
+
+To this end, the :class:`~uplink.retry` decorator uses `capped
+exponential backoff with jitter
+<https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/>`_
+by default, To override this, use the decorator's ``backoff`` argument
+to specify one of the alternative approaches exposed through the
+:mod:`uplink.retry.backoff` module:
+
+.. code-block:: python
+   :emphasize-lines: 2,5-6
+
+   from uplink import retry, Consumer, get
+   from uplink.retry import backoff
+
+   class GitHub(Consumer):
+      # Employ a fixed one second delay between retries.
+      @retry(backoff=backoff.fixed(1))
+      @get("user/{username}")
+      def get_user(self, username):
+         """Get user by username."""
 
 .. code-block:: python
    :emphasize-lines: 4

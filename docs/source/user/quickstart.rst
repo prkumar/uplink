@@ -441,3 +441,60 @@ instance as its leading argument:
         @post("user/repo")
         def create_repo(self, name: Field):
             """Create a new repository."""
+
+Retrying
+========
+
+`Networks are unreliable
+<https://en.wikipedia.org/wiki/Fallacies_of_distributed_computing>`_.
+Requests can fail for various reasons. In some cases, such as after a
+connection timeout, simply retrying a failed request is appropriate. The
+:class:`@retry <uplink.retry>` decorator can handle this for you:
+
+.. code-block:: python
+   :emphasize-lines: 1,4
+
+   from uplink import retry, Consumer, get
+
+   class GitHub(Consumer):
+      @retry
+      @get("user/{username}")
+      def get_user(self, username):
+         """Get user by username."""
+
+Without any further configuration, the decorator will retry requests
+that fail *for any reasons**. To constrain which exceptions should
+prompt a retry attempt, use the ``on_exception`` argument:
+
+.. code-block:: python
+   :emphasize-lines: 4,5
+
+   from uplink import retry, Consumer, get
+
+   class GitHub(Consumer):
+      # Retry only on failure to connect to the remote server.
+      @retry(on_exception-retry.exceptions.ConnectionTimeout)
+      @get("user/{username}")
+      def get_user(self, username):
+         """Get user by username."""
+
+Further, as long as the expected exception is thrown, the decorator will
+repeatedly retry until a response is rendered. If you'd like to seize
+retrying after a specific number of attempts, use the ``max_attempts``
+argument:
+
+.. code-block:: python
+   :emphasize-lines: 4,5
+
+   from uplink import retry, Consumer, get
+
+   class GitHub(Consumer):
+      # Try four times, then fail hard if no response.
+      @retry(max_attempts=4)
+      @get("user/{username}")
+      def get_user(self, username):
+         """Get user by username."""
+
+Like other Uplink decorators, you can decorate a :class:`Consumer`
+subclass with :class:`@retry <uplink.retry>` to add retry support to all
+methods of that class.

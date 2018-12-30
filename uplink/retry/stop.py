@@ -22,4 +22,5 @@ class _DisableStop(object):
         return False
 
 
-DISABLED = _DisableStop()
+DISABLE = _DisableStop()
+"""Continuously retry until a response is rendered."""

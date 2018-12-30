@@ -40,6 +40,9 @@ class retry(decorators.MethodAnnotation):
     A decorator that adds retry support to a consumer method or to an
     entire consumer.
 
+    Unless you specify the ``on_exception`` argument, all failed
+    requests are retried.
+
     Unless you specify the ``max_attempts`` or ``stop`` argument, this
     decorator continues retrying until the server returns a response.
 
@@ -71,7 +74,7 @@ class retry(decorators.MethodAnnotation):
         elif max_attempts is not None:
             self._stop = stop_mod.after_attempts(max_attempts)
         else:
-            self._stop = stop_mod.DISABLED
+            self._stop = stop_mod.DISABLE
 
         self._backoff = backoff_mod.jittered() if backoff is None else backoff
         self._when = self._when_exception_type_is(on_exception)
@@ -118,10 +121,5 @@ class retry(decorators.MethodAnnotation):
                 break
             yield delay
 
-    @property
-    def stop(self):
-        return self._stop
-
-    @property
-    def backoff(self):
-        return self._backoff
+    stop = stop_mod
+    backoff = backoff_mod

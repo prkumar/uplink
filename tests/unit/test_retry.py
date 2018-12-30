@@ -37,8 +37,8 @@ def test_fixed_backoff():
 
 def test_retry_stop_default():
     decorator = retry()
-    assert stop.DISABLED == decorator.stop
-    assert not decorator.stop()
+    assert stop.DISABLE == decorator._stop
+    assert not decorator._stop()
 
 
 def test_retry_custom_stop():
@@ -46,7 +46,7 @@ def test_retry_custom_stop():
         return True
 
     decorator = retry(stop=custom_stop)
-    assert decorator.stop == custom_stop
+    assert decorator._stop == custom_stop
 
 
 def test_retry_backoff():
@@ -54,7 +54,12 @@ def test_retry_backoff():
         return True
 
     decorator = retry(backoff=custom_backoff)
-    assert decorator.backoff == custom_backoff
+    assert decorator._backoff == custom_backoff
+
+
+def test_retry_decorator_exposes_submodules_as_properties():
+    assert retry.backoff is backoff
+    assert retry.stop is stop
 
 
 class TestClientExceptionProxies(object):
