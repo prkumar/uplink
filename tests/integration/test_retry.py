@@ -5,26 +5,27 @@ import pytest_twisted
 # Local imports.
 import uplink
 from uplink.clients import io
+from uplink.retry import backoff
 from tests import requires_python34
 
 # Constants
 BASE_URL = "https://api.github.com/"
 
 
-def wait_once():
+def backoff_once():
     yield 0.1
 
 
-wait_default = uplink.retry.exponential_backoff(multiplier=0.1, minimum=0.1)
+backoff_default = backoff.exponential(multiplier=0.1, minimum=0.1)
 
 
 class GitHub(uplink.Consumer):
-    @uplink.retry(max_attempts=2, wait=wait_default)
+    @uplink.retry(max_attempts=2, backoff=backoff_default)
     @uplink.get("/users/{user}")
     def get_user(self, user):
         pass
 
-    @uplink.retry(max_attempts=3, wait=wait_once)
+    @uplink.retry(max_attempts=3, backoff=backoff_once)
     @uplink.get("/{user}/{repo}/{issue}")
     def get_issue(self, user, repo, issue):
         pass

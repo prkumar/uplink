@@ -1,43 +1,44 @@
 # Local imports
 from uplink import retry
+from uplink.retry import backoff, stop
 
 
 def test_jittered_backoff():
-    backoff = retry.jittered_backoff()()
+    iterator = backoff.jittered()()
 
-    first = next(backoff)
+    first = next(iterator)
     assert 0 <= first <= 1
 
-    second = next(backoff)
+    second = next(iterator)
     assert 0 <= second <= 2
 
-    third = next(backoff)
+    third = next(iterator)
     assert 0 <= third <= 4
 
-    fourth = next(backoff)
+    fourth = next(iterator)
     assert 0 <= fourth <= 8
 
-    fifth = next(backoff)
+    fifth = next(iterator)
     assert 0 <= fifth <= 16
 
 
 def test_exponential_backoff_minimum():
-    backoff = retry.exponential_backoff(base=2, minimum=8)()
-    assert next(backoff) == 8
-    assert next(backoff) == 16
+    iterator = backoff.exponential(base=2, minimum=8)()
+    assert next(iterator) == 8
+    assert next(iterator) == 16
 
 
 def test_fixed_backoff():
-    backoff = retry.fixed_backoff(10)()
-    assert next(backoff) == 10
-    assert next(backoff) == 10
-    assert next(backoff) == 10
+    iterator = backoff.fixed(10)()
+    assert next(iterator) == 10
+    assert next(iterator) == 10
+    assert next(iterator) == 10
 
 
 def test_retry_stop_default():
     decorator = retry()
-    assert retry.STOP_NEVER == decorator.stop
-    assert not decorator.stop()()
+    assert stop.DISABLED == decorator.stop
+    assert not decorator.stop()
 
 
 def test_retry_custom_stop():
@@ -48,12 +49,12 @@ def test_retry_custom_stop():
     assert decorator.stop == custom_stop
 
 
-def test_retry_wait():
-    def custom_wait(*_):
+def test_retry_backoff():
+    def custom_backoff(*_):
         return True
 
-    decorator = retry(wait=custom_wait)
-    assert decorator.wait == custom_wait
+    decorator = retry(backoff=custom_backoff)
+    assert decorator.backoff == custom_backoff
 
 
 class TestClientExceptionProxies(object):
