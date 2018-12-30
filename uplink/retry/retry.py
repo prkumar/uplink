@@ -50,7 +50,8 @@ class retry(decorators.MethodAnnotation):
 
     Args:
         max_attempts (int, optional): The number of retries to attempt.
-            If specified, retries are capped at this limit.
+            If not specified, requests are retried continuously until
+            a response is rendered.
         on_exception (:class:`Exception`, optional): The exception type
             that should prompt a retry attempt. The default value is
             :class:`Exception`, meaning all failed requests are

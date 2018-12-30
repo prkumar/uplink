@@ -74,12 +74,23 @@ retry
 .. automodule:: uplink.retry
     :members:
 
-retry.backoffBackoff
+retry.backoff
 -------------
 
-The :mod:`uplink.retry.backoff` module exposes various backoff strategies
-that can be used with the :class:`retry <uplink.retry>` decorator's
-``backoff`` argument:
+The :mod:`~uplink.retry` decorator's ``backoff`` argument allows you to override
+the default backoff strategy. The :mod:`uplink.retry.backoff` module exposes
+alternative backoff approaches:
+
+.. code-block:: python
+   :emphasize-lines: 4
+
+    from uplink.retry import backoff
+
+    class GitHub(uplink.Consumer):
+        @uplink.retry(backoff=backoff.exponential(multiplier=0.5))
+        @uplink.get("/users/{user}")
+        def get_user(self, user):
+            pass
 
 .. automodule:: uplink.retry.backoff
     :members:
@@ -87,9 +98,19 @@ that can be used with the :class:`retry <uplink.retry>` decorator's
 retry.stop
 ----------
 
-The :mod:`uplink.retry.stop` module exposes breaking strategies
-that can be used with the :class:`retry <uplink.retry>` decorator's
-``stop`` argument:
+By default, the :mod:`~uplink.retry` decorator will repeatedly retry the
+original request until a response is rendered. To override this behavior,
+use the :mod:`~uplink.retry` decorator's ``stop`` argument to specify one
+of the strategies exposed in the :mod:`uplink.retry.stop` module:
+
+.. code-block:: python
+
+    from uplink.retry import stop
+
+    class GitHub(uplink.Consumer):
+        @uplink.retry(stop=stop.after_attempts(3))
+        @uplink.get("/users/{user}")
+        def get_user(self, user):
 
 .. automodule:: uplink.retry.stop
     :members:
