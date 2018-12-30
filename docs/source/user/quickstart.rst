@@ -473,7 +473,7 @@ prompt a retry attempt, use the ``on_exception`` argument:
 
    class GitHub(Consumer):
       # Retry only on failure to connect to the remote server.
-      @retry(on_exception-retry.exceptions.ConnectionTimeout)
+      @retry(on_exception=retry.CONNECTION_TIMEOUT)
       @get("user/{username}")
       def get_user(self, username):
          """Get user by username."""
