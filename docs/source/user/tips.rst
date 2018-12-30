@@ -3,6 +3,8 @@ Tips & Tricks
 
 Here are a few ways to simplify consumer definitions.
 
+.. _decorate_consumer:
+
 Decorating All Request Methods in a Class
 =========================================
 

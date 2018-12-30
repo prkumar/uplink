@@ -463,7 +463,7 @@ connection timeout, simply retrying a failed request is appropriate. The
          """Get user by username."""
 
 Without any further configuration, the decorator will retry requests
-that fail *for any reasons**. To constrain which exceptions should
+that fail *for any reasons*. To constrain which exceptions should
 prompt a retry attempt, use the ``on_exception`` argument:
 
 .. code-block:: python
@@ -496,5 +496,52 @@ argument:
          """Get user by username."""
 
 Like other Uplink decorators, you can decorate a :class:`Consumer`
-subclass with :class:`@retry <uplink.retry>` to add retry support to all
-methods of that class.
+subclass with :class:`@retry <uplink.retry>` to :ref:`add retry support to all
+methods of that class <decorate_consumer>`.
+
+Client-Side Rate Limiting
+=========================
+
+Often, an organization may enforce a strict limit on the number of requests
+a client can make to their public API within a fixed time period (e.g., 15
+calls every 15 minutes) to help prevent denial-of-service (DoS) attacks and
+other issues caused by misbehaving clients. On the client-side, we can avoid
+exceeding these server-side limits by imposing our own rate limit.
+
+The :class:`@ratelimit` decorator enforces a constraint of *X calls every
+Y seconds*:
+
+.. code-block:: python
+   :emphasize-lines: 1, 4
+
+   from uplink import ratelimit, Consumer, get
+
+   class GitHub(Consumer):
+      @ratelimit(calls=15, period=900)  # 15 calls every 15 minutes.
+      @get("user/{username}")
+      def get_user(self, username):
+         """Get user by username."""
+
+When the consumer reaches the limit, it will wait until the next period
+before executing any subsequent requests. For blocking HTTP clients, such
+as Requests, this means the main thread is blocked until then. On the other
+hand, :ref:`using a non-blocking client <sync_vs_async>`, such as :mod:`aiohttp`,
+enables you to continue making progress elsewhere while the consumer waits for the
+current period to lapse.
+
+Alternatively, you can fail fast when the limit is exceeded by setting the
+``raise_on_limit`` argument:
+
+.. code-block:: python
+   :emphasize-lines: 2,3
+
+   class GitHub(Consumer):
+      # Raise Exception when the client exceeds the rate limit.
+      @ratelimit(calls=15, period=900, raise_on_limit=Exception)
+      @get("user/{username}")
+      def get_user(self, username):
+         """Get user by username."""
+
+Like other Uplink decorators, you can decorate a :class:`Consumer`
+subclass with :class:`@ratelimit <uplink.ratelimit>` to
+:ref:`add rate limiting to all methods of that class <decorate_consumer>`.
