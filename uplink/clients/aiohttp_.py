@@ -7,7 +7,6 @@ import asyncio
 import collections
 import threading
 from concurrent import futures
-from functools import partial
 
 # Third party imports
 try:
