@@ -1,9 +1,7 @@
 # Standard library imports
-import atexit
 
 # Third party imports
 import requests
-
 # Local imports
 from uplink.clients import exceptions, helpers, interfaces, register
 
@@ -31,8 +29,8 @@ class RequestsClient(interfaces.HttpClientAdapter):
         try:
             self.__session.close()
         except AttributeError:
-            pass            
-        
+            pass
+
     def create_request(self):
         return Request(self.__session)
 
