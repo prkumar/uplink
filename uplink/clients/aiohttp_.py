@@ -66,17 +66,14 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         self._sync_callback_adapter = threaded_callback
 
     def __del__(self):
-        try:
-            # aiohttp v3.0 has made ClientSession.close a coroutine,
-            # so we check whether it is one here and register it
-            # to run appropriately at exit
-            if asyncio.iscoroutinefunction(self._session.close):
-                asyncio.get_event_loop().run_until_complete(
-                    self._session.close())
-            else:
-                self._session.close()
-        except AttributeError:
-            pass
+        # aiohttp v3.0 has made ClientSession.close a coroutine,
+        # so we check whether it is one here and register it
+        # to run appropriately at exit
+        if asyncio.iscoroutinefunction(self._session.close):
+            asyncio.get_event_loop().run_until_complete(
+                self._session.close())
+        else:
+            self._session.close()
 
     def create_request(self):
         return Request(self)
