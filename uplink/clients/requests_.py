@@ -22,12 +22,15 @@ class RequestsClient(interfaces.HttpClientAdapter):
     exceptions = exceptions.Exceptions()
 
     def __init__(self, session=None, **kwargs):
+        self.__auto_created_session = False
         if session is None:
             session = self._create_session(**kwargs)
+            self.__auto_created_session = True
         self.__session = session
 
     def __del__(self):
-        self.__session.close()
+        if self.__auto_created_session:
+            self.__session.close()
 
     def create_request(self):
         return Request(self.__session)
