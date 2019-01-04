@@ -1,5 +1,4 @@
 # Standard library imports
-import atexit
 
 # Third party imports
 import requests
@@ -23,9 +22,15 @@ class RequestsClient(interfaces.HttpClientAdapter):
     exceptions = exceptions.Exceptions()
 
     def __init__(self, session=None, **kwargs):
+        self.__auto_created_session = False
         if session is None:
             session = self._create_session(**kwargs)
+            self.__auto_created_session = True
         self.__session = session
+
+    def __del__(self):
+        if self.__auto_created_session:
+            self.__session.close()
 
     def create_request(self):
         return Request(self.__session)
@@ -39,7 +44,6 @@ class RequestsClient(interfaces.HttpClientAdapter):
     @staticmethod
     def _create_session(**kwargs):
         session = requests.Session()
-        atexit.register(session.close)
         for key in kwargs:
             setattr(session, key, kwargs[key])
         return session

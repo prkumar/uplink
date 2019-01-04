@@ -3,13 +3,10 @@ This module defines an :py:class:`aiohttp.ClientSession` adapter
 that returns awaitable responses.
 """
 # Standard library imports
-import atexit
-
 import asyncio
 import collections
 import threading
 from concurrent import futures
-from functools import partial
 
 # Third party imports
 try:
@@ -63,10 +60,22 @@ class AiohttpClient(interfaces.HttpClientAdapter):
     def __init__(self, session=None, **kwargs):
         if aiohttp is None:
             raise NotImplementedError("aiohttp is not installed.")
+        self._auto_created_session = False
         if session is None:
             session = self._create_session(**kwargs)
         self._session = session
         self._sync_callback_adapter = threaded_callback
+
+    def __del__(self):
+        if self._auto_created_session:
+            # aiohttp v3.0 has made ClientSession.close a coroutine,
+            # so we check whether it is one here and register it
+            # to run appropriately at exit
+            if asyncio.iscoroutinefunction(self._session.close):
+                asyncio.get_event_loop().run_until_complete(
+                    self._session.close())
+            else:
+                self._session.close()
 
     def create_request(self):
         return Request(self)
@@ -77,20 +86,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         if isinstance(self._session, self.__ARG_SPEC):
             args, kwargs = self._session
             self._session = aiohttp.ClientSession(*args, **kwargs)
-
-            # aiohttp v3.0 has made ClientSession.close a coroutine,
-            # so we check whether it is one here and register it
-            # to run appropriately at exit
-            if asyncio.iscoroutinefunction(self._session.close):
-                atexit.register(
-                    partial(
-                        asyncio.get_event_loop().run_until_complete,
-                        self._session.close(),
-                    )
-                )
-            else:
-                atexit.register(self._session.close)
-
+            self._auto_created_session = True
         return self._session
 
     def wrap_callback(self, callback):

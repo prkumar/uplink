@@ -99,6 +99,44 @@ class TestRequests(object):
         session_mock.request.assert_called_with(method="method", url="url")
         callback.assert_called_with(session_mock.request.return_value)
 
+    def test_dont_close_provided_session(self, mocker):
+        # Setup
+        import requests
+        import gc
+
+        session_mock = mocker.Mock(spec=requests.Session)
+        session_mock.request.return_value = "response"
+
+        # Run
+        client = requests_.RequestsClient(session_mock)
+        request = client.create_request()
+        request.send("method", "url", {})
+        del request
+        del client
+        gc.collect()
+
+        assert session_mock.close.call_count == 0
+
+    def test_close_auto_generated_session(self, mocker):
+        # Setup
+        import requests
+        import gc
+
+        session_mock = mocker.Mock(spec=requests.Session)
+        session_mock.request.return_value = "response"
+        session_cls_mock = mocker.patch("requests.Session")
+        session_cls_mock.return_value = session_mock
+
+        # Run
+        client = requests_.RequestsClient()
+        request = client.create_request()
+        request.send("method", "url", {})
+        del request
+        del client
+        gc.collect()
+
+        assert session_mock.close.call_count == 1
+
     def test_exceptions(self):
         import requests
 
@@ -385,6 +423,32 @@ class TestAiohttp(object):
 
         # Verify: session created with args
         session_cls_mock.assert_called_with(*positionals, **keywords)
+
+    @requires_python34
+    def test_close_auto_created_session(self, mocker):
+        # Setup
+        import asyncio
+        import gc
+        import aiohttp
+        mock_session = mocker.Mock(spec=aiohttp.ClientSession)
+        session_cls_mock = mocker.patch("aiohttp.ClientSession")
+        session_cls_mock.return_value = mock_session
+
+        positionals = [1]
+        keywords = {"keyword": 2}
+
+        # Run: Create client
+        client = aiohttp_.AiohttpClient.create(*positionals, **keywords)
+
+        # Run: Get session
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.ensure_future(client.session()))
+
+        # Verify: session created with args
+        session_cls_mock.assert_called_with(*positionals, **keywords)
+        del client
+        gc.collect()
+        session_cls_mock.return_value.close.assert_called_with()
 
     @requires_python34
     def test_exceptions(self):
