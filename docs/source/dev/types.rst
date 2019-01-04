@@ -62,3 +62,8 @@ Url
 ===
 
 .. autoclass:: uplink.Url
+
+Timeout
+=======
+
+.. autoclass:: uplink.Timeout

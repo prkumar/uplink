@@ -86,3 +86,21 @@ class Sequence(CompositeKey):
             return list(map(converter, value))
         else:
             return converter(value)
+
+
+class Identity(object):
+    """
+    Identity conversion - pass value as is
+    """
+
+    def __call__(self, converter_registry):
+        return self._identity_factory
+
+    def __eq__(self, other):
+        return type(other) is type(self)
+
+    def _identity_factory(self, *args, **kwargs):
+        return self._identity
+
+    def _identity(self, value):
+        return value
