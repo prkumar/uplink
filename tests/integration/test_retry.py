@@ -3,9 +3,8 @@ import pytest
 import pytest_twisted
 
 # Local imports.
-import uplink
+from uplink import get, Consumer, retry
 from uplink.clients import io
-from uplink.retry import backoff
 from tests import requires_python34
 
 # Constants
@@ -16,23 +15,28 @@ def backoff_once():
     yield 0.1
 
 
-backoff_default = backoff.exponential(multiplier=0.1, minimum=0.1)
+backoff_default = retry.backoff.exponential(multiplier=0.1, minimum=0.1)
 
 
-class GitHub(uplink.Consumer):
-    @uplink.retry(max_attempts=2, backoff=backoff_default)
-    @uplink.get("/users/{user}")
+class GitHub(Consumer):
+    @retry(max_attempts=2, backoff=backoff_default)
+    @get("/users/{user}")
     def get_user(self, user):
         pass
 
-    @uplink.retry(max_attempts=3, backoff=backoff_once)
-    @uplink.get("/{user}/{repo}/{issue}")
+    @retry(max_attempts=3, backoff=backoff_once)
+    @get("repos/{user}/{repo}/issues/{issue}")
     def get_issue(self, user, repo, issue):
         pass
 
-    @uplink.retry(max_attempts=3, on_exception=uplink.retry.CONNECTION_TIMEOUT)
-    @uplink.get("/{user}/{repo}/{project}")
+    @retry(max_attempts=3, on_exception=retry.CONNECTION_TIMEOUT)
+    @get("repos/{user}/{repo}/project/{project}")
     def get_project(self, user, repo, project):
+        pass
+
+    @retry(when=retry.when.bad_request(), backoff=backoff_default)
+    @get("repos/{user}/{repo}/issues")
+    def get_issues(self, user, repo):
         pass
 
 
@@ -100,6 +104,20 @@ def test_retry_fail_because_of_wait(mock_client, mock_response):
     # Run
     with pytest.raises(Exception):
         github.get_issue("prkumar", "uplink", "#1")
+
+    # Verify
+    assert len(mock_client.history) == 2
+
+
+def test_retry_with_bad_request(mock_client, mock_response):
+    # Setup
+    mock_response.status_code = 401
+    mock_client.with_side_effect([mock_response, Exception])
+    github = GitHub(base_url=BASE_URL, client=mock_client)
+
+    # Run
+    with pytest.raises(Exception):
+        github.get_issues("prkumar", "uplink")
 
     # Verify
     assert len(mock_client.history) == 2
