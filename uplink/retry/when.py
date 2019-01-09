@@ -1,7 +1,7 @@
 # Local imports
 from uplink.retry._helpers import ClientExceptionProxy
 
-__all__ = ["RetryPredicate", "raises", "status", "bad_request"]
+__all__ = ["RetryPredicate", "raises", "status", "status_5xx"]
 
 
 class RetryPredicate(object):
@@ -74,11 +74,8 @@ class status(RetryPredicate):
 
 
 # noinspection PyPep8Naming
-class bad_request(RetryPredicate):
-    """
-    Retry after a bad request -- i.e., received response with 4xx
-    (client error) or 5xx (server error) response status code.
-    """
+class status_5xx(RetryPredicate):
+    """Retry after receiving a 5xx (server error) status code."""
 
     def should_retry_after_response(self, response):
-        return 400 <= response.status_code < 600
+        return 500 <= response.status_code < 600

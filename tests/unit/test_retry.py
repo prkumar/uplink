@@ -138,25 +138,25 @@ def test_when_status(mocker, request_builder):
     )
 
 
-def test_when_bad_requesr(mocker, request_builder):
+def test_when_status_5xx(mocker, request_builder):
     # Setup
     response = mocker.Mock()
-    response.status_code = 401
+    response.status_code = 501
 
     # Verify: Returns self on call
-    predicate = when.bad_request()
+    predicate = when.status_5xx()
     assert predicate(request_builder) is predicate
 
     # Verify: Encountered bad request status
-    assert when.bad_request().should_retry_after_response(response) is True
+    assert when.status_5xx().should_retry_after_response(response) is True
 
     # Verify: Encountered successful request status
     response.status_code = 200
-    assert when.bad_request().should_retry_after_response(response) is False
+    assert when.status_5xx().should_retry_after_response(response) is False
 
     # Verify: Should return false for exceptions
     assert (
-        when.bad_request().should_retry_after_exception(
+        when.status_5xx().should_retry_after_exception(
             Exception, Exception(), None
         )
         is False

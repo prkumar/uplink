@@ -34,7 +34,7 @@ class GitHub(Consumer):
     def get_project(self, user, repo, project):
         pass
 
-    @retry(when=retry.when.bad_request(), backoff=backoff_default)
+    @retry(when=retry.when.status_5xx(), backoff=backoff_default)
     @get("repos/{user}/{repo}/issues")
     def get_issues(self, user, repo):
         pass
@@ -109,9 +109,9 @@ def test_retry_fail_because_of_wait(mock_client, mock_response):
     assert len(mock_client.history) == 2
 
 
-def test_retry_with_bad_request(mock_client, mock_response):
+def test_retry_with_status_501(mock_client, mock_response):
     # Setup
-    mock_response.status_code = 401
+    mock_response.status_code = 501
     mock_client.with_side_effect([mock_response, Exception])
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
