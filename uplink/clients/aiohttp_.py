@@ -73,7 +73,8 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             # to run appropriately at exit
             if asyncio.iscoroutinefunction(self._session.close):
                 asyncio.get_event_loop().run_until_complete(
-                    self._session.close())
+                    self._session.close()
+                )
             else:
                 self._session.close()
 
@@ -144,6 +145,10 @@ class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
         session = yield from self._client.session()
         with self._exception_handler:
             response = yield from session.request(method, url, **extras)
+
+        # Make `aiohttp` response "quack" like a `requests` response
+        response.status_code = response.status
+
         if self._callback is not None:
             response = yield from self._callback(response)
         return response

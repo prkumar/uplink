@@ -264,13 +264,15 @@ class TestAiohttp(object):
         assert isinstance(aiohttp.create_request(), aiohttp_.Request)
 
     @requires_python34
-    def test_request_send(self, aiohttp_session_mock):
+    def test_request_send(self, mocker, aiohttp_session_mock):
         # Setup
         import asyncio
 
+        expected_response = mocker.Mock()
+
         @asyncio.coroutine
         def request(*args, **kwargs):
-            return 0
+            return expected_response
 
         aiohttp_session_mock.request = request
         client = aiohttp_.AiohttpClient(aiohttp_session_mock)
@@ -282,16 +284,18 @@ class TestAiohttp(object):
         value = loop.run_until_complete(asyncio.ensure_future(response))
 
         # Verify
-        assert value == 0
+        assert value == expected_response
 
     @requires_python34
-    def test_callback(self, aiohttp_session_mock):
+    def test_callback(self, mocker, aiohttp_session_mock):
         # Setup
         import asyncio
 
+        expected_response = mocker.Mock()
+
         @asyncio.coroutine
         def request(*args, **kwargs):
-            return 2
+            return expected_response
 
         aiohttp_session_mock.request = request
         client = aiohttp_.AiohttpClient(aiohttp_session_mock)
@@ -430,6 +434,7 @@ class TestAiohttp(object):
         import asyncio
         import gc
         import aiohttp
+
         mock_session = mocker.Mock(spec=aiohttp.ClientSession)
         session_cls_mock = mocker.patch("aiohttp.ClientSession")
         session_cls_mock.return_value = mock_session

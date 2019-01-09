@@ -1,6 +1,6 @@
 # Local imports
 from uplink import retry
-from uplink.retry import backoff, stop
+from uplink.retry import backoff, stop, when
 
 
 def test_jittered_backoff():
@@ -38,7 +38,41 @@ def test_fixed_backoff():
 def test_retry_stop_default():
     decorator = retry()
     assert stop.DISABLE == decorator._stop
-    assert not decorator._stop()
+
+    stop_gen = decorator._stop()
+
+    next(stop_gen)
+    assert stop_gen.send(1) is False
+
+    next(stop_gen)
+    assert stop_gen.send(5) is False
+
+    next(stop_gen)
+    assert stop_gen.send(10) is False
+
+    next(stop_gen)
+    assert stop_gen.send(10.1) is False
+
+
+def test_stop_or():
+    stop_gen = (stop.after_delay(2) | stop.after_attempt(3))()
+
+    next(stop_gen)
+    assert stop_gen.send(3) is True
+
+    next(stop_gen)
+    assert stop_gen.send(1) is False
+
+    next(stop_gen)
+    assert stop_gen.send(5) is True
+
+    next(stop_gen)
+    assert stop_gen.send(1) is True
+
+
+def test_stop_or_with_none():
+    stop1 = stop.after_delay(2)
+    assert stop1 is (stop1 | None)
 
 
 def test_retry_custom_stop():
@@ -60,6 +94,119 @@ def test_retry_backoff():
 def test_retry_decorator_exposes_submodules_as_properties():
     assert retry.backoff is backoff
     assert retry.stop is stop
+    assert retry.when is when
+
+
+def test_stop_after_delay():
+    stop_gen = stop.after_delay(10)()
+
+    # Start generator
+    next(stop_gen)
+    assert stop_gen.send(1) is False
+
+    next(stop_gen)
+    assert stop_gen.send(5) is False
+
+    next(stop_gen)
+    assert stop_gen.send(10) is False
+
+    next(stop_gen)
+    assert stop_gen.send(10.1) is True
+
+
+def test_when_status(mocker, request_builder):
+    # Setup
+    response = mocker.Mock()
+    response.status_code = 401
+
+    # Verify: Returns self on call
+    predicate = when.status(401)
+    assert predicate(request_builder) is predicate
+
+    # Verify: Encountered expected status
+    assert when.status(401).should_retry_after_response(response) is True
+
+    # Verify: Encountered unexpected status
+    assert when.status(200).should_retry_after_response(response) is False
+
+    # Verify: Should return false for exceptions
+    assert (
+        when.status(401).should_retry_after_exception(
+            Exception, Exception(), None
+        )
+        is False
+    )
+
+
+def test_when_bad_requesr(mocker, request_builder):
+    # Setup
+    response = mocker.Mock()
+    response.status_code = 401
+
+    # Verify: Returns self on call
+    predicate = when.bad_request()
+    assert predicate(request_builder) is predicate
+
+    # Verify: Encountered bad request status
+    assert when.bad_request().should_retry_after_response(response) is True
+
+    # Verify: Encountered successful request status
+    response.status_code = 200
+    assert when.bad_request().should_retry_after_response(response) is False
+
+    # Verify: Should return false for exceptions
+    assert (
+        when.bad_request().should_retry_after_exception(
+            Exception, Exception(), None
+        )
+        is False
+    )
+
+
+def test_when_or_operator_with_response(mocker):
+    # Setup
+    response = mocker.Mock()
+    response.status_code = 401
+    predicate = when.status(401) | when.status(405)
+
+    # Verify: when left predicate matches
+    assert predicate.should_retry_after_response(response) is True
+
+    # Verify: when right predicate matches
+    response.status_code = 405
+    assert predicate.should_retry_after_response(response) is True
+
+    # Verify: when neither matches
+    response.status_code = 200
+    assert predicate.should_retry_after_response(response) is False
+
+
+def test_when_or_operator_with_exception(mocker, request_builder):
+    # Setup
+    response = mocker.Mock()
+    response.status_code = 401
+    predicate = when.status(401) | when.raises(retry.BASE_CLIENT_EXCEPTION)
+
+    # Verify: Calls __call__ for both predicates
+    request_builder.client.exceptions.BaseClientException = RuntimeError
+    predicate = predicate(request_builder)
+
+    # Verify: when left predicate matches
+    assert predicate.should_retry_after_response(response) is True
+
+    # Verify: when right predicate matches
+    assert (
+        predicate.should_retry_after_exception(
+            RuntimeError, RuntimeError(), None
+        )
+        is True
+    )
+
+    # Verify: when neither matches
+    assert (
+        predicate.should_retry_after_exception(Exception, Exception(), None)
+        is False
+    )
 
 
 class TestClientExceptionProxies(object):
