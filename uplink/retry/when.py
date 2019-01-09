@@ -75,7 +75,7 @@ class status(RetryPredicate):
 
 # noinspection PyPep8Naming
 class status_5xx(RetryPredicate):
-    """Retry after receiving a 5xx (server error) status code."""
+    """Retry after receiving a 5xx (server error) response."""
 
     def should_retry_after_response(self, response):
         return 500 <= response.status_code < 600

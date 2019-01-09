@@ -16,6 +16,8 @@ now = time.monotonic if hasattr(time, "monotonic") else time.time
 
 
 class RateLimitExceeded(RuntimeError):
+    """A request failed because it exceeded the client-side rate limit."""
+
     def __init__(self, calls, period):
         super(RateLimitExceeded, self).__init__(
             "Exceeded rate limit of [%s] calls every [%s] seconds."
@@ -81,9 +83,9 @@ class ratelimit(decorators.MethodAnnotation):
         calls (int): The maximum number of allowed calls that the
             consumer can make within the time period.
         period (float): The duration of each time period in seconds.
-        raise_on_limit (:class:`Exception` or bool): An exception to
-            raise when the client exceeds the rate limit. If
-            :obj:`True`, a :class:`uplink.ratelimit.RateLimitExceeded`
+        raise_on_limit (:class:`Exception` or bool, optional): An
+            exception to raise when the client exceeds the rate limit.
+            If :obj:`True`, a :class:`~uplink.ratelimit.RateLimitExceeded`
             exception is raised.
     """
 

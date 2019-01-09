@@ -192,3 +192,5 @@ ratelimit
 =========
 
 .. autoclass:: uplink.ratelimit
+
+.. autoclass:: uplink.ratelimit.RateLimitExceeded
