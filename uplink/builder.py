@@ -63,7 +63,7 @@ class RequestPreparer(object):
 
     def create_request_builder(self, definition):
         registry = definition.make_converter_registry(self._converters)
-        return helpers.RequestBuilder(self._client, registry)
+        return helpers.RequestBuilder(self._client, registry, self._base_url)
 
 
 class CallFactory(object):

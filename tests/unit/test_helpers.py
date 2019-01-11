@@ -25,7 +25,7 @@ def test_get_api_definitions_from_parent(request_definition_builder):
 class TestRequestBuilder(object):
     def test_return_type(self):
         # Setup
-        builder = helpers.RequestBuilder(None, {})
+        builder = helpers.RequestBuilder(None, {}, "base_url")
 
         # Run
         builder.return_type = str
@@ -35,7 +35,7 @@ class TestRequestBuilder(object):
 
     def test_add_transaction_hook(self, transaction_hook_mock):
         # Setup
-        builder = helpers.RequestBuilder(None, {})
+        builder = helpers.RequestBuilder(None, {}, "base_url")
 
         # Run
         builder.add_transaction_hook(transaction_hook_mock)

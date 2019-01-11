@@ -7,6 +7,7 @@ from uplink.ratelimit import RateLimitExceeded, now
 
 # Constants
 BASE_URL = "https://api.github.com/"
+DIFFERENT_BASE_URL = "https://hostedgithub.com/"
 
 
 class CustomRateLimitException(RuntimeError):
@@ -15,7 +16,7 @@ class CustomRateLimitException(RuntimeError):
 
 class GitHub(uplink.Consumer):
     @uplink.ratelimit(
-        calls=1, period=10, raise_on_limit=True
+        calls=1, period=10, raise_on_limit=True, group_by=None
     )  # 1 call every 10 seconds
     @uplink.get("users/{user}")
     def get_user(self, user):
@@ -31,6 +32,16 @@ class GitHub(uplink.Consumer):
     )
     @uplink.get("repos/{user}/{repo}/comments/{comment}")
     def get_comment(self, user, repo, comment):
+        pass
+
+    @uplink.ratelimit(calls=1, period=10, raise_on_limit=True, group_by=None)
+    @uplink.get("repos/{user}/{repo}/issues")
+    def get_issues(self, user, repo):
+        pass
+
+    @uplink.ratelimit(calls=1, period=10, raise_on_limit=True)
+    @uplink.get("repos/{user}/{repo}/issues/{issue}")
+    def get_issue(self, user, repo, issue):
         pass
 
 
@@ -70,3 +81,29 @@ def test_exceeded_limit_wait(mock_client):
     elapsed = now() - start
 
     assert elapsed >= 1
+
+
+def test_limit_with_group_by_None(mock_client):
+    # Setup: consumers pointing to separate hosts
+    github1 = GitHub(base_url=BASE_URL, client=mock_client)
+    github2 = GitHub(base_url=DIFFERENT_BASE_URL, client=mock_client)
+
+    # Run
+    github1.get_issues("prkumar", "uplink")
+
+    # Verify: the rate limit should be applied globally for all instances
+    with pytest.raises(RateLimitExceeded):
+        github2.get_issues("prkumar", "uplink")
+
+
+def test_limit_with_group_by_host_and_port(mock_client):
+    # Setup: consumers pointing to separate hosts
+    github1 = GitHub(base_url=BASE_URL, client=mock_client)
+    github2 = GitHub(base_url=DIFFERENT_BASE_URL, client=mock_client)
+
+    # Run
+    github1.get_issue("prkumar", "uplink", "issue1")
+
+    # Verify: the rate limit should be applied separately by host-port,
+    # so this request should be fine.
+    github2.get_issue("prkumar", "uplink", "issue2")
