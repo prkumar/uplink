@@ -15,8 +15,8 @@ __all__ = ["ratelimit", "RateLimitExceeded"]
 now = time.monotonic if hasattr(time, "monotonic") else time.time
 
 
-def _get_host_and_port(url):
-    parsed_url = utils.urlparse.urlparse(url)
+def _get_host_and_port(base_url):
+    parsed_url = utils.urlparse.urlparse(base_url)
     return parsed_url.hostname, parsed_url.port
 
 
@@ -80,10 +80,10 @@ class ratelimit(decorators.MethodAnnotation):
     defined time period (e.g., 15 calls every 15 minutes).
 
     Note:
-        The limit is enforced separately for each host-port
-        combination. In other words, requests are grouped by host and
-        port, and the number of calls within a time period are counted
-        and capped separately for each group of requests.
+        The rate limit is enforced separately for each host-port
+        combination. Effectively, requests are grouped by host and
+        port, and the number of requests within a time period are
+        counted and capped separately for each group.
 
     By default, when the limit is reached, the client will wait until
     the current period is over before executing any subsequent
@@ -128,7 +128,7 @@ class ratelimit(decorators.MethodAnnotation):
             self._create_limit_reached_exception = None
 
     def _get_limiter_for_request(self, request_builder):
-        key = self._group_by(request_builder.url.build())
+        key = self._group_by(request_builder.base_url)
         try:
             return self._limiter_cache[key]
         except KeyError:
