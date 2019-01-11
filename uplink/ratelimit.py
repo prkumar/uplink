@@ -15,6 +15,11 @@ __all__ = ["ratelimit", "RateLimitExceeded"]
 now = time.monotonic if hasattr(time, "monotonic") else time.time
 
 
+def _get_host_and_port(request_builder):
+    parsed_url = utils.urlparse(request_builder.url)
+    return parsed_url.hostname, parsed_url.port
+
+
 class RateLimitExceeded(RuntimeError):
     """A request failed because it exceeded the client-side rate limit."""
 
@@ -32,7 +37,7 @@ class Limiter(object):
         self._max_calls = max_calls
         self._period = period
         self._clock = clock
-        self._lock = threading.RLock()
+        self.__lock = threading.RLock()
         self._reset()
 
     @property
@@ -41,7 +46,7 @@ class Limiter(object):
 
     @contextlib.contextmanager
     def check(self):
-        with self._lock:
+        with self._lock():
             if self.period_remaining <= 0:
                 self._reset()
             yield self._max_calls > self._num_calls
@@ -74,6 +79,10 @@ class ratelimit(decorators.MethodAnnotation):
     consumer to making a specified maximum number of requests within a
     defined time period (e.g., 15 calls every 15 minutes).
 
+    Note:
+        The limit is enforced separately for each host-port
+        combination.
+
     By default, when the limit is reached, the client will wait until
     the current period is over before executing any subsequent
     requests. If you'd prefer the client to raise an exception when the
@@ -89,11 +98,21 @@ class ratelimit(decorators.MethodAnnotation):
             exception is raised.
     """
 
-    def __init__(self, calls=15, period=900, raise_on_limit=False, clock=now):
+    BY_HOST_AND_PORT = _get_host_and_port
+
+    def __init__(
+        self,
+        calls=15,
+        period=900,
+        raise_on_limit=False,
+        group_by=BY_HOST_AND_PORT,
+        clock=now,
+    ):
         self._max_calls = max(1, min(sys.maxsize, math.floor(calls)))
         self._period = period
         self._clock = clock
-        self._limiter = None
+        self._limiter_cache = {}
+        self._group_by = utils.no_op if group_by is None else group_by
 
         if utils.is_subclass(raise_on_limit, Exception) or isinstance(
             raise_on_limit, Exception
@@ -106,10 +125,14 @@ class ratelimit(decorators.MethodAnnotation):
         else:
             self._create_limit_reached_exception = None
 
-    def _get_limiter_for_request(self, _):
-        if self._limiter is None:
-            self._limiter = Limiter(self._max_calls, self._period, self._clock)
-        return self._limiter
+    def _get_limiter_for_request(self, request_builder):
+        key = self._group_by(request_builder.url)
+        try:
+            return self._limiter_cache[key]
+        except KeyError:
+            return self._limiter_cache.setdefault(
+                key, Limiter(self._max_calls, self._period, self._clock)
+            )
 
     def modify_request(self, request_builder):
         limiter = self._get_limiter_for_request(request_builder)
