@@ -15,8 +15,8 @@ __all__ = ["ratelimit", "RateLimitExceeded"]
 now = time.monotonic if hasattr(time, "monotonic") else time.time
 
 
-def _get_host_and_port(request_builder):
-    parsed_url = utils.urlparse(request_builder.url)
+def _get_host_and_port(url):
+    parsed_url = utils.urlparse.urlparse(url)
     return parsed_url.hostname, parsed_url.port
 
 
@@ -37,7 +37,7 @@ class Limiter(object):
         self._max_calls = max_calls
         self._period = period
         self._clock = clock
-        self.__lock = threading.RLock()
+        self._lock = threading.RLock()
         self._reset()
 
     @property
@@ -46,7 +46,7 @@ class Limiter(object):
 
     @contextlib.contextmanager
     def check(self):
-        with self._lock():
+        with self._lock:
             if self.period_remaining <= 0:
                 self._reset()
             yield self._max_calls > self._num_calls
@@ -128,7 +128,7 @@ class ratelimit(decorators.MethodAnnotation):
             self._create_limit_reached_exception = None
 
     def _get_limiter_for_request(self, request_builder):
-        key = self._group_by(request_builder.url)
+        key = self._group_by(request_builder.url.build())
         try:
             return self._limiter_cache[key]
         except KeyError:
