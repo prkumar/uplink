@@ -81,7 +81,9 @@ class ratelimit(decorators.MethodAnnotation):
 
     Note:
         The limit is enforced separately for each host-port
-        combination.
+        combination. In other words, requests are grouped by host and
+        port, and the number of calls within a time period are counted and
+        capped separately for each group of requests.
 
     By default, when the limit is reached, the client will wait until
     the current period is over before executing any subsequent
