@@ -65,7 +65,7 @@ class RateLimiterTemplate(RequestTemplate):
     def before_request(self, request):
         with self._limiter.check() as ok:
             if ok:
-                return transitions.send(request)
+                return  # Fallback to default behavior
             elif self._create_limit_reached_exception is not None:
                 raise self._create_limit_reached_exception()
             else:
