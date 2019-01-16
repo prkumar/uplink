@@ -14,3 +14,4 @@ Contributors
 - Nils Philippsen (`@nphilipp <https://github.com/nphilipp>`_)
 - Alexander Duryagin (`@daa <https://github.com/daa>`_)
 - Sakorn Waungwiwatsin (`@SakornW <https://github.com/SakornW>`_)
+- Jacob Floyd (`@cognifloyd <https://github.com/cognifloyd>`_)
