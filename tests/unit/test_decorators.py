@@ -133,7 +133,7 @@ class TestMethodAnnotation(object):
     def test_call_with_child_class(
         self, method_annotation, request_definition_builder
     ):
-        class Parent(object):
+        class Parent(interfaces.Consumer):
             builder = request_definition_builder
 
         class Child(Parent):
