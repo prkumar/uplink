@@ -145,6 +145,16 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         assert builder.add_annotation.called
 
+    def test_no_call_on_non_consumer(
+        self, method_annotation, request_definition_builder
+    ):
+        class Class(object):
+            builder = request_definition_builder
+
+        method_annotation(Class)
+        builder = request_definition_builder.method_handler_builder
+        assert not builder.add_annotation.called
+
 
 # TODO: Refactor test cases for method annotations into test case class.
 
