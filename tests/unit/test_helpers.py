@@ -18,7 +18,8 @@ def test_get_api_definitions_from_parent(request_definition_builder):
         other_builder = request_definition_builder
 
     assert dict(helpers.get_api_definitions(Child)) == {
-        "other_builder": request_definition_builder
+        "builder": request_definition_builder,
+        "other_builder": request_definition_builder,
     }
 
 

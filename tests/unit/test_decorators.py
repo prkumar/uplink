@@ -139,11 +139,11 @@ class TestMethodAnnotation(object):
         class Child(Parent):
             pass
 
-        # Method annotation should not decorate RequestDefinitionBuilder
-        # attribute of parent class (e.g., `Parent.builder`).
+        # Method annotation should decorate RequestDefinitionBuilder attribute
+        # of parent class (e.g., `Parent.builder`).
         method_annotation(Child)
         builder = request_definition_builder.method_handler_builder
-        assert not builder.add_annotation.called
+        assert builder.add_annotation.called
 
 
 # TODO: Refactor test cases for method annotations into test case class.
