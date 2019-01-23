@@ -14,9 +14,9 @@ class TwistedStrategy(interfaces.IOStrategy):
     _deferred = None
 
     @defer.inlineCallbacks
-    def send(self, client, request, callback):
+    def invoke(self, func, args, kwargs, callback):
         try:
-            response = yield client.send(request)
+            response = yield func(*args, **kwargs)
         except Exception as error:
             response = yield callback.on_failure(type(error), error, None)
         else:
@@ -41,5 +41,5 @@ class TwistedStrategy(interfaces.IOStrategy):
 
     @defer.inlineCallbacks
     def execute(self, executable):
-        response = yield executable.execute()
+        response = yield executable.next()
         defer.returnValue(response)

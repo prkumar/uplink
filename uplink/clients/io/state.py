@@ -49,13 +49,13 @@ class Sleep(interfaces.RequestState):
 
         def on_success(self):
             self._context.state = BeforeRequest(self._request)
-            return self._context.execute()
+            return self._context.next()
 
         def on_failure(self, exc_type, exc_val, exc_tb):
             self._context.state = AfterException(
                 self._request, exc_type, exc_val, exc_tb
             )
-            return self._context.execute()
+            return self._context.next()
 
     def __init__(self, request, duration):
         self._request = request
@@ -86,24 +86,24 @@ class SendRequest(interfaces.RequestState):
     def __init__(self, request):
         self._request = request
 
-    class _Callback(interfaces.SendCallback):
+    class SendCallback(interfaces.InvokeCallback):
         def __init__(self, execution, request):
             self._context = execution
             self._request = request
 
         def on_success(self, response):
             self._context.state = AfterResponse(self._request, response)
-            return self._context.execute()
+            return self._context.next()
 
         def on_failure(self, exc_type, exc_val, exc_tb):
             self._context.state = AfterException(
                 self._request, exc_type, exc_val, exc_tb
             )
-            return self._context.execute()
+            return self._context.next()
 
     def execute(self, execution):
         return execution.send(
-            self._request, self._Callback(execution, self._request)
+            self._request, self.SendCallback(execution, self._request)
         )
 
     @property

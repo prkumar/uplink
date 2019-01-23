@@ -17,24 +17,24 @@ class IllegalRequestStateTransition(RuntimeError):
         )
 
 
-class SendCallback(object):
+class InvokeCallback(object):
     """
-    Callbacks to continue the running request execution after sending
-    the request.
+    Callbacks to continue the running request execution after invoking
+    a function using the underlying I/O model.
     """
 
-    def on_success(self, response):
+    def on_success(self, result):
         """
-        Handles a successful request.
+        Handles a successful invocation.
 
         Args:
-            response: The server's response.
+            result: The invocation's return value.
         """
         raise NotImplementedError
 
     def on_failure(self, exc_type, exc_val, exc_tb):
         """
-        Handles a failed request.
+        Handles a failed invocation.
 
         Args:
             exc_type: The exception class.
@@ -70,12 +70,10 @@ class Executable(collections.Iterator):
     """An abstraction for iterating over the execution of a request."""
 
     def __next__(self):
-        return self.execute()
+        return self.next()
 
-    next = __next__
-
-    def execute(self):
-        """Start or continue the request's execution."""
+    def next(self):
+        """Continues the request's execution."""
         raise NotImplementedError
 
 
@@ -93,7 +91,7 @@ class RequestExecution(Executable):
 
         Args:
             request: The intended request data to be sent.
-            callback (SendCallback): A callback that resumes execution
+            callback (InvokeCallback): A callback that resumes execution
                 after the request is sent.
         """
         raise NotImplementedError
@@ -129,7 +127,7 @@ class RequestExecution(Executable):
         """
         raise NotImplementedError
 
-    def execute(self):
+    def next(self):
         """Performs the next sequence of steps in the execution."""
         raise NotImplementedError
 
@@ -143,6 +141,10 @@ class RequestExecution(Executable):
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         """Handles transitioning the execution after a failed request."""
+        raise NotImplementedError
+
+    def execute(self, request):
+        """Starts the request's execution."""
         raise NotImplementedError
 
 
@@ -241,16 +243,16 @@ class Client(object):
 class IOStrategy(object):
     """An adapter for a specific I/O model."""
 
-    def send(self, client, request, callback):
+    def invoke(self, func, args, kwargs, callback):
         """
-        Sends the given request using the provided client.
+        Invokes the given function using the underlying I/O model.
 
         Args:
-            client (Client): An HTTP client that should abide by the
-                I/O framework of this strategy.
-            request: The intended request data to be sent.
-            callback (:obj:`SendCallback`): A callback that resumes
-                execution after the request is sent.
+            func (callback): The function to invoke.
+            args: The function's positional arguments.
+            kwargs: The function's keyword arguments.
+            callback (:obj:`InvokeCallback`): A callback that resumes
+                execution after the invocation completes.
         """
         raise NotImplementedError
 

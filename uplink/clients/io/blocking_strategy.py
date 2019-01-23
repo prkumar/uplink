@@ -10,9 +10,9 @@ __all__ = ["BlockingStrategy"]
 class BlockingStrategy(interfaces.IOStrategy):
     """A blocking execution strategy."""
 
-    def send(self, client, request, callback):
+    def invoke(self, func, arg, kwargs, callback):
         try:
-            response = client.send(request)
+            response = func(*arg, **kwargs)
         except Exception as error:
             # TODO: retrieve traceback
             return callback.on_failure(type(error), error, None)
@@ -27,4 +27,4 @@ class BlockingStrategy(interfaces.IOStrategy):
         return response
 
     def execute(self, executable):
-        return executable.execute()
+        return executable.next()

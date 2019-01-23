@@ -28,7 +28,14 @@ class HttpClientAdapter(object):
             def send(self, r):
                 return request.send(*r)
 
-        return io.execute(Client(), self.io(), template, data)
+        executable = (
+            io.RequestExecutionBuilder()
+            .with_client(Client())
+            .with_io(self.io())
+            .with_template(template)
+            .build()
+        )
+        return executable.execute(data)
 
 
 class Request(object):
