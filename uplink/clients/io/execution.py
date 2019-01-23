@@ -6,10 +6,10 @@ __all__ = ["DefaultRequestExecution"]
 
 
 class DefaultRequestExecution(interfaces.RequestExecution):
-    def __init__(self, client, backend, template, request):
+    def __init__(self, client, io, template, request):
         self._client = client
         self._template = template
-        self._backend = backend
+        self._io = io
         self._state = state.BeforeRequest(request)
 
     def before_request(self, request):
@@ -33,16 +33,16 @@ class DefaultRequestExecution(interfaces.RequestExecution):
         return self.execute()
 
     def send(self, request, callback):
-        return self._backend.send(self._client, request, callback)
+        return self._io.send(self._client, request, callback)
 
     def sleep(self, duration, callback):
-        return self._backend.sleep(duration, callback)
+        return self._io.sleep(duration, callback)
 
     def finish(self, response):
-        return self._backend.finish(response)
+        return self._io.finish(response)
 
     def fail(self, exc_type, exc_val, exc_tb):
-        return self._backend.fail(exc_type, exc_val, exc_tb)
+        return self._io.fail(exc_type, exc_val, exc_tb)
 
     @property
     def state(self):

@@ -33,6 +33,6 @@ except (ImportError, SyntaxError):  # pragma: no cover
             )
 
 
-def execute(client, execution, template, request):
-    context_ = DefaultRequestExecution(client, execution, template, request)
-    return execution.execute(context_)
+def execute(client, io, template, request):
+    context_ = DefaultRequestExecution(client, io, template, request)
+    return io.execute(context_)
