@@ -78,9 +78,6 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             else:
                 self._session.close()
 
-    def create_request(self):
-        return Request(self)
-
     @asyncio.coroutine
     def session(self):
         """Returns the underlying `aiohttp.ClientSession`."""
@@ -129,6 +126,13 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         """
         session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)
+
+    @asyncio.coroutine
+    def send(self, request):
+        method, url, extras = request
+        session = yield from self._session()
+        response = yield from session.request(method, url, **extras)
+        return response
 
     @staticmethod
     def io():

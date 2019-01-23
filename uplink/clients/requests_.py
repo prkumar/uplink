@@ -48,6 +48,10 @@ class RequestsClient(interfaces.HttpClientAdapter):
             setattr(session, key, kwargs[key])
         return session
 
+    def send(self, request):
+        method, url, extras = request
+        return self.__session.request(method=method, url=url, **extras)
+
     @staticmethod
     def io():
         return io.BlockingStrategy()

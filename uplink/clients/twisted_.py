@@ -36,9 +36,6 @@ class TwistedClient(interfaces.HttpClientAdapter):
             raise NotImplementedError("twisted is not installed.")
         self._requests = register.get_client(session)
 
-    def create_request(self):
-        return Request(self._requests.create_request())
-
     @property
     def exceptions(self):
         return self._requests.exceptions
@@ -46,6 +43,9 @@ class TwistedClient(interfaces.HttpClientAdapter):
     @staticmethod
     def io():
         return io.TwistedStrategy()
+
+    def send(self, request):
+        return threads.deferToThread(self._proxy.send, request)
 
 
 class Request(helpers.ExceptionHandlerMixin, interfaces.Request):

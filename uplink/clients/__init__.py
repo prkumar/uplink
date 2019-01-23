@@ -35,9 +35,6 @@ except (ImportError, SyntaxError):  # pragma: no cover
                 "of Python below 3.3. `aiohttp` requires Python 3.4+."
             )
 
-        def create_request(self):
-            pass
-
 
 __all__ = [
     "RequestsClient",

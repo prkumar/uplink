@@ -15,6 +15,7 @@ from uplink import (
     session,
     utils,
 )
+from uplink.clients import io
 
 __all__ = ["build", "Consumer"]
 
@@ -41,24 +42,30 @@ class RequestPreparer(object):
     def _wrap_hook(self, func):
         return functools.partial(func, self._consumer)
 
-    def apply_hooks(self, chain, request_builder, sender):
+    def apply_hooks(self, execution_builder, chain, request_builder):
         hook = hooks_.TransactionHookChain(*chain)
         hook.audit_request(self._consumer, request_builder)
         if hook.handle_response is not None:
-            sender.add_callback(self._wrap_hook(hook.handle_response))
-        sender.add_exception_handler(self._wrap_hook(hook.handle_exception))
+            execution_builder.with_callbacks(
+                self._wrap_hook(hook.handle_response)
+            )
+        execution_builder.with_errback(self._wrap_hook(hook.handle_exception))
 
     def prepare_request(self, request_builder):
         request_builder.url = self._join_url_with_base(request_builder.url)
         self._auth(request_builder)
-        request = self._client.create_request()
+        execution_builder = io.RequestExecutionBuilder()
+        execution_builder.with_client(self._client)
+        execution_builder.with_io(self._client.io())
+        execution_builder.with_template(request_builder.request_template)
         chain = self._get_hook_chain(request_builder)
         if chain:
-            self.apply_hooks(chain, request_builder, request)
-        return self._client.send(
-            request,
-            request_builder.request_template,
-            (request_builder.method, request_builder.url, request_builder.info),
+            self.apply_hooks(execution_builder, chain, request_builder)
+
+        # TODO: Create request value object
+        execution = execution_builder.build()
+        return execution.start(
+            (request_builder.method, request_builder.url, request_builder.info)
         )
 
     def create_request_builder(self, definition):

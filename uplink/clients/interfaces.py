@@ -2,13 +2,10 @@
 from uplink.clients import exceptions, io
 
 
-class HttpClientAdapter(object):
+class HttpClientAdapter(io.Client):
     """An adapter of an HTTP client library."""
 
     __exceptions = exceptions.Exceptions()
-
-    def create_request(self):
-        raise NotImplementedError
 
     def io(self):
         """Returns the execution strategy for this client."""
@@ -23,19 +20,8 @@ class HttpClientAdapter(object):
         """
         return self.__exceptions
 
-    def send(self, request, template, data):
-        class Client(io.Client):
-            def send(self, r):
-                return request.send(*r)
-
-        execution = (
-            io.RequestExecutionBuilder()
-            .with_client(Client())
-            .with_io(self.io())
-            .with_template(template)
-            .build()
-        )
-        return execution.start(data)
+    def send(self, request):
+        raise NotImplementedError
 
 
 class Request(object):
