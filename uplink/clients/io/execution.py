@@ -92,7 +92,7 @@ class DefaultRequestExecution(interfaces.RequestExecution):
         self._state = new_state
 
     def next(self):
-        return self.state.next(self)
+        return self.state.execute(self)
 
     def execute(self, request):
         self._state = state.BeforeRequest(request)  # Start state
