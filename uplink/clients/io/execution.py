@@ -94,7 +94,7 @@ class DefaultRequestExecution(interfaces.RequestExecution):
     def next(self):
         return self.state.execute(self)
 
-    def execute(self, request):
+    def start(self, request):
         self._state = state.BeforeRequest(request)  # Start state
         return self._io.execute(self)
 
@@ -137,8 +137,8 @@ class RequestExecutionDecorator(interfaces.RequestExecution):
     def next(self):
         return self._execution.next()
 
-    def execute(self, request):
-        return self._execution.execute(request)
+    def start(self, request):
+        return self._execution.start(request)
 
 
 class FinishingCallback(interfaces.InvokeCallback):

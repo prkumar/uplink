@@ -143,7 +143,7 @@ class RequestExecution(Executable):
         """Handles transitioning the execution after a failed request."""
         raise NotImplementedError
 
-    def execute(self, request):
+    def start(self, request):
         """Starts the request's execution."""
         raise NotImplementedError
 
