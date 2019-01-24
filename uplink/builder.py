@@ -49,22 +49,22 @@ class RequestPreparer(object):
             execution_builder.with_callbacks(
                 self._wrap_hook(hook.handle_response)
             )
-        execution_builder.with_errback(self._wrap_hook(hook.handle_exception))
+        execution_builder.with_errbacks(self._wrap_hook(hook.handle_exception))
 
     def prepare_request(self, request_builder):
         request_builder.url = self._join_url_with_base(request_builder.url)
         self._auth(request_builder)
         execution_builder = io.RequestExecutionBuilder()
-        execution_builder.with_client(self._client)
-        execution_builder.with_io(self._client.io())
-        execution_builder.with_template(request_builder.request_template)
         chain = self._get_hook_chain(request_builder)
         if chain:
             self.apply_hooks(execution_builder, chain, request_builder)
 
-        # TODO: Create request value object
+        execution_builder.with_client(self._client)
+        execution_builder.with_io(self._client.io())
+        execution_builder.with_template(request_builder.request_template)
         execution = execution_builder.build()
         return execution.start(
+            # TODO: Create request value object
             (request_builder.method, request_builder.url, request_builder.info)
         )
 

@@ -1,6 +1,9 @@
 # Standard library imports
 import collections
 
+# Local imports
+from uplink import compat
+
 
 class IllegalRequestStateTransition(RuntimeError):
     """An improper request state transition was attempted."""
@@ -285,7 +288,7 @@ class IOStrategy(object):
             exc_val: The exception object.
             exc_tb: The exception's stacktrace.
         """
-        raise exc_val
+        compat.reraise(exc_type, exc_val, exc_tb)
 
     def execute(self, executable):
         """
