@@ -33,6 +33,9 @@ class MockClient(clients.interfaces.HttpClientAdapter):
     def io(self):
         return self._io
 
+    def callback(self, response, func):
+        return func(response)
+
     def send(self, request):
         method, url, extras = request
         self._history.append(RequestInvocation(method, url, extras))

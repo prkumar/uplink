@@ -34,12 +34,12 @@ class RequestExecutionBuilder(object):
         return self
 
     def build(self):
-        io = self._io
+        client, io = self._client, self._io
         for callback in self._callbacks:
-            io = CallbackDecorator(io, callback)
+            io = CallbackDecorator(io, client, callback)
         for errback in self._errbacks:
             io = ErrbackDecorator(io, errback)
-        return DefaultRequestExecution(self._client, io, self._template)
+        return DefaultRequestExecution(client, io, self._template)
 
 
 class DefaultRequestExecution(interfaces.RequestExecution):
@@ -134,12 +134,13 @@ class FinishingDecorator(IOStrategyDecorator):
 
 
 class CallbackDecorator(FinishingDecorator):
-    def __init__(self, io, callback):
+    def __init__(self, io, client, callback):
         super(CallbackDecorator, self).__init__(io)
+        self._client = client
         self._callback = callback
 
     def finish(self, response):
-        return self._invoke(self._callback, response)
+        return self._invoke(self._client.callback, response, self._callback)
 
 
 class ErrbackDecorator(FinishingDecorator):

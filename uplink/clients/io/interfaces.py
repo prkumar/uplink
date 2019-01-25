@@ -242,6 +242,9 @@ class Client(object):
         """
         raise NotImplementedError
 
+    def callback(self, response, func):
+        raise NotImplementedError
+
 
 class IOStrategy(object):
     """An adapter for a specific I/O model."""

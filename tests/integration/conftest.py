@@ -1,4 +1,4 @@
-# Third party imports
+# Third-party imports
 import pytest
 import requests
 

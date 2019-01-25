@@ -1,7 +1,7 @@
 # Standard library imports
 import contextlib
 
-# Third party imports
+# Third-party imports
 import pytest
 
 # Local imports

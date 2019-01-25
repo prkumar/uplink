@@ -1,4 +1,7 @@
-# Third party imports
+# Standard library imports
+import sys
+
+# Third-party imports
 from twisted.internet import reactor, defer, task
 
 # Local imports
@@ -18,7 +21,8 @@ class TwistedStrategy(interfaces.IOStrategy):
         try:
             response = yield func(*args, **kwargs)
         except Exception as error:
-            response = yield callback.on_failure(type(error), error, None)
+            tb = sys.exc_info()[2]
+            response = yield callback.on_failure(type(error), error, tb)
         else:
             response = yield callback.on_success(response)
         defer.returnValue(response)

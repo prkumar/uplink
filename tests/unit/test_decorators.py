@@ -1,7 +1,7 @@
 # Standard library imports
 import collections
 
-# Third party imports
+# Third-party imports
 import pytest
 
 # Local imports

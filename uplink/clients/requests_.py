@@ -4,7 +4,7 @@
 import requests
 
 # Local imports
-from uplink.clients import exceptions, helpers, io, interfaces, register
+from uplink.clients import exceptions, io, interfaces, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
@@ -32,9 +32,6 @@ class RequestsClient(interfaces.HttpClientAdapter):
         if self.__auto_created_session:
             self.__session.close()
 
-    def create_request(self):
-        return Request(self.__session)
-
     @staticmethod
     @register.handler
     def with_session(session, *args, **kwargs):
@@ -52,25 +49,12 @@ class RequestsClient(interfaces.HttpClientAdapter):
         method, url, extras = request
         return self.__session.request(method=method, url=url, **extras)
 
+    def callback(self, response, func):
+        return func(response)
+
     @staticmethod
     def io():
         return io.BlockingStrategy()
-
-
-class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-    def __init__(self, session):
-        self._session = session
-        self._callback = None
-
-    def send(self, method, url, extras):
-        with self._exception_handler:
-            response = self._session.request(method=method, url=url, **extras)
-        if self._callback is not None:
-            response = self._callback(response)
-        return response
-
-    def add_callback(self, callback):
-        self._callback = callback
 
 
 # === Register client exceptions === #

@@ -1,5 +1,6 @@
 # Third-party imports
 import asyncio
+import sys
 
 # Local models
 from uplink.clients.io import interfaces
@@ -15,8 +16,8 @@ class AsyncioStrategy(interfaces.IOStrategy):
         try:
             response = yield from func(*args, **kwargs)
         except Exception as error:
-            # TODO: Include traceback
-            response = yield from callback.on_failure(type(error), error, None)
+            tb = sys.exc_info()[2]
+            response = yield from callback.on_failure(type(error), error, tb)
         else:
             response = yield from callback.on_success(response)
         return response

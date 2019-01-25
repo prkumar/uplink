@@ -8,14 +8,14 @@ import collections
 import threading
 from concurrent import futures
 
-# Third party imports
+# Third-party imports
 try:
     import aiohttp
 except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import exceptions, helpers, io, interfaces, register
+from uplink.clients import exceptions, io, interfaces, register
 
 
 def threaded_callback(callback):
@@ -23,8 +23,9 @@ def threaded_callback(callback):
 
     @asyncio.coroutine
     def new_callback(response):
-        yield from response.text()
-        response = ThreadedResponse(response)
+        if isinstance(response, aiohttp.ClientResponse):
+            yield from response.text()
+            response = ThreadedResponse(response)
         response = yield from coroutine_callback(response)
         if isinstance(response, ThreadedResponse):
             return response.unwrap()
@@ -132,33 +133,18 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         method, url, extras = request
         session = yield from self._session()
         response = yield from session.request(method, url, **extras)
-        return response
-
-    @staticmethod
-    def io():
-        return io.AsyncioStrategy()
-
-
-class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-    def __init__(self, client):
-        self._client = client
-        self._callback = None
-
-    @asyncio.coroutine
-    def send(self, method, url, extras):
-        session = yield from self._client.session()
-        with self._exception_handler:
-            response = yield from session.request(method, url, **extras)
 
         # Make `aiohttp` response "quack" like a `requests` response
         response.status_code = response.status
 
-        if self._callback is not None:
-            response = yield from self._callback(response)
         return response
 
-    def add_callback(self, callback):
-        self._callback = self._client.wrap_callback(callback)
+    def callback(self, response, func):
+        return self.wrap_callback(func)(response)
+
+    @staticmethod
+    def io():
+        return io.AsyncioStrategy()
 
 
 class ThreadedCoroutine(object):
