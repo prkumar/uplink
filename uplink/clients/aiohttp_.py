@@ -131,7 +131,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
     @asyncio.coroutine
     def send(self, request):
         method, url, extras = request
-        session = yield from self._session()
+        session = yield from self.session()
         response = yield from session.request(method, url, **extras)
 
         # Make `aiohttp` response "quack" like a `requests` response

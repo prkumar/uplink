@@ -48,8 +48,7 @@ def test_get_default_client_with_non_callable():
 
 def test_get_client_with_http_client_adapter_subclass():
     class HttpClientAdapterMock(interfaces.HttpClientAdapter):
-        def create_request(self):
-            pass
+        pass
 
     client = register.get_client(HttpClientAdapterMock)
     assert isinstance(client, HttpClientAdapterMock)
@@ -73,30 +72,23 @@ class TestRequests(object):
         )
         assert session.cred == ("username", "password")
 
-    def test_create_request(self):
-        client = requests_.RequestsClient()
-        request = client.create_request()
-        assert isinstance(request, requests_.Request)
-
-    def test_request_send(self, mocker):
+    def test_client_send(self, mocker):
         # Setup
         import requests
 
         session_mock = mocker.Mock(spec=requests.Session)
         session_mock.request.return_value = "response"
         callback = mocker.stub()
-        client = requests_.Request(session_mock)
+        client = requests_.RequestsClient(session_mock)
 
         # Run
-        client.send("method", "url", {})
+        response = client.send(("method", "url", {}))
 
         # Verify
         session_mock.request.assert_called_with(method="method", url="url")
 
-        # Run with callback
-        client.add_callback(callback)
-        client.send("method", "url", {})
-        session_mock.request.assert_called_with(method="method", url="url")
+        # Run callback
+        client.callback(response, callback)
         callback.assert_called_with(session_mock.request.return_value)
 
     def test_dont_close_provided_session(self, mocker):
@@ -109,9 +101,7 @@ class TestRequests(object):
 
         # Run
         client = requests_.RequestsClient(session_mock)
-        request = client.create_request()
-        request.send("method", "url", {})
-        del request
+        client.send(("method", "url", {}))
         del client
         gc.collect()
 
@@ -129,9 +119,7 @@ class TestRequests(object):
 
         # Run
         client = requests_.RequestsClient()
-        request = client.create_request()
-        request.send("method", "url", {})
-        del request
+        client.send(("method", "url", {}))
         del client
         gc.collect()
 
@@ -171,59 +159,33 @@ class TestRequests(object):
 class TestTwisted(object):
     def test_init_without_client(self):
         twisted = twisted_.TwistedClient()
-        assert isinstance(twisted._requests, requests_.RequestsClient)
-
-    def test_create_requests(self, http_client_mock):
-        twisted = twisted_.TwistedClient(http_client_mock)
-        request = twisted.create_request()
-        assert request._proxy is http_client_mock.create_request()
-        assert isinstance(request, twisted_.Request)
+        assert isinstance(twisted._proxy, requests_.RequestsClient)
 
     def test_create_requests_no_twisted(self, http_client_mock):
         with _patch(twisted_, "threads", None):
             with pytest.raises(NotImplementedError):
                 twisted_.TwistedClient(http_client_mock)
 
-    def test_request_send(self, mocker, request_mock):
+    def test_client_send(self, mocker, http_client_mock):
         deferToThread = mocker.patch.object(twisted_.threads, "deferToThread")
-        request = twisted_.Request(request_mock)
-        request.send(1, 2, 3)
-        deferToThread.assert_called_with(request_mock.send, 1, 2, 3)
+        request = twisted_.TwistedClient(http_client_mock)
+        request.send((1, 2, 3))
+        deferToThread.assert_called_with(http_client_mock.send, (1, 2, 3))
 
-    def test_request_send_callback_and_exception(self, mocker, request_mock):
+    def test_client_callback(self, mocker, http_client_mock):
         # Setup
         callback = mocker.stub()
-        exception_handler = mocker.stub()
         deferred = mocker.Mock()
         deferToThread = mocker.patch.object(twisted_.threads, "deferToThread")
         deferToThread.return_value = deferred
-        request = twisted_.Request(request_mock)
-        request.add_callback(callback)
-        request.add_exception_handler(exception_handler)
+        client = twisted_.TwistedClient(http_client_mock)
 
         # Run
-        request.send(1, 2, 3)
+        response = client.callback(1, callback)
 
         # Verify
-        deferred.addCallback.assert_called_with(callback)
-        deferred.addErrback(request.handle_failure)
-        deferToThread.assert_called_with(request_mock.send, 1, 2, 3)
-
-    def test_handle_failure(self, mocker, request_mock):
-        # Setup
-        failure = mocker.Mock(stub=twisted_.threads.failure.Failure)
-        failure.type, failure.value = Exception, Exception()
-        exception_handler = mocker.stub()
-        request = twisted_.Request(request_mock)
-        request.add_exception_handler(exception_handler)
-
-        # Run
-        request.handle_failure(failure)
-
-        # Verify
-        exception_handler.assert_called_with(
-            failure.type, failure.value, failure.getTracebackObject()
-        )
+        assert response is deferred
+        deferToThread.assert_called_with(http_client_mock.callback, 1, callback)
 
     def test_exceptions(self, http_client_mock):
         twisted_client = twisted_.TwistedClient(http_client_mock)
@@ -259,11 +221,6 @@ class TestAiohttp(object):
         assert isinstance(client, aiohttp_.AiohttpClient)
 
     @requires_python34
-    def test_create_request(self, aiohttp_session_mock):
-        aiohttp = aiohttp_.AiohttpClient(aiohttp_session_mock)
-        assert isinstance(aiohttp.create_request(), aiohttp_.Request)
-
-    @requires_python34
     def test_request_send(self, mocker, aiohttp_session_mock):
         # Setup
         import asyncio
@@ -276,10 +233,9 @@ class TestAiohttp(object):
 
         aiohttp_session_mock.request = request
         client = aiohttp_.AiohttpClient(aiohttp_session_mock)
-        request = aiohttp_.Request(client)
 
         # Run
-        response = request.send(1, 2, {})
+        response = client.send((1, 2, {}))
         loop = asyncio.get_event_loop()
         value = loop.run_until_complete(asyncio.ensure_future(response))
 
@@ -291,7 +247,7 @@ class TestAiohttp(object):
         # Setup
         import asyncio
 
-        expected_response = mocker.Mock()
+        expected_response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
 
         @asyncio.coroutine
         def request(*args, **kwargs):
@@ -300,13 +256,16 @@ class TestAiohttp(object):
         aiohttp_session_mock.request = request
         client = aiohttp_.AiohttpClient(aiohttp_session_mock)
         client._sync_callback_adapter = asyncio.coroutine
-        request = aiohttp_.Request(client)
 
         # Run
-        request.add_callback(lambda x: 2)
-        response = request.send(1, 2, {})
+        @asyncio.coroutine
+        def call():
+            response = yield from client.send((1, 2, {}))
+            response = yield from client.callback(response, lambda x: 2)
+            return response
+
         loop = asyncio.get_event_loop()
-        value = loop.run_until_complete(asyncio.ensure_future(response))
+        value = loop.run_until_complete(asyncio.ensure_future(call()))
 
         # Verify
         assert value == 2
@@ -340,7 +299,7 @@ class TestAiohttp(object):
             return response
 
         # Mock response.
-        response = mocker.Mock()
+        response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
         response.text = asyncio.coroutine(mocker.stub())
 
         # Run
