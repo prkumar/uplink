@@ -124,7 +124,7 @@ class IOStrategyDecorator(interfaces.IOStrategy):
     def finish(self, response):
         return self._io.finish(response)
 
-    def fail(self, exc_type, exc_val, exc_tb):
+    def fail(self, exc_type, exc_val, exc_tb):  # pragma: no cover
         return self._io.fail(exc_type, exc_val, exc_tb)
 
 

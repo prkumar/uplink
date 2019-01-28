@@ -317,10 +317,18 @@ class TestAiohttp(object):
             return 1
 
         new_callback = aiohttp_.threaded_callback(callback)
-        return_value = new_callback(response)
+        awaitable = new_callback(response)
         loop = asyncio.get_event_loop()
-        value = loop.run_until_complete(asyncio.ensure_future(return_value))
+        value = loop.run_until_complete(asyncio.ensure_future(awaitable))
         assert value == 1
+        assert response.text.called
+
+        # Run: Verify with response that is not ClientResponse (should not be wrapped)
+        response = mocker.Mock()
+        awaitable = new_callback(response)
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(asyncio.ensure_future(awaitable))
+        assert not response.text.called
 
     @requires_python34
     def test_threaded_coroutine(self):
