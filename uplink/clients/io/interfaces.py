@@ -73,9 +73,11 @@ class Executable(collections.Iterator):
     """An abstraction for iterating over the execution of a request."""
 
     def __next__(self):
-        return self.next()
+        return self.execute()
 
-    def next(self):
+    next = __next__
+
+    def execute(self):
         """Continues the request's execution."""
         raise NotImplementedError
 
@@ -130,7 +132,7 @@ class RequestExecution(Executable):
         """
         raise NotImplementedError
 
-    def next(self):
+    def execute(self):
         """Performs the next sequence of steps in the execution."""
         raise NotImplementedError
 

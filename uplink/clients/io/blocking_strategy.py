@@ -28,4 +28,4 @@ class BlockingStrategy(interfaces.IOStrategy):
         return response
 
     def execute(self, executable):
-        return executable.next()
+        return executable.execute()

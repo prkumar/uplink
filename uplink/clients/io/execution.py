@@ -53,13 +53,13 @@ class DefaultRequestExecution(interfaces.RequestExecution):
         action = self._template.before_request(request)
         next_state = action(self._state)
         self._state = next_state
-        return self.next()
+        return self.execute()
 
     def after_response(self, request, response):
         action = self._template.after_response(request, response)
         next_state = action(self._state)
         self._state = next_state
-        return self.next()
+        return self.execute()
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         action = self._template.after_exception(
@@ -67,7 +67,7 @@ class DefaultRequestExecution(interfaces.RequestExecution):
         )
         next_state = action(self._state)
         self._state = next_state
-        return self.next()
+        return self.execute()
 
     def send(self, request, callback):
         return self._io.invoke(self._client.send, (request,), {}, callback)
@@ -89,7 +89,7 @@ class DefaultRequestExecution(interfaces.RequestExecution):
     def state(self, new_state):
         self._state = new_state
 
-    def next(self):
+    def execute(self):
         return self.state.execute(self)
 
     def start(self, request):

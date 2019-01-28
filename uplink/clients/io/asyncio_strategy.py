@@ -35,5 +35,5 @@ class AsyncioStrategy(interfaces.IOStrategy):
 
     @asyncio.coroutine
     def execute(self, executable):
-        response = yield from executable.next()
+        response = yield from executable.execute()
         return response

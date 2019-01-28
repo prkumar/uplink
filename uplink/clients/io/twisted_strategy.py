@@ -45,5 +45,5 @@ class TwistedStrategy(interfaces.IOStrategy):
 
     @defer.inlineCallbacks
     def execute(self, executable):
-        response = yield executable.next()
+        response = yield executable.execute()
         defer.returnValue(response)
