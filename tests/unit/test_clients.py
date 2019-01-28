@@ -258,14 +258,23 @@ class TestAiohttp(object):
         client._sync_callback_adapter = asyncio.coroutine
 
         # Run
-        @asyncio.coroutine
-        def call():
-            response = yield from client.send((1, 2, {}))
-            response = yield from client.callback(response, lambda x: 2)
-            return response
+        globals_ = dict(globals(), client=client)
+        locals_ = {"asyncio": asyncio}
+        exec(
+            """@asyncio.coroutine
+def call():
+    response = yield from client.send((1, 2, {}))
+    response = yield from client.callback(response, lambda x: 2)
+    return response
+""",
+            globals_,
+            locals_,
+        )
 
         loop = asyncio.get_event_loop()
-        value = loop.run_until_complete(asyncio.ensure_future(call()))
+        value = loop.run_until_complete(
+            asyncio.ensure_future(locals_["call"]())
+        )
 
         # Verify
         assert value == 2
