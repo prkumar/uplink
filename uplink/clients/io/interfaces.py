@@ -245,6 +245,13 @@ class Client(object):
         raise NotImplementedError
 
     def apply_callback(self, callback, response):
+        """
+        Invokes callback on the response.
+
+        Args:
+            callback (callable): a function that handles the response.
+            response: data returned from a server after request.
+        """
         raise NotImplementedError
 
 
