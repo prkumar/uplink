@@ -1,7 +1,7 @@
 # Standard library imports
 import typing
 
-# Third party imports
+# Third-party imports
 import marshmallow
 import pytest
 

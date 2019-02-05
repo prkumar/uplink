@@ -1,7 +1,7 @@
 # Standard library imports
 import collections
 
-# Third party imports
+# Third-party imports
 import pytest
 
 # Local imports
@@ -133,15 +133,25 @@ class TestMethodAnnotation(object):
     def test_call_with_child_class(
         self, method_annotation, request_definition_builder
     ):
-        class Parent(object):
+        class Parent(interfaces.Consumer):
             builder = request_definition_builder
 
         class Child(Parent):
             pass
 
-        # Method annotation should not decorate RequestDefinitionBuilder
-        # attribute of parent class (e.g., `Parent.builder`).
+        # Method annotation should decorate RequestDefinitionBuilder attribute
+        # of parent class (e.g., `Parent.builder`).
         method_annotation(Child)
+        builder = request_definition_builder.method_handler_builder
+        assert builder.add_annotation.called
+
+    def test_no_call_on_non_consumer(
+        self, method_annotation, request_definition_builder
+    ):
+        class Class(object):
+            builder = request_definition_builder
+
+        method_annotation(Class)
         builder = request_definition_builder.method_handler_builder
         assert not builder.add_annotation.called
 

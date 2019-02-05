@@ -13,9 +13,7 @@ def get_api_definitions(service):
     class.
 
     Note:
-        Only attributes defined directly on the class are considered. In
-        other words, inherited `RequestDefinitionBuilder` attributes
-        are ignored.
+        All attributes are considered, not only defined directly on the class.
 
     Args:
         service: A class object.
@@ -28,7 +26,7 @@ def get_api_definitions(service):
     # report in Python issue tracker). Directly invoking `getattr` to
     # force Python's attribute lookup protocol is a decent workaround to
     # ensure parity:
-    class_attributes = ((k, getattr(service, k)) for k in service.__dict__)
+    class_attributes = ((k, getattr(service, k)) for k in dir(service))
 
     is_definition = interfaces.RequestDefinitionBuilder.__instancecheck__
     return [(k, v) for k, v in class_attributes if is_definition(v)]

@@ -106,7 +106,7 @@ class TestSendRequest(object):
 
         args, _ = request_execution_mock.send.call_args
         callback = args[1]
-        assert isinstance(callback, interfaces.SendCallback)
+        assert isinstance(callback, interfaces.InvokeCallback)
 
         response = object()
         callback.on_success(response)

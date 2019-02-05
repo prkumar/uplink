@@ -1,7 +1,8 @@
-# Third-party imports
+# Standard library imports
+import sys
 import time
 
-# Local models
+# Local imports
 from uplink.clients.io import interfaces
 
 __all__ = ["BlockingStrategy"]
@@ -10,12 +11,12 @@ __all__ = ["BlockingStrategy"]
 class BlockingStrategy(interfaces.IOStrategy):
     """A blocking execution strategy."""
 
-    def send(self, client, request, callback):
+    def invoke(self, func, arg, kwargs, callback):
         try:
-            response = client.send(request)
+            response = func(*arg, **kwargs)
         except Exception as error:
-            # TODO: retrieve traceback
-            return callback.on_failure(type(error), error, None)
+            tb = sys.exc_info()[2]
+            return callback.on_failure(type(error), error, tb)
         else:
             return callback.on_success(response)
 

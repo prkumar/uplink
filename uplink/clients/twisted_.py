@@ -10,7 +10,7 @@ except ImportError:  # pragma: no cover
     threads = None
 
 # Local imports
-from uplink.clients import helpers, interfaces, io, register
+from uplink.clients import interfaces, io, register
 
 
 class TwistedClient(interfaces.HttpClientAdapter):
@@ -34,36 +34,20 @@ class TwistedClient(interfaces.HttpClientAdapter):
     def __init__(self, session=None):
         if threads is None:
             raise NotImplementedError("twisted is not installed.")
-        self._requests = register.get_client(session)
-
-    def create_request(self):
-        return Request(self._requests.create_request())
+        self._proxy = register.get_client(session)
 
     @property
     def exceptions(self):
-        return self._requests.exceptions
+        return self._proxy.exceptions
 
     @staticmethod
     def io():
         return io.TwistedStrategy()
 
+    def apply_callback(self, callback, response):
+        return threads.deferToThread(
+            self._proxy.apply_callback, callback, response
+        )
 
-class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-    def __init__(self, proxy):
-        self._proxy = proxy
-        self._callback = None
-
-    def send(self, method, url, extras):
-        deferred = threads.deferToThread(self._proxy.send, method, url, extras)
-        if self._callback is not None:
-            deferred.addCallback(self._callback)
-        deferred.addErrback(self.handle_failure)
-        return deferred
-
-    def add_callback(self, callback):
-        self._callback = callback
-
-    def handle_failure(self, failure):
-        tb = failure.getTracebackObject()
-        self._exception_handler.handle(failure.type, failure.value, tb)
-        failure.raiseException()
+    def send(self, request):
+        return threads.deferToThread(self._proxy.send, request)

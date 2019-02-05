@@ -1,5 +1,6 @@
 # Third-party imports
 import asyncio
+import sys
 
 # Local models
 from uplink.clients.io import interfaces
@@ -11,12 +12,12 @@ class AsyncioStrategy(interfaces.IOStrategy):
     """A non-blocking execution strategy using asyncio."""
 
     @asyncio.coroutine
-    def send(self, client, request, callback):
+    def invoke(self, func, args, kwargs, callback):
         try:
-            response = yield from client.send(request)
+            response = yield from func(*args, **kwargs)
         except Exception as error:
-            # TODO: Include traceback
-            response = yield from callback.on_failure(type(error), error, None)
+            tb = sys.exc_info()[2]
+            response = yield from callback.on_failure(type(error), error, tb)
         else:
             response = yield from callback.on_success(response)
         return response

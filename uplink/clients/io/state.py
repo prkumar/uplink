@@ -86,7 +86,7 @@ class SendRequest(interfaces.RequestState):
     def __init__(self, request):
         self._request = request
 
-    class _Callback(interfaces.SendCallback):
+    class SendCallback(interfaces.InvokeCallback):
         def __init__(self, execution, request):
             self._context = execution
             self._request = request
@@ -103,7 +103,7 @@ class SendRequest(interfaces.RequestState):
 
     def execute(self, execution):
         return execution.send(
-            self._request, self._Callback(execution, self._request)
+            self._request, self.SendCallback(execution, self._request)
         )
 
     @property

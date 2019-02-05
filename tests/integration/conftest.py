@@ -1,4 +1,4 @@
-# Third party imports
+# Third-party imports
 import pytest
 import requests
 
@@ -9,8 +9,8 @@ from tests.integration import MockClient, MockResponse
 
 @pytest.fixture
 def mock_client(mocker):
-    request = mocker.Mock(spec=clients.interfaces.Request)
-    return MockClient(request)
+    client = mocker.Mock(spec=clients.interfaces.HttpClientAdapter)
+    return MockClient(client)
 
 
 @pytest.fixture
