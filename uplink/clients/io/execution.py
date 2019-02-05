@@ -140,7 +140,9 @@ class CallbackDecorator(FinishingDecorator):
         self._callback = callback
 
     def finish(self, response):
-        return self._invoke(self._client.callback, response, self._callback)
+        return self._invoke(
+            self._client.apply_callback, self._callback, response
+        )
 
 
 class ErrbackDecorator(FinishingDecorator):

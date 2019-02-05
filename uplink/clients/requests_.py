@@ -49,8 +49,8 @@ class RequestsClient(interfaces.HttpClientAdapter):
         method, url, extras = request
         return self.__session.request(method=method, url=url, **extras)
 
-    def callback(self, response, func):
-        return func(response)
+    def apply_callback(self, callback, response):
+        return callback(response)
 
     @staticmethod
     def io():

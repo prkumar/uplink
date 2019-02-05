@@ -139,8 +139,8 @@ class AiohttpClient(interfaces.HttpClientAdapter):
 
         return response
 
-    def callback(self, response, func):
-        return self.wrap_callback(func)(response)
+    def apply_callback(self, callback, response):
+        return self.wrap_callback(callback)(response)
 
     @staticmethod
     def io():

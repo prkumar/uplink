@@ -33,8 +33,8 @@ class MockClient(clients.interfaces.HttpClientAdapter):
     def io(self):
         return self._io
 
-    def callback(self, response, func):
-        return func(response)
+    def apply_callback(self, callback, response):
+        return callback(response)
 
     def send(self, request):
         method, url, extras = request

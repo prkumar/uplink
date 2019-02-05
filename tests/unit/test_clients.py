@@ -88,7 +88,7 @@ class TestRequests(object):
         session_mock.request.assert_called_with(method="method", url="url")
 
         # Run callback
-        client.callback(response, callback)
+        client.apply_callback(callback, response)
         callback.assert_called_with(session_mock.request.return_value)
 
     def test_dont_close_provided_session(self, mocker):
@@ -181,11 +181,13 @@ class TestTwisted(object):
         client = twisted_.TwistedClient(http_client_mock)
 
         # Run
-        response = client.callback(1, callback)
+        response = client.apply_callback(callback, 1)
 
         # Verify
         assert response is deferred
-        deferToThread.assert_called_with(http_client_mock.callback, 1, callback)
+        deferToThread.assert_called_with(
+            http_client_mock.apply_callback, callback, 1
+        )
 
     def test_exceptions(self, http_client_mock):
         twisted_client = twisted_.TwistedClient(http_client_mock)
@@ -264,7 +266,7 @@ class TestAiohttp(object):
             """@asyncio.coroutine
 def call():
     response = yield from client.send((1, 2, {}))
-    response = yield from client.callback(response, lambda x: 2)
+    response = yield from client.apply_callback(lambda x: 2, response)
     return response
 """,
             globals_,

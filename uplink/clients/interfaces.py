@@ -23,5 +23,5 @@ class HttpClientAdapter(io.Client):
     def send(self, request):
         raise NotImplementedError
 
-    def callback(self, response, func):
+    def apply_callback(self, callback, response):
         raise NotImplementedError
