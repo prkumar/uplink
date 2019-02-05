@@ -1,9 +1,88 @@
 # Standard library imports
 import contextlib
+import time
 import threading
 
 # Local imports
 from uplink.clients.io import RequestTemplate, transitions
+
+
+# Use monotonic time if available, otherwise fall back to the system clock.
+now = time.monotonic if hasattr(time, "monotonic") else time.time
+
+
+# Circuit breaker states from pg. 95 of Release It! (2nd Edition)
+# by Michael T. Nygard
+
+
+class CircuitBreakerState(object):
+    def prepare(self, breaker):
+        pass
+
+    def is_closed(self, breaker):
+        pass
+
+    def on_successful_call(self, breaker):
+        pass
+
+    def on_failed_call(self, breaker):
+        pass
+
+
+class Closed(CircuitBreakerState):
+    def __init__(self, threshold):
+        self._threshold = threshold
+        self._failure_count = 0
+
+    def is_closed(self, breaker):
+        # Pass through.
+        return True
+
+    def on_successful_call(self, breaker):
+        # Reset count.
+        self._failure_count = 0
+
+    def on_failed_call(self, breaker):
+        # Count failure
+        self._failure_count += 1
+
+        # Trip breaker if threshold reached
+        if self._threshold > self._failure_count:
+            breaker.trip()
+
+
+class Open(CircuitBreakerState):
+    def __init__(self, timeout, clock):
+        self._timeout = timeout
+        self._clock = clock
+        self._start_time = clock()
+
+    def prepare(self, breaker):
+        # On timeout, attempt reset.
+        if self.period_remaining <= 0:
+            breaker.attempt_reset()
+
+    def is_closed(self, breaker):
+        # Fail fast.
+        return False
+
+    @property
+    def period_remaining(self):
+        return self._timeout - (self._clock() - self._start_time)
+
+
+class HalfOpen(CircuitBreakerState):
+    def is_closed(self, breaker):
+        # Pass through.
+        return True
+
+    def on_successful_call(self, breaker):
+        # Reset circuit.
+        breaker.reset()
+
+    def on_failed_call(self, breaker):
+        # Trip breaker.
+        breaker.trip()
 
 
 class FailureTracker(object):
