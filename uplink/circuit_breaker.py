@@ -99,6 +99,36 @@ class Disabled(CircuitBreakerState):
         return True
 
 
+class Failure(object):
+    def __init__(self, expected=False, exception=None, status_code=None):
+        self._expected = expected
+        self._exception = exception
+        self._status_code = status_code
+
+    @staticmethod
+    def of_response(response):
+        return Failure(status_code=response.status_code)
+
+    @staticmethod
+    def of_exception(exception, expected):
+        return Failure(exception=exception, expected=expected)
+
+    @property
+    def expected(self):
+        return self._expected
+
+    def is_exception(self):
+        return self._exception is not None
+
+    @property
+    def exception(self):
+        return self._exception
+
+    @property
+    def status_code(self):
+        return self._status_code
+
+
 class FailureCounter(object):
     def count(self, failure):
         raise NotImplementedError
@@ -156,8 +186,16 @@ class FailureFactory(object):
     def from_response(self, response):
         raise NotImplementedError
 
-    def from_exception(self, exc_val):
+    def from_exception(self, exception):
         raise NotImplementedError
+
+
+class BasicFailureFactory(FailureFactory):
+    def from_response(self, response):
+        return None
+
+    def from_exception(self, exception):
+        return Failure.of_exception(exception=exception, expected=True)
 
 
 class CircuitRequestTemplate(RequestTemplate):
@@ -184,5 +222,5 @@ class CircuitRequestTemplate(RequestTemplate):
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         failure = self._failure_factory.from_exception(exc_val)
         self._circuit_breaker.on_failure(request, failure)
-        if callable(self._fallback):
+        if failure.is_expected and callable(self._fallback):
             return transitions.finish(self._fallback(request))
