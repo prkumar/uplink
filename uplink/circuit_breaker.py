@@ -141,11 +141,46 @@ class FailureCounter(object):
         raise NotImplementedError
 
 
-class BreakerContext(object):
+class CircuitBreaker(object):
+    def reset(self):
+        raise NotImplementedError
+
+    def force_open(self):
+        raise NotImplementedError
+
+    def disable(self):
+        raise NotImplementedError
+
+    def attempt_reset(self):
+        raise NotImplementedError
+
+    def trip(self):
+        raise NotImplementedError
+
+    def on_success(self, request, response):
+        raise NotImplementedError
+
+    def on_error(self, request, failure):
+        raise NotImplementedError
+
+    def update(self):
+        raise NotImplementedError
+
+    @property
+    def closed(self):
+        raise NotImplementedError
+
+    @property
+    def state(self):
+        raise NotImplementedError
+
+
+class BasicCircuitBreaker(CircuitBreaker):
     def __init__(self, failure_counter_factory, timeout):
         self._failure_counter_factory = failure_counter_factory
         self._timeout = timeout
         self._state = None
+        self.reset()
 
     def reset(self):
         self._state = Closed(self._failure_counter_factory())
@@ -162,91 +197,133 @@ class BreakerContext(object):
     def trip(self):
         self._state = Open(self._timeout, clock=now)
 
-    @property
-    def state(self):
-        return self._state
-
-
-@contextlib.contextmanager
-def _monitor_state_transition(context, monitor):
-    from_state = type(context.state)
-    yield
-    monitor.on_state_transistion(from_state, type(context.state))
-
-
-class MonitoringContextWrapper(object):
-    def __init__(self, context, monitor):
-        self._context = context
-        self._monitor = monitor
-
-    def _monitor(self):
-        return _monitor_state_transition(self._context, self._monitor)
-
-    def reset(self):
-        with self._monitor():
-            self._context.reset()
-
-    def force_open(self):
-        with self._monitor():
-            self._context.force_open()
-
-    def disable(self):
-        with self._monitor():
-            self._context.disable()
-
-    def attempt_reset(self):
-        with self._monitor():
-            self._context.attempt_reset()
-
-    def trip(self):
-        with self._monitor():
-            self._context.trip()
-
-    @property
-    def state(self):
-        return self._state
-
-
-class CircuitBreaker(object):
-    def __init__(self, context, monitor):
-        self._context = context
-        self._monitor = monitor
-        self._context.reset()
-        self._lock = threading.RLock()
-
-    @property
-    def _monitored_context(self):
-        return MonitoringContextWrapper(self._context, self._monitor)
-
-    def reset(self):
-        with self._lock:
-            self._monitored_context.reset()
-
-    def force_open(self):
-        with self._lock:
-            self._monitored_context.force_open()
-
-    def disable(self):
-        with self._lock:
-            self._monitored_context.disable()
-
     def on_success(self, request, response):
-        with self._lock:
-            self._monitor.on_success(request, response)
-            self._context.state.on_success(self._monitored_context)
+        self._state.on_success(self)
 
     def on_error(self, request, failure):
-        with self._lock:
-            self._monitor.on_error(request, failure)
-            self._context.state.on_error(self._monitored_context, failure)
+        self._state.on_failure(self, failure)
 
     def update(self):
-        with self._lock:
-            self._context.state.prepare(self._monitored_context)
+        self._state.prepare(self)
 
     @property
     def closed(self):
-        return self._context.state.is_closed()
+        return self._state.is_closed()
+
+    @property
+    def state(self):
+        return self._state
+
+
+class CircuitBreakerDecorator(CircuitBreaker):
+    def __init__(self, breaker):
+        self._breaker = breaker
+
+    def reset(self):
+        self._breaker.reset()
+
+    def force_open(self):
+        self._breaker.force_open()
+
+    def disable(self):
+        self._breaker.disble()
+
+    def attempt_reset(self):
+        self._breaker.attempt_reset()
+
+    def trip(self):
+        self._breaker.trip()
+
+    def on_success(self, request, response):
+        self._breaker.on_success(request, response)
+
+    def on_error(self, request, failure):
+        self._breaker.on_error(request, failure)
+
+    def update(self):
+        self._breaker.update()
+
+    @property
+    def state(self):
+        return self._breaker.state
+
+    @property
+    def closed(self):
+        return self._breaker.closed
+
+
+@contextlib.contextmanager
+def _monitor_state_transition(breaker, monitor):
+    from_state = type(breaker.state)
+    yield
+    monitor.on_state_transistion(from_state, type(breaker.state))
+
+
+class MonitoringCircuitBreaker(CircuitBreakerDecorator):
+    def __init__(self, breaker, monitor):
+        super(MonitoringCircuitBreaker, self).__init__(breaker)
+        self._monitor = monitor
+
+    def _monitor_state_transition(self):
+        return _monitor_state_transition(self._breaker, self._monitor)
+
+    def reset(self):
+        with self._monitor_state_transition():
+            super(MonitoringCircuitBreaker, self).reset()
+
+    def force_open(self):
+        with self._monitor_state_transition():
+            super(MonitoringCircuitBreaker, self).force_open()
+
+    def disable(self):
+        with self._monitor_state_transition():
+            super(MonitoringCircuitBreaker, self).disable()
+
+    def attempt_reset(self):
+        with self._monitor_state_transition():
+            super(MonitoringCircuitBreaker, self).attempt_reset()
+
+    def trip(self):
+        with self._monitor_state_transition():
+            super(MonitoringCircuitBreaker, self).reset()
+
+    def on_success(self, request, response):
+        self._monitor.on_success(request, response)
+        super(MonitoringCircuitBreaker, self).on_success(request, response)
+
+    def on_error(self, request, failure):
+        self._monitor.on_error(request, failure)
+        super(MonitoringCircuitBreaker, self).on_error(request, failure)
+
+
+class AtomicCircuitBreaker(CircuitBreakerDecorator):
+    def __init__(self, breaker):
+        super(AtomicCircuitBreaker, self).__init__(breaker)
+        self._lock = threading.RLock()
+
+    def reset(self):
+        with self._lock:
+            super(AtomicCircuitBreaker, self).reset()
+
+    def force_open(self):
+        with self._lock:
+            super(AtomicCircuitBreaker, self).force_open()
+
+    def disable(self):
+        with self._lock:
+            super(AtomicCircuitBreaker, self).disable()
+
+    def on_success(self, request, response):
+        with self._lock:
+            super(AtomicCircuitBreaker, self).on_success(request, response)
+
+    def on_error(self, request, failure):
+        with self._lock:
+            super(AtomicCircuitBreaker, self).on_error(request, failure)
+
+    def update(self):
+        with self._lock:
+            super(AtomicCircuitBreaker, self).update()
 
 
 class HealthMonitor(object):
