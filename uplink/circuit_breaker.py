@@ -1,7 +1,5 @@
 # Standard library imports
-import contextlib
 import time
-import threading
 
 # Local imports
 from uplink.clients.io import RequestTemplate, transitions
@@ -9,6 +7,11 @@ from uplink.clients.io import RequestTemplate, transitions
 
 # Use monotonic time if available, otherwise fall back to the system clock.
 now = time.monotonic if hasattr(time, "monotonic") else time.time
+
+
+class CircuitBreakerOpen(Exception):
+    # TODO: Define body.
+    pass
 
 
 # Circuit breaker states from pg. 95 of Release It! (2nd Edition)
@@ -22,32 +25,31 @@ class CircuitBreakerState(object):
     def is_closed(self, breaker):
         pass
 
-    def on_successful_call(self, breaker):
+    def on_success(self, breaker):
         pass
 
-    def on_failed_call(self, breaker):
+    def on_error(self, breaker, failure):
         pass
 
 
 class Closed(CircuitBreakerState):
-    def __init__(self, threshold):
-        self._threshold = threshold
-        self._failure_count = 0
+    def __init__(self, failure_counter):
+        self._failure_counter = failure_counter
 
     def is_closed(self, breaker):
         # Pass through.
         return True
 
-    def on_successful_call(self, breaker):
+    def on_success(self, breaker):
         # Reset count.
-        self._failure_count = 0
+        self._failure_counter.reset()
 
-    def on_failed_call(self, breaker):
-        # Count failure
-        self._failure_count += 1
+    def on_error(self, breaker, failure):
+        # Count failure.
+        self._failure_counter.count(failure)
 
         # Trip breaker if threshold reached
-        if self._threshold > self._failure_count:
+        if self._failure_counter.has_exceeded_treshold():
             breaker.trip()
 
 
@@ -76,132 +78,111 @@ class HalfOpen(CircuitBreakerState):
         # Pass through.
         return True
 
-    def on_successful_call(self, breaker):
+    def on_success(self, breaker):
         # Reset circuit.
         breaker.reset()
 
-    def on_failed_call(self, breaker):
+    def on_error(self, breaker):
         # Trip breaker.
         breaker.trip()
 
 
-class FailureTracker(object):
-    _failures = 0
-
-    def __init__(self, max_failures, circuit_breaker):
-        self._max_failures = max_failures
-        self._circuit_breaker = circuit_breaker
-        self.__lock = threading.RLock()
-        self._failures = 0
-
-    def increment(self):
-        with self._acquire_lock():
-            self._failures = min(self._failures + 1, self._max_failures)
-            if self._failures > self._max_failures:
-                self._circuit_breaker.trip()
-
-    def decrement(self):
-        with self._acquire_lock():
-            self._decrement_without_lock(1)
-
-    def _decrement_without_lock(self, delta):
-        self._failures = max(self._failures - delta, 0)
-        if (
-            self._circuit_breaker.tripped()
-            and self._failures <= self._max_failures
-        ):
-            self._circuit_breaker.reset()
-
-    @contextlib.contextmanager
-    def _acquire_lock(self):
-        with self.__lock:
-            since_last_reset = self._clock() - self._last_reset
-            if since_last_reset >= self._period:
-                self.__decrement_without_lock(since_last_reset / self._period)
-                self._last_reset = self._clock()
-            yield
+class ForceOpened(CircuitBreakerState):
+    def is_closed(self, breaker):
+        # Fail always.
+        return False
 
 
-class CircuitBreaker(object):
-    def __init__(self):
-        self._tripped = False
-        self._force_tripped = False
-        self._lock = threading.RLock()
+class Disabled(CircuitBreakerState):
+    def is_closed(self, breaker):
+        # Pass through always.
+        return True
 
-    def trip(self):
-        with self._lock:
-            self._tripped = True
+
+class FailureCounter(object):
+    def count(self, failure):
+        raise NotImplementedError
 
     def reset(self):
-        with self._lock:
-            self._tripped = False
+        raise NotImplementedError
 
-    def force_trip(self):
-        with self._lock:
-            self._force_tripped = True
 
-    def force_reset(self):
-        with self._lock:
-            self._force_tripped = False
+class BaseCircuitBreaker(object):
+    def __init__(self, timeout, failure_counter, health_monitor):
+        self._timeout = timeout
+        self._health_monitor = health_monitor
+        self._failure_counter = failure_counter
+        self._state = None
+        self.reset()
+
+    def reset(self):
+        self._state = Closed(self._failure_counter)
+
+    def force_open(self):
+        self._state = ForceOpened()
+
+    def disable(self):
+        self._state = Disabled()
+
+    def attempt_reset(self):
+        self._state = HalfOpen()
+
+    def trip(self):
+        self._state = Open(self._timeout, clock=now)
+
+    def on_success(self, request, response):
+        self._health_monitor.report_success(request, response)
+        self._state.on_success(self)
+
+    def on_failure(self, request, failure):
+        self._health_monitor.report_failure(request, failure)
+        self._state.on_failure(self, failure)
 
     @property
-    def tripped(self):
-        with self._lock:
-            return self._force_tripped or self._tripped
+    def closed(self):
+        self._state.prepare(self)
+        return self._state.is_closed()
 
 
 class HealthMonitor(object):
     def report_success(self, response):
-        self._failure_tracker.decrement()
+        pass
 
-    def report_failure(self, response):
-        self._failure_tracker.increment()
-
-    def report_exception(self, exc_type, exc_val, exc_tb):
-        self._failure_tracker.increment()
+    def report_failure(self, failure):
+        pass
 
 
-class FailureChecker(object):
-    def is_failure(self, response):
+class FailureFactory(object):
+    def from_response(self, response):
         raise NotImplementedError
 
-    def is_expected_exception(self, exc_type, exc_val, exc_tb):
+    def from_exception(self, exc_val):
         raise NotImplementedError
-
-
-class BasicFailureChecker(FailureChecker):
-    def is_failure(self, response):
-        return False
-
-    def is_expected_exception(self, exc_type, exc_val, exc_tb):
-        return False
 
 
 class CircuitRequestTemplate(RequestTemplate):
-    def __init__(
-        self, circuit_breaker, health_monitor, fallback_func, failure_checker
-    ):
+    def __init__(self, circuit_breaker, fallback, failure_factory):
         self._circuit_breaker = circuit_breaker
-        self._fallback_func = fallback_func
-        self._failure_checker = failure_checker
-        self._health_monitor = health_monitor
+        self._fallback = fallback
+        self._failure_factory = failure_factory
 
     def before_request(self, request):
-        if self._circuit_breaker.tripped:
+        if not self._circuit_breaker.closed:
+            if not callable(self._fallback):
+                raise CircuitBreakerOpen()
+
             # Short-circuit.
-            return transitions.finish(self._fallback_func(request))
+            return transitions.finish(self._fallback(request))
 
     def after_response(self, request, response):
-        if self._failure_checker.is_failure(response):
-            self._health_monitor.report_failure(response)
-            return transitions.finish(self._fallback_func(request))
+        failure = self._failure_factory.from_response(response)
+        if failure is None:
+            self._circuit_breaker.on_success(request, response)
         else:
-            self._health_monitor.report_success(response)
+            self._circuit_breaker.on_failure(request, failure)
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
-        self._health_monitor.report_exception(exc_type, exc_val, exc_tb)
-        if self._failure_checker.is_expected_exception(
-            exc_type, exc_val, exc_tb
-        ):
-            return transitions.finish(self._fallback_func(request))
-        return transitions.fail()
+        failure = self._failure_factory.from_exception(exc_val)
+        self._circuit_breaker.on_failure(request, failure)
+        if callable(self._fallback):
+            return transitions.finish(self._fallback(request))
