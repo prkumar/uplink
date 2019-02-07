@@ -11,7 +11,7 @@ from uplink.clients.io import RequestTemplate, transitions
 now = time.monotonic if hasattr(time, "monotonic") else time.time
 
 
-class CircuitBreakerOpen(Exception):
+class CircuitBreakerOpenException(Exception):
     # TODO: Define body.
     pass
 
@@ -24,7 +24,7 @@ class CircuitBreakerState(object):
     def prepare(self, breaker):
         pass
 
-    def is_closed(self, breaker):
+    def is_closed(self):
         pass
 
     def on_success(self, breaker):
@@ -38,7 +38,7 @@ class Closed(CircuitBreakerState):
     def __init__(self, failure_counter):
         self._failure_counter = failure_counter
 
-    def is_closed(self, breaker):
+    def is_closed(self):
         # Pass through.
         return True
 
@@ -64,7 +64,7 @@ class Open(CircuitBreakerState):
         if self.period_remaining <= 0:
             breaker.attempt_reset()
 
-    def is_closed(self, breaker):
+    def is_closed(self):
         # Fail fast.
         return False
 
@@ -77,8 +77,10 @@ class HalfOpen(CircuitBreakerState):
     def __init__(self, failure_counter):
         self._failure_counter = failure_counter
 
-    def is_closed(self, breaker):
-        # Pass through.
+    def is_closed(self):
+        # TODO:
+        #  Consider only letting the first call go through, and failing fast on
+        #  all other calls.
         return True
 
     def on_success(self, breaker):
@@ -97,13 +99,13 @@ class HalfOpen(CircuitBreakerState):
 
 
 class ForceOpened(CircuitBreakerState):
-    def is_closed(self, breaker):
+    def is_closed(self):
         # Fail always.
         return False
 
 
 class Disabled(CircuitBreakerState):
-    def is_closed(self, breaker):
+    def is_closed(self):
         # Pass through always.
         return True
 
@@ -134,11 +136,64 @@ class Failure(object):
 
 
 class FailureCounter(object):
-    def count(self, failure):
+    def count_failure(self, failure):
         raise NotImplementedError
 
-    def reset(self):
+    def count_success(self):
         raise NotImplementedError
+
+    def is_above_threshold(self):
+        raise NotImplementedError
+
+    def is_below_threshold(self):
+        raise NotImplementedError
+
+
+class BasicFailureCounter(FailureCounter):
+    def __init__(self, decrement_every, buffer, failure_threshold, clock=now):
+        self._window = decrement_every
+        self._failure_threshold = failure_threshold
+        self._failure_count = 0
+        self._num_rounds = 0
+        self._buffer = buffer
+        self._diff = 0
+        self._last_window = clock()
+        self._clock = clock
+
+    def decrement(self, n=1):
+        assert n >= 0
+        self._failure_count -= n
+        self._num_rounds += 1
+
+    def increment(self, n=1):
+        self._failure_count += n
+        self._num_rounds += 1
+
+    def update(self):
+        now_ = self._clock()
+        windows_elapsed = int(max(now_ - self._last_window, 0) / self._window)
+        self.decrement(windows_elapsed)
+        self._last_window += self._window * windows_elapsed
+
+    def count_success(self):
+        self.update()
+        self.decrement()
+
+    def count_failure(self, failure):
+        self.update()
+        self.increment()
+
+    def is_above_threshold(self):
+        return (
+            self._num_rounds >= self._buffer
+            and self._failure_count > self._failure_threshold
+        )
+
+    def is_below_threshold(self):
+        return (
+            self._num_rounds >= self._buffer
+            and self._failure_count < self._failure_threshold
+        )
 
 
 class CircuitBreaker(object):
@@ -176,14 +231,16 @@ class CircuitBreaker(object):
 
 
 class BasicCircuitBreaker(CircuitBreaker):
-    def __init__(self, failure_counter_factory, timeout):
+    def __init__(self, failure_counter_factory, timeout_factory):
+        # TODO: Find more appropriate names for these arguments
         self._failure_counter_factory = failure_counter_factory
-        self._timeout = timeout
+        self._timeout_factory = timeout_factory
+        self._timeout_generator = None
         self._state = None
         self.reset()
 
     def reset(self):
-        self._state = Closed(self._failure_counter_factory())
+        self._state = Closed(self._failure_counter_factory.for_closed_state())
 
     def force_open(self):
         self._state = ForceOpened()
@@ -192,10 +249,18 @@ class BasicCircuitBreaker(CircuitBreaker):
         self._state = Disabled()
 
     def attempt_reset(self):
-        self._state = HalfOpen(self._failure_counter_factory())
+        self._state = HalfOpen(
+            self._failure_counter_factory.for_half_open_state()
+        )
 
     def trip(self):
-        self._state = Open(self._timeout, clock=now)
+        # Don't reset timeout if the breaker is being opened from the half-open state.
+        if self._timeout_generator is None or not isinstance(
+            self._state, HalfOpen
+        ):
+            self._timeout_generator = self._timeout_factory()
+
+        self._state = Open(next(self._timeout_generator), clock=now)
 
     def on_success(self, request, response):
         self._state.on_success(self)
@@ -360,26 +425,26 @@ class BasicFailureFactory(FailureFactory):
 
 
 class CircuitRequestTemplate(RequestTemplate):
-    def __init__(self, circuit_breaker, fallback, monitor, failure_factory):
-        self._circuit_breaker = circuit_breaker
+    def __init__(self, breaker, fallback, monitor, failure_factory):
+        self._breaker = breaker
         self._fallback = fallback
         self._monitor = monitor
         self._failure_factory = failure_factory
 
     def before_request(self, request):
-        self._circuit_breaker.update()
+        self._breaker.update()
 
-        if not self._circuit_breaker.closed:
+        if not self._breaker.closed:
             self._monitor.on_request_not_permitted(request)
 
             if not callable(self._fallback):
-                raise CircuitBreakerOpen()
+                raise CircuitBreakerOpenException()
 
             # Short-circuit.
             return transitions.finish(self._fallback(request))
 
     def _handle_failure(self, request, failure):
-        self._circuit_breaker.on_failure(request, failure)
+        self._breaker.on_failure(request, failure)
 
         if callable(self._fallback):
             return transitions.finish(self._fallback(request))
@@ -387,7 +452,7 @@ class CircuitRequestTemplate(RequestTemplate):
     def after_response(self, request, response):
         failure = self._failure_factory.from_response(response)
         if failure is None:
-            self._circuit_breaker.on_success(request, response)
+            self._breaker.on_success(request, response)
         else:
             return self._handle_failure(request, failure)
 
