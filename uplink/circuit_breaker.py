@@ -149,51 +149,89 @@ class FailureCounter(object):
         raise NotImplementedError
 
 
-class BasicFailureCounter(FailureCounter):
-    def __init__(self, decrement_every, buffer, failure_threshold, clock=now):
-        self._window = decrement_every
-        self._failure_threshold = failure_threshold
-        self._failure_count = 0
-        self._num_rounds = 0
-        self._buffer = buffer
-        self._diff = 0
-        self._last_window = clock()
-        self._clock = clock
+class IncrementalFailingCounter(FailureCounter):
+    def count_failure(self, failure):
+        self.increment()
+
+    def count_success(self):
+        self.decrement()
 
     def decrement(self, n=1):
-        assert n >= 0
-        self._failure_count -= n
-        self._num_rounds += 1
+        raise NotImplementedError
+
+    def increment(self, n=1):
+        raise NotImplementedError
+
+
+class SimpleFailureCounter(IncrementalFailingCounter):
+    def __init__(self, threshold):
+        self._threshold = threshold
+        self._failure_count = 0
+
+    def is_above_threshold(self):
+        return self._failure_count > self._threshold
+
+    def is_below_threshold(self):
+        return not self.is_above_threshold()
+
+    def decrement(self, n=1):
+        self._failure_count = max(self._failure_count - n, 0)
 
     def increment(self, n=1):
         self._failure_count += n
-        self._num_rounds += 1
 
-    def update(self):
+
+class LeakyBucket(FailureCounter):
+    def __init__(self, rate, counter, clock=now):
+        self._rate = rate
+        self._counter = counter
+        self._clock = clock
+        self._last_leak = clock()
+
+    def leak(self):
         now_ = self._clock()
-        windows_elapsed = int(max(now_ - self._last_window, 0) / self._window)
-        self.decrement(windows_elapsed)
-        self._last_window += self._window * windows_elapsed
+        elapsed = now_ - self._last_leak
+        amount = elapsed * self._rate
+        self._counter.decrement(int(amount))
+        self._last_leak = now_ - ((amount - int(amount)) / self._rate)
 
     def count_success(self):
-        self.update()
-        self.decrement()
+        self.leak()
+        self._counter.count_success()
 
     def count_failure(self, failure):
-        self.update()
-        self.increment()
+        self.leak()
+        self._counter.count_failure(failure)
 
     def is_above_threshold(self):
-        return (
-            self._num_rounds >= self._buffer
-            and self._failure_count > self._failure_threshold
-        )
+        return self._counter.is_above_threshold()
 
     def is_below_threshold(self):
-        return (
-            self._num_rounds >= self._buffer
-            and self._failure_count < self._failure_threshold
-        )
+        return self._counter.is_below_threshold()
+
+
+class MinimumCalls(FailureCounter):
+    def __init__(self, counter, min_calls):
+        self._counter = counter
+        self._min_calls = min_calls
+        self._call_count = 0
+
+    def count_success(self):
+        self._counter.count_success()
+        self._call_count += 1
+
+    def count_failure(self, failure):
+        self._counter.count_failure(failure)
+        self._call_count += 1
+
+    def meets_minimum_calls(self):
+        return self._call_count >= self._min_calls
+
+    def is_above_threshold(self):
+        return self.meets_minimum_calls() and self._counter.is_above_threshold()
+
+    def is_below_threshold(self):
+        return self.meets_minimum_calls() and self._counter.is_below_threshold()
 
 
 class CircuitBreaker(object):
@@ -254,7 +292,8 @@ class BasicCircuitBreaker(CircuitBreaker):
         )
 
     def trip(self):
-        # Don't reset timeout if the breaker is being opened from the half-open state.
+        # Don't reset timeout if the breaker is being opened from the
+        # half-open state.
         if self._timeout_generator is None or not isinstance(
             self._state, HalfOpen
         ):
