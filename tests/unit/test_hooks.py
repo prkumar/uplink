@@ -1,3 +1,6 @@
+# Third-party imports
+import pytest
+
 # Local imports
 from uplink import hooks
 
@@ -55,8 +58,15 @@ class TestTransactionHookChain(object):
         mock_request_auditor.call_count == 1
 
     def test_delegate_handle_exception(self, transaction_hook_mock):
+        class CustomException(Exception):
+            pass
+
+        err = CustomException()
         chain = hooks.TransactionHookChain(transaction_hook_mock)
-        chain.handle_exception(None, None, None, None)
+
+        with pytest.raises(CustomException):
+            chain.handle_exception(None, CustomException, err, None)
+
         transaction_hook_mock.handle_exception.assert_called_with(
-            None, None, None, None
+            None, CustomException, err, None
         )

@@ -1,8 +1,9 @@
-# Third party imports
+# Third-party imports
 import pytest
 
 # Local imports
 from uplink import auth, builder, converters, exceptions, helpers
+from uplink.clients import io
 
 
 @pytest.fixture
@@ -27,30 +28,38 @@ class TestRequestPreparer(object):
         request_builder.url = "/example/path"
         request_builder.return_type = None
         request_builder.transaction_hooks = ()
+        request_builder.request_template = "request_template"
         uplink_builder = mocker.Mock(spec=builder.Builder)
         uplink_builder.converters = ()
         uplink_builder.hooks = ()
         request_preparer = builder.RequestPreparer(uplink_builder)
-        request_preparer.prepare_request(request_builder)
-        uplink_builder.client.create_request().send.assert_called_with(
-            request_builder.method, request_builder.url, request_builder.info
-        )
+        execution_builder = mocker.Mock(spec=io.RequestExecutionBuilder)
+        request_preparer.prepare_request(request_builder, execution_builder)
+
+        # Verify
+        execution_builder.with_client.assert_called_with(uplink_builder.client)
+        execution_builder.with_io.assert_called_with(uplink_builder.client.io())
+        execution_builder.with_template(request_builder.request_template)
 
     def test_prepare_request_with_transaction_hook(
-        self, uplink_builder, request_builder, transaction_hook_mock
+        self, mocker, uplink_builder, request_builder, transaction_hook_mock
     ):
         request_builder.method = "METHOD"
         request_builder.url = "/example/path"
+        request_builder.request_template = "request_template"
         uplink_builder.base_url = "https://example.com"
         uplink_builder.add_hook(transaction_hook_mock)
         request_preparer = builder.RequestPreparer(uplink_builder)
-        request_preparer.prepare_request(request_builder)
+        execution_builder = mocker.Mock(spec=io.RequestExecutionBuilder)
+        request_preparer.prepare_request(request_builder, execution_builder)
+
+        # Verify
         transaction_hook_mock.audit_request.assert_called_with(
             None, request_builder
         )
-        uplink_builder.client.create_request().send.assert_called_with(
-            request_builder.method, request_builder.url, request_builder.info
-        )
+        execution_builder.with_client.assert_called_with(uplink_builder.client)
+        execution_builder.with_io.assert_called_with(uplink_builder.client.io())
+        execution_builder.with_template(request_builder.request_template)
 
     def test_create_request_builder(self, uplink_builder, request_definition):
         request_definition.make_converter_registry.return_value = {}
@@ -65,13 +74,23 @@ class TestCallFactory(object):
         kwargs = {}
         request_preparer = mocker.Mock(spec=builder.RequestPreparer)
         request_preparer.create_request_builder.return_value = request_builder
-        factory = builder.CallFactory(request_preparer, request_definition)
+        execution_builder = mocker.Mock(spec=io.RequestExecutionBuilder)
+        execution_builder.build().start.return_value = object()
+        factory = builder.CallFactory(
+            request_preparer, request_definition, lambda: execution_builder
+        )
         assert (
             factory(*args, **kwargs)
-            is request_preparer.prepare_request.return_value
+            is execution_builder.build().start.return_value
         )
         request_definition.define_request.assert_called_with(
             request_builder, args, kwargs
+        )
+        request_preparer.prepare_request.assert_called_with(
+            request_builder, execution_builder
+        )
+        execution_builder.build().start.assert_called_with(
+            (request_builder.method, request_builder.url, request_builder.info)
         )
 
 

@@ -15,7 +15,7 @@ with open(os.path.join("uplink", "__about__.py")) as fp:
     exec(fp.read(), about)
     about = dict((k.strip("_"), about[k]) for k in about)
 
-install_requires = ["requests>=2.18.0", "uritemplate>=3.0.0"]
+install_requires = ["requests>=2.18.0", "six>=1.12.0", "uritemplate>=3.0.0"]
 
 extras_require = {
     "marshmallow": ["marshmallow>=2.15.0"],
@@ -24,7 +24,7 @@ extras_require = {
     "twisted:python_version != '3.3'": "twisted>=17.1.0",
     "twisted:python_version == '3.3'": "twisted<=17.9.0",
     "typing": ["typing>=3.6.4"],
-    "tests": ["pytest", "pytest-mock", "pytest-cov"],
+    "tests": ["pytest<4.1", "pytest-mock", "pytest-cov", "pytest-twisted"],
 }
 
 metadata = {

@@ -117,7 +117,7 @@ Custom JSON Conversion
 ======================
 
 Recognizing JSON's popularity amongst public APIs, Uplink provides
-some out-of-the-box utilities to adding JSON serialization support for
+some out-of-the-box utilities that make adding JSON serialization support for
 your objects simple.
 
 Deserialization
@@ -125,7 +125,7 @@ Deserialization
 
 :class:`@returns.json <uplink.returns.json>` is handy when working with
 APIs that provide JSON responses. As its leading positional argument, the decorator
-accepts a class that represents the expected schema of JSON body:
+accepts a class that represents the expected schema of the JSON response body:
 
 .. code-block:: python
    :emphasize-lines: 2

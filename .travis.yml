@@ -23,6 +23,8 @@ script:
 after_success:
   - pip install codecov
   - codecov
+before_deploy:
+  - python verify_tag.py --tag $TRAVIS_TAG
 deploy:
   provider: pypi
   user: prkumar
@@ -31,4 +33,3 @@ deploy:
   on:
     tags: true
     python: '3.6'
-  distributions: "sdist bdist_wheel"

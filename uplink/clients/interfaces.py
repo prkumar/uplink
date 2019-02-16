@@ -1,13 +1,14 @@
 # Local imports
-from uplink.clients import exceptions
+from uplink.clients import exceptions, io
 
 
-class HttpClientAdapter(object):
+class HttpClientAdapter(io.Client):
     """An adapter of an HTTP client library."""
 
     __exceptions = exceptions.Exceptions()
 
-    def create_request(self):
+    def io(self):
+        """Returns the execution strategy for this client."""
         raise NotImplementedError
 
     @property
@@ -19,13 +20,8 @@ class HttpClientAdapter(object):
         """
         return self.__exceptions
 
-
-class Request(object):
-    def send(self, method, url, extras):
+    def send(self, request):
         raise NotImplementedError
 
-    def add_callback(self, callback):
-        raise NotImplementedError
-
-    def add_exception_handler(self, exception_handler):
+    def apply_callback(self, callback, response):
         raise NotImplementedError

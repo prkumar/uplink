@@ -15,6 +15,7 @@ from uplink import (
     session,
     utils,
 )
+from uplink.clients import io
 
 __all__ = ["build", "Consumer"]
 
@@ -41,40 +42,53 @@ class RequestPreparer(object):
     def _wrap_hook(self, func):
         return functools.partial(func, self._consumer)
 
-    def apply_hooks(self, chain, request_builder, sender):
+    def apply_hooks(self, execution_builder, chain, request_builder):
         hook = hooks_.TransactionHookChain(*chain)
         hook.audit_request(self._consumer, request_builder)
         if hook.handle_response is not None:
-            sender.add_callback(self._wrap_hook(hook.handle_response))
-        sender.add_exception_handler(self._wrap_hook(hook.handle_exception))
+            execution_builder.with_callbacks(
+                self._wrap_hook(hook.handle_response)
+            )
+        execution_builder.with_errbacks(self._wrap_hook(hook.handle_exception))
 
-    def prepare_request(self, request_builder):
+    def prepare_request(self, request_builder, execution_builder):
         request_builder.url = self._join_url_with_base(request_builder.url)
         self._auth(request_builder)
-        sender = self._client.create_request()
         chain = self._get_hook_chain(request_builder)
         if chain:
-            self.apply_hooks(chain, request_builder, sender)
-        return sender.send(
-            request_builder.method, request_builder.url, request_builder.info
-        )
+            self.apply_hooks(execution_builder, chain, request_builder)
+
+        execution_builder.with_client(self._client)
+        execution_builder.with_io(self._client.io())
+        execution_builder.with_template(request_builder.request_template)
 
     def create_request_builder(self, definition):
         registry = definition.make_converter_registry(self._converters)
-        return helpers.RequestBuilder(registry)
+        return helpers.RequestBuilder(self._client, registry, self._base_url)
 
 
 class CallFactory(object):
-    def __init__(self, request_preparer, request_definition):
+    def __init__(
+        self, request_preparer, request_definition, execution_builder_factory
+    ):
         self._request_preparer = request_preparer
         self._request_definition = request_definition
+        self._execution_builder_factory = execution_builder_factory
 
     def __call__(self, *args, **kwargs):
-        builder = self._request_preparer.create_request_builder(
+        request_builder = self._request_preparer.create_request_builder(
             self._request_definition
         )
-        self._request_definition.define_request(builder, args, kwargs)
-        return self._request_preparer.prepare_request(builder)
+        self._request_definition.define_request(request_builder, args, kwargs)
+        execution_builder = self._execution_builder_factory()
+        self._request_preparer.prepare_request(
+            request_builder, execution_builder
+        )
+        execution = execution_builder.build()
+        return execution.start(
+            # TODO: Create request value object
+            (request_builder.method, request_builder.url, request_builder.info)
+        )
 
 
 class Builder(interfaces.CallBuilder):
@@ -136,7 +150,11 @@ class Builder(interfaces.CallBuilder):
         Creates a callable that uses the provided definition to execute
         HTTP requests when invoked.
         """
-        return CallFactory(RequestPreparer(self, consumer), definition)
+        return CallFactory(
+            RequestPreparer(self, consumer),
+            definition,
+            io.RequestExecutionBuilder,
+        )
 
 
 class ConsumerMethod(object):

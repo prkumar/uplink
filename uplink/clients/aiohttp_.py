@@ -3,22 +3,19 @@ This module defines an :py:class:`aiohttp.ClientSession` adapter
 that returns awaitable responses.
 """
 # Standard library imports
-import atexit
-
 import asyncio
 import collections
 import threading
 from concurrent import futures
-from functools import partial
 
-# Third party imports
+# Third-party imports
 try:
     import aiohttp
 except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import exceptions, helpers, interfaces, register
+from uplink.clients import exceptions, io, interfaces, register
 
 
 def threaded_callback(callback):
@@ -26,8 +23,9 @@ def threaded_callback(callback):
 
     @asyncio.coroutine
     def new_callback(response):
-        yield from response.text()
-        response = ThreadedResponse(response)
+        if isinstance(response, aiohttp.ClientResponse):
+            yield from response.text()
+            response = ThreadedResponse(response)
         response = yield from coroutine_callback(response)
         if isinstance(response, ThreadedResponse):
             return response.unwrap()
@@ -63,13 +61,23 @@ class AiohttpClient(interfaces.HttpClientAdapter):
     def __init__(self, session=None, **kwargs):
         if aiohttp is None:
             raise NotImplementedError("aiohttp is not installed.")
+        self._auto_created_session = False
         if session is None:
             session = self._create_session(**kwargs)
         self._session = session
         self._sync_callback_adapter = threaded_callback
 
-    def create_request(self):
-        return Request(self)
+    def __del__(self):
+        if self._auto_created_session:
+            # aiohttp v3.0 has made ClientSession.close a coroutine,
+            # so we check whether it is one here and register it
+            # to run appropriately at exit
+            if asyncio.iscoroutinefunction(self._session.close):
+                asyncio.get_event_loop().run_until_complete(
+                    self._session.close()
+                )
+            else:
+                self._session.close()
 
     @asyncio.coroutine
     def session(self):
@@ -77,20 +85,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         if isinstance(self._session, self.__ARG_SPEC):
             args, kwargs = self._session
             self._session = aiohttp.ClientSession(*args, **kwargs)
-
-            # aiohttp v3.0 has made ClientSession.close a coroutine,
-            # so we check whether it is one here and register it
-            # to run appropriately at exit
-            if asyncio.iscoroutinefunction(self._session.close):
-                atexit.register(
-                    partial(
-                        asyncio.get_event_loop().run_until_complete,
-                        self._session.close(),
-                    )
-                )
-            else:
-                atexit.register(self._session.close)
-
+            self._auto_created_session = True
         return self._session
 
     def wrap_callback(self, callback):
@@ -133,23 +128,23 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)
 
-
-class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-    def __init__(self, client):
-        self._client = client
-        self._callback = None
-
     @asyncio.coroutine
-    def send(self, method, url, extras):
-        session = yield from self._client.session()
-        with self._exception_handler:
-            response = yield from session.request(method, url, **extras)
-        if self._callback is not None:
-            response = yield from self._callback(response)
+    def send(self, request):
+        method, url, extras = request
+        session = yield from self.session()
+        response = yield from session.request(method, url, **extras)
+
+        # Make `aiohttp` response "quack" like a `requests` response
+        response.status_code = response.status
+
         return response
 
-    def add_callback(self, callback):
-        self._callback = self._client.wrap_callback(callback)
+    def apply_callback(self, callback, response):
+        return self.wrap_callback(callback)(response)
+
+    @staticmethod
+    def io():
+        return io.AsyncioStrategy()
 
 
 class ThreadedCoroutine(object):

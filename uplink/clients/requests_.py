@@ -1,11 +1,10 @@
 # Standard library imports
-import atexit
 
 # Third party imports
 import requests
 
 # Local imports
-from uplink.clients import exceptions, helpers, interfaces, register
+from uplink.clients import exceptions, io, interfaces, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
@@ -23,12 +22,15 @@ class RequestsClient(interfaces.HttpClientAdapter):
     exceptions = exceptions.Exceptions()
 
     def __init__(self, session=None, **kwargs):
+        self.__auto_created_session = False
         if session is None:
             session = self._create_session(**kwargs)
+            self.__auto_created_session = True
         self.__session = session
 
-    def create_request(self):
-        return Request(self.__session)
+    def __del__(self):
+        if self.__auto_created_session:
+            self.__session.close()
 
     @staticmethod
     @register.handler
@@ -39,26 +41,20 @@ class RequestsClient(interfaces.HttpClientAdapter):
     @staticmethod
     def _create_session(**kwargs):
         session = requests.Session()
-        atexit.register(session.close)
         for key in kwargs:
             setattr(session, key, kwargs[key])
         return session
 
+    def send(self, request):
+        method, url, extras = request
+        return self.__session.request(method=method, url=url, **extras)
 
-class Request(helpers.ExceptionHandlerMixin, interfaces.Request):
-    def __init__(self, session):
-        self._session = session
-        self._callback = None
+    def apply_callback(self, callback, response):
+        return callback(response)
 
-    def send(self, method, url, extras):
-        with self._exception_handler:
-            response = self._session.request(method=method, url=url, **extras)
-        if self._callback is not None:
-            response = self._callback(response)
-        return response
-
-    def add_callback(self, callback):
-        self._callback = callback
+    @staticmethod
+    def io():
+        return io.BlockingStrategy()
 
 
 # === Register client exceptions === #

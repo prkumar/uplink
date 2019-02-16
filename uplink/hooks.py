@@ -2,6 +2,9 @@
 This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
+# Local imports
+from uplink import compat
+
 __all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
 
 
@@ -103,6 +106,7 @@ class TransactionHookChain(TransactionHook):
     def handle_exception(self, consumer, exc_type, exc_val, exc_tb):
         for hook in self._hooks:
             hook.handle_exception(consumer, exc_type, exc_val, exc_tb)
+        compat.reraise(exc_type, exc_val, exc_tb)
 
 
 class RequestAuditor(TransactionHook):

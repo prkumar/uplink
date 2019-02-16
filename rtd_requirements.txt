@@ -1,0 +1,8 @@
+# This requirements file is used to build the documentation at
+# https://uplink.readthedocs.io/. This file will become unnecessary after RTD
+# adds support for Pipfiles: https://github.com/rtfd/readthedocs.org/issues/3181
+
+aiohttp
+marshmallow
+requests
+twisted

@@ -3,6 +3,7 @@ import collections
 
 # Local imports
 from uplink import interfaces
+from uplink.clients import io
 
 
 def get_api_definitions(service):
@@ -12,9 +13,7 @@ def get_api_definitions(service):
     class.
 
     Note:
-        Only attributes defined directly on the class are considered. In
-        other words, inherited `RequestDefinitionBuilder` attributes
-        are ignored.
+        All attributes are considered, not only defined directly on the class.
 
     Args:
         service: A class object.
@@ -27,7 +26,7 @@ def get_api_definitions(service):
     # report in Python issue tracker). Directly invoking `getattr` to
     # force Python's attribute lookup protocol is a decent workaround to
     # ensure parity:
-    class_attributes = ((k, getattr(service, k)) for k in service.__dict__)
+    class_attributes = ((k, getattr(service, k)) for k in dir(service))
 
     is_definition = interfaces.RequestDefinitionBuilder.__instancecheck__
     return [(k, v) for k, v in class_attributes if is_definition(v)]
@@ -38,10 +37,12 @@ def set_api_definition(service, name, definition):
 
 
 class RequestBuilder(object):
-    def __init__(self, converter_registry):
+    def __init__(self, client, converter_registry, base_url):
         self._method = None
         self._url = None
         self._return_type = None
+        self._client = client
+        self._base_url = base_url
 
         # TODO: Pass this in as constructor parameter
         # TODO: Delegate instantiations to uplink.HTTPClientAdapter
@@ -49,6 +50,11 @@ class RequestBuilder(object):
 
         self._converter_registry = converter_registry
         self._transaction_hooks = []
+        self._request_templates = []
+
+    @property
+    def client(self):
+        return self._client
 
     @property
     def method(self):
@@ -57,6 +63,10 @@ class RequestBuilder(object):
     @method.setter
     def method(self, method):
         self._method = method
+
+    @property
+    def base_url(self):
+        return self._base_url
 
     @property
     def url(self):
@@ -85,5 +95,12 @@ class RequestBuilder(object):
     def return_type(self, return_type):
         self._return_type = return_type
 
+    @property
+    def request_template(self):
+        return io.CompositeRequestTemplate(self._request_templates)
+
     def add_transaction_hook(self, hook):
         self._transaction_hooks.append(hook)
+
+    def add_request_template(self, template):
+        self._request_templates.append(template)

@@ -64,7 +64,7 @@ except ImportError:
     import urlparse as _urlparse
 
 
-# Third party imports
+# Third-party imports
 import uritemplate
 
 

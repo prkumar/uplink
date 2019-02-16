@@ -1,23 +1,21 @@
 # Local imports
 from uplink import utils, clients
-from uplink.clients import helpers, exceptions as client_exceptions
+from uplink.clients import io, exceptions as client_exceptions
 
 
 class MockClient(clients.interfaces.HttpClientAdapter):
-    def __init__(self, request):
-        self._mocked_request = request
-        self._request = _HistoryMaintainingRequest(_MockRequest(request))
+    def __init__(self, mock_client):
+        self._mock_client = mock_client
         self._exceptions = client_exceptions.Exceptions()
-
-    def create_request(self):
-        return self._request
+        self._history = []
+        self._io = io.BlockingStrategy()
 
     def with_response(self, response):
-        self._mocked_request.send.return_value = response
+        self._mock_client.send.return_value = response
         return self
 
-    def with_side_effect(self, error):
-        self._mocked_request.send.side_effect = error
+    def with_side_effect(self, side_effect):
+        self._mock_client.send.side_effect = side_effect
         return self
 
     @property
@@ -26,7 +24,22 @@ class MockClient(clients.interfaces.HttpClientAdapter):
 
     @property
     def history(self):
-        return self._request.history
+        return self._history
+
+    def with_io(self, io_):
+        self._io = io_
+        return self
+
+    def io(self):
+        return self._io
+
+    def apply_callback(self, callback, response):
+        return callback(response)
+
+    def send(self, request):
+        method, url, extras = request
+        self._history.append(RequestInvocation(method, url, extras))
+        return self._mock_client.send(method, url, extras)
 
 
 class MockResponse(object):
@@ -102,39 +115,3 @@ class RequestInvocation(object):
             return self._extras[item]
         except KeyError:
             raise AttributeError(item)
-
-
-class _HistoryMaintainingRequest(clients.interfaces.Request):
-    def __init__(self, request):
-        self._request = request
-        self._history = []
-
-    def send(self, method, url, extras):
-        self._history.append(RequestInvocation(method, url, extras))
-        return self._request.send(method, url, extras)
-
-    def add_callback(self, callback):
-        self._request.add_callback(callback)
-
-    def add_exception_handler(self, exception_handler):
-        self._request.add_exception_handler(exception_handler)
-
-    @property
-    def history(self):
-        return self._history
-
-
-class _MockRequest(helpers.ExceptionHandlerMixin, clients.interfaces.Request):
-    def __init__(self, mock_request):
-        self._callbacks = []
-        self._mock_request = mock_request
-
-    def send(self, method, url, extras):
-        with self._exception_handler:
-            response = self._mock_request.send(method, url, extras)
-        for callback in self._callbacks:
-            response = callback(response)
-        return response
-
-    def add_callback(self, callback):
-        self._callbacks.append(callback)

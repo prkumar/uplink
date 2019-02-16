@@ -1,7 +1,9 @@
-Tips & Tricks
-*************
+Tips, Tricks, & Extras
+**********************
 
 Here are a few ways to simplify consumer definitions.
+
+.. _decorate_consumer:
 
 Decorating All Request Methods in a Class
 =========================================
@@ -135,3 +137,62 @@ When using Python 3, you can use these classes as function annotations
         def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
             pass
 
+
+.. _`annotating constructor arguments`:
+
+Annotating :py:meth:`__init__` Arguments
+========================================
+
+Function annotations like :py:class:`Query` and :py:class:`Header` can
+be used with constructor arguments of a :py:class:`~uplink.Consumer` subclass.
+When a new consumer instance is created, the value of these arguments are
+applied to all requests made through that instance.
+
+For example, the following consumer accepts the API access token as the
+constructor argument :py:attr:`access_token`:
+
+.. code-block:: python
+
+    class GitHub(uplink.Consumer):
+
+        def __init__(self, access_token: uplink.Query):
+            ...
+
+        @uplink.post("/user")
+        def update_user(self, **info: Body):
+            """Update the authenticated user"""
+
+Now, all requests made from an instance of this consumer class will be
+authenticated with the access token passed in at initialization:
+
+.. code-block:: python
+
+    github = GitHub("my-github-access-token")
+
+    # This request will include the `access_token` query parameter set from
+    # the constructor argument.
+    github.update_user(bio="Beam me up, Scotty!")
+
+
+The Consumer's :py:meth:`_inject` Method
+========================================
+
+As an alternative to :ref:`annotating constructor arguments` and
+:ref:`session`, you can achieve a similar behavior with more control by
+using the :py:meth:`Consumer._inject` method. With this method, you can
+calculate request properties within plain old python methods.
+
+.. code-block:: python
+
+    class TodoApp(uplink.Consumer):
+
+        def __init__(self, username, password)
+            # Create an access token
+            api_key = create_api_key(username, password)
+
+            # Inject it.
+            self._inject(uplink.Query("api_key").with_value(api_key))
+
+Similar to the annotation style, request properties added with
+:py:meth:`~uplink.Consumer._inject` method are applied to all requests made
+through the consumer instance.

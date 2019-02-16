@@ -1,7 +1,7 @@
 # Standard library imports
 import typing
 
-# Third party imports
+# Third-party imports
 import marshmallow
 import pytest
 
@@ -310,6 +310,37 @@ class TestSequence(object):
         assert converters.keys.Sequence(0) == converters.keys.Sequence(0)
         assert not (converters.keys.Sequence(1) == converters.keys.Sequence(0))
         assert not (converters.keys.Sequence(1) == 1)
+
+
+class TestIdentity(object):
+    _sentinel = object()
+
+    @pytest.fixture(scope="class")
+    def registry(self):
+        return converters.ConverterFactoryRegistry(
+            (converters.StandardConverter(),)
+        )
+
+    @pytest.fixture(scope="class")
+    def key(self):
+        return converters.keys.Identity()
+
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            (1, 1),
+            ("a", "a"),
+            (_sentinel, _sentinel),
+            ({"a": "b"}, {"a": "b"}),
+            ([1, 2], [1, 2]),
+        ],
+    )
+    def test_convert(self, registry, key, value, expected):
+        converter = registry[key]()
+        assert converter(value) == expected
+
+    def test_eq(self):
+        assert converters.keys.Identity() == converters.keys.Identity()
 
 
 class TestRegistry(object):
