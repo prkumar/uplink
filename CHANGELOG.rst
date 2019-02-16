@@ -10,31 +10,26 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 ===================
 Added
 -----
-- A ``retry`` decorator to enable reattempts of failed requests.
-  (`#132 <https://github.com/prkumar/uplink/pull/132>`_)
+- A ``retry`` decorator to enable reattempts of failed requests. (`#132`_)
 - A ``ratelimit`` decorator to constrain consumers to making some maximum number
-  of calls within a given time period.
-  (`#132 <https://github.com/prkumar/uplink/pull/132>`_)
+  of calls within a given time period. (`#132`_)
 - ``Timeout`` argument annotation to be able to pass the timeout as a consumer
   method argument or to inject it as a transaction hook using a ``Consumer``
-  instance's ``_inject`` method. (`#133 <https://github.com/prkumar/uplink/pull/133>`_
-  by `@daa <https://github.com/daa>`_)
+  instance's ``_inject`` method. (`#133`_ by `@daa`_)
 
 Changed
 -------
 - ``Consumer`` subclasses now inherit class decorators from their
   ``Consumer`` parents, so those decorators are also applied to the subclasses'
   methods that are decorated with ``@get``, ``@post``, ``@patch``, etc.
-  (`#138 <https://github.com/prkumar/uplink/pull/138>`_ by
-  `@daa <https://github.com/daa>`_)
+  (`#138`_ by `@daa`_)
 
 Fixed
 -----
 - Memory leaks in ``RequestsClient`` and ``AiohttpClient`` caused by
   use of ``atexit.register``, which was holding references to session objects
   and preventing the garbage collector from freeing memory reserved for those
-  objects. (`#134 <https://github.com/prkumar/uplink/pull/134>`_
-  by `@SakornW <https://github.com/SakornW>`_)
+  objects. (`#134`_ by `@SakornW`_)
 
 0.7.0_ - 2018-12-06
 ===================
@@ -291,7 +286,15 @@ Added
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
 .. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1
 
+.. Pull Requests
+.. _#132: https://github.com/prkumar/uplink/pull/132
+.. _#133: https://github.com/prkumar/uplink/pull/133
+.. _#134: https://github.com/prkumar/uplink/pull/134
+.. _#138: https://github.com/prkumar/uplink/pull/138
+
 .. Contributors
+.. _@daa: https://github.com/daa
+.. _@SakornW: https://github.com/SakornW
 .. _@brandonio21: https://github.com/brandonio21
 .. _@itstehkman: https://github.com/itstehkman
 .. _@kadrach: https://github.com/kadrach
