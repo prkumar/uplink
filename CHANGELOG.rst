@@ -6,6 +6,36 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.8.0_ - 2019-02-16
+===================
+Added
+-----
+- A ``retry`` decorator to enable reattempts of failed requests.
+  (`#132 <https://github.com/prkumar/uplink/pull/132>`_)
+- A ``ratelimit`` decorator to constrain consumers to making some maximum number
+  of calls within a given time period.
+  (`#132 <https://github.com/prkumar/uplink/pull/132>`_)
+- ``Timeout`` argument annotation to be able to pass the timeout as a consumer
+  method argument or to inject it as a transaction hook using a ``Consumer``
+  instance's ``_inject`` method. (`#133 <https://github.com/prkumar/uplink/pull/133>`_
+  by `@daa <https://github.com/daa>`_)
+
+Changed
+-------
+- ``Consumer`` subclasses now inherit class decorators from their
+  ``Consumer`` parents, so those decorators are also applied to the subclasses'
+  methods that are decorated with ``@get``, ``@post``, ``@patch``, etc.
+  (`#138 <https://github.com/prkumar/uplink/pull/138>`_ by
+  `@daa <https://github.com/daa>`_)
+
+Fixed
+-----
+- Memory leaks in ``RequestsClient`` and ``AiohttpClient`` caused by
+  use of ``atexit.register``, which was holding references to session objects
+  and preventing the garbage collector from freeing memory reserved for those
+  objects. (`#134 <https://github.com/prkumar/uplink/pull/134>`_
+  by `@SakornW <https://github.com/SakornW>`_)
+
 0.7.0_ - 2018-12-06
 ===================
 Added
@@ -28,7 +58,8 @@ Changed
 
 Fixed
 -----
-- Support for changes to ``Schema().load`` and ``Schema().dump`` in ``marshmallow`` v3. 
+- Support for changes to ``Schema().load`` and ``Schema().dump`` in
+  ``marshmallow`` v3.
   (`#109 <https://github.com/prkumar/uplink/pull/109>`_)
 
 0.6.1_ - 2018-9-14
@@ -243,6 +274,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.8.0: https://github.com/prkumar/uplink/compare/v0.7.0...v0.8.0
 .. _0.7.0: https://github.com/prkumar/uplink/compare/v0.6.1...v0.7.0
 .. _0.6.1: https://github.com/prkumar/uplink/compare/v0.6.0...v0.6.1
 .. _0.6.0: https://github.com/prkumar/uplink/compare/v0.5.5...v0.6.0
