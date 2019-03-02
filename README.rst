@@ -16,11 +16,11 @@ Uplink turns your HTTP API into a Python class.
    from uplink import Consumer, get, headers, Path, Query
 
    class GitHub(Consumer):
-      """A Python Client for the GitHub API."""
+       """A Python Client for the GitHub API."""
 
-      @get("users/{user}/repos")
-      def get_repos(self, user: Path, sort_by: Query("sort")):
-         """Retrieves the user's public repositories."""
+       @get("users/{user}/repos")
+       def get_repos(self, user: Path, sort_by: Query("sort")):
+          """Retrieves the user's public repositories."""
 
 Build an instance to interact with the webservice.
 
