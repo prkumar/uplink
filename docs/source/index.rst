@@ -22,7 +22,8 @@ Uplink turns your HTTP API into a Python class.
 
 .. code-block:: python
 
-   from uplink import Consumer, get, headers, Path, Query
+   from uplink import Consumer, get, Path, Query
+
 
    class GitHub(Consumer):
        """A Python Client for the GitHub API."""
