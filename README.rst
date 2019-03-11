@@ -147,7 +147,7 @@ User Testimonials
 
 **Or Carmi** (`@liiight`_), notifiers_ maintainer-
 
-    Uplink’s intelligent usage of decorators and typing leverages the most
+    Uplink's intelligent usage of decorators and typing leverages the most
     pythonic features in an elegant and dynamic way. If you need to create an
     API abstraction layer, there is really no reason to look elsewhere.
 
@@ -164,7 +164,7 @@ Contributing
 ============
 Want to report a bug, request a feature, or contribute code to Uplink?
 Checkout the `Contribution Guide`_ for where to start.
-Thank you for taking the time to improve an open source project 💜
+Thank you for taking the time to improve an open source project :purple_heart:
 
 .. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.org/prkumar/uplink
