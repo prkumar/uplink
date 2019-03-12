@@ -7,7 +7,7 @@ from uplink.clients import AiohttpClient, RequestsClient, TwistedClient
 # todo: remove this in v1.0.0
 from uplink.converters import MarshmallowConverter
 
-from uplink.builder import build, Consumer
+from uplink.builder import build, Consumer, Resource
 from uplink.commands import get, head, put, post, patch, delete
 from uplink.exceptions import (
     Error,
@@ -56,6 +56,7 @@ __all__ = [
     "MarshmallowConverter",
     "build",
     "Consumer",
+    "Resource",
     "get",
     "head",
     "put",

@@ -45,6 +45,9 @@ class AnnotationHandlerBuilder(object):
     def is_done(self):
         return True
 
+    def copy(self):
+        raise NotImplementedError
+
     def build(self):
         raise NotImplementedError
 
@@ -96,6 +99,9 @@ class RequestDefinitionBuilder(object):
     def method_handler_builder(self):
         raise NotImplementedError
 
+    def copy(self):
+        raise NotImplementedError
+
     def build(self):
         raise NotImplementedError
 
@@ -144,4 +150,10 @@ class Auth(object):
 class Consumer(object):
     @property
     def session(self):
+        raise NotImplementedError
+
+
+class Resource(object):
+    @classmethod
+    def create(cls):
         raise NotImplementedError

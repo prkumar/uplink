@@ -28,8 +28,13 @@ def get_api_definitions(service):
     # ensure parity:
     class_attributes = ((k, getattr(service, k)) for k in dir(service))
 
+    is_resource = interfaces.Resource.__instancecheck__
     is_definition = interfaces.RequestDefinitionBuilder.__instancecheck__
-    return [(k, v) for k, v in class_attributes if is_definition(v)]
+    return [
+        (k, v)
+        for k, v in class_attributes
+        if is_definition(v) or is_resource(v)
+    ]
 
 
 def set_api_definition(service, name, definition):

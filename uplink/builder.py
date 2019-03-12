@@ -17,7 +17,7 @@ from uplink import (
 )
 from uplink.clients import io
 
-__all__ = ["build", "Consumer"]
+__all__ = ["build", "Consumer", "Resource"]
 
 
 class RequestPreparer(object):
@@ -352,3 +352,9 @@ def build(service_cls, *args, **kwargs):
     )
     consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
     return consumer(*args, **kwargs)
+
+
+class Resource(interfaces.Resource, Consumer):
+    @classmethod
+    def create(cls):
+        return ConsumerMeta(cls.__name__, (cls,), {})
