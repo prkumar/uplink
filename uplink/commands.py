@@ -155,6 +155,14 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def method_handler_builder(self):
         return self._method_handler_builder
 
+    def copy(self):
+        return RequestDefinitionBuilder(
+            self._method,
+            self._uri,
+            self._argument_handler_builder.copy(),
+            self._method_handler_builder.copy(),
+        )
+
     def _auto_fill_remaining_arguments(self):
         uri_vars = set(self.uri.remaining_variables)
         missing = list(self.argument_handler_builder.missing_arguments)

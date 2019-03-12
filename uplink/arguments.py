@@ -120,6 +120,9 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
     def is_done(self):
         return self.remaining_args_count == 0
 
+    def copy(self):
+        return self
+
     @property
     def _types(self):
         types = self._annotations
