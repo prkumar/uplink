@@ -68,7 +68,8 @@ through the consumer's :obj:`session <uplink.Consumer.session>` property:
 
     class GitHub(Consumer):
 
-        def __init__(self, access_token):
+        def __init__(self, base_url, access_token):
+            super(GitHub, self).__init__(base_url=base_url)
             self.session.params["access_token"] = access_token
             ...
 
