@@ -558,6 +558,15 @@ Finally, like other Uplink decorators, you can decorate a :class:`Consumer`
 subclass with :class:`@retry <uplink.retry>` to :ref:`add retry support to all
 methods of that class <decorate_consumer>`.
 
+
+.. note::
+
+   Response and error handlers (see :ref:`here <custom response
+   handler>`) are invoked after the retry condition breaks or after all
+   retry attempts are exhausted, whatever comes first. These callbacks
+   will receive the first response/exception that triggers the retry's
+   ``stop`` condition or doesn't match its ``when`` filter.
+
 Client-Side Rate Limiting
 =========================
 
