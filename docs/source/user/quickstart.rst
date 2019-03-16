@@ -150,8 +150,28 @@ by method arguments.
     @get("users/{username}/repos")
     def get_repos(self, username, sort: Query): pass
 
-For "catch-all" or complex query parameter combinations, a
-:py:class:`~uplink.QueryMap` can be used:
+
+Setting a default value for the query parameter works like you'd expect
+it to:
+
+.. code-block:: python
+
+    @get("users/{username}/repos")
+    def get_repos(self, username, sort: Query = "created"): pass
+
+
+To make the query parameter optional, set the argument's default value
+to :obj:`None`. Then, if the argument is not specified at runtime, the
+parameter will not appear in the request.
+
+.. code-block:: python
+
+    @get("users/{username}/repos")
+    def get_repos(self, username, sort: Query = None): pass
+
+Useful for "catch-all" or complex query parameter combinations, the
+:py:class:`~uplink.QueryMap` annotation accepts a mapping of query
+parameters:
 
 .. code-block:: python
 
