@@ -158,11 +158,24 @@ User Testimonials
 
 Documentation
 =============
-For more details, check out the documentation at
-https://uplink.readthedocs.io/.
+
+Check out the library's documentation at https://uplink.readthedocs.io/.
+
+For new users, a good place to start is this `quick tutorial`_.
+
+
+Community
+=========
+
+Join the conversation on `Gitter`_ to ask questions, provide feedback,
+and meet other users!
+
+.. _Gitter: https://gitter.im/python-uplink/Lobby
+
 
 Contributing
 ============
+
 Want to report a bug, request a feature, or contribute code to Uplink?
 Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project :purple_heart:
