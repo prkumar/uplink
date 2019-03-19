@@ -153,7 +153,7 @@ class Consumer(object):
         raise NotImplementedError
 
 
-class Resource(object):
-    @classmethod
-    def create(cls):
+class Resource(Consumer):
+    @property
+    def session(self):
         raise NotImplementedError

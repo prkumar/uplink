@@ -82,7 +82,7 @@ class MethodAnnotation(interfaces.Annotation):
 
     @classmethod
     def _is_relevant_for_builder(cls, builder):
-        return cls.supports_http_method(builder[1].method)
+        return cls.supports_http_method(builder.method)
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
@@ -98,12 +98,13 @@ class MethodAnnotation(interfaces.Annotation):
     def __call__(self, class_or_builder, is_class=False):
         if self._is_consumer_class(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
-            builders = filter(self._is_relevant_for_builder, builders)
 
             for name, b in builders:
                 self(b, is_class=True)
                 helpers.set_api_definition(class_or_builder, name, b)
-        elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
+        elif isinstance(
+            class_or_builder, interfaces.RequestDefinitionBuilder
+        ) and self._is_relevant_for_builder(class_or_builder):
             class_or_builder.method_handler_builder.add_annotation(self)
         return class_or_builder
 

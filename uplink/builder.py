@@ -186,13 +186,28 @@ class ConsumerMethod(object):
             return instance.session.create(instance, self._request_definition)
 
 
-class ConsumerMeta(type):
+class SuperMeta(type):
+    def __new__(mcs, name, bases, namespace):
+        # Wrap all definition builders with a special descriptor that
+        # handles attribute access behavior.
+        for key, value in namespace.items():
+            namespace[key] = mcs._wrap_if_definition(name, key, value)
+        return super(SuperMeta, mcs).__new__(mcs, name, bases, namespace)
+
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
         if isinstance(value, interfaces.RequestDefinitionBuilder):
             value = ConsumerMethod(cls_name, key, value)
+        if utils.is_subclass(value, interfaces.Resource):
+            value = _ResourceDecorator(value)
         return value
 
+    def __setattr__(cls, key, value):
+        value = cls._wrap_if_definition(cls.__name__, key, value)
+        super(SuperMeta, cls).__setattr__(key, value)
+
+
+class ConsumerMeta(SuperMeta):
     @staticmethod
     def _set_init_handler(namespace):
         try:
@@ -217,16 +232,7 @@ class ConsumerMeta(type):
 
     def __new__(mcs, name, bases, namespace):
         mcs._set_init_handler(namespace)
-
-        # Wrap all definition builders with a special descriptor that
-        # handles attribute access behavior.
-        for key, value in namespace.items():
-            namespace[key] = mcs._wrap_if_definition(name, key, value)
         return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
-
-    def __setattr__(cls, key, value):
-        value = cls._wrap_if_definition(cls.__name__, key, value)
-        super(ConsumerMeta, cls).__setattr__(key, value)
 
 
 _Consumer = ConsumerMeta("_Consumer", (), {})
@@ -354,7 +360,29 @@ def build(service_cls, *args, **kwargs):
     return consumer(*args, **kwargs)
 
 
-class Resource(interfaces.Resource, Consumer):
-    @classmethod
-    def create(cls):
-        return ConsumerMeta(cls.__name__, (cls,), {})
+class _ResourceDecorator(object):
+    def __init__(self, resource_cls):
+        self._resource_cls = resource_cls
+
+    def __get__(self, instance, owner):
+        if instance is not None and isinstance(instance, interfaces.Consumer):
+            return self._resource_cls(session=instance.session)
+        else:
+            # TODO:
+            return SuperMeta(
+                self._resource_cls.__name__, (self._resource_cls,), {}
+            )
+
+
+class Resource(interfaces.Resource, SuperMeta("_Resource", (), {})):
+    def __new__(cls, *args, **kwargs):
+        if "session" not in kwargs:
+            return cls
+        return super(Resource, cls).__new__(cls)
+
+    def __init__(self, **kwargs):
+        self.__session = kwargs.pop("session", None)
+
+    @property
+    def session(self):
+        return self.__session
