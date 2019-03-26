@@ -181,7 +181,7 @@ class ConsumerMethod(object):
 
     def __get__(self, instance, owner):
         if instance is None:
-            return self._request_definition_builder
+            return self._request_definition_builder.copy()
         else:
             return instance.session.create(instance, self._request_definition)
 

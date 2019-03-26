@@ -167,11 +167,11 @@ def test_setting_request_method(request_definition_builder):
         request_method = request_definition_builder
 
     # Verify: Get request definition builder on access
-    assert Consumer.request_method is request_definition_builder
+    assert Consumer.request_method is request_definition_builder.copy()
 
     # Verify: Try again after resetting
     Consumer.request_method = request_definition_builder
-    assert Consumer.request_method is request_definition_builder
+    assert Consumer.request_method is request_definition_builder.copy()
 
     # Verify: We get callable on attribute access for an instance
     consumer = Consumer()

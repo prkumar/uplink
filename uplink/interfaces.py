@@ -99,6 +99,9 @@ class RequestDefinitionBuilder(object):
     def build(self):
         raise NotImplementedError
 
+    def copy(self):
+        raise NotImplementedError
+
 
 class RequestDefinition(object):
     def make_converter_registry(self, converters):
