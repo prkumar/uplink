@@ -132,6 +132,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         self._uri = uri
         self._argument_handler_builder = argument_handler_builder
         self._method_handler_builder = method_handler_builder
+        self._return_type = None
 
         self._argument_handler_builder.listener = self._notify
         self._method_handler_builder.listener = self._notify
@@ -155,13 +156,23 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def method_handler_builder(self):
         return self._method_handler_builder
 
+    @property
+    def return_type(self):
+        return self._return_type
+
+    @return_type.setter
+    def return_type(self, return_type):
+        self._return_type = return_type
+
     def copy(self):
-        return RequestDefinitionBuilder(
+        builder = RequestDefinitionBuilder(
             self._method,
             self._uri,
             self._argument_handler_builder.copy(),
             self._method_handler_builder.copy(),
         )
+        builder.return_type = self.return_type
+        return builder
 
     def _auto_fill_remaining_arguments(self):
         uri_vars = set(self.uri.remaining_variables)
@@ -184,14 +195,21 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         method_handler = self._method_handler_builder.build()
         uri = self._uri.build()
         return RequestDefinition(
-            self._method, uri, argument_handler, method_handler
+            self._method,
+            uri,
+            self._return_type,
+            argument_handler,
+            method_handler,
         )
 
 
 class RequestDefinition(interfaces.RequestDefinition):
-    def __init__(self, method, uri, argument_handler, method_handler):
+    def __init__(
+        self, method, uri, return_type, argument_handler, method_handler
+    ):
         self._method = method
         self._uri = uri
+        self._return_type = return_type
         self._argument_handler = argument_handler
         self._method_handler = method_handler
 
@@ -209,6 +227,7 @@ class RequestDefinition(interfaces.RequestDefinition):
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method
         request_builder.url = utils.URIBuilder(self._uri)
+        request_builder.return_type = self._return_type
         self._argument_handler.handle_call(
             request_builder, func_args, func_kwargs
         )

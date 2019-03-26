@@ -9,38 +9,67 @@ from uplink.converters import keys, interfaces
 __all__ = ["json", "from_json", "schema"]
 
 
+class ReturnType(object):
+    def __init__(self, decorator, type_):
+        self._decorator = decorator
+        self._type_ = type_
+
+    @property
+    def type(self):
+        return self._type_
+
+    @staticmethod
+    def with_decorator(old, decorator):
+        old_type = None if old is None else old.type
+        return ReturnType(decorator, decorator.return_type or old_type)
+
+    def with_strategy(self, strategy):
+        return CallableReturnType(self._decorator, self._type_, strategy)
+
+    def is_applicable(self, decorator):
+        return self._decorator is decorator
+
+
+class CallableReturnType(ReturnType):
+    def __init__(self, decorator, type_, strategy):
+        super(CallableReturnType, self).__init__(decorator, type_)
+        self._strategy = strategy
+
+    def __call__(self, *args, **kwargs):
+        return self._strategy(*args, **kwargs)
+
+
 class _ReturnsBase(decorators.MethodAnnotation):
+    @property
+    def return_type(self):  # pragma: no cover
+        raise NotImplementedError
+
     def _get_return_type(self, return_type):  # pragma: no cover
         return return_type
 
     def _make_strategy(self, converter):  # pragma: no cover
         pass
 
+    def _modify_request_definition(self, definition, kwargs):
+        super(_ReturnsBase, self)._modify_request_definition(definition, kwargs)
+        definition.return_type = ReturnType.with_decorator(
+            definition.return_type, self
+        )
+
     def modify_request(self, request_builder):
-        return_type = self._get_return_type(request_builder.return_type)
-        if isinstance(return_type, _StrategyWrapper):
-            converter = return_type.unwrap()
-        else:
-            converter = request_builder.get_converter(
-                keys.CONVERT_FROM_RESPONSE_BODY, return_type
-            )
+        return_type = request_builder.return_type
+        if not return_type.is_applicable(self):
+            return
+
+        converter = request_builder.get_converter(
+            keys.CONVERT_FROM_RESPONSE_BODY,
+            self._get_return_type(return_type.type),
+        )
         if converter is not None:
             # Found a converter that can handle the return type.
-            request_builder.return_type = _StrategyWrapper(
-                converter, self._make_strategy(converter)
+            request_builder.return_type = return_type.with_strategy(
+                self._make_strategy(converter)
             )
-
-
-class _StrategyWrapper(object):
-    def __init__(self, converter, strategy):
-        self._converter = converter
-        self._strategy = strategy
-
-    def __call__(self, *args, **kwargs):
-        return self._strategy(*args, **kwargs)
-
-    def unwrap(self):  # pragma: no cover
-        return self._converter
 
 
 class JsonStrategy(object):
@@ -134,16 +163,18 @@ class json(_ReturnsBase):
         self._type = type or model
         self._key = key or member
 
+    @property
+    def return_type(self):
+        return self._type
+
     def _get_return_type(self, return_type):
-        # If self._type and return_type are None, the strategy should
-        # directly return the JSON body of the HTTP response, instead of
-        # trying to deserialize it into a certain type. In this case, by
+        # If return_type is None, the strategy should directly return
+        # the JSON body of the HTTP response, instead of trying to
+        # deserialize it into a certain type. In this case, by
         # defaulting the return type to the dummy converter, which
         # implements this pass-through behavior, we ensure that
         # _make_strategy is called.
-        default = self.__dummy_converter if self._type is None else self._type
-
-        return default if return_type is None else return_type
+        return self.__dummy_converter if return_type is None else return_type
 
     def _make_strategy(self, converter):
         return JsonStrategy(converter, self._key)
@@ -223,8 +254,9 @@ class schema(_ReturnsBase):
     def __init__(self, type):
         self._schema = type
 
-    def _get_return_type(self, return_type):
-        return self._schema if return_type is None else return_type
+    @property
+    def return_type(self):
+        return self._schema
 
     def _make_strategy(self, converter):
         return converter
