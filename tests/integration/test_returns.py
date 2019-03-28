@@ -43,7 +43,8 @@ class GitHub(uplink.Consumer):
     def get_repo(self, user, repo):
         pass
 
-    @uplink.returns.from_json(type=uplink.types.List[Repo], key="data")
+    @uplink.returns.from_json(key="data")
+    @uplink.returns.schema(uplink.types.List[Repo])
     @uplink.get("/users/{user}/repos")
     def get_repos(self, user):
         pass

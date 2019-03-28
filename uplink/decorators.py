@@ -95,6 +95,9 @@ class MethodAnnotation(interfaces.Annotation):
         else:
             return is_consumer_class and not (kwargs or args_[1:])
 
+    def _modify_request_definition(self, builder, kwargs):
+        builder.method_handler_builder.add_annotation(self, **kwargs)
+
     def __call__(self, class_or_builder, **kwargs):
         if self._is_consumer_class(class_or_builder):
             builders = helpers.get_api_definitions(class_or_builder)
@@ -104,9 +107,7 @@ class MethodAnnotation(interfaces.Annotation):
                 self(b, is_class=True)
                 helpers.set_api_definition(class_or_builder, name, b)
         elif isinstance(class_or_builder, interfaces.RequestDefinitionBuilder):
-            class_or_builder.method_handler_builder.add_annotation(
-                self, **kwargs
-            )
+            self._modify_request_definition(class_or_builder, kwargs)
         return class_or_builder
 
     def modify_request(self, request_builder):

@@ -209,14 +209,14 @@ class TestRequestDefinition(object):
     def test_argument_annotations(self, annotation_handler_mock):
         annotation_handler_mock.annotations = ["arg1", "arg2"]
         definition = commands.RequestDefinition(
-            None, None, annotation_handler_mock, None
+            None, None, None, annotation_handler_mock, None
         )
         assert list(definition.argument_annotations) == ["arg1", "arg2"]
 
     def test_method_annotations(self, annotation_handler_mock):
         annotation_handler_mock.annotations = ["arg1", "arg2"]
         definition = commands.RequestDefinition(
-            None, None, None, annotation_handler_mock
+            None, None, None, None, annotation_handler_mock
         )
         assert list(definition.method_annotations) == ["arg1", "arg2"]
 
@@ -224,15 +224,20 @@ class TestRequestDefinition(object):
         method = "method"
         uri = "uri"
         definition = commands.RequestDefinition(
-            method, uri, mocker.Mock(), mocker.Mock()
+            method, uri, str, mocker.Mock(), mocker.Mock()
         )
         definition.define_request(request_builder, (), {})
         assert request_builder.method == method
         assert request_builder.url == uri
+        assert request_builder.return_type is str
 
     def test_make_converter_registry(self, annotation_handler_mock):
         definition = commands.RequestDefinition(
-            "method", "uri", annotation_handler_mock, annotation_handler_mock
+            "method",
+            "uri",
+            None,
+            annotation_handler_mock,
+            annotation_handler_mock,
         )
         annotation_handler_mock.annotations = ("annotation",)
         registry = definition.make_converter_registry(())
