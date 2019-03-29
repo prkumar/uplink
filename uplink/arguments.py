@@ -683,7 +683,7 @@ class Url(ArgumentAnnotation):
 
 class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
     """
-    Pass a timeout as a method argument at runtime.
+    Passes a timeout as a method argument at runtime.
 
     While :py:class:`uplink.timeout` attaches static timeout to all requests
     sent from a consumer method, this class turns a method argument into a
@@ -696,7 +696,6 @@ class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
             def get_posts(self, timeout: Timeout() = 60):
                 \"""Fetch all posts for the current users giving up after given
                 number of seconds.\"""
-
     """
 
     @property
@@ -711,3 +710,17 @@ class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
     def _modify_request(self, request_builder, value):
         """Modifies request timeout."""
         request_builder.info["timeout"] = value
+
+
+class Context(FuncDecoratorMixin, NamedArgument):
+    """
+    Adds a name-value pair to the request context. The value at runtime
+    is accessible to decorators and other middleware.
+    """
+
+    @property
+    def converter_key(self):
+        return keys.Identity()
+
+    def _modify_request(self, request_builder, value):
+        request_builder.context[self.name] = value
