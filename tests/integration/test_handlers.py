@@ -124,4 +124,4 @@ def test_error_handler(mock_client):
     except WrappedException as err:
         assert err.exception == expected_error
     else:
-        assert False
+        raise AssertionError
