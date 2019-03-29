@@ -108,7 +108,7 @@ def test_error_handler_with_consumer(mock_client):
         assert err.exception == expected_error
         assert calendar.flagged is True
     else:
-        assert False
+        raise AssertionError
 
 
 def test_error_handler(mock_client):
