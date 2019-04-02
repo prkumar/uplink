@@ -80,7 +80,7 @@ path from :class:`base_url`, which we covered above:
 
 .. note::
 
-    To build a request's absolute URL, the relative path is resolved
+    To build a request's absolute URL, Uplink resolves the relative path
     against the :obj:`Consumer`'s base url according to `RFC 3986`_. For
     a simplified overview, see `these recommendations and examples`_
     from Retrofit's documentation, as they are also relevant to how
@@ -111,11 +111,6 @@ By default, uplink uses `Requests
 from GitHub is wrapped inside a :class:`requests.Response` instance. (If
 you want, you can :ref:`swap out <swap_default_http_client>`
 Requests for a different backing HTTP client, such as :ref:`aiohttp <sync_vs_async>`.)
-
-.. note::
-
-    To build the absolute path, Uplink resolves the relative path
-    against the :obj:`Consumer`'s base url according to
 
 .. |aiohttp| replace:: ``aiohttp``
 
