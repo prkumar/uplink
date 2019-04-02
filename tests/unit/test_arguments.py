@@ -276,9 +276,7 @@ class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
             )
 
     def test_skip_none(self, request_builder):
-        arguments.Query("name").modify_request(
-            request_builder, None
-        )
+        arguments.Query("name").modify_request(request_builder, None)
         assert request_builder.info["params"] == {}
 
     def test_encode_none(self, request_builder):
@@ -433,3 +431,12 @@ class TestTimeout(ArgumentTestCase, FuncDecoratorTestCase):
     def test_modify_request(self, request_builder):
         arguments.Timeout().modify_request(request_builder, 10)
         assert request_builder.info["timeout"] == 10
+
+
+class TestContext(ArgumentTestCase, FuncDecoratorTestCase):
+    type_cls = arguments.Context
+    expected_converter_key = keys.Identity()
+
+    def test_modify_request(self, request_builder):
+        arguments.Context("key").modify_request(request_builder, "value")
+        assert request_builder.context["key"] == "value"

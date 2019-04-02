@@ -43,3 +43,13 @@ class TestRequestBuilder(object):
 
         # Verify
         assert list(builder.transaction_hooks) == [transaction_hook_mock]
+
+    def test_context(self):
+        # Setup
+        builder = helpers.RequestBuilder(None, {}, "base_url")
+
+        # Run
+        builder.context["key"] = "value"
+
+        # Verify
+        assert builder.context["key"] == "value"
