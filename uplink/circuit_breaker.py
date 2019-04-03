@@ -150,6 +150,12 @@ class FailureCounter(object):
 
 
 class IncrementalFailingCounter(FailureCounter):
+    def is_above_threshold(self):
+        raise NotImplementedError
+
+    def is_below_threshold(self):
+        raise NotImplementedError
+
     def count_failure(self, failure):
         self.increment()
 
