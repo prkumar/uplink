@@ -53,6 +53,21 @@ class retry(decorators.MethodAnnotation):
     which should benefit performance with remote services under high
     contention.
 
+    .. note::
+
+        Response and error handlers (see :ref:`here <custom response
+        handler>`) are invoked after the retry condition breaks or all
+        retry attempts are exhausted, whatever comes first. These
+        handlers will receive the first response/exception that triggers
+        the retry's ``stop`` condition or doesn't match its ``when``
+        filter.
+
+        In other words, responses or exceptions that match
+        the retry condition (e.g., retry when status code is 5xx) are
+        not subject to response or error handlers as long as the request
+        doesn't break the retry's stop condition (e.g., stop retrying
+        after 5 attempts).
+
     Args:
         when (optional): A predicate that determines when a retry
             should be attempted.

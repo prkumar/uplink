@@ -186,7 +186,9 @@ calculate request properties within plain old python methods.
 
     class TodoApp(uplink.Consumer):
 
-        def __init__(self, username, password)
+        def __init__(self, base_url, username, password):
+           super(TodoApp, self).__init__(base_url=base_url)
+
             # Create an access token
             api_key = create_api_key(username, password)
 
