@@ -750,11 +750,12 @@ class Context(FuncDecoratorMixin, NamedArgument):
 
         To add a name-value pair to the context of any request made from
         a :class:`Consumer <uplink.Consumer>` instance, you
-        can use the :attr:`Consumer.session.context <uplink.session.Session.context>`
-        property. Alternatively, you can annotate a constructor argument of a
-        :class:`Consumer <uplink.Consumer>` subclass with :class:`Context <uplink.Context>`, as explained
+        can use the :attr:`Consumer.session.context
+        <uplink.session.Session.context>` property. Alternatively, you
+        can annotate a constructor argument of a :class:`Consumer
+        <uplink.Consumer>` subclass with :class:`Context
+        <uplink.Context>`, as explained
         :ref:`here <annotating constructor arguments>`.
-
     """
 
     @property
