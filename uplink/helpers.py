@@ -47,6 +47,7 @@ class RequestBuilder(object):
         # TODO: Pass this in as constructor parameter
         # TODO: Delegate instantiations to uplink.HTTPClientAdapter
         self._info = collections.defaultdict(dict)
+        self._context = {}
 
         self._converter_registry = converter_registry
         self._transaction_hooks = []
@@ -79,6 +80,10 @@ class RequestBuilder(object):
     @property
     def info(self):
         return self._info
+
+    @property
+    def context(self):
+        return self._context
 
     @property
     def transaction_hooks(self):
