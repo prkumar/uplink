@@ -67,3 +67,8 @@ Timeout
 =======
 
 .. autoclass:: uplink.Timeout
+
+Context
+=======
+
+.. autoclass:: uplink.Context
