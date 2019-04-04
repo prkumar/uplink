@@ -440,3 +440,16 @@ class TestContext(ArgumentTestCase, FuncDecoratorTestCase):
     def test_modify_request(self, request_builder):
         arguments.Context("key").modify_request(request_builder, "value")
         assert request_builder.context["key"] == "value"
+
+
+class TestContextMap(ArgumentTestCase, FuncDecoratorTestCase):
+    type_cls = arguments.ContextMap
+    expected_converter_key = keys.Identity()
+
+    def test_modify_request(self, request_builder):
+        arguments.ContextMap().modify_request(request_builder, {"key": "value"})
+        assert request_builder.context == {"key": "value"}
+
+    def test_modify_request_not_mapping(self, request_builder):
+        with pytest.raises(TypeError):
+            arguments.ContextMap().modify_request(request_builder, "value")
