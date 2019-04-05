@@ -26,11 +26,11 @@ class RequestExecutionBuilder(object):
         return self
 
     def with_callbacks(self, *callbacks):
-        self._callbacks = list(callbacks)
+        self._callbacks.extend(callbacks)
         return self
 
     def with_errbacks(self, *errbacks):
-        self._errbacks = list(errbacks)
+        self._errbacks.extend(errbacks)
         return self
 
     def build(self):

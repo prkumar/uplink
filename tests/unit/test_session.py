@@ -53,3 +53,15 @@ def test_auth_set(uplink_builder_mock):
 
     # Verify
     assert ("username", "password") == uplink_builder_mock.auth
+
+
+def test_context(uplink_builder_mock):
+    # Setup
+    sess = session.Session(uplink_builder_mock)
+
+    # Run
+    sess.context["key"] = "value"
+
+    # Verify
+    assert uplink_builder_mock.add_hook.called
+    assert sess.context == {"key": "value"}

@@ -15,6 +15,7 @@ class Session(object):
         self.__builder = builder
         self.__params = None
         self.__headers = None
+        self.__context = None
 
     def create(self, consumer, definition):
         return self.__builder.build(definition, consumer)
@@ -47,6 +48,17 @@ class Session(object):
             self.__params = {}
             self.inject(arguments.QueryMap().with_value(self.__params))
         return self.__params
+
+    @property
+    def context(self):
+        """
+        A dictionary of name-value pairs that are made available to
+        request middleware.
+        """
+        if self.__context is None:
+            self.__context = {}
+            self.inject(arguments.ContextMap().with_value(self.__context))
+        return self.__context
 
     @property
     def auth(self):

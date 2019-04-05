@@ -81,10 +81,10 @@ path from :class:`base_url`, which we covered above:
 .. note::
 
     To build a request's absolute URL, Uplink resolves the relative path
-    against the :obj:`Consumer`'s base url according to `RFC 3986`_. For
-    a simplified overview, see `these recommendations and examples`_
-    from Retrofit's documentation, as they are also relevant to how
-    Uplink handles resolving URLs.
+    against the :obj:`Consumer`'s base url using :func:`urljoin
+    <urllib.parse.urljoin>`, which implements the `RFC 3986`_ standards.
+    For a simplified overview of these standards, see `these
+    recommendations and examples`_ from Retrofit's documentation.
 
 .. _RFC 3986: https://tools.ietf.org/html/rfc3986#section-5
 .. _these recommendations and examples: https://square.github.io/retrofit/2.x/retrofit/retrofit2/Retrofit.Builder.html#baseUrl-okhttp3.HttpUrl-

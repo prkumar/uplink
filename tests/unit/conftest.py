@@ -16,12 +16,6 @@ def http_client_mock(mocker):
 
 
 @pytest.fixture
-def request_mock(mocker):
-    # TODO: Remove
-    return None
-
-
-@pytest.fixture
 def transaction_hook_mock(mocker):
     return mocker.Mock(spec=hooks.TransactionHook)
 
@@ -70,6 +64,7 @@ def uplink_builder_mock(mocker):
 def request_builder(mocker):
     builder = mocker.MagicMock(spec=helpers.RequestBuilder)
     builder.info = collections.defaultdict(dict)
+    builder.context = {}
     builder.get_converter.return_value = lambda x: x
     builder.client.exceptions = Exceptions()
     return builder
