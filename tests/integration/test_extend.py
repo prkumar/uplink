@@ -24,7 +24,7 @@ class GitHubService(uplink.Consumer):
     @github_error
     @uplink.json
     @uplink.post("graphql", args=(uplink.Body,))
-    def graphql(self, **body: uplink.Body):
+    def graphql(self, **body):
         pass
 
     @uplink.returns.json(member=("data", "repository"))
