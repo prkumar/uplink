@@ -35,14 +35,22 @@ class MissingUriVariables(exceptions.InvalidRequestDefinition):
 
 
 class HttpMethodFactory(object):
-    def __init__(self, method):
+    def __init__(
+        self,
+        method,
+        method_handler_factory=decorators.MethodAnnotationHandlerBuilder,
+    ):
         self._method = method
+        self._method_handler_factory = method_handler_factory
 
     def __call__(self, uri=None, args=()):
         if callable(uri) and not args:
-            return HttpMethod(self._method)(uri)
+            return HttpMethod(self._method)(uri, self._method_handler_factory)
         else:
-            return HttpMethod(self._method, uri, args)
+            return functools.partial(
+                HttpMethod(self._method, uri, args),
+                method_handler_factory=self._method_handler_factory,
+            )
 
 
 class HttpMethod(object):
@@ -60,7 +68,11 @@ class HttpMethod(object):
             args, kwargs = ((), args) if is_map else (args, {})
             self._add_args = decorators.args(*args, **kwargs)
 
-    def __call__(self, func):
+    def __call__(
+        self,
+        func,
+        method_handler_factory=decorators.MethodAnnotationHandlerBuilder,
+    ):
         spec = utils.get_arg_spec(func)
         arg_handler = arguments.ArgumentAnnotationHandlerBuilder(
             func, spec.args
@@ -69,7 +81,7 @@ class HttpMethod(object):
             self._method,
             URIDefinitionBuilder(self._uri),
             arg_handler,
-            decorators.MethodAnnotationHandlerBuilder(),
+            method_handler_factory(),
         )
 
         # Need to add the annotations after constructing the request
@@ -89,6 +101,10 @@ class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
         self._uri = uri
         self._is_dynamic = False
         self._uri_variables = set()
+
+    @property
+    def template(self):
+        return self._uri
 
     @property
     def is_static(self):
@@ -163,6 +179,21 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     @return_type.setter
     def return_type(self, return_type):
         self._return_type = return_type
+
+    def __call__(self, *args, **kwargs):
+        return self.extend(*args, **kwargs)
+
+    def extend(self, uri=None, args=()):
+        factory = HttpMethodFactory(
+            method=self.method,
+            method_handler_factory=self._method_handler_builder.copy,
+        )
+
+        if callable(uri):
+            return factory(self.uri.template, args)(uri)
+        else:
+            uri = self.uri.template if uri is None else uri
+            return factory(uri, args)
 
     def copy(self):
         builder = RequestDefinitionBuilder(
