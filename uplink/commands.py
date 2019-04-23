@@ -180,8 +180,69 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def return_type(self, return_type):
         self._return_type = return_type
 
-    def __call__(self, *args, **kwargs):
-        return self.extend(*args, **kwargs)
+    def __call__(self, uri=None, args=()):
+        """
+        Applies the decorators, HTTP method, and optionally the URI
+        of this consumer method to the decorated method.
+
+        This makes the request definition reusable and can help
+        minimize duplication across similar consumer methods.
+
+        Examples:
+
+            Define request templates:
+
+            .. code-block:: python
+
+                from uplink import Consumer, get, json
+
+                @returns.json
+                @json
+                @get
+                def get_json():
+                    \"""GET request that consumes and produces JSON.\"""
+
+                class GitHub(Consumer):
+                    @get_json("/users/{user}")
+                    def get_user(self, user) -> User:
+                         \"""Fetches a specific GitHub user.\"""
+
+            Remove duplication across definitions of similar consumer
+            methods, whether or not the methods are defined in the same
+            class:
+
+            .. code-block:: python
+
+                from uplink import Consumer, get, params, timeout
+
+                class GitHub(Consumer):
+                    @timeout(10)
+                    @get("/users/{user}/repos")
+                    def get_user_repos(self, user):
+                        \"""Retrieves the repos that the user owns.\"""
+
+                    # Extends the above method to define a variant:
+                    @params(type="member")
+                    @get_user_repos
+                    def get_team_repos_for_user(self, user):
+                        \"""
+                         Retrieves the repos that are owned by teams
+                         that the user holds membership in.
+                         \"""
+
+                class EnhancedGitHub(Github):
+                    # Updates the return type of an inherited method.
+                    @GitHub.get_user_repos
+                    def get_user_repos(self, user) -> List[Repo]:
+                        \"""Retrieves the repos that the user owns.\"""
+
+        Args:
+            uri (str, optional): the request's relative path
+            args: a list or mapping of function annotations (e.g.
+                  :class:`uplink.Path`) corresponding to the decorated
+                  function's arguments
+        """
+        return self.extend(uri, args)
 
     def extend(self, uri=None, args=()):
         factory = HttpMethodFactory(
