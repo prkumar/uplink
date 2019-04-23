@@ -198,3 +198,64 @@ calculate request properties within plain old python methods.
 Similar to the annotation style, request properties added with
 :py:meth:`~uplink.Consumer._inject` method are applied to all requests made
 through the consumer instance.
+
+
+Extend Consumer Methods to Reduce Boilerplate
+=============================================
+
+.. versionadded:: v0.9.0
+
+**Consumer methods** are methods decorated with Uplink's HTTP method decorators,
+such as :class:`@get <uplink.get>` or :class:`@post <uplink.post>` (see
+:ref:`here <making-a-request>` for more background).
+
+Consumer methods can be used as decorators to minimize duplication across similar
+consumer method definitions.
+
+For example, you can define consumer method templates like so:
+
+.. code-block:: python
+   :emphasize-lines: 6-7,10
+
+    from uplink import Consumer, get, json, returns
+
+    @returns.json
+    @json
+    @get
+    def get_json():
+        """Template for GET request that consumes and produces JSON."""
+
+    class GitHub(Consumer):
+        @get_json("/users/{user}")
+        def get_user(self, user):
+             """Fetches a specific GitHub user."""
+
+Further, you can use this technique to remove duplication across definitions
+of similar consumer methods, whether or not the methods are defined in the same
+class:
+
+.. code-block:: python
+   :emphasize-lines: 9-11,19-20
+
+    from uplink import Consumer, get, params, timeout
+
+    class GitHub(Consumer):
+        @timeout(10)
+        @get("/users/{user}/repos")
+        def get_user_repos(self, user):
+            """Retrieves the repos that the user owns."""
+
+        # Extends the above method to define a variant:
+        @params(type="member")
+        @get_user_repos
+        def get_repos_for_collaborator(self, user):
+            """
+            Retrieves the repos for which the given user is
+            a collaborator.
+            """
+
+    class EnhancedGitHub(Github):
+        # Updates the return type of an inherited method.
+        @GitHub.get_user_repos
+        def get_user_repos(self, user) -> List[Repo]:
+            """Retrieves the repos that the user owns."""

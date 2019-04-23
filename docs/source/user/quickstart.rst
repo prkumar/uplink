@@ -51,6 +51,8 @@ So far, this class looks like any other Python class. The real magic
 happens when you define methods to interact with the webservice using
 Uplink's HTTP method decorators, which we cover next.
 
+.. _making-a-request:
+
 Making a Request
 ================
 
