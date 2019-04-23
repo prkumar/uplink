@@ -250,9 +250,9 @@ class:
         @get_user_repos
         def get_team_repos_for_user(self, user):
             """
-             Retrieves the repos that are owned by teams
-             that the user holds membership in.
-             """
+            Retrieves the repos that are owned by teams
+            that the user holds membership in.
+            """
 
     class EnhancedGitHub(Github):
         # Updates the return type of an inherited method.

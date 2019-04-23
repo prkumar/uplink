@@ -228,7 +228,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
                         \"""
                          Retrieves the repos that are owned by teams
                          that the user holds membership in.
-                         \"""
+                        \"""
 
                 class EnhancedGitHub(Github):
                     # Updates the return type of an inherited method.
