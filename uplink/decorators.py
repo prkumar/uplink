@@ -160,11 +160,11 @@ class headers(_BaseRequestProperties):
         **kwargs: More header values.
     """
 
-    def __init__(self, arg, **kwargs):
+    def __init__(self, arg=None, **kwargs):
         if isinstance(arg, str):
             key, value = self._split(arg)
             arg = {key: value}
-        super(headers, self).__init__(arg, **kwargs)
+        super(headers, self).__init__(arg or {}, **kwargs)
 
     @property
     def _delimiter(self):
@@ -203,10 +203,10 @@ class params(_BaseRequestProperties):
         **kwargs: More query parameters.
     """
 
-    def __init__(self, arg, **kwargs):
+    def __init__(self, arg=None, **kwargs):
         if isinstance(arg, str):
             arg = arg.split("&")
-        super(params, self).__init__(arg, **kwargs)
+        super(params, self).__init__(arg or {}, **kwargs)
 
     @property
     def _property_name(self):

@@ -217,7 +217,7 @@ For example, you can define consumer method templates like so:
 .. code-block:: python
    :emphasize-lines: 6-7,10
 
-    from uplink import Consumer, get, json
+    from uplink import Consumer, get, json, returns
 
     @returns.json
     @json
@@ -248,10 +248,10 @@ class:
         # Extends the above method to define a variant:
         @params(type="member")
         @get_user_repos
-        def get_team_repos_for_user(self, user):
+        def get_repos_for_collaborator(self, user):
             """
-            Retrieves the repos that are owned by teams
-            that the user holds membership in.
+            Retrieves the repos for which the given user is
+            a collaborator.
             """
 
     class EnhancedGitHub(Github):

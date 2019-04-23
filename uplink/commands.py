@@ -34,68 +34,6 @@ class MissingUriVariables(exceptions.InvalidRequestDefinition):
         self.message = self.message % (uri, "', '".join(remaining_variables))
 
 
-class HttpMethodFactory(object):
-    def __init__(
-        self,
-        method,
-        method_handler_factory=decorators.MethodAnnotationHandlerBuilder,
-    ):
-        self._method = method
-        self._method_handler_factory = method_handler_factory
-
-    def __call__(self, uri=None, args=()):
-        if callable(uri) and not args:
-            return HttpMethod(self._method)(uri, self._method_handler_factory)
-        else:
-            return functools.partial(
-                HttpMethod(self._method, uri, args),
-                method_handler_factory=self._method_handler_factory,
-            )
-
-
-class HttpMethod(object):
-    @staticmethod
-    def _add_args(obj):
-        return obj
-
-    def __init__(self, method, uri=None, args=None):
-        self._method = method
-        self._uri = uri
-
-        # Register argument annotations
-        if args:
-            is_map = isinstance(args, collections.Mapping)
-            args, kwargs = ((), args) if is_map else (args, {})
-            self._add_args = decorators.args(*args, **kwargs)
-
-    def __call__(
-        self,
-        func,
-        method_handler_factory=decorators.MethodAnnotationHandlerBuilder,
-    ):
-        spec = utils.get_arg_spec(func)
-        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(
-            func, spec.args
-        )
-        builder = RequestDefinitionBuilder(
-            self._method,
-            URIDefinitionBuilder(self._uri),
-            arg_handler,
-            method_handler_factory(),
-        )
-
-        # Need to add the annotations after constructing the request
-        # definition builder so it has a chance to attach its listener.
-        arg_handler.set_annotations(spec.annotations)
-
-        # Use return value type hint as expected return type
-        if spec.return_annotation is not None:
-            builder = returns.schema(spec.return_annotation)(builder)
-        functools.update_wrapper(builder, func)
-        builder = self._add_args(builder)
-        return builder
-
-
 class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
     def __init__(self, uri):
         self._uri = uri
@@ -194,7 +132,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
             .. code-block:: python
 
-                from uplink import Consumer, get, json
+                from uplink import Consumer, get, json, returns
 
                 @returns.json
                 @json
@@ -204,7 +142,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
                 class GitHub(Consumer):
                     @get_json("/users/{user}")
-                    def get_user(self, user) -> User:
+                    def get_user(self, user):
                          \"""Fetches a specific GitHub user.\"""
 
             Remove duplication across definitions of similar consumer
@@ -224,10 +162,10 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
                     # Extends the above method to define a variant:
                     @params(type="member")
                     @get_user_repos
-                    def get_team_repos_for_user(self, user):
+                    def get_repos_for_collaborator(self, user):
                         \"""
-                         Retrieves the repos that are owned by teams
-                         that the user holds membership in.
+                        Retrieves the repos for which the given user is
+                        a collaborator.
                         \"""
 
                 class EnhancedGitHub(Github):
@@ -246,8 +184,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
     def extend(self, uri=None, args=()):
         factory = HttpMethodFactory(
-            method=self.method,
-            method_handler_factory=self._method_handler_builder.copy,
+            method=self.method, request_definition_builder_factory=self._extend
         )
 
         if callable(uri):
@@ -255,6 +192,13 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         else:
             uri = self.uri.template if uri is None else uri
             return factory(uri, args)
+
+    def _extend(self, method, uri, arg_handler, _):
+        builder = RequestDefinitionBuilder(
+            method, uri, arg_handler, self.method_handler_builder.copy()
+        )
+        builder.return_type = self.return_type
+        return builder
 
     def copy(self):
         builder = RequestDefinitionBuilder(
@@ -325,6 +269,70 @@ class RequestDefinition(interfaces.RequestDefinition):
         )
         self._method_handler.handle_builder(request_builder)
         request_builder.url = request_builder.url.build()
+
+
+class HttpMethodFactory(object):
+    def __init__(
+        self,
+        method,
+        request_definition_builder_factory=RequestDefinitionBuilder,
+    ):
+        self._method = method
+        self._request_definition_builder_factory = (
+            request_definition_builder_factory
+        )
+
+    def __call__(self, uri=None, args=()):
+        if callable(uri) and not args:
+            return HttpMethod(self._method)(
+                uri, self._request_definition_builder_factory
+            )
+        else:
+            return functools.partial(
+                HttpMethod(self._method, uri, args),
+                request_definition_builder_factory=self._request_definition_builder_factory,
+            )
+
+
+class HttpMethod(object):
+    @staticmethod
+    def _add_args(obj):
+        return obj
+
+    def __init__(self, method, uri=None, args=None):
+        self._method = method
+        self._uri = uri
+
+        # Register argument annotations
+        if args:
+            is_map = isinstance(args, collections.Mapping)
+            args, kwargs = ((), args) if is_map else (args, {})
+            self._add_args = decorators.args(*args, **kwargs)
+
+    def __call__(
+        self, func, request_definition_builder_factory=RequestDefinitionBuilder
+    ):
+        spec = utils.get_arg_spec(func)
+        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(
+            func, spec.args
+        )
+        builder = request_definition_builder_factory(
+            self._method,
+            URIDefinitionBuilder(self._uri),
+            arg_handler,
+            decorators.MethodAnnotationHandlerBuilder(),
+        )
+
+        # Need to add the annotations after constructing the request
+        # definition builder so it has a chance to attach its listener.
+        arg_handler.set_annotations(spec.annotations)
+
+        # Use return value type hint as expected return type
+        if spec.return_annotation is not None:
+            builder = returns.schema(spec.return_annotation)(builder)
+        functools.update_wrapper(builder, func)
+        builder = self._add_args(builder)
+        return builder
 
 
 get = HttpMethodFactory("GET").__call__
