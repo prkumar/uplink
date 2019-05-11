@@ -64,12 +64,16 @@ class after_delay(RetryBreaker):
             yield self._max_delay < delay
 
 
-class _DisableStop(RetryBreaker):
+class _NeverStop(RetryBreaker):
     def __call__(self):
         while True:
             yield
             yield False
 
 
-DISABLE = _DisableStop()
-"""Continuously retry until a response is rendered."""
+#: Continuously retry until the server returns a successful response
+NEVER = _NeverStop()
+
+# Keep for backwards compatibility with v0.8.0
+# TODO: Remove in v1.0.0
+DISABLE = NEVER
