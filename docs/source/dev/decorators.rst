@@ -188,9 +188,13 @@ Use the ``|`` operator to logically combine strategies:
 .. automodule:: uplink.retry.stop
     :members:
 
+.. autodata:: uplink.retry.stop.NEVER
+   :annotation:
+
 ratelimit
 =========
 
 .. autoclass:: uplink.ratelimit
+
 
 .. autoclass:: uplink.ratelimit.RateLimitExceeded

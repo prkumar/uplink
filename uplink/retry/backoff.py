@@ -3,7 +3,7 @@ import random
 import sys
 
 # Constants
-MAX_VALUE = sys.maxsize
+MAX_VALUE = sys.maxsize / 2
 
 __all__ = ["jittered", "exponential", "fixed"]
 

@@ -37,7 +37,7 @@ def test_fixed_backoff():
 
 def test_retry_stop_default():
     decorator = retry()
-    assert stop.DISABLE == decorator._stop
+    assert stop.NEVER == decorator._stop
 
     stop_gen = decorator._stop()
 

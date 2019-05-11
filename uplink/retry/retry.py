@@ -12,28 +12,37 @@ __all__ = ["retry"]
 
 
 class RetryTemplate(RequestTemplate):
-    def __init__(self, back_off_iterator, retry_condition):
-        self._back_off_iterator = back_off_iterator
+    def __init__(self, backoff, retry_condition):
+        self._backoff = backoff
+        self._backoff_iterator = None
         self._condition = retry_condition
+        self._reset()
 
     def _next_delay(self):
         try:
-            delay = next(self._back_off_iterator)
+            delay = next(self._backoff_iterator)
         except StopIteration:
             # Fallback to the default behavior
             pass
         else:
             return transitions.sleep(delay)
 
+    def _reset(self):
+        self._backoff_iterator = self._backoff()
+
     def after_response(self, request, response):
         if self._condition.should_retry_after_response(response):
             return self._next_delay()
+        else:
+            self._reset()
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         if self._condition.should_retry_after_exception(
             exc_type, exc_val, exc_tb
         ):
             return self._next_delay()
+        else:
+            self._reset()
 
 
 # noinspection PyPep8Naming
@@ -98,7 +107,7 @@ class retry(decorators.MethodAnnotation):
         elif max_attempts is not None:
             self._stop = stop_mod.after_attempt(max_attempts)
         else:
-            self._stop = stop_mod.DISABLE
+            self._stop = stop_mod.NEVER
 
         self._predicate = when
 
@@ -125,7 +134,7 @@ class retry(decorators.MethodAnnotation):
 
     def _create_template(self, request_builder):
         return RetryTemplate(
-            self._backoff_iterator(), self._predicate(request_builder)
+            self._backoff_iterator, self._predicate(request_builder)
         )
 
     def _backoff_iterator(self):
