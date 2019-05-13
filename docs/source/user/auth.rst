@@ -82,14 +82,17 @@ sent as part of every request.
 
     from uplink.auth import ApiTokenParam, ApiTokenHeader, BearerToken
 
-    # Passing a random auth query parameter
-    github = GitHub(BASE_URL, auth=ApiTokenParam("access_token", access_token))
+    # Passing an auth token as a query parameter
+    token_auth = ApiTokenParam("access_token", access_token)
+    github = GitHub(BASE_URL, auth=token_auth)
 
-    # Passing a random auth header
-    github = GitHub(BASE_URL, auth=ApiTokenHeader("Access-Token", access_token))
+    # Passing the token as a header value
+    token_auth = ApiTokenHeader("Access-Token", access_token)
+    github = GitHub(BASE_URL, auth=token_auth)
 
     # Passing a Bearer auth token
-    github = GitHub(BASE_URL, auth=BearerToken(access_token))
+    bearer_auth = BearerToken(access_token)
+    github = GitHub(BASE_URL, auth=bearer_auth)
 
 Using Auth Support for Requests and aiohttp
 -------------------------------------------
