@@ -6,6 +6,31 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.9.0_ - 2019-06-05
+===================
+Added
+-----
+- Create consumer method templates to reduce boilerplate in request
+  definitions. (`#151`_, `#159`_)
+- ``Context`` argument annotation to pass request-specific information to
+  middleware. (`#143`_, `#155`_)
+- ``Session.context`` property to pass session-specific information to
+  middleware. (`#143`_, `#155`_)
+- Built-in authentication support for API tokens in the querystring
+  and header, Bearer tokens, and multi-auth. (`#137`_)
+
+Fixed
+-----
+- Schema defined using ``@returns.*`` decorators should override the
+  consumer method's return annotation. (`#144`_, `#154`_)
+- ``@returns.*`` decorators should propagate to all consumer method when used
+  as a class decorator. (`#145`_, `#154`_)
+- Decorating a ``Consumer`` subclass no longer affects other subclasses. (`#152`_)
+
+Changed
+-------
+- Renamed ``uplink.retry.stop.DISABLE`` to ``uplink.retry.stop.NEVER``
+
 0.8.0_ - 2019-02-16
 ===================
 Added
@@ -269,6 +294,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.9.0: https://github.com/prkumar/uplink/compare/v0.8.0...v0.9.0
 .. _0.8.0: https://github.com/prkumar/uplink/compare/v0.7.0...v0.8.0
 .. _0.7.0: https://github.com/prkumar/uplink/compare/v0.6.1...v0.7.0
 .. _0.6.1: https://github.com/prkumar/uplink/compare/v0.6.0...v0.6.1
@@ -286,11 +312,20 @@ Added
 .. _0.2.0: https://github.com/prkumar/uplink/compare/v0.1.1...v0.2.0
 .. _0.1.1: https://github.com/prkumar/uplink/compare/v0.1.0...v0.1.1
 
-.. Pull Requests
+.. Issues & Pull Requests
 .. _#132: https://github.com/prkumar/uplink/pull/132
 .. _#133: https://github.com/prkumar/uplink/pull/133
 .. _#134: https://github.com/prkumar/uplink/pull/134
+.. _#137: https://github.com/prkumar/uplink/pull/137
 .. _#138: https://github.com/prkumar/uplink/pull/138
+.. _#143: https://github.com/prkumar/uplink/issues/143
+.. _#144: https://github.com/prkumar/uplink/issues/144
+.. _#145: https://github.com/prkumar/uplink/issues/145
+.. _#151: https://github.com/prkumar/uplink/issues/151
+.. _#152: https://github.com/prkumar/uplink/pull/152
+.. _#154: https://github.com/prkumar/uplink/pull/154
+.. _#155: https://github.com/prkumar/uplink/pull/155
+.. _#159: https://github.com/prkumar/uplink/pull/159
 
 .. Contributors
 .. _@daa: https://github.com/daa

@@ -41,6 +41,7 @@ from uplink.arguments import (
     Body,
     Url,
     Timeout,
+    Context,
 )
 from uplink.ratelimit import ratelimit
 from uplink.retry import retry
@@ -90,6 +91,7 @@ __all__ = [
     "Body",
     "Url",
     "Timeout",
+    "Context",
     "retry",
     "ratelimit",
 ]

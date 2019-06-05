@@ -35,22 +35,28 @@ def handle_error(exc_type, exc_value, exc_tb):
 
 class Calendar(uplink.Consumer):
     @handle_response_with_consumer
-    @uplink.get("/calendar/{todo_id}")
+    @uplink.get("todos/{todo_id}")
     def get_todo(self, todo_id):
         pass
 
     @handle_response
-    @uplink.get("/calendar/{name}")
+    @uplink.get("months/{name}/todos")
     def get_month(self, name):
         pass
 
+    @handle_response_with_consumer
+    @handle_response
+    @uplink.get("months/{month}/days/{day}/todos")
+    def get_day(self, month, day):
+        pass
+
     @handle_error_with_consumer
-    @uplink.get("/calendar/{user_id}")
+    @uplink.get("users/{user_id}")
     def get_user(self, user_id):
         pass
 
     @handle_error
-    @uplink.get("/calendar/{event_id}")
+    @uplink.get("events/{event_id}")
     def get_event(self, event_id):
         pass
 
@@ -76,6 +82,17 @@ def test_response_handler(mock_client):
     assert response.flagged is True
 
 
+def test_multiple_response_handlers(mock_client):
+    calendar = Calendar(base_url=BASE_URL, client=mock_client)
+
+    # Run
+    response = calendar.get_day("September", 2)
+
+    # Verify
+    assert response.flagged
+    assert calendar.flagged
+
+
 def test_error_handler_with_consumer(mock_client):
     # Setup: raise specific exception
     expected_error = IOError()
@@ -91,7 +108,7 @@ def test_error_handler_with_consumer(mock_client):
         assert err.exception == expected_error
         assert calendar.flagged is True
     else:
-        assert False
+        raise AssertionError
 
 
 def test_error_handler(mock_client):
@@ -107,4 +124,4 @@ def test_error_handler(mock_client):
     except WrappedException as err:
         assert err.exception == expected_error
     else:
-        assert False
+        raise AssertionError

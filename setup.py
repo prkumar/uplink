@@ -28,7 +28,6 @@ extras_require = {
 }
 
 metadata = {
-    "name": "uplink",
     "author": "P. Raj Kumar",
     "author_email": "raj.pritvi.kumar@gmail.com",
     "url": "https://uplink.readthedocs.io/",
@@ -58,4 +57,4 @@ metadata = {
 metadata = dict(metadata, **about)
 
 if __name__ == "__main__":
-    setup(**metadata)
+    setup(name="uplink", **metadata)

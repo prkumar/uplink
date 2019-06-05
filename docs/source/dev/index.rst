@@ -11,3 +11,4 @@ This guide details the classes and methods in Uplink's public API.
    types.rst
    clients.rst
    converters.rst
+   auth.rst

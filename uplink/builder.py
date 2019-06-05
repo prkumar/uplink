@@ -22,41 +22,55 @@ __all__ = ["build", "Consumer"]
 
 class RequestPreparer(object):
     def __init__(self, builder, consumer=None):
-        self._hooks = list(builder.hooks)
         self._client = builder.client
         self._base_url = str(builder.base_url)
         self._converters = list(builder.converters)
         self._auth = builder.auth
         self._consumer = consumer
 
+        if builder.hooks:
+            self._session_chain = hooks_.TransactionHookChain(*builder.hooks)
+        else:
+            self._session_chain = None
+
     def _join_url_with_base(self, url):
         return utils.urlparse.urljoin(self._base_url, url)
 
-    def _get_hook_chain(self, contract):
+    @staticmethod
+    def _get_request_hooks(contract):
         chain = list(contract.transaction_hooks)
         if callable(contract.return_type):
             chain.append(hooks_.ResponseHandler(contract.return_type))
-        chain.extend(self._hooks)
         return chain
 
     def _wrap_hook(self, func):
         return functools.partial(func, self._consumer)
 
-    def apply_hooks(self, execution_builder, chain, request_builder):
-        hook = hooks_.TransactionHookChain(*chain)
-        hook.audit_request(self._consumer, request_builder)
-        if hook.handle_response is not None:
+    def apply_hooks(self, execution_builder, chain):
+        # TODO:
+        #   Instead of creating a TransactionChain, we could simply
+        #   add each response and error handler in the chain to the
+        #   execution builder. This would allow heterogenous response
+        #   and error handlers. Right now, the TransactionChain
+        #   enforces that all response/error handlers are blocking if
+        #   any response/error handler is blocking, which is
+        #   unnecessary now that we delegate execution to an IO layer.
+        if chain.handle_response is not None:
             execution_builder.with_callbacks(
-                self._wrap_hook(hook.handle_response)
+                self._wrap_hook(chain.handle_response)
             )
-        execution_builder.with_errbacks(self._wrap_hook(hook.handle_exception))
+        execution_builder.with_errbacks(self._wrap_hook(chain.handle_exception))
 
     def prepare_request(self, request_builder, execution_builder):
         request_builder.url = self._join_url_with_base(request_builder.url)
         self._auth(request_builder)
-        chain = self._get_hook_chain(request_builder)
-        if chain:
-            self.apply_hooks(execution_builder, chain, request_builder)
+        request_hooks = self._get_request_hooks(request_builder)
+        if request_hooks:
+            chain = hooks_.TransactionHookChain(*request_hooks)
+            chain.audit_request(self._consumer, request_builder)
+            self.apply_hooks(execution_builder, chain)
+        if self._session_chain:
+            self.apply_hooks(execution_builder, self._session_chain)
 
         execution_builder.with_client(self._client)
         execution_builder.with_io(self._client.io())
@@ -64,7 +78,10 @@ class RequestPreparer(object):
 
     def create_request_builder(self, definition):
         registry = definition.make_converter_registry(self._converters)
-        return helpers.RequestBuilder(self._client, registry, self._base_url)
+        req = helpers.RequestBuilder(self._client, registry, self._base_url)
+        if self._session_chain:
+            self._session_chain.audit_request(self._consumer, req)
+        return req
 
 
 class CallFactory(object):
@@ -181,7 +198,7 @@ class ConsumerMethod(object):
 
     def __get__(self, instance, owner):
         if instance is None:
-            return self._request_definition_builder
+            return self._request_definition_builder.copy()
         else:
             return instance.session.create(instance, self._request_definition)
 

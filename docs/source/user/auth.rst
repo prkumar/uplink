@@ -3,20 +3,49 @@ Authentication
 
 This section covers how to do authentication with Uplink.
 
+In v0.4, we added the :py:attr:`auth` parameter to the
+:py:class:`uplink.Consumer` constructor which allowed for
+sending HTTP Basic Authentication with all requests.
+
+In v0.9, we added more auth methods which can be used in the
+:py:attr:`auth` parameter of the :py:class:`uplink.Consumer`
+constructor. If you are using an uplink-based API library,
+the library might extend these methods with additional
+API-specific auth methods.
+
+Some common auth methods are described below, but for a
+complete list of auth methods provided with Uplink, see
+the :ref:`auth_methods` reference.
+
 .. _basic_authentication:
 
 Basic Authentication
 --------------------
 
-In v0.4, we added the :py:attr:`auth` parameter to the
-:py:class:`uplink.Consumer` constructor.
-
-Now it's simple to construct a consumer that uses HTTP Basic
+It's simple to construct a consumer that uses HTTP Basic
 Authentication with all requests:
 
 .. code-block:: python
 
     github = GitHub(BASE_URL, auth=("user", "pass"))
+
+Proxy Authentication
+--------------------
+
+If you need to supply credentials for an intermediate proxy
+in addition to the API's HTTP Basic Authentication, use
+:py:class:`uplink.auth.MultiAuth` with :py:class:`uplink.auth.ProxyAuth`
+and :py:class:`uplink.auth.BasicAuth`.
+
+.. code-block:: python
+
+    from uplink.auth import BasicAuth, MultiAuth, ProxyAuth
+
+    auth_methods = MultiAuth(
+        ProxyAuth("proxy_user", "proxy_pass"),
+        BasicAuth("user", "pass")
+    )
+    github = GitHub(BASE_URL, auth=auth_methods)
 
 Other Authentication
 --------------------
@@ -39,10 +68,31 @@ through the consumer's :obj:`session <uplink.Consumer.session>` property:
 
     class GitHub(Consumer):
 
-        def __init__(self, access_token):
+        def __init__(self, base_url, access_token):
+            super(GitHub, self).__init__(base_url=base_url)
             self.session.params["access_token"] = access_token
             ...
 
+As of v0.9, you can also supply these tokens via the :py:attr:`auth`
+parameter of the :py:class:`uplink.Consumer` constructor. This is
+like adding the token to the session (above) so that the token is
+sent as part of every request.
+
+.. code-block:: python
+
+    from uplink.auth import ApiTokenParam, ApiTokenHeader, BearerToken
+
+    # Passing an auth token as a query parameter
+    token_auth = ApiTokenParam("access_token", access_token)
+    github = GitHub(BASE_URL, auth=token_auth)
+
+    # Passing the token as a header value
+    token_auth = ApiTokenHeader("Access-Token", access_token)
+    github = GitHub(BASE_URL, auth=token_auth)
+
+    # Passing a Bearer auth token
+    bearer_auth = BearerToken(access_token)
+    github = GitHub(BASE_URL, auth=bearer_auth)
 
 Using Auth Support for Requests and aiohttp
 -------------------------------------------

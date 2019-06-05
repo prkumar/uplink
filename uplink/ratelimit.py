@@ -81,9 +81,9 @@ class ratelimit(decorators.MethodAnnotation):
 
     Note:
         The rate limit is enforced separately for each host-port
-        combination. Effectively, requests are grouped by host and
-        port, and the number of requests within a time period are
-        counted and capped separately for each group.
+        combination. Logically, requests are grouped by host and port,
+        and the number of requests within a time period are counted and
+        capped separately for each group.
 
     By default, when the limit is reached, the client will wait until
     the current period is over before executing any subsequent
@@ -94,10 +94,11 @@ class ratelimit(decorators.MethodAnnotation):
         calls (int): The maximum number of allowed calls that the
             consumer can make within the time period.
         period (float): The duration of each time period in seconds.
-        raise_on_limit (:class:`Exception` or bool, optional): An
-            exception to raise when the client exceeds the rate limit.
-            If :obj:`True`, a :class:`~uplink.ratelimit.RateLimitExceeded`
-            exception is raised.
+        raise_on_limit (:class:`Exception` or bool, optional): Either an
+            exception to raise when the client exceeds the rate limit or
+            a :class:`bool`. If :obj:`True`, a
+            :class:`~uplink.ratelimit.RateLimitExceeded` exception is
+            raised.
     """
 
     BY_HOST_AND_PORT = _get_host_and_port

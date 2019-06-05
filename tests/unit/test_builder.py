@@ -48,7 +48,7 @@ class TestRequestPreparer(object):
         request_builder.url = "/example/path"
         request_builder.request_template = "request_template"
         uplink_builder.base_url = "https://example.com"
-        uplink_builder.add_hook(transaction_hook_mock)
+        request_builder.transaction_hooks = [transaction_hook_mock]
         request_preparer = builder.RequestPreparer(uplink_builder)
         execution_builder = mocker.Mock(spec=io.RequestExecutionBuilder)
         request_preparer.prepare_request(request_builder, execution_builder)
@@ -61,10 +61,25 @@ class TestRequestPreparer(object):
         execution_builder.with_io.assert_called_with(uplink_builder.client.io())
         execution_builder.with_template(request_builder.request_template)
 
-    def test_create_request_builder(self, uplink_builder, request_definition):
+    def test_create_request_builder(self, mocker, request_definition):
+        uplink_builder = mocker.Mock(spec=builder.Builder)
+        uplink_builder.converters = ()
+        uplink_builder.hooks = ()
         request_definition.make_converter_registry.return_value = {}
         request_preparer = builder.RequestPreparer(uplink_builder)
         request = request_preparer.create_request_builder(request_definition)
+        assert isinstance(request, helpers.RequestBuilder)
+
+    def test_create_request_builder_with_session_hooks(
+        self, mocker, request_definition, transaction_hook_mock
+    ):
+        uplink_builder = mocker.Mock(spec=builder.Builder)
+        uplink_builder.converters = ()
+        uplink_builder.hooks = (transaction_hook_mock,)
+        request_definition.make_converter_registry.return_value = {}
+        request_preparer = builder.RequestPreparer(uplink_builder)
+        request = request_preparer.create_request_builder(request_definition)
+        assert transaction_hook_mock.audit_request.called
         assert isinstance(request, helpers.RequestBuilder)
 
 
@@ -167,11 +182,11 @@ def test_setting_request_method(request_definition_builder):
         request_method = request_definition_builder
 
     # Verify: Get request definition builder on access
-    assert Consumer.request_method is request_definition_builder
+    assert Consumer.request_method is request_definition_builder.copy()
 
     # Verify: Try again after resetting
     Consumer.request_method = request_definition_builder
-    assert Consumer.request_method is request_definition_builder
+    assert Consumer.request_method is request_definition_builder.copy()
 
     # Verify: We get callable on attribute access for an instance
     consumer = Consumer()

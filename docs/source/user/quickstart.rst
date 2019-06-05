@@ -51,6 +51,8 @@ So far, this class looks like any other Python class. The real magic
 happens when you define methods to interact with the webservice using
 Uplink's HTTP method decorators, which we cover next.
 
+.. _making-a-request:
+
 Making a Request
 ================
 
@@ -71,12 +73,23 @@ decorated with one of Uplink's HTTP method decorators:
 
 As shown above, the method's body can be left empty.
 
-The decorator's first argument is the resource endpoint (this
-is the relative URL path from :class:`base_url`, which we covered above):
+The decorator's first argument is the resource endpoint: i.e., the relative
+path from :class:`base_url`, which we covered above:
 
 .. code-block:: python
 
     @get("repositories")
+
+.. note::
+
+    To build a request's absolute URL, Uplink resolves the relative path
+    against the :obj:`Consumer`'s base url using :func:`urljoin
+    <urllib.parse.urljoin>`, which implements the `RFC 3986`_ standards.
+    For a simplified overview of these standards, see `these
+    recommendations and examples`_ from Retrofit's documentation.
+
+.. _RFC 3986: https://tools.ietf.org/html/rfc3986#section-5
+.. _these recommendations and examples: https://square.github.io/retrofit/2.x/retrofit/retrofit2/Retrofit.Builder.html#baseUrl-okhttp3.HttpUrl-
 
 You can also specify query parameters:
 
@@ -134,8 +147,28 @@ by method arguments.
     @get("users/{username}/repos")
     def get_repos(self, username, sort: Query): pass
 
-For "catch-all" or complex query parameter combinations, a
-:py:class:`~uplink.QueryMap` can be used:
+
+Setting a default value for the query parameter works like you'd expect
+it to:
+
+.. code-block:: python
+
+    @get("users/{username}/repos")
+    def get_repos(self, username, sort: Query = "created"): pass
+
+
+To make the query parameter optional, set the argument's default value
+to :obj:`None`. Then, if the argument is not specified at runtime, the
+parameter will not appear in the request.
+
+.. code-block:: python
+
+    @get("users/{username}/repos")
+    def get_repos(self, username, sort: Query = None): pass
+
+Useful for "catch-all" or complex query parameter combinations, the
+:py:class:`~uplink.QueryMap` annotation accepts a mapping of query
+parameters:
 
 .. code-block:: python
 
@@ -330,12 +363,14 @@ consumer instance through its :py:obj:`session` property, like so:
 
     class GitHub(Consumer):
 
-        def __init__(self, username, password)
+        def __init__(self, base_url, username, password):
+            super(GitHub, self).__init__(base_url=base_url)
+
             # Creates the API token for this user
             api_key = create_api_key(username, password)
 
             # Send the API token as a query parameter with each request.
-            self.session.params["api_key"] = api_key
+            self.session.params["access_token"] = api_key
 
         @get("user/repos")
         def get_user_repos(self, sort_by: Query("sort")):
@@ -348,7 +383,7 @@ applied to all requests sent from the consumer instance.
 
     github = GitHub("prkumar", "****")
 
-    # Both `api_key` and `sort` are sent with the request.
+    # Both `access_token` and `sort` are sent with the request.
     github.get_user_repos(sort_by="created")
 
 Notably, in case of conflicts, the method-level headers and parameters
@@ -519,6 +554,15 @@ features! Below is a contrived example... checkout the
 Finally, like other Uplink decorators, you can decorate a :class:`Consumer`
 subclass with :class:`@retry <uplink.retry>` to :ref:`add retry support to all
 methods of that class <decorate_consumer>`.
+
+
+.. note::
+
+   Response and error handlers (see :ref:`here <custom response
+   handler>`) are invoked after the retry condition breaks or after all
+   retry attempts are exhausted, whatever comes first. These callbacks
+   will receive the first response/exception that triggers the retry's
+   ``stop`` condition or doesn't match its ``when`` filter.
 
 Client-Side Rate Limiting
 =========================

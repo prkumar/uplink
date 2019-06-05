@@ -13,14 +13,15 @@ Uplink turns your HTTP API into a Python class.
 
 .. code-block:: python
 
-   from uplink import Consumer, get, headers, Path, Query
+   from uplink import Consumer, get, Path, Query
+
 
    class GitHub(Consumer):
-      """A Python Client for the GitHub API."""
+       """A Python Client for the GitHub API."""
 
-      @get("users/{user}/repos")
-      def get_repos(self, user: Path, sort_by: Query("sort")):
-         """Retrieves the user's public repositories."""
+       @get("users/{user}/repos")
+       def get_repos(self, user: Path, sort_by: Query("sort")):
+           """Retrieves the user's public repositories."""
 
 Build an instance to interact with the webservice.
 
@@ -157,11 +158,24 @@ User Testimonials
 
 Documentation
 =============
-For more details, check out the documentation at
-https://uplink.readthedocs.io/.
+
+Check out the library's documentation at https://uplink.readthedocs.io/.
+
+For new users, a good place to start is this `quick tutorial`_.
+
+
+Community
+=========
+
+Join the conversation on `Gitter`_ to ask questions, provide feedback,
+and meet other users!
+
+.. _Gitter: https://gitter.im/python-uplink/Lobby
+
 
 Contributing
 ============
+
 Want to report a bug, request a feature, or contribute code to Uplink?
 Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project :purple_heart:
