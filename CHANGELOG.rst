@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
-0.9.0_ - 2019-05-17
+0.9.0_ - 2019-06-05
 ===================
 Added
 -----
