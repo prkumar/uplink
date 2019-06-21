@@ -268,8 +268,9 @@ class RequestDefinition(interfaces.RequestDefinition):
             request_builder, func_args, func_kwargs
         )
         self._method_handler.handle_builder(request_builder)
-        if isinstance(request_builder.url, utils.URIBuilder):
-            request_builder.url = request_builder.url.build()
+        # if an argument or method handler changes request_builder.url
+        # they MUST use utils.URIBuilder, not a string.
+        request_builder.url = request_builder.url.build()
 
 
 class HttpMethodFactory(object):

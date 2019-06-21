@@ -658,6 +658,7 @@ class Body(TypedArgument):
         request_builder.info["data"] = value
 
 
+# TODO: Add an integration test that uses arguments.Url
 class Url(ArgumentAnnotation):
     """
     Sets a dynamic URL.
@@ -698,7 +699,7 @@ class Url(ArgumentAnnotation):
     @classmethod
     def _modify_request(cls, request_builder, value):
         """Updates request url."""
-        request_builder.url = value
+        request_builder.url = utils.URIBuilder(value)
 
 
 class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
