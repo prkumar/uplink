@@ -116,8 +116,8 @@ Requests for a different backing HTTP client, such as :ref:`aiohttp <sync_vs_asy
 
 .. |aiohttp| replace:: ``aiohttp``
 
-URL Manipulation
-================
+Path Parameters
+===============
 
 Resource endpoints can include `URI template parameters
 <https://tools.ietf.org/html/rfc6570>`__ that depend on method
@@ -139,8 +139,11 @@ or use the :py:class:`~uplink.Path` annotation.
     @get("users/{username}")
     def get_user(self, name: Path("username")): pass
 
-:py:class:`~uplink.Query` parameters can also be added dynamically
-by method arguments.
+Query Parameters
+================
+
+Query parameters can be added dynamically using the :py:class:`~uplink.Query`
+argument annotation.
 
 .. code-block:: python
 
@@ -193,8 +196,8 @@ parameters that need to be included with every request:
     class GitHub(Consumer):
         ...
 
-Header Manipulation
-===================
+Request Headers
+===============
 
 You can set static headers for a method using the :py:class:`@headers <uplink.headers>`
 decorator.
