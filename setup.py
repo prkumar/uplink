@@ -21,8 +21,11 @@ extras_require = {
     "marshmallow": ["marshmallow>=2.15.0"],
     "aiohttp:python_version <= '3.4'": [],
     "aiohttp:python_version >= '3.4'": "aiohttp>=2.3.0",
-    "twisted:python_version != '3.3'": "twisted>=17.1.0",
+    "twisted:python_version != '3.3' and python_version != '3.4'": "twisted>=17.1.0",
+    # Twisted 18.4.0 dropped py3.3 support
     "twisted:python_version == '3.3'": "twisted<=17.9.0",
+    # Twisted 19.7.0 dropped py3.4 support
+    "twisted:python_version == '3.4'": "twisted<=19.2.1",
     "typing": ["typing>=3.6.4"],
     "tests": ["pytest<4.1", "pytest-mock", "pytest-cov", "pytest-twisted"],
 }
