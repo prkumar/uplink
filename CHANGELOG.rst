@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+# Unreleased_
+=============
+Changed
+-------
+- Omit ``Header`` argument from request when its value is ``None``.
+  (`#167`_, `#169`_)
+
 0.9.0_ - 2019-06-05
 ===================
 Added
@@ -29,7 +36,7 @@ Fixed
 
 Changed
 -------
-- Renamed ``uplink.retry.stop.DISABLE`` to ``uplink.retry.stop.NEVER``
+- Rename ``uplink.retry.stop.DISABLE`` to ``uplink.retry.stop.NEVER``
 
 0.8.0_ - 2019-02-16
 ===================
@@ -294,6 +301,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _Unreleased: https://github.com/prkumar/uplink/compare/v0.9.0...HEAD
 .. _0.9.0: https://github.com/prkumar/uplink/compare/v0.8.0...v0.9.0
 .. _0.8.0: https://github.com/prkumar/uplink/compare/v0.7.0...v0.8.0
 .. _0.7.0: https://github.com/prkumar/uplink/compare/v0.6.1...v0.7.0

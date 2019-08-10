@@ -327,6 +327,10 @@ class TestHeader(ArgumentTestCase, FuncDecoratorTestCase):
         arguments.Header("hello").modify_request(request_builder, "world")
         assert request_builder.info["headers"] == {"hello": "world"}
 
+    def test_skip_none(self, request_builder):
+        arguments.Header("hello").modify_request(request_builder, None)
+        assert request_builder.info["headers"] == {}
+
 
 class TestHeaderMap(ArgumentTestCase, FuncDecoratorTestCase):
     type_cls = arguments.HeaderMap
