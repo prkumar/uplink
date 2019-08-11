@@ -334,6 +334,8 @@ Added
 .. _#154: https://github.com/prkumar/uplink/pull/154
 .. _#155: https://github.com/prkumar/uplink/pull/155
 .. _#159: https://github.com/prkumar/uplink/pull/159
+.. _#167: https://github.com/prkumar/uplink/issues/167
+.. _#169: https://github.com/prkumar/uplink/pull/169
 
 .. Contributors
 .. _@daa: https://github.com/daa
