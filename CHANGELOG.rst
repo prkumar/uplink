@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
-# Unreleased_
-=============
+Unreleased_
+===========
 Changed
 -------
 - Omit ``Header`` argument from request when its value is ``None``.
