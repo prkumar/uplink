@@ -62,7 +62,9 @@ class RequestPreparer(object):
         execution_builder.with_errbacks(self._wrap_hook(chain.handle_exception))
 
     def prepare_request(self, request_builder, execution_builder):
-        request_builder.url = self._join_url_with_base(request_builder.url)
+        request_builder.relative_url = self._join_url_with_base(
+            request_builder.relative_url
+        )
         self._auth(request_builder)
         request_hooks = self._get_request_hooks(request_builder)
         if request_hooks:
@@ -104,7 +106,11 @@ class CallFactory(object):
         execution = execution_builder.build()
         return execution.start(
             # TODO: Create request value object
-            (request_builder.method, request_builder.url, request_builder.info)
+            (
+                request_builder.method,
+                request_builder.relative_url,
+                request_builder.info,
+            )
         )
 
 

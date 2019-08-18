@@ -228,7 +228,7 @@ class TestRequestDefinition(object):
         )
         definition.define_request(request_builder, (), {})
         assert request_builder.method == method
-        assert request_builder.url == uri
+        assert request_builder.relative_url == uri
         assert request_builder.return_type is str
 
     def test_make_converter_registry(self, annotation_handler_mock):
