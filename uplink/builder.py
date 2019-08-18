@@ -33,9 +33,6 @@ class RequestPreparer(object):
         else:
             self._session_chain = None
 
-    def _join_url_with_base(self, url):
-        return utils.urlparse.urljoin(self._base_url, url)
-
     @staticmethod
     def _get_request_hooks(contract):
         chain = list(contract.transaction_hooks)
@@ -62,9 +59,6 @@ class RequestPreparer(object):
         execution_builder.with_errbacks(self._wrap_hook(chain.handle_exception))
 
     def prepare_request(self, request_builder, execution_builder):
-        request_builder.relative_url = self._join_url_with_base(
-            request_builder.relative_url
-        )
         self._auth(request_builder)
         request_hooks = self._get_request_hooks(request_builder)
         if request_hooks:
@@ -106,11 +100,7 @@ class CallFactory(object):
         execution = execution_builder.build()
         return execution.start(
             # TODO: Create request value object
-            (
-                request_builder.method,
-                request_builder.relative_url,
-                request_builder.info,
-            )
+            (request_builder.method, request_builder.url, request_builder.info)
         )
 
 

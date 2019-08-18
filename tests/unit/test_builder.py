@@ -105,11 +105,7 @@ class TestCallFactory(object):
             request_builder, execution_builder
         )
         execution_builder.build().start.assert_called_with(
-            (
-                request_builder.method,
-                request_builder.relative_url,
-                request_builder.info,
-            )
+            (request_builder.method, request_builder.url, request_builder.info)
         )
 
 
