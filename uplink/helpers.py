@@ -107,6 +107,10 @@ class RequestBuilder(object):
     def request_template(self):
         return io.CompositeRequestTemplate(self._request_templates)
 
+    @property
+    def url(self):
+        return utils.urlparse.urljoin(self.base_url, self.relative_url)
+
     def add_transaction_hook(self, hook):
         self._transaction_hooks.append(hook)
 
