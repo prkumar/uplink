@@ -262,15 +262,12 @@ class RequestDefinition(interfaces.RequestDefinition):
 
     def define_request(self, request_builder, func_args, func_kwargs):
         request_builder.method = self._method
-        request_builder.url = utils.URIBuilder(self._uri)
+        request_builder.relative_url = self._uri
         request_builder.return_type = self._return_type
         self._argument_handler.handle_call(
             request_builder, func_args, func_kwargs
         )
         self._method_handler.handle_builder(request_builder)
-        # if an argument or method handler changes request_builder.url
-        # they MUST use utils.URIBuilder, not a string.
-        request_builder.url = request_builder.url.build()
 
 
 class HttpMethodFactory(object):

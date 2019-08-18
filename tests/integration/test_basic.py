@@ -21,6 +21,10 @@ class GitHubService(uplink.Consumer):
     def get_repo(self, user, repo):
         pass
 
+    @uplink.get(args={"url": uplink.Url})
+    def forward(self, url):
+        pass
+
 
 def test_list_repo(mock_client):
     github = GitHubService(base_url=BASE_URL, client=mock_client)
@@ -49,6 +53,15 @@ def test_get_repo(mock_client, mock_response):
 
     # Verify
     assert expected_json == actual_json
+
+
+def test_forward(mock_client):
+    github = GitHubService(base_url=BASE_URL, client=mock_client)
+    github.forward("/users/prkumar/repos")
+    request = mock_client.history[0]
+    assert request.method == "GET"
+    assert request.has_base_url(BASE_URL)
+    assert request.has_endpoint("/users/prkumar/repos")
 
 
 def test_handle_client_exceptions(mock_client):
