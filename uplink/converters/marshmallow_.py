@@ -8,12 +8,6 @@ from uplink import utils
 from uplink.converters import interfaces, register_default_converter_factory
 
 
-def _extract_data(m):
-    # After marshmallow 3.0, Schema().load and Schema().dump don't
-    # return a (data, errors) tuple any more. Only `data` is returned.
-    return m if MarshmallowConverter.is_marshmallow_3 else m.data
-
-
 class MarshmallowConverter(interfaces.Factory):
     """
     A converter that serializes and deserializes values using
@@ -51,7 +45,8 @@ class MarshmallowConverter(interfaces.Factory):
             raise ImportError("No module named 'marshmallow'")
 
     class ResponseBodyConverter(interfaces.Converter):
-        def __init__(self, schema):
+        def __init__(self, extract_data, schema):
+            self._extract_data = extract_data
             self._schema = schema
 
         def convert(self, response):
@@ -61,14 +56,15 @@ class MarshmallowConverter(interfaces.Factory):
                 # Assume that the response is already json
                 json = response
 
-            return _extract_data(self._schema.load(json))
+            return self._extract_data(self._schema.load(json))
 
     class RequestBodyConverter(interfaces.Converter):
-        def __init__(self, schema):
+        def __init__(self, extract_data, schema):
+            self._extract_data = extract_data
             self._schema = schema
 
         def convert(self, value):
-            return _extract_data(self._schema.dump(value))
+            return self._extract_data(self._schema.dump(value))
 
     @classmethod
     def _get_schema(cls, type_):
@@ -78,6 +74,11 @@ class MarshmallowConverter(interfaces.Factory):
             return type_
         raise ValueError("Expected marshmallow.Scheme subclass or instance.")
 
+    def _extract_data(self, m):
+        # After marshmallow 3.0, Schema.load() and Schema.dump() don't
+        # return a (data, errors) tuple any more. Only `data` is returned.
+        return m if self.is_marshmallow_3 else m.data
+
     def _make_converter(self, converter_cls, type_):
         try:
             # Try to generate schema instance from the given type.
@@ -86,7 +87,7 @@ class MarshmallowConverter(interfaces.Factory):
             # Failure: the given type is not a `marshmallow.Schema`.
             return None
         else:
-            return converter_cls(schema)
+            return converter_cls(self._extract_data, schema)
 
     def create_request_body_converter(self, type_, *args, **kwargs):
         return self._make_converter(self.RequestBodyConverter, type_)
