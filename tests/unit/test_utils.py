@@ -43,4 +43,4 @@ class TestURIBuilder(object):
         builder = utils.URIBuilder("{variable}")
         assert builder.remaining_variables() == set(["variable"])
         builder.set_variable(variable="resource")
-        assert builder.remaining_variables() == set()
+        assert len(builder.remaining_variables()) == 0
