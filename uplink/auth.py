@@ -1,7 +1,7 @@
 """This module implements the auth layer."""
 
 # Standard library imports
-import collections
+from collections import abc
 
 # Third-party imports
 from requests import auth
@@ -22,7 +22,7 @@ __all__ = [
 def get_auth(auth_object=None):
     if auth_object is None:
         return utils.no_op
-    elif isinstance(auth_object, collections.Iterable):
+    elif isinstance(auth_object, abc.Iterable):
         return BasicAuth(*auth_object)
     elif callable(auth_object):
         return auth_object
@@ -55,6 +55,7 @@ class ApiTokenParam(object):
         token_param = ExampleApiTokenParam(TOKEN)
         api_consumer = SomeApiConsumerClass(BASE_URL, auth=token_param)
     """
+
     def __init__(self, param, token):
         self._param = param
         self._param_value = token
@@ -97,6 +98,7 @@ class ApiTokenHeader(object):
         token_header = ExampleApiTokenHeader(TOKEN)
         api_consumer = SomeApiConsumerClass(BASE_URL, auth=token_header)
     """
+
     _header = None
     _prefix = None
 
@@ -161,6 +163,7 @@ class ProxyAuth(BasicAuth):
         )
         github = GitHub(BASE_URL, auth=auth_methods)
     """
+
     _header = "Proxy-Authorization"
 
 
@@ -226,8 +229,11 @@ class MultiAuth(object):
         for method in auth_methods:
             print(method.__class__.__name__)
     """
+
     def __init__(self, *auth_methods):
-        self._auth_methods = [get_auth(auth_method) for auth_method in auth_methods]
+        self._auth_methods = [
+            get_auth(auth_method) for auth_method in auth_methods
+        ]
 
     def __call__(self, request_builder):
         for auth_method in self._auth_methods:
@@ -243,4 +249,6 @@ class MultiAuth(object):
         self._auth_methods.append(get_auth(auth_method))
 
     def extend(self, auth_methods):
-        self._auth_methods.extend([get_auth(auth_method) for auth_method in auth_methods])
+        self._auth_methods.extend(
+            [get_auth(auth_method) for auth_method in auth_methods]
+        )
