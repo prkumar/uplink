@@ -55,6 +55,7 @@ class ApiTokenParam(object):
         token_param = ExampleApiTokenParam(TOKEN)
         api_consumer = SomeApiConsumerClass(BASE_URL, auth=token_param)
     """
+
     def __init__(self, param, token):
         self._param = param
         self._param_value = token
@@ -97,6 +98,7 @@ class ApiTokenHeader(object):
         token_header = ExampleApiTokenHeader(TOKEN)
         api_consumer = SomeApiConsumerClass(BASE_URL, auth=token_header)
     """
+
     _header = None
     _prefix = None
 
@@ -161,6 +163,7 @@ class ProxyAuth(BasicAuth):
         )
         github = GitHub(BASE_URL, auth=auth_methods)
     """
+
     _header = "Proxy-Authorization"
 
 
@@ -226,8 +229,11 @@ class MultiAuth(object):
         for method in auth_methods:
             print(method.__class__.__name__)
     """
+
     def __init__(self, *auth_methods):
-        self._auth_methods = [get_auth(auth_method) for auth_method in auth_methods]
+        self._auth_methods = [
+            get_auth(auth_method) for auth_method in auth_methods
+        ]
 
     def __call__(self, request_builder):
         for auth_method in self._auth_methods:
@@ -243,4 +249,6 @@ class MultiAuth(object):
         self._auth_methods.append(get_auth(auth_method))
 
     def extend(self, auth_methods):
-        self._auth_methods.extend([get_auth(auth_method) for auth_method in auth_methods])
+        self._auth_methods.extend(
+            [get_auth(auth_method) for auth_method in auth_methods]
+        )
