@@ -1,5 +1,9 @@
 # Standard library imports
-from collections import abc
+try:
+    from collections.abc import Iterator
+except ImportError:
+    # Python 2.7
+    from collections import Iterator
 
 # Local imports
 from uplink import compat
@@ -69,7 +73,7 @@ class SleepCallback(object):
         raise NotImplementedError
 
 
-class Executable(abc.Iterator):
+class Executable(Iterator):
     """An abstraction for iterating over the execution of a request."""
 
     def __next__(self):

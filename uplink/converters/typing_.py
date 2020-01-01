@@ -2,7 +2,11 @@
 import collections
 import functools
 
-from collections import abc
+try:
+    from collections.abc import Sequence
+except ImportError:
+    # Python 2.7
+    from collections import Sequence
 
 # Local imports
 from uplink.converters import interfaces, register_default_converter_factory
@@ -27,7 +31,7 @@ class ListConverter(BaseTypeConverter, interfaces.Converter):
         self._elem_converter = chain(self._elem_type) or self._elem_type
 
     def convert(self, value):
-        if isinstance(value, abc.Sequence):
+        if isinstance(value, Sequence):
             return list(map(self._elem_converter, value))
         else:
             # TODO: Handle the case where the value is not an sequence.
