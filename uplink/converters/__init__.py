@@ -1,9 +1,5 @@
 # Standard library imports
-try:
-    from collections.abc import Mapping
-except ImportError:
-    # Python 2.7
-    from collections import Mapping
+import collections
 
 # Local imports
 from uplink._extras import installer, plugin
@@ -59,7 +55,7 @@ class ConverterChain(object):
         return converter
 
 
-class ConverterFactoryRegistry(Mapping):
+class ConverterFactoryRegistry(collections.Mapping):
     """
     A registry that chains together
     :py:class:`interfaces.ConverterFactory` instances.
