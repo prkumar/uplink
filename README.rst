@@ -180,8 +180,8 @@ Want to report a bug, request a feature, or contribute code to Uplink?
 Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project :purple_heart:
 
-.. |Build Status| image:: https://travis-ci.org/prkumar/uplink.svg?branch=master
-   :target: https://travis-ci.org/prkumar/uplink
+.. |Build Status| image:: https://travis-ci.com/prkumar/uplink.svg?branch=master
+   :target: https://travis-ci.com/prkumar/uplink
 .. |Code Climate| image:: https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability
    :target: https://codeclimate.com/github/prkumar/uplink/maintainability
    :alt: Maintainability
