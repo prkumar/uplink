@@ -53,7 +53,7 @@ metadata = {
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     "keywords": "http api rest client retrofit",
-    "packages": find_packages(exclude=("tests",)),
+    "packages": find_packages(exclude=("tests", "tests.*")),
     "install_requires": install_requires,
     "extras_require": extras_require,
 }
