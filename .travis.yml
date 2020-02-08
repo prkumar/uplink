@@ -4,8 +4,8 @@ python:
   - '3.4'
   - '3.5'
   - '3.6'
-  - '3.6-dev'
-  - '3.7-dev'
+  - '3.7'
+  - '3.8'
 before_script:
   - pip install tox
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install flake8 flake8-bugbear; fi

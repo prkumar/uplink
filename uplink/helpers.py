@@ -2,7 +2,7 @@
 import collections
 
 # Local imports
-from uplink import interfaces
+from uplink import interfaces, utils
 from uplink.clients import io
 
 
@@ -39,7 +39,7 @@ def set_api_definition(service, name, definition):
 class RequestBuilder(object):
     def __init__(self, client, converter_registry, base_url):
         self._method = None
-        self._url = None
+        self._relative_url_template = utils.URIBuilder("")
         self._return_type = None
         self._client = client
         self._base_url = base_url
@@ -69,13 +69,16 @@ class RequestBuilder(object):
     def base_url(self):
         return self._base_url
 
-    @property
-    def url(self):
-        return self._url
+    def set_url_variable(self, variables):
+        self._relative_url_template.set_variable(variables)
 
-    @url.setter
-    def url(self, url):
-        self._url = url
+    @property
+    def relative_url(self):
+        return self._relative_url_template.build()
+
+    @relative_url.setter
+    def relative_url(self, url):
+        self._relative_url_template = utils.URIBuilder(url)
 
     @property
     def info(self):
@@ -103,6 +106,10 @@ class RequestBuilder(object):
     @property
     def request_template(self):
         return io.CompositeRequestTemplate(self._request_templates)
+
+    @property
+    def url(self):
+        return utils.urlparse.urljoin(self.base_url, self.relative_url)
 
     def add_transaction_hook(self, hook):
         self._transaction_hooks.append(hook)

@@ -1,3 +1,6 @@
+import pytest
+
+# Local imports
 from uplink import helpers
 
 
@@ -53,3 +56,22 @@ class TestRequestBuilder(object):
 
         # Verify
         assert builder.context["key"] == "value"
+
+    def test_relative_url_template(self):
+        # Setup
+        builder = helpers.RequestBuilder(None, {}, "base_url")
+
+        # Run
+        builder.relative_url = "/v1/api/users/{username}/repos"
+        builder.set_url_variable({"username": "cognifloyd"})
+
+        # Verify
+        assert builder.relative_url == "/v1/api/users/cognifloyd/repos"
+
+    def test_relative_url_template_type_error(self):
+        # Setup
+        builder = helpers.RequestBuilder(None, {}, "base_url")
+
+        # Run
+        with pytest.raises(TypeError):
+            builder.relative_url = 1

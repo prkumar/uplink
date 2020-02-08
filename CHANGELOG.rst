@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.9.1_ - 2020-02-08
+===================
+Fixed
+-----
+- Omit ``Header`` argument from request when its value is ``None``.
+  (`#167`_, `#169`_)
+- Fix ``AttributeError`` raised on usage of ``uplink.Url``.
+  (`#164`_, `#165`_ by `@cognifloyd`_)
+
+Changed
+-------
+- Exclude ``tests`` subpackages from wheel.
+  (`#188`_ by `@daa`_)
+
 0.9.0_ - 2019-06-05
 ===================
 Added
@@ -29,7 +43,7 @@ Fixed
 
 Changed
 -------
-- Renamed ``uplink.retry.stop.DISABLE`` to ``uplink.retry.stop.NEVER``
+- Rename ``uplink.retry.stop.DISABLE`` to ``uplink.retry.stop.NEVER``
 
 0.8.0_ - 2019-02-16
 ===================
@@ -294,6 +308,7 @@ Added
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
 
 .. Releases
+.. _0.9.1: https://github.com/prkumar/uplink/compare/v0.9.1...HEAD
 .. _0.9.0: https://github.com/prkumar/uplink/compare/v0.8.0...v0.9.0
 .. _0.8.0: https://github.com/prkumar/uplink/compare/v0.7.0...v0.8.0
 .. _0.7.0: https://github.com/prkumar/uplink/compare/v0.6.1...v0.7.0
@@ -326,6 +341,11 @@ Added
 .. _#154: https://github.com/prkumar/uplink/pull/154
 .. _#155: https://github.com/prkumar/uplink/pull/155
 .. _#159: https://github.com/prkumar/uplink/pull/159
+.. _#164: https://github.com/prkumar/uplink/issues/164
+.. _#165: https://github.com/prkumar/uplink/pull/165
+.. _#167: https://github.com/prkumar/uplink/issues/167
+.. _#169: https://github.com/prkumar/uplink/pull/169
+.. _#188: https://github.com/prkumar/uplink/pull/188
 
 .. Contributors
 .. _@daa: https://github.com/daa
@@ -333,3 +353,4 @@ Added
 .. _@brandonio21: https://github.com/brandonio21
 .. _@itstehkman: https://github.com/itstehkman
 .. _@kadrach: https://github.com/kadrach
+.. _@cognifloyd: https://github.com/cognifloyd

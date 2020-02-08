@@ -249,7 +249,7 @@ class TestPath(ArgumentTestCase):
 
     def test_modify_request(self, request_builder):
         arguments.Path("name").modify_request(request_builder, "value")
-        request_builder.url.set_variable.assert_called_with({"name": "value"})
+        request_builder.set_url_variable.assert_called_with({"name": "value"})
 
 
 class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
@@ -326,6 +326,10 @@ class TestHeader(ArgumentTestCase, FuncDecoratorTestCase):
     def test_modify_request(self, request_builder):
         arguments.Header("hello").modify_request(request_builder, "world")
         assert request_builder.info["headers"] == {"hello": "world"}
+
+    def test_skip_none(self, request_builder):
+        arguments.Header("hello").modify_request(request_builder, None)
+        assert request_builder.info["headers"] == {}
 
 
 class TestHeaderMap(ArgumentTestCase, FuncDecoratorTestCase):
@@ -421,7 +425,7 @@ class TestUrl(ArgumentTestCase):
 
     def test_modify_request(self, request_builder):
         arguments.Url().modify_request(request_builder, "/some/path")
-        assert request_builder.url == "/some/path"
+        assert request_builder.relative_url == "/some/path"
 
 
 class TestTimeout(ArgumentTestCase, FuncDecoratorTestCase):

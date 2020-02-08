@@ -132,6 +132,23 @@ def schema_mock_and_argument(request, mocker):
 
 
 class TestMarshmallowConverter(object):
+    for_marshmallow_2_and_3 = pytest.mark.parametrize(
+        "is_marshmallow_3", [True, False]
+    )
+
+    @staticmethod
+    def _mock_data(mocker, expected_result, is_marshmallow_3):
+        """Mocks the result of Schema.dump() or Schema.load()"""
+
+        if is_marshmallow_3:
+            # After marshmallow 3.0, Schema.load() and Schema.dump() don't
+            # return a (data, errors) tuple any more. Only `data` is returned.
+            return expected_result
+
+        result = mocker.Mock()
+        result.data = expected_result
+        return result
+
     def test_init_without_marshmallow(self):
         old_marshmallow = converters.MarshmallowConverter.marshmallow
         converters.MarshmallowConverter.marshmallow = None
@@ -139,16 +156,18 @@ class TestMarshmallowConverter(object):
             converters.MarshmallowConverter()
         converters.MarshmallowConverter.marshmallow = old_marshmallow
 
+    @for_marshmallow_2_and_3
     def test_create_request_body_converter(
-        self, mocker, schema_mock_and_argument
+        self, mocker, schema_mock_and_argument, is_marshmallow_3
     ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
         expected_result = "data"
-        dump_result = mocker.Mock()
-        dump_result.data = expected_result
-        schema_mock.dump.return_value = dump_result
+        schema_mock.dump.return_value = self._mock_data(
+            mocker, expected_result, is_marshmallow_3
+        )
         converter = converters.MarshmallowConverter()
+        converter.is_marshmallow_3 = is_marshmallow_3
         request_body = {"id": 0}
 
         # Run
@@ -169,16 +188,18 @@ class TestMarshmallowConverter(object):
         # Verify
         assert c is None
 
+    @for_marshmallow_2_and_3
     def test_create_response_body_converter(
-        self, mocker, schema_mock_and_argument
+        self, mocker, schema_mock_and_argument, is_marshmallow_3
     ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
         expected_result = "data"
-        load_result = mocker.Mock()
-        load_result.data = expected_result
-        schema_mock.load.return_value = load_result
+        schema_mock.load.return_value = self._mock_data(
+            mocker, expected_result, is_marshmallow_3
+        )
         converter = converters.MarshmallowConverter()
+        converter.is_marshmallow_3 = is_marshmallow_3
         response = mocker.Mock(spec=["json"])
         c = converter.create_response_body_converter(argument)
 
@@ -235,7 +256,7 @@ class TestMarshmallowConverter(object):
         # Verify
         assert c is None
 
-    def test_register(self, mocker):
+    def test_register(self):
         # Setup
         converter = converters.MarshmallowConverter
         old_marshmallow = converter.marshmallow

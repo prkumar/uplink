@@ -25,7 +25,7 @@ def uplink_builder(http_client_mock):
 class TestRequestPreparer(object):
     def test_prepare_request(self, mocker, request_builder):
         request_builder.method = "METHOD"
-        request_builder.url = "/example/path"
+        request_builder.relative_url = "/example/path"
         request_builder.return_type = None
         request_builder.transaction_hooks = ()
         request_builder.request_template = "request_template"
@@ -45,7 +45,7 @@ class TestRequestPreparer(object):
         self, mocker, uplink_builder, request_builder, transaction_hook_mock
     ):
         request_builder.method = "METHOD"
-        request_builder.url = "/example/path"
+        request_builder.relative_url = "/example/path"
         request_builder.request_template = "request_template"
         uplink_builder.base_url = "https://example.com"
         request_builder.transaction_hooks = [transaction_hook_mock]

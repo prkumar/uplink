@@ -225,6 +225,23 @@ class NamedArgument(TypedArgument):
         raise NotImplementedError
 
 
+class EncodeNoneMixin(object):
+    #: Identifies how a `None` value should be encoded in the request.
+    _encode_none = None  # type: str
+
+    def _modify_request(self, request_builder, value):  # pragma: no cover
+        raise NotImplementedError
+
+    def modify_request(self, request_builder, value):
+        if value is None:
+            if self._encode_none is None:
+                # ignore value if it is None and shouldn't be encoded
+                return
+            else:
+                value = self._encode_none
+        super(EncodeNoneMixin, self).modify_request(request_builder, value)
+
+
 class FuncDecoratorMixin(object):
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
@@ -301,10 +318,10 @@ class Path(NamedArgument):
         request_definition_builder.uri.add_variable(self.name)
 
     def _modify_request(self, request_builder, value):
-        request_builder.url.set_variable({self.name: value})
+        request_builder.set_url_variable({self.name: value})
 
 
-class Query(FuncDecoratorMixin, NamedArgument):
+class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
     """
     Set a dynamic query parameter.
 
@@ -392,14 +409,6 @@ class Query(FuncDecoratorMixin, NamedArgument):
             request_builder.info, {self.name: value}, self._encoded
         )
 
-    def modify_request(self, request_builder, value):
-        if value is None:
-            # ignore value if it is None and shouldn't be encoded
-            if self._encode_none is not None:
-                self._modify_request(request_builder, self._encode_none)
-        else:
-            super(Query, self).modify_request(request_builder, value)
-
 
 class QueryMap(FuncDecoratorMixin, TypedArgument):
     """
@@ -438,20 +447,30 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
         Query.update_params(request_builder.info, value, self._encoded)
 
 
-class Header(FuncDecoratorMixin, NamedArgument):
+class Header(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
     """
     Pass a header as a method argument at runtime.
 
-    While :py:class:`uplink.headers` attaches static headers
-    that define all requests sent from a consumer method, this
-    class turns a method argument into a dynamic header value.
+    While :py:class:`uplink.headers` attaches request headers values
+    that are static across all requests sent from the decorated
+    consumer method, this annotation turns a method argument into a
+    dynamic request header.
 
     Example:
         .. code-block:: python
 
             @get("/user")
-            def (self, session_id: Header("Authorization")):
-                \"""Get the authenticated user\"""
+            def me(self, session_id: Header("Authorization")):
+                \"""Get the authenticated user.\"""
+
+        To define an optional header, use the default value of `None`:
+
+            @get("/repositories")
+            def fetch_repos(self, auth: Header("Authorization") = None):
+                \"""List all public repositories.\"""
+
+        When the argument is not used, the header will not be added
+        to the request.
     """
 
     @property
@@ -639,6 +658,7 @@ class Body(TypedArgument):
         request_builder.info["data"] = value
 
 
+# TODO: Add an integration test that uses arguments.Url
 class Url(ArgumentAnnotation):
     """
     Sets a dynamic URL.
@@ -679,7 +699,7 @@ class Url(ArgumentAnnotation):
     @classmethod
     def _modify_request(cls, request_builder, value):
         """Updates request url."""
-        request_builder.url = value
+        request_builder.relative_url = value
 
 
 class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
