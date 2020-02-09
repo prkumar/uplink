@@ -29,17 +29,6 @@ class TestCast(object):
         assert return_value == 3
 
 
-class TestRequestBodyConverter(object):
-    def test_convert_str(self):
-        converter_ = standard.RequestBodyConverter()
-        assert converter_.convert("example") == "example"
-
-    def test_convert_obj(self):
-        converter_ = standard.RequestBodyConverter()
-        example = {"hello": "2"}
-        assert converter_.convert(example) == example
-
-
 class TestStringConverter(object):
     def test_convert(self):
         converter_ = standard.StringConverter()
@@ -54,9 +43,6 @@ class TestStandardConverter(object):
         # Run & Verify: Pass-through converters
         converter = factory.create_response_body_converter(converter_mock)
         assert converter is converter_mock
-
-        # Run & Verify: Otherwise, return None
-        assert None is factory.create_response_body_converter("converter")
 
 
 class TestConverterFactoryRegistry(object):
