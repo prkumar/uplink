@@ -39,7 +39,6 @@ class TestHttpMethod(object):
         http_method = commands.HttpMethod("METHOD", uri="/{hello}")
         builder = http_method(func)
         assert isinstance(builder, commands.RequestDefinitionBuilder)
-        assert builder.__name__ == func.__name__
         assert builder.method == "METHOD"
         assert list(builder.uri.remaining_variables) == ["hello"]
 
@@ -133,6 +132,7 @@ class TestRequestDefinitionBuilder(object):
         builder = commands.RequestDefinitionBuilder(
             None,
             None,
+            None,
             type(annotation_handler_builder_mock)(),
             annotation_handler_builder_mock,
         )
@@ -143,6 +143,7 @@ class TestRequestDefinitionBuilder(object):
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
         builder = commands.RequestDefinitionBuilder(
+            None,
             "method",
             uri_definition_builder,
             argument_handler_builder,
@@ -164,6 +165,7 @@ class TestRequestDefinitionBuilder(object):
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
         builder = commands.RequestDefinitionBuilder(
+            None,
             "method",
             uri_definition_builder,
             argument_handler_builder,
@@ -189,6 +191,7 @@ class TestRequestDefinitionBuilder(object):
         method_handler_builder = annotation_handler_builder_mock
         uri_definition_builder = mocker.Mock(spec=commands.URIDefinitionBuilder)
         builder = commands.RequestDefinitionBuilder(
+            None,
             "method",
             uri_definition_builder,
             argument_handler_builder,

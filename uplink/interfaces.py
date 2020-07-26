@@ -96,6 +96,9 @@ class RequestDefinitionBuilder(object):
     def method_handler_builder(self):
         raise NotImplementedError
 
+    def update_wrapper(self, wrapper):
+        raise NotImplementedError
+
     def build(self):
         raise NotImplementedError
 
