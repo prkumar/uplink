@@ -80,8 +80,14 @@ class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
 
 class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
     def __init__(
-        self, method, uri, argument_handler_builder, method_handler_builder
+        self,
+        func,
+        method,
+        uri,
+        argument_handler_builder,
+        method_handler_builder,
     ):
+        self._func = func
         self._method = method
         self._uri = uri
         self._argument_handler_builder = argument_handler_builder
@@ -193,15 +199,23 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
             uri = self.uri.template if uri is None else uri
             return factory(uri, args)
 
-    def _extend(self, method, uri, arg_handler, _):
+    def _extend(self, func, method, uri, arg_handler, _):
         builder = RequestDefinitionBuilder(
-            method, uri, arg_handler, self.method_handler_builder.copy()
+            # Extended consumer methods should only inherit the decorators and
+            # not any function annotations, since the new method can have a
+            # different signature than the original.
+            func,
+            method,
+            uri,
+            arg_handler,
+            self.method_handler_builder.copy(),
         )
         builder.return_type = self.return_type
         return builder
 
     def copy(self):
         builder = RequestDefinitionBuilder(
+            self._func,
             self._method,
             self._uri,
             self._argument_handler_builder.copy(),
@@ -223,6 +237,9 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
         path_vars = dict.fromkeys(matching, arguments.Path)
         self.argument_handler_builder.set_annotations(path_vars)
+
+    def update_wrapper(self, wrapper):
+        functools.update_wrapper(wrapper, self._func)
 
     def build(self):
         if not self._argument_handler_builder.is_done():
@@ -316,6 +333,7 @@ class HttpMethod(object):
             func, spec.args
         )
         builder = request_definition_builder_factory(
+            func,
             self._method,
             URIDefinitionBuilder(self._uri),
             arg_handler,
@@ -329,7 +347,6 @@ class HttpMethod(object):
         # Use return value type hint as expected return type
         if spec.return_annotation is not None:
             builder = returns.schema(spec.return_annotation)(builder)
-        functools.update_wrapper(builder, func)
         builder = self._add_args(builder)
         return builder
 
