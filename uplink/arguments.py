@@ -4,6 +4,7 @@ handling classes.
 """
 # Standard library imports
 import collections
+from collections import abc
 import functools
 import inspect
 
@@ -74,7 +75,7 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
 
     def set_annotations(self, annotations=None, **more_annotations):
         if annotations is not None:
-            if not isinstance(annotations, collections.Mapping):
+            if not isinstance(annotations, abc.Mapping):
                 missing = tuple(
                     a
                     for a in self.missing_arguments
@@ -391,7 +392,7 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
     @staticmethod
     def update_params(info, new_params, encoded):
         existing = info.setdefault("params", None if encoded else dict())
-        if encoded == isinstance(existing, collections.Mapping):
+        if encoded == isinstance(existing, abc.Mapping):
             raise Query.QueryStringEncodingError()
         Query._update_params(info, existing, new_params, encoded)
 
@@ -801,7 +802,7 @@ class ContextMap(FuncDecoratorMixin, ArgumentAnnotation):
 
     def _modify_request(self, request_builder, value):
         """Updates the context with the given name-value pairs."""
-        if not isinstance(value, collections.Mapping):
+        if not isinstance(value, abc.Mapping):
             raise TypeError(
                 "ContextMap requires a mapping; got %s instead.", type(value)
             )

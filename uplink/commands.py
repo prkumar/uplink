@@ -1,5 +1,5 @@
 # Standard library imports
-import collections
+from collections import abc
 import functools
 
 # Local imports
@@ -321,7 +321,7 @@ class HttpMethod(object):
 
         # Register argument annotations
         if args:
-            is_map = isinstance(args, collections.Mapping)
+            is_map = isinstance(args, abc.Mapping)
             args, kwargs = ((), args) if is_map else (args, {})
             self._add_args = decorators.args(*args, **kwargs)
 

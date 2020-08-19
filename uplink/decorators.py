@@ -3,7 +3,7 @@ This module implements the built-in class and method decorators and their
 handling classes.
 """
 # Standard library imports
-import collections
+from collections import abc
 import functools
 import inspect
 
@@ -281,7 +281,7 @@ class json(MethodAnnotation):
     You can annotate a method argument with :py:class:`uplink.Body`,
     which indicates that the argument's value should become the
     request's body. :py:class:`uplink.Body` has to be either a dict or a
-    subclass of py:class:`collections.Mapping`.
+    subclass of py:class:`abc.Mapping`.
 
     Example:
         .. code-block:: python
@@ -343,7 +343,7 @@ class json(MethodAnnotation):
             raise ValueError("Path sequence cannot be empty.")
         for name in path[:-1]:
             body = body.setdefault(name, {})
-            if not isinstance(body, collections.Mapping):
+            if not isinstance(body, abc.Mapping):
                 raise ValueError(
                     "Failed to set nested JSON attribute '%s': "
                     "parent field '%s' is not a JSON object." % (path, name)
@@ -357,7 +357,7 @@ class json(MethodAnnotation):
     @classmethod
     def set_json_body(cls, request_builder):
         old_body = request_builder.info.pop("data", {})
-        if isinstance(old_body, collections.Mapping):
+        if isinstance(old_body, abc.Mapping):
             body = request_builder.info.setdefault("json", {})
             for path in old_body:
                 if isinstance(path, tuple):
