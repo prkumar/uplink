@@ -1,3 +1,8 @@
+"""
+This module defines a converter that uses :py:mod:`pydantic` models
+to deserialize and serialize values.
+"""
+
 from uplink.converters import register_default_converter_factory
 from uplink.converters.interfaces import Factory, Converter
 from uplink.utils import is_subclass
@@ -35,9 +40,10 @@ class PydanticConverter(Factory):
 
     .. code-block:: python
 
+        @returns.json()
         @get("/users")
-        def get_users(self, username) -> UserModel():
-            '''Fetch a single user'''
+        def get_users(self, username) -> List[UserModel]:
+            '''Fetch multiple users'''
 
     Note:
 
@@ -54,6 +60,9 @@ class PydanticConverter(Factory):
         pydantic = None
 
     def __init__(self):
+        """
+        Validates if :py:mod:`pydantic` is installed
+        """
         if self.pydantic is None:
             raise ImportError("No module named 'pydantic'")
 
