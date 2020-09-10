@@ -15,12 +15,14 @@ from uplink.converters.register import (
 # fmt: off
 from uplink.converters.standard import StandardConverter
 from uplink.converters.marshmallow_ import MarshmallowConverter
+from uplink.converters.pydantic_ import PydanticConverter
 from uplink.converters.typing_ import TypingConverter
 # fmt: on
 
 __all__ = [
     "StandardConverter",
     "MarshmallowConverter",
+    "PydanticConverter",
     "TypingConverter",
     "get_default_converter_factories",
     "register_default_converter_factory",

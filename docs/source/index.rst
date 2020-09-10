@@ -73,6 +73,7 @@ Features
 
   - Define :ref:`custom converters <custom_json_deserialization>` for your own objects
   - Support for |marshmallow|_ schemas and :ref:`handling collections <converting_collections>` (e.g., list of Users)
+  - Support for pydantic models and :ref:`handling collections <converting_collections>` (e.g., list of Repos)
 
 - **Extendable**
 

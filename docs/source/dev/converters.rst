@@ -28,6 +28,21 @@ Uplink comes with optional support for :py:mod:`marshmallow`.
     included if you have :py:mod:`marshmallow` installed, so you don't need
     to provide it when constructing your consumer instances.
 
+Pydantic
+===========
+
+.. versionadded:: v0.9.2
+
+Uplink comes with optional support for :py:mod:`pydantic`.
+
+.. autoclass:: uplink.converters.PydanticConverter
+
+.. note::
+
+    Starting with version v0.9.2, this converter factory is automatically
+    included if you have :py:mod:`pydantic` installed, so you don't need
+    to provide it when constructing your consumer instances.
+
 .. _`converting lists and mappings`:
 
 Converting Collections

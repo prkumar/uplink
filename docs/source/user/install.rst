@@ -53,6 +53,9 @@ Extra            Description
                  for `converting JSON responses directly into Python objects
                  <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_
                  using :py:class:`marshmallow.Schema`.
+``pydantic``     Enables :py:class:`uplink.PydanticConverter`,
+                 for converting JSON responses directly into Python objects
+                 using :py:class:`pydantic.BaseModel`.
 ``twisted``      Enables :py:class:`uplink.TwistedClient`,
                  for `sending non-blocking requests <https://github.com/prkumar/uplink/tree/master/examples/async-requests>`_ and receiving
                  :py:class:`~twisted.internet.defer.Deferred` responses.
@@ -62,5 +65,5 @@ To download all available features, run
 
 ::
 
-    $ pip install -U uplink[aiohttp, marshmallow, twisted]
+    $ pip install -U uplink[aiohttp, marshmallow, pydantic, twisted]
 
