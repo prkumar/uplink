@@ -193,18 +193,35 @@ class ConsumerMethod(object):
             )
 
     def __get__(self, instance, owner):
+        # TODO:
+        #   Consider caching by instance/owner using WeakKeyDictionary.
+        #   This will avoid the extra copy/create per attribute reference.
+        #   However, we should do this after investigating for any latent cases
+        #   of unnecessary overhead in the codebase as a whole.
         if instance is None:
-            return self._request_definition_builder.copy()
+            # This code path is traditionally called when applying a class
+            # decorator to a Consumer. We should return a copy of the definition
+            # builder to avoid class decorators on a subclass from polluting
+            # other siblings (#152).
+            value = self._request_definition_builder.copy()
         else:
-            return instance.session.create(instance, self._request_definition)
+            value = instance.session.create(instance, self._request_definition)
+
+        # Make the return value look like the original method (e.g., inherit
+        # docstrings and other function attributes).
+        # TODO: Ideally, we should wrap once instead of on each reference.
+        self._request_definition_builder.update_wrapper(value)
+        return value
 
 
 class ConsumerMeta(type):
     @staticmethod
     def _wrap_if_definition(cls_name, key, value):
+        wrapped_value = value
         if isinstance(value, interfaces.RequestDefinitionBuilder):
-            value = ConsumerMethod(cls_name, key, value)
-        return value
+            wrapped_value = ConsumerMethod(cls_name, key, value)
+            value.update_wrapper(wrapped_value)
+        return wrapped_value
 
     @staticmethod
     def _set_init_handler(namespace):

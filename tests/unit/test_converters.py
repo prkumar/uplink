@@ -1,8 +1,16 @@
 # Standard library imports
 import typing
+import sys
 
 # Third-party imports
 import marshmallow
+
+try:
+    import pydantic
+except ImportError:
+    if sys.version_info >= (3, 6):
+        raise
+
 import pytest
 
 # Local imports
@@ -29,17 +37,6 @@ class TestCast(object):
         assert return_value == 3
 
 
-class TestRequestBodyConverter(object):
-    def test_convert_str(self):
-        converter_ = standard.RequestBodyConverter()
-        assert converter_.convert("example") == "example"
-
-    def test_convert_obj(self):
-        converter_ = standard.RequestBodyConverter()
-        example = {"hello": "2"}
-        assert converter_.convert(example) == example
-
-
 class TestStringConverter(object):
     def test_convert(self):
         converter_ = standard.StringConverter()
@@ -54,9 +51,6 @@ class TestStandardConverter(object):
         # Run & Verify: Pass-through converters
         converter = factory.create_response_body_converter(converter_mock)
         assert converter is converter_mock
-
-        # Run & Verify: Otherwise, return None
-        assert None is factory.create_response_body_converter("converter")
 
 
 class TestConverterFactoryRegistry(object):
@@ -448,3 +442,124 @@ class TestTypingConverter(object):
         # Verify with non-map: use value converter
         output = converter(1)
         assert output == "1"
+
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 6), reason="requires python3.6 or higher"
+)
+class TestPydanticConverter(object):
+    @pytest.fixture
+    def pydantic_model_mock(self, mocker):
+        class Model(pydantic.BaseModel):
+            def __new__(cls, *args, **kwargs):
+                return model
+
+        model = mocker.Mock(spec=Model)
+        return model, Model
+
+    def test_init_without_pydantic(self, mocker):
+        mocker.patch.object(
+            converters.PydanticConverter,
+            "pydantic",
+            new_callable=mocker.PropertyMock,
+            return_value=None,
+        )
+
+        with pytest.raises(ImportError):
+            converters.PydanticConverter()
+
+    def test_create_request_body_converter(self, pydantic_model_mock):
+        expected_result = {"id": 0}
+        request_body = {}
+
+        model_mock, model = pydantic_model_mock
+        model_mock.dict.return_value = expected_result
+
+        converter = converters.PydanticConverter()
+        request_converter = converter.create_request_body_converter(model)
+
+        result = request_converter.convert(request_body)
+
+        assert result == expected_result
+        model_mock.dict.assert_called_once()
+
+    def test_create_request_body_converter_without_schema(self, mocker):
+        expected_result = None
+        converter = converters.PydanticConverter()
+
+        result = converter.create_request_body_converter(mocker.sentinel)
+
+        assert result is expected_result
+
+    def test_create_response_body_converter(self, mocker, pydantic_model_mock):
+        expected_result = "data"
+        model_mock, model = pydantic_model_mock
+
+        parse_obj_mock = mocker.patch.object(
+            model, "parse_obj", return_value=expected_result
+        )
+
+        response = mocker.Mock(spec=["json"])
+        response.json.return_value = {}
+
+        converter = converters.PydanticConverter()
+        c = converter.create_response_body_converter(model)
+
+        result = c.convert(response)
+
+        response.json.assert_called_once()
+        parse_obj_mock.assert_called_once_with(response.json())
+        assert result == expected_result
+
+    def test_create_response_body_converter_invalid_response(
+        self, mocker, pydantic_model_mock
+    ):
+        data = {"quick": "fox"}
+        _, model = pydantic_model_mock
+
+        parse_obj_mock = mocker.patch.object(
+            model, "parse_obj", side_effect=pydantic.ValidationError([], model)
+        )
+
+        converter = converters.PydanticConverter()
+        c = converter.create_response_body_converter(model)
+
+        with pytest.raises(pydantic.ValidationError):
+            c.convert(data)
+
+        parse_obj_mock.assert_called_once_with(data)
+
+    def test_create_response_body_converter_without_schema(self):
+        expected_result = None
+        converter = converters.PydanticConverter()
+
+        result = converter.create_response_body_converter("not a schema")
+
+        assert result is expected_result
+
+    def test_create_string_converter(self, pydantic_model_mock):
+        expected_result = None
+        _, model = pydantic_model_mock
+        converter = converters.PydanticConverter()
+
+        c = converter.create_string_converter(model, None)
+
+        assert c is expected_result
+
+    @pytest.mark.parametrize(
+        "pydantic_installed,expected",
+        [
+            pytest.param(
+                True, [converters.PydanticConverter], id="pydantic_installed"
+            ),
+            pytest.param(None, [], id="pydantic_not_installed"),
+        ],
+    )
+    def test_register(self, pydantic_installed, expected):
+        converter = converters.PydanticConverter
+        converter.pydantic = pydantic_installed
+
+        register_ = []
+        converter.register_if_necessary(register_.append)
+
+        assert register_ == expected

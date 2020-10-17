@@ -14,7 +14,7 @@ class GitHubService(uplink.Consumer):
     @uplink.timeout(15)
     @uplink.get("/users/{user}/repos")
     def list_repos(self, user):
-        pass
+        """List all public repositories for a specific user."""
 
     @uplink.returns.json
     @uplink.get("/users/{user}/repos/{repo}")
@@ -24,6 +24,21 @@ class GitHubService(uplink.Consumer):
     @uplink.get(args={"url": uplink.Url})
     def forward(self, url):
         pass
+
+
+def test_list_repo_wrapper(mock_client):
+    """Ensures that the consumer method looks like the original func."""
+    github = GitHubService(base_url=BASE_URL, client=mock_client)
+    assert (
+        github.list_repos.__doc__
+        == GitHubService.list_repos.__doc__
+        == "List all public repositories for a specific user."
+    )
+    assert (
+        github.list_repos.__name__
+        == GitHubService.list_repos.__name__
+        == "list_repos"
+    )
 
 
 def test_list_repo(mock_client):

@@ -10,4 +10,4 @@ Sphinx = {version = "*", markers = "python_version != '3.3'"}
 sphinx-autobuild = {version = "*", markers = "python_version != '3.3'"}
 
 [packages]
-"e1839a8" = {path = ".", extras = ["tests", "aiohttp", "marshmallow", "twisted", "typing"], editable = true}
+"e1839a8" = {editable = true, extras = ["aiohttp", "marshmallow", "pydantic", "tests", "twisted", "typing"], path = "."}

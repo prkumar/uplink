@@ -18,7 +18,7 @@ dealing with the underlying protocol.
 
 This document walks you through how to leverage Uplink's serialization support,
 including integrations for third-party serialization libraries like
-:mod:`marshmallow` and tools for writing custom conversion strategies that
+:mod:`marshmallow`, :mod:`pydantic` and tools for writing custom conversion strategies that
 fit your unique needs.
 
 .. _using_marshmallow_schemas:
@@ -79,6 +79,71 @@ schema:
 For a more complete example of Uplink's :mod:`marshmallow` support,
 check out `this example on GitHub <https://github.com/prkumar/uplink/tree/master/examples/marshmallow>`_.
 
+.. _using_pydantic_schemas:
+
+Using Pydantic Models
+=========================
+
+:mod:`pydantic` is a framework-agnostic, object serialization library
+for Python >= 3.6. Uplink comes with built-in support for Pydantic; you can
+integrate your Pydantic models with Uplink for easy JSON (de)serialization.
+
+First, create a :class:`pydantic.BaseModel`, declaring any necessary
+conversions and validations. Here's a simple example:
+
+.. code-block:: python
+
+   from typing import List
+
+   from pydantic import BaseModel, HttpUrl
+
+   class Owner(BaseModel):
+      id: int
+      avatar_url: HttpUrl
+      organizations_url: HttpUrl
+
+   class Repo(BaseModel):
+      id: int
+      full_name: str
+      owner: Owner
+
+Then, specify the schema using the :class:`@returns <uplink.returns>` decorator:
+
+.. code-block:: python
+   :emphasize-lines: 2
+
+   class GitHub(Consumer):
+      @returns.json(List[Repo])
+      @get("users/{username}/repos")
+      def get_repos(self, username):
+         """Get the user's public repositories."""
+
+Python 3 users can use a return type hint instead:
+
+.. code-block:: python
+   :emphasize-lines: 3
+
+   class GitHub(Consumer):
+      @returns.json()
+      @get("users/{username}/repos")
+      def get_repos(self, username) -> List[Repo]:
+         """Get the user's public repositories."""
+
+Your consumer should now return Python objects based on your Pydantic
+model:
+
+.. code-block:: python
+
+   github = GitHub(base_url="https://api.github.com")
+   print(github.get_repos("octocat"))
+   # Output: [User(id=132935648, full_name='octocat/boysenberry-repo-1', owner=Owner(...), ...]
+
+.. note::
+
+   You may have noticed the usage of `returns.json` in both examples. Unlike :mod:`marshmallow`, :mod:`pydantic`
+   has no `many` parameter to control the deserialization of multiple objects. The recommended approach
+   is to use `returns.json` instead of defining a new model with a `__root__` element.
+
 Serializing Method Arguments
 ============================
 
@@ -109,6 +174,27 @@ Uplink's :mod:`marshmallow` integration (see
 .. code-block:: python
 
    repo = Repo(name="my_favorite_new_project")
+   github.create_repo(repo)
+
+The sample code above using :mod:`marshmallow` is also reproducible using :mod:`pydantic`:
+
+.. code-block:: python
+
+   from uplink import Consumer, Body
+
+   class CreateRepo(BaseModel):
+      name: str
+      delete_branch_on_merge: bool
+
+   class GitHub(Consumer):
+      @post("user/repos")
+      def create_repo(self, repo: Body(type=CreateRepo)):
+         """Creates a new repository for the authenticated user."""
+
+Then, calling the client.
+
+.. code-block:: python
+   repo = CreateRepo(name="my-new-uplink-pydantic", delete_branch_on_merge=True)
    github.create_repo(repo)
 
 .. _custom_json_deserialization:

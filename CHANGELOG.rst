@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.9.2_ - 2020-10-18
+====================
+Added
+-----
+- Support for (de)serializing subclasses of `pydantic`_'s `BaseModel`
+  (`#200`_ by `@gmcrocetti`_)
+
+Fixed
+-----
+- Using the ``@get``, ``@post``, ``@patch``, etc. decorators should retain the
+  docstring of the wrapped method (`#198`_)
+- The ``Body`` and ``Part`` argument annotations should support uploading binary
+  data (`#180`_, `#183`_, `#204`_)
+
 0.9.1_ - 2020-02-08
 ===================
 Fixed
@@ -306,9 +320,11 @@ Added
 .. _Retrofit: http://square.github.io/retrofit/
 .. _`Keep a Changelog`: http://keepachangelog.com/en/1.0.0/
 .. _`Semantic Versioning`: https://packaging.python.org/tutorials/distributing-packages/#semantic-versioning-preferred
+.. _pydantic: https://pydantic-docs.helpmanual.io/
 
 .. Releases
-.. _0.9.1: https://github.com/prkumar/uplink/compare/v0.9.1...HEAD
+.. _0.9.2: https://github.com/prkumar/uplink/compare/v0.9.1...v0.9.2
+.. _0.9.1: https://github.com/prkumar/uplink/compare/v0.9.0...v0.9.1
 .. _0.9.0: https://github.com/prkumar/uplink/compare/v0.8.0...v0.9.0
 .. _0.8.0: https://github.com/prkumar/uplink/compare/v0.7.0...v0.8.0
 .. _0.7.0: https://github.com/prkumar/uplink/compare/v0.6.1...v0.7.0
@@ -345,7 +361,12 @@ Added
 .. _#165: https://github.com/prkumar/uplink/pull/165
 .. _#167: https://github.com/prkumar/uplink/issues/167
 .. _#169: https://github.com/prkumar/uplink/pull/169
+.. _#180: https://github.com/prkumar/uplink/pull/180
+.. _#183: https://github.com/prkumar/uplink/pull/183
 .. _#188: https://github.com/prkumar/uplink/pull/188
+.. _#198: https://github.com/prkumar/uplink/pull/198
+.. _#200: https://github.com/prkumar/uplink/pull/200
+.. _#204: https://github.com/prkumar/uplink/pull/204
 
 .. Contributors
 .. _@daa: https://github.com/daa
@@ -354,3 +375,4 @@ Added
 .. _@itstehkman: https://github.com/itstehkman
 .. _@kadrach: https://github.com/kadrach
 .. _@cognifloyd: https://github.com/cognifloyd
+.. _@gmcrocetti: https://github.com/gmcrocetti
