@@ -70,8 +70,7 @@ Features
 - **Easy and Transparent Deserialization/Serialization**
 
   - Define `custom converters`_ for your own objects
-  - Support for |marshmallow|_ schemas and `handling collections`_ (e.g., list of Users)
-  - Support for pydantic models and :ref:`handling collections <converting_collections>` (e.g., list of Repos)
+  - Support for |marshmallow|_ schemas, |pydantic|_ models, and `handling collections`_ (e.g., list of Users)
 
 - **Extendable**
 
@@ -86,6 +85,7 @@ Features
 Uplink officially supports Python 2.7 & 3.3-3.7.
 
 .. |marshmallow| replace:: ``marshmallow``
+.. |pydantic| replace:: ``pydantic``
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
 .. _`Non-blocking I/O support`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 .. _`Supply your own session`: https://uplink.readthedocs.io/en/latest/user/clients.html#swapping-out-the-default-http-session
@@ -96,6 +96,7 @@ Uplink officially supports Python 2.7 & 3.3-3.7.
 .. _`protobuf support`: https://github.com/prkumar/uplink-protobuf
 .. _`requests-oauthlib`: https://github.com/requests/requests-oauthlib
 .. _`Basic Authentication`: https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication
+.. _`pydantic`: https://pydantic-docs.helpmanual.io/
 
 Installation
 ============
