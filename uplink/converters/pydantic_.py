@@ -8,12 +8,29 @@ from uplink.converters.interfaces import Factory, Converter
 from uplink.utils import is_subclass
 
 
+def _encode_pydantic(obj):
+    from pydantic.json import pydantic_encoder
+
+    # json atoms
+    if isinstance(obj, (str, int, float, bool)) or obj is None:
+        return obj
+
+    # json containers
+    if isinstance(obj, dict):
+        return {_encode_pydantic(k): _encode_pydantic(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_encode_pydantic(i) for i in obj]
+
+    # pydantic types
+    return _encode_pydantic(pydantic_encoder(obj))
+
+
 class _PydanticRequestBody(Converter):
     def __init__(self, model):
         self._model = model
 
     def convert(self, value):
-        return self._model(**value).dict()
+        return _encode_pydantic(self._model.parse_obj(value))
 
 
 class _PydanticResponseBody(Converter):
