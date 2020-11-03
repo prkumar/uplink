@@ -13,7 +13,10 @@ class _PydanticRequestBody(Converter):
         self._model = model
 
     def convert(self, value):
-        return self._model(**value).dict()
+        if isinstance(value, self._model):
+            return value.dict()
+        else:
+            return self._model(**value).dict()
 
 
 class _PydanticResponseBody(Converter):
