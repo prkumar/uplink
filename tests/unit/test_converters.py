@@ -482,6 +482,28 @@ class TestPydanticConverter(object):
 
         assert result == expected_result
         model_mock.dict.assert_called_once()
+        model_mock.dict.assert_called_once()
+
+    def test_convert_complex_model(self):
+        from json import loads
+        from datetime import datetime
+        from typing import List
+
+        class ComplexModel(pydantic.BaseModel):
+            when = datetime.utcnow()  # type: datetime
+            where = 'http://example.com'  # type: pydantic.AnyUrl
+            some = [1]  # type: List[int]
+
+        model = ComplexModel()
+        request_body = {}
+        expected_result = loads(model.json())
+
+        converter = converters.PydanticConverter()
+        request_converter = converter.create_request_body_converter(ComplexModel)
+
+        result = request_converter.convert(request_body)
+
+        assert result == expected_result
 
     def test_create_request_body_converter_without_schema(self, mocker):
         expected_result = None
