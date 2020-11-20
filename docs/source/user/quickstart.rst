@@ -236,7 +236,7 @@ Request Body
 ============
 
 The :py:class:`~uplink.Body` annotation identifies a method argument as the
-the HTTP request body:
+HTTP request body:
 
 .. code-block:: python
 
