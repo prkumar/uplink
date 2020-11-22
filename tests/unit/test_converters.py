@@ -505,6 +505,24 @@ class TestPydanticConverter(object):
 
         assert result == expected_result
 
+    def test_create_request_body_converter_with_original_model(
+        self, pydantic_model_mock
+    ):
+        expected_result = {"id": 0}
+
+        model_mock, model = pydantic_model_mock
+        model_mock.dict.return_value = expected_result
+
+        request_body = model()
+
+        converter = converters.PydanticConverter()
+        request_converter = converter.create_request_body_converter(model)
+
+        result = request_converter.convert(request_body)
+
+        assert result == expected_result
+        model_mock.dict.assert_called_once()
+
     def test_create_request_body_converter_without_schema(self, mocker):
         expected_result = None
         converter = converters.PydanticConverter()
