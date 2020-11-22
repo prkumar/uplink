@@ -10,17 +10,17 @@ The format is based on `Keep a Changelog`_, and this project adheres to the
 ====================
 Added
 -----
-- Support for serialization using a subclass of `pydantic`_'s `BaseModel` that
-  contains fields of a complex type, such as `datetime`.
+- Support for serialization using a subclass of `pydantic`_'s ``BaseModel`` that
+  contains fields of a complex type, such as ``datetime``.
   (`#207`_ by `@leiserfg`_)
-- Support for passing a subclass of `pydantic`'s `BaseModel` as the request
+- Support for passing a subclass of `pydantic`'s ``BaseModel`` as the request
   body. (`#209`_ by `@lust4life`_)
 
 0.9.2_ - 2020-10-18
 ====================
 Added
 -----
-- Support for (de)serializing subclasses of `pydantic`_'s `BaseModel`
+- Support for (de)serializing subclasses of `pydantic`_'s ``BaseModel``
   (`#200`_ by `@gmcrocetti`_)
 
 Fixed
