@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.9.3_ - 2020-11-22
+====================
+Added
+-----
+- Support for serialization using a subclass of `pydantic`_'s `BaseModel` that
+  contains fields of a complex type, such as `datetime`.
+  (`#207`_ by `@leiserfg`_)
+- Support for passing a subclass of `pydantic`'s `BaseModel` as the request
+  body. (`#209`_ by `@lust4life`_)
+
 0.9.2_ - 2020-10-18
 ====================
 Added
@@ -367,6 +377,8 @@ Added
 .. _#198: https://github.com/prkumar/uplink/pull/198
 .. _#200: https://github.com/prkumar/uplink/pull/200
 .. _#204: https://github.com/prkumar/uplink/pull/204
+.. _#207: https://github.com/prkumar/uplink/pull/207
+.. _#209: https://github.com/prkumar/uplink/pull/209
 
 .. Contributors
 .. _@daa: https://github.com/daa
@@ -376,3 +388,5 @@ Added
 .. _@kadrach: https://github.com/kadrach
 .. _@cognifloyd: https://github.com/cognifloyd
 .. _@gmcrocetti: https://github.com/gmcrocetti
+.. _@leiserfg: https://github.com/leiserfg
+.. _@lust4life: https://github.com/lust4life
