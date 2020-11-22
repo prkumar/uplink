@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+from collections import abc
 import functools
 
 # Local imports
@@ -25,7 +26,7 @@ class ListConverter(BaseTypeConverter, interfaces.Converter):
         self._elem_converter = chain(self._elem_type) or self._elem_type
 
     def convert(self, value):
-        if isinstance(value, collections.Sequence):
+        if isinstance(value, abc.Sequence):
             return list(map(self._elem_converter, value))
         else:
             # TODO: Handle the case where the value is not an sequence.
@@ -44,7 +45,7 @@ class DictConverter(BaseTypeConverter, interfaces.Converter):
         self._value_converter = chain(self._value_type) or self._value_type
 
     def convert(self, value):
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, abc.Mapping):
             key_c, val_c = self._key_converter, self._value_converter
             return dict((key_c(k), val_c(value[k])) for k in value)
         else:
