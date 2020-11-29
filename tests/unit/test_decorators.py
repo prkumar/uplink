@@ -260,7 +260,7 @@ def test_json_list(request_builder):
 def test_timeout(request_builder):
     timeout = decorators.timeout(60)
     timeout.modify_request(request_builder)
-    request_builder.info["timeout"] == 60
+    assert request_builder.info["timeout"] == 60
 
 
 def test_args(request_definition_builder):

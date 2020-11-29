@@ -54,8 +54,8 @@ class TestTransactionHookChain(object):
             hooks.ResponseHandler(mock_response_handler),
         )
         chain.handle_response("consumer", {})
-        mock_response_handler.call_count == 2
-        mock_request_auditor.call_count == 1
+        assert mock_response_handler.call_count == 2
+        assert mock_request_auditor.call_count == 1
 
     def test_delegate_handle_exception(self, transaction_hook_mock):
         class CustomException(Exception):
