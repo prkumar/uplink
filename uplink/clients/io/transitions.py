@@ -47,6 +47,8 @@ def fail(exc_type, exc_val, exc_tb):
     """
     Transitions the execution to fail with a specific error.
 
+    This will prompt the execution of any RequestTemplate.after_exception hooks.
+
     Args:
         exc_type: The exception class.
         exc_val: The exception object.
@@ -62,6 +64,8 @@ def fail(exc_type, exc_val, exc_tb):
 def prepare(request):
     """
     Transitions the execution to prepare the given request.
+
+    This will prompt the execution of any RequestTemplate.before_request.
 
     Args:
         request: The intended request data to be sent.

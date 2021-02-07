@@ -44,13 +44,23 @@ class TestStringConverter(object):
 
 
 class TestStandardConverter(object):
-    def test_create_response_body_converter(self, converter_mock):
+    def test_create_response_body_converter_with_converter(
+        self, converter_mock
+    ):
         # Setup
         factory = standard.StandardConverter()
 
         # Run & Verify: Pass-through converters
         converter = factory.create_response_body_converter(converter_mock)
         assert converter is converter_mock
+
+    def test_create_response_body_converter_with_unknown_type(self):
+        # Setup
+        factory = standard.StandardConverter()
+
+        # Run & Verify: does not know how to convert any types
+        converter = factory.create_response_body_converter(dict)
+        assert converter is None
 
 
 class TestConverterFactoryRegistry(object):
@@ -487,19 +497,20 @@ class TestPydanticConverter(object):
     def test_convert_complex_model(self):
         from json import loads
         from datetime import datetime
-        from typing import List
 
         class ComplexModel(pydantic.BaseModel):
             when = datetime.utcnow()  # type: datetime
-            where = 'http://example.com'  # type: pydantic.AnyUrl
-            some = [1]  # type: List[int]
+            where = "http://example.com"  # type: pydantic.AnyUrl
+            some = [1]  # type: typing.List[int]
 
         model = ComplexModel()
         request_body = {}
         expected_result = loads(model.json())
 
         converter = converters.PydanticConverter()
-        request_converter = converter.create_request_body_converter(ComplexModel)
+        request_converter = converter.create_request_body_converter(
+            ComplexModel
+        )
 
         result = request_converter.convert(request_body)
 

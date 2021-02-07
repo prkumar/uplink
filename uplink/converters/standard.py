@@ -29,13 +29,12 @@ class StandardConverter(interfaces.Factory):
     converters could handle a particular type.
     """
 
-    @staticmethod
-    def pass_through_converter(type_, *args, **kwargs):
-        return type_
+    def create_request_body_converter(self, cls, request_definition):
+        return cls
 
-    create_response_body_converter = (
-        create_request_body_converter
-    ) = pass_through_converter
+    def create_response_body_converter(self, cls, *args, **kwargs):
+        if isinstance(cls, interfaces.Converter):
+            return cls
 
     def create_string_converter(self, type_, *args, **kwargs):
         return Cast(type_, StringConverter())  # pragma: no cover
