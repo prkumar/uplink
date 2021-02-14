@@ -18,25 +18,6 @@ from uplink import converters
 from uplink.converters import register, standard
 
 
-class TestCast(object):
-    def test_converter_without_caster(self, mocker):
-        converter_mock = mocker.stub()
-        converter_mock.return_value = 2
-        cast = standard.Cast(None, converter_mock)
-        return_value = cast.convert(1)
-        converter_mock.assert_called_with(1)
-        assert return_value == 2
-
-    def test_convert_with_caster(self, mocker):
-        caster = mocker.Mock(return_value=2)
-        converter_mock = mocker.Mock(return_value=3)
-        cast = standard.Cast(caster, converter_mock)
-        return_value = cast.convert(1)
-        caster.assert_called_with(1)
-        converter_mock.assert_called_with(2)
-        assert return_value == 3
-
-
 class TestStringConverter(object):
     def test_convert(self):
         converter_ = standard.StringConverter()
@@ -58,9 +39,44 @@ class TestStandardConverter(object):
         # Setup
         factory = standard.StandardConverter()
 
-        # Run & Verify: does not know how to convert any types
+        # Run & Verify: does not know how to create converter when given a type
+        # that is not a converter
         converter = factory.create_response_body_converter(dict)
         assert converter is None
+
+    def test_create_request_body_converter_with_converter(self, converter_mock):
+        # Setup
+        factory = standard.StandardConverter()
+
+        # Run & Verify: Pass-through converters
+        converter = factory.create_request_body_converter(converter_mock)
+        assert converter is converter_mock
+
+    def test_create_request_body_converter_with_unknown_type(self):
+        # Setup
+        factory = standard.StandardConverter()
+
+        # Run & Verify: does not know how to create converter when given a type
+        # that is not a converter
+        converter = factory.create_response_body_converter(dict)
+        assert converter is None
+
+    def test_create_string_converter_with_converter(self, converter_mock):
+        # Setup
+        factory = standard.StandardConverter()
+
+        # Run & Verify: Pass-through converters
+        converter = factory.create_string_converter(converter_mock)
+        assert converter is converter_mock
+
+    def test_create_string_converter_with_unknown_type(self):
+        # Setup
+        factory = standard.StandardConverter()
+
+        # Run & Verify: creates string converter when given type is not a
+        # converter
+        converter = factory.create_string_converter(dict)
+        assert isinstance(converter, standard.StringConverter)
 
 
 class TestConverterFactoryRegistry(object):
