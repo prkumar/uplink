@@ -1,7 +1,7 @@
 """This module implements the auth layer."""
 
 # Standard library imports
-import collections
+from collections import abc
 
 # Third-party imports
 from requests import auth
@@ -22,7 +22,7 @@ __all__ = [
 def get_auth(auth_object=None):
     if auth_object is None:
         return utils.no_op
-    elif isinstance(auth_object, collections.Iterable):
+    elif isinstance(auth_object, abc.Iterable):
         return BasicAuth(*auth_object)
     elif callable(auth_object):
         return auth_object

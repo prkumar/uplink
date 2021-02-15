@@ -6,21 +6,29 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.9.4_ - 2021-02-15
+====================
+Fixed
+-----
+- A type set as a consumer method's return annotation should not be used to
+  deserialize a response object if no registered converters can handle the type.
+  (`3653a672ee`_)
+
 0.9.3_ - 2020-11-22
 ====================
 Added
 -----
-- Support for serialization using a subclass of `pydantic`_'s `BaseModel` that
-  contains fields of a complex type, such as `datetime`.
+- Support for serialization using a subclass of `pydantic`_'s ``BaseModel`` that
+  contains fields of a complex type, such as ``datetime``.
   (`#207`_ by `@leiserfg`_)
-- Support for passing a subclass of `pydantic`'s `BaseModel` as the request
+- Support for passing a subclass of `pydantic`'s ``BaseModel`` as the request
   body. (`#209`_ by `@lust4life`_)
 
 0.9.2_ - 2020-10-18
 ====================
 Added
 -----
-- Support for (de)serializing subclasses of `pydantic`_'s `BaseModel`
+- Support for (de)serializing subclasses of `pydantic`_'s ``BaseModel``
   (`#200`_ by `@gmcrocetti`_)
 
 Fixed
@@ -333,6 +341,8 @@ Added
 .. _pydantic: https://pydantic-docs.helpmanual.io/
 
 .. Releases
+.. _0.9.4: https://github.com/prkumar/uplink/compare/v0.9.3...v0.9.4
+.. _0.9.3: https://github.com/prkumar/uplink/compare/v0.9.2...v0.9.3
 .. _0.9.2: https://github.com/prkumar/uplink/compare/v0.9.1...v0.9.2
 .. _0.9.1: https://github.com/prkumar/uplink/compare/v0.9.0...v0.9.1
 .. _0.9.0: https://github.com/prkumar/uplink/compare/v0.8.0...v0.9.0
@@ -379,6 +389,9 @@ Added
 .. _#204: https://github.com/prkumar/uplink/pull/204
 .. _#207: https://github.com/prkumar/uplink/pull/207
 .. _#209: https://github.com/prkumar/uplink/pull/209
+
+.. Commits
+.. _3653a672ee: https://github.com/prkumar/uplink/commit/3653a672ee0703119720d0077bb450649af5459c
 
 .. Contributors
 .. _@daa: https://github.com/daa
