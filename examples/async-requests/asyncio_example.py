@@ -1,6 +1,6 @@
 """
 Example of using Uplink with aiohttp for non-blocking HTTP requests.
-This should work on Python 3.4 and above.
+This should work on Python 3.7 and above.
 """
 import asyncio
 import uplink
@@ -9,11 +9,10 @@ import uplink
 from github import BASE_URL, GitHub
 
 
-@asyncio.coroutine
-def get_contributors(full_name):
+async def get_contributors(full_name):
     print("Getting GitHub repository `{}`".format(full_name))
-    response = yield from gh_async.get_contributors(*full_name.split("/"))
-    json = yield from response.json()
+    response = await gh_async.get_contributors(*full_name.split("/"))
+    json = await response.json()
     print("response for {}: {}".format(full_name, json))
     return json
 
@@ -34,4 +33,4 @@ if __name__ == "__main__":
     # Concurrently fetch the contributors for those repositories.
     futures = [get_contributors(repo["full_name"]) for repo in repos]
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(asyncio.wait(futures))
+    loop.run_until_complete(asyncio.gather(*futures))
