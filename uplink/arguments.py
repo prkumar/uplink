@@ -288,7 +288,7 @@ class Path(NamedArgument):
     .. code-block:: python
 
         class TodoService(object):
-            @get("/todos{/id}")
+            @get("/todos/{id}")
             def get_todo(self, todo_id: Path("id")): pass
 
     Then, invoking :code:`get_todo` with a consumer instance:
@@ -308,7 +308,7 @@ class Path(NamedArgument):
 
         .. code-block:: python
 
-            @get("/todos{/id}")
+            @get("/todos/{id}")
             def get_todo(self, id): pass
     """
 
