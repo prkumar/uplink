@@ -67,7 +67,9 @@ class Map(CompositeKey):
     """
 
     def convert(self, converter, value):
-        return dict((k, converter(value[k])) for k in value)
+        if converter is not None:
+            return dict((k, converter(value[k])) for k in value)
+        return value
 
 
 class Sequence(CompositeKey):
