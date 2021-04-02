@@ -4,15 +4,12 @@ handling classes.
 """
 # Standard library imports
 import collections
-try:
-    from collections import abc
-except ImportError:
-    import collections as abc
 import functools
 import inspect
 
 # Local imports
 from uplink import exceptions, hooks, interfaces, utils
+from uplink.compat import abc
 from uplink.converters import keys
 
 __all__ = [
