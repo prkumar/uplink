@@ -3,7 +3,10 @@ This module implements the built-in class and method decorators and their
 handling classes.
 """
 # Standard library imports
-from collections import abc
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 import functools
 import inspect
 

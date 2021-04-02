@@ -1,5 +1,8 @@
 # Standard library imports
-from collections import abc
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 
 # Local imports
 from uplink._extras import installer, plugin

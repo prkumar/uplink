@@ -1,7 +1,10 @@
 """This module implements the auth layer."""
 
 # Standard library imports
-from collections import abc
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 
 # Third-party imports
 from requests import auth

@@ -1,5 +1,8 @@
 # Standard library imports
-from collections import abc
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 import functools
 
 # Local imports
