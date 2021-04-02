@@ -4,7 +4,10 @@ handling classes.
 """
 # Standard library imports
 import collections
-from collections import abc
+try:
+    from collections import abc
+except ImportError:
+    import collections as abc
 import functools
 import inspect
 
