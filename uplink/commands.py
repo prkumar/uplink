@@ -1,8 +1,4 @@
 # Standard library imports
-try:
-    from collections import abc
-except ImportError:
-    import collections as abc
 import functools
 
 # Local imports
@@ -15,6 +11,7 @@ from uplink import (
     returns,
     utils,
 )
+from uplink.compat import abc
 
 __all__ = ["get", "head", "put", "post", "patch", "delete"]
 
