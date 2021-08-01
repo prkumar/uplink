@@ -8,6 +8,8 @@ from uplink.converters import keys, interfaces
 
 __all__ = ["json", "from_json", "schema"]
 
+from uplink.utils import is_subclass
+
 
 class ReturnType(object):
     def __init__(self, decorator, type_):
@@ -44,9 +46,6 @@ class _ReturnsBase(decorators.MethodAnnotation):
     def return_type(self):  # pragma: no cover
         raise NotImplementedError
 
-    def _get_return_type(self, return_type):  # pragma: no cover
-        return return_type
-
     def _make_strategy(self, converter):  # pragma: no cover
         pass
 
@@ -56,15 +55,17 @@ class _ReturnsBase(decorators.MethodAnnotation):
             definition.return_type, self
         )
 
+    def _get_converter(self, request_builder, return_type):  # pragma: no cover
+        return request_builder.get_converter(
+            keys.CONVERT_FROM_RESPONSE_BODY, return_type.type
+        )
+
     def modify_request(self, request_builder):
         return_type = request_builder.return_type
         if not return_type.is_applicable(self):
             return
 
-        converter = request_builder.get_converter(
-            keys.CONVERT_FROM_RESPONSE_BODY,
-            self._get_return_type(return_type.type),
-        )
+        converter = self._get_converter(request_builder, return_type)
         if converter is not None:
             # Found a converter that can handle the return type.
             request_builder.return_type = return_type.with_strategy(
@@ -139,15 +140,23 @@ class json(_ReturnsBase):
     .. versionadded:: v0.5.0
     """
 
+    _builtin_types = (dict, list, str, int, float)
     _can_be_static = True
 
     class _DummyConverter(interfaces.Converter):
         def convert(self, response):
             return response
 
+    class _CastConverter(interfaces.Converter):
+        def __init__(self, cast):
+            self._cast = cast
+
+        def convert(self, response):
+            return self._cast(response)
+
     __dummy_converter = _DummyConverter()
 
-    def __init__(self, type=None, key=(), model=None, member=()):
+    def __init__(self, type=None, key=(), cast=None, model=None, member=()):
         if model:  # pragma: no cover
             warnings.warn(
                 "The `model` argument of @returns.json is deprecated and will "
@@ -162,19 +171,45 @@ class json(_ReturnsBase):
             )
         self._type = type or model
         self._key = key or member
+        self._cast = cast
+
+        if self._cast and not callable(self._type):
+            raise ValueError(
+                "When the `cast` argument is True, the `type` argument is "
+                "expected to be callable."
+            )
 
     @property
     def return_type(self):
         return self._type
 
-    def _get_return_type(self, return_type):
-        # If return_type is None, the strategy should directly return
-        # the JSON body of the HTTP response, instead of trying to
+    def _get_converter(self, request_builder, return_type):
+        converter = super(json, self)._get_converter(
+            request_builder, return_type
+        )
+
+        if converter:
+            return converter
+
+        cast = self._get_cast(return_type)
+        if cast:
+            return self._CastConverter(cast)
+
+        # If the return_type cannot be converted, the strategy should directly
+        # return the JSON body of the HTTP response, instead of trying to
         # deserialize it into a certain type. In this case, by
         # defaulting the return type to the dummy converter, which
         # implements this pass-through behavior, we ensure that
         # _make_strategy is called.
-        return self.__dummy_converter if return_type is None else return_type
+        return self.__dummy_converter
+
+    def _get_cast(self, return_type):
+        if self._cast:
+            return return_type.type
+        if self._cast is None and is_subclass(
+            return_type.type, self._builtin_types
+        ):
+            return return_type.type
 
     def _make_strategy(self, converter):
         return JsonStrategy(converter, self._key)
