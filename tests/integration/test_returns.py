@@ -49,6 +49,11 @@ class GitHub(uplink.Consumer):
     def get_repos(self, user):
         pass
 
+    @uplink.returns.from_json(key=("data", 0, "size"))
+    @uplink.get("/users/{user}/repos")
+    def get_first_repo_size(self, user):
+        pass
+
     @uplink.json
     @uplink.post("/users/{user}/repos", args={"repo": uplink.Body(Repo)})
     def create_repo(self, user, repo):
@@ -112,6 +117,27 @@ def test_returns_json_with_list(mock_client, mock_response):
         Repo(owner="prkumar", name="uplink"),
         Repo(owner="prkumar", name="uplink-protobuf"),
     ] == repo
+
+
+def test_returns_json_by_key(mock_client, mock_response):
+    # Setup
+    mock_response.with_json(
+        {
+            "data": [
+                {"owner": "prkumar", "name": "uplink", "size": 300},
+                {"owner": "prkumar", "name": "uplink-protobuf", "size": 400},
+            ],
+            "errors": [],
+        }
+    )
+    mock_client.with_response(mock_response)
+    github = GitHub(base_url=BASE_URL, client=mock_client)
+
+    # Run
+    size = github.get_first_repo_size("prkumar")
+
+    # Verify
+    assert size == 300
 
 
 def test_post_json(mock_client):
