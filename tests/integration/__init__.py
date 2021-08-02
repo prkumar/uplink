@@ -107,6 +107,10 @@ class RequestInvocation(object):
         return self._extras.get("data", None)
 
     @property
+    def files(self):
+        return self._extras.get("files", None)
+
+    @property
     def json(self):
         return self._extras.get("json", None)
 
