@@ -118,3 +118,6 @@ ENV/
 # [2]: https://docs.pipenv.org/advanced/#pipfile-vs-setup-py
 #
 Pipfile.lock
+
+# macOS
+.DS_Store
