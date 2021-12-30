@@ -82,7 +82,7 @@ Features
   - Built-in support for `Basic Authentication`_
   - Use existing auth libraries for supported clients (e.g., |requests-oauthlib|_)
 
-Uplink officially supports Python 2.7 & 3.3-3.7.
+Uplink officially supports Python 2.7 and 3.5+.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. |pydantic| replace:: ``pydantic``
