@@ -1,11 +1,12 @@
 language: python
+dist: bionic  # Ubuntu 18.04
 python:
   - '3.5'
   - '3.6'
   - '3.7'
   - '3.8'
   - '3.9'
-  - '3.10-dev'
+  - '3.10'
 before_script:
   - pip install tox
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install flake8 flake8-bugbear; fi
