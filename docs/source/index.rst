@@ -87,8 +87,13 @@ Features
 
 Uplink officially supports Python 2.7 & 3.5+.
 
+.. note::
+
+   Python 2.7 suport will be removed in v0.10.0.
+
 .. |marshmallow| replace:: ``marshmallow``
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
+   
 .. _`Non-blocking I/O support`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 .. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#response-and-error-handling
