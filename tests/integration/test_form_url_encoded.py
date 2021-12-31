@@ -8,7 +8,7 @@ BASE_URL = "https://example.com/"
 def test_without_converter(mock_response, mock_client):
     class Calendar(Consumer):
         @form_url_encoded
-        @put("/user/repos", args={"event_data":FieldMap})
+        @put("/user/repos", args={"event_data": FieldMap})
         def add_event(self, **event_data):
             pass
 
