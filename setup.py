@@ -1,6 +1,9 @@
 # Standard library imports
 import os
+import sys
 from setuptools import setup, find_packages
+
+IS_PY2 = sys.version_info.major < 3
 
 
 def read(filename):
@@ -59,6 +62,11 @@ metadata = {
     "extras_require": extras_require,
 }
 metadata = dict(metadata, **about)
+
+if IS_PY2:
+    # Pipenv fails if keywords and kwargs is present in AST of setup invocation:
+    # https://github.com/pypa/pipenv/issues/4357#issuecomment-685446578
+    metadata.pop("keywords")
 
 if __name__ == "__main__":
     setup(name="uplink", **metadata)
