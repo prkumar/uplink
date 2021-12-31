@@ -8,8 +8,8 @@ BASE_URL = "https://example.com/"
 def test_without_converter(mock_response, mock_client):
     class Calendar(Consumer):
         @multipart
-        @post("/attachments")
-        def upload_attachments(self, **files: PartMap):
+        @post("/attachments", args={"files": PartMap})
+        def upload_attachments(self, **files):
             pass
 
     mock_client.with_response(mock_response)

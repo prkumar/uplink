@@ -1,13 +1,11 @@
 """This module implements the auth layer."""
 
-# Standard library imports
-from collections import abc
-
 # Third-party imports
 from requests import auth
 
 # Local imports
 from uplink import utils
+from uplink.compat import abc
 
 __all__ = [
     "ApiTokenParam",
