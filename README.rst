@@ -86,8 +86,6 @@ Uplink officially supports Python 2.7 and 3.5+.
 
 **Note:** Python 2.7 suport will be removed in v0.10.0.
 
-Important: 
-
 .. |marshmallow| replace:: ``marshmallow``
 .. |pydantic| replace:: ``pydantic``
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
