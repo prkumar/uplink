@@ -63,6 +63,7 @@ instance/
 
 # Sphinx documentation
 docs/source/.doctrees/
+docs/source/_build/
 docs/_build/
 
 # PyBuilder
@@ -121,3 +122,4 @@ Pipfile.lock
 
 # macOS
 .DS_Store
+

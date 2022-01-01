@@ -8,7 +8,7 @@ Uplink 📡
 A Declarative HTTP Client for Python. Inspired by `Retrofit
 <http://square.github.io/retrofit/>`__.
 
-|Release| |Python Version| |License| |Coverage Status| |Gitter|
+|Release| |Python Version| |License| |Coverage Status| |GitHub Discussions|
 
 .. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
 .. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
@@ -85,10 +85,15 @@ Features
   - Built-in support for :ref:`Basic Authentication <basic_authentication>`
   - Use existing auth libraries for supported clients (e.g., |requests-oauthlib|_)
 
-Uplink officially supports Python 2.7 & 3.3-3.7.
+Uplink officially supports Python 2.7 & 3.5+.
+
+.. note::
+
+   Python 2.7 suport will be removed in v0.10.0.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. |requests-oauthlib| replace:: ``requests-oauthlib``
+   
 .. _`Non-blocking I/O support`: https://github.com/prkumar/uplink/tree/master/examples/async-requests
 .. _`marshmallow`: https://github.com/prkumar/uplink/tree/master/examples/marshmallow
 .. _`custom response and error handling`: https://uplink.readthedocs.io/en/latest/user/quickstart.html#response-and-error-handling
@@ -154,12 +159,11 @@ Miscellaneous
    changes.rst
 
 
+.. |GitHub Discussions| image:: https://img.shields.io/github/discussions/prkumar/uplink.png
+   :target: https://github.com/prkumar/uplink/discussions
 .. |Coverage Status| image:: https://img.shields.io/codecov/c/github/prkumar/uplink.svg
    :alt: Codecov
    :target: https://codecov.io/gh/prkumar/uplink
-.. |Gitter| image:: https://badges.gitter.im/python-uplink/Lobby.svg
-   :target: https://gitter.im/python-uplink/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-   :alt: Join the chat at https://gitter.im/python-uplink/Lobby
 .. |License| image:: https://img.shields.io/github/license/prkumar/uplink.svg
    :target: https://github.com/prkumar/uplink/blob/master/LICENSE
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/uplink.svg
