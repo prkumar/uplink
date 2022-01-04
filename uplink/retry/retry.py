@@ -8,41 +8,7 @@ from uplink.retry import (
 )
 from uplink.retry._helpers import ClientExceptionProxy
 
-__all__ = ["retry"]
-
-
-class RetryTemplate(RequestTemplate):
-    def __init__(self, backoff, retry_condition):
-        self._backoff = backoff
-        self._backoff_iterator = None
-        self._condition = retry_condition
-        self._reset()
-
-    def _next_delay(self):
-        try:
-            delay = next(self._backoff_iterator)
-        except StopIteration:
-            # Fallback to the default behavior
-            pass
-        else:
-            return transitions.sleep(delay)
-
-    def _reset(self):
-        self._backoff_iterator = self._backoff()
-
-    def after_response(self, request, response):
-        if self._condition.should_retry_after_response(response):
-            return self._next_delay()
-        else:
-            self._reset()
-
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
-        if self._condition.should_retry_after_exception(
-            exc_type, exc_val, exc_tb
-        ):
-            return self._next_delay()
-        else:
-            self._reset()
+__all__ = ["retry", "RetryBackoff"]
 
 
 # noinspection PyPep8Naming
@@ -94,6 +60,10 @@ class retry(decorators.MethodAnnotation):
 
     _DEFAULT_PREDICATE = when_mod.raises(Exception)
 
+    stop = stop_mod
+    backoff = backoff_mod
+    when = when_mod
+
     def __init__(
         self,
         when=None,
@@ -102,22 +72,27 @@ class retry(decorators.MethodAnnotation):
         stop=None,
         backoff=None,
     ):
-        if stop is not None:
-            self._stop = stop
-        elif max_attempts is not None:
-            self._stop = stop_mod.after_attempt(max_attempts)
-        else:
-            self._stop = stop_mod.NEVER
-
-        self._predicate = when
+        if stop is None:
+            if max_attempts is not None:
+                stop = stop_mod.after_attempt(max_attempts)
+            else:
+                stop = stop_mod.NEVER
 
         if on_exception is not None:
-            self._predicate = when_mod.raises(on_exception) | self._predicate
+            when = when_mod.raises(on_exception) | when
 
-        if self._predicate is None:
-            self._predicate = self._DEFAULT_PREDICATE
+        if when is None:
+            when = self._DEFAULT_PREDICATE
 
-        self._backoff = backoff_mod.jittered() if backoff is None else backoff
+        if backoff is None:
+            backoff = backoff_mod.jittered()
+
+        if not isinstance(backoff, RetryBackoff):
+            backoff = _IterativeBackoff(backoff)
+
+        self._when = when
+        self._backoff = backoff
+        self._stop = stop
 
     BASE_CLIENT_EXCEPTION = ClientExceptionProxy(
         lambda ex: ex.BaseClientException
@@ -129,22 +104,102 @@ class retry(decorators.MethodAnnotation):
 
     def modify_request(self, request_builder):
         request_builder.add_request_template(
-            self._create_template(request_builder)
+            _RetryTemplate(
+                _RetryStrategy(
+                    self._when(request_builder),
+                    self._backoff,
+                    self._stop,
+                )
+            )
         )
 
-    def _create_template(self, request_builder):
-        return RetryTemplate(
-            self._backoff_iterator, self._predicate(request_builder)
+
+class RetryBackoff(object):
+    def after_response(self, request, response):
+        raise NotImplementedError
+
+    def after_exception(self, request, exc_type, exc_val, exc_tb):
+        raise NotImplementedError
+
+    def after_stop(self):
+        pass
+
+
+class _IterativeBackoff(RetryBackoff):
+    def __init__(self, iterator_func):
+        self._iterator_func = iterator_func
+        self._iterator = iterator_func()
+
+    def _next(self):
+        try:
+            return next(self._iterator)
+        except StopIteration:
+            return None
+
+    def after_response(self, request, response):
+        return self._next()
+
+    def after_exception(self, request, exc_type, exc_val, exc_tb):
+        return self._next()
+
+    def after_stop(self):
+        self._iterator = self._iterator_func()
+
+
+class _RetryStrategy(RetryBackoff):
+    def __init__(self, condition, backoff, stop):
+        self._condition = condition
+        self._backoff = backoff
+        self._stop = stop
+        self._stop_iter = self._stop()
+
+    def _process_delay(self, delay):
+        next(self._stop_iter)
+        if self._stop_iter.send(delay):
+            return None
+        return delay
+
+    def after_response(self, request, response):
+        if not self._condition.should_retry_after_response(response):
+            return None
+
+        delay = self._backoff.after_response(request, response)
+        return self._process_delay(delay)
+
+    def after_exception(self, request, exc_type, exc_val, exc_tb):
+        if not self._condition.should_retry_after_exception(
+            exc_type, exc_val, exc_tb
+        ):
+            return None
+
+        delay = self._backoff.after_exception(
+            request, exc_type, exc_val, exc_tb
         )
+        return self._process_delay(delay)
 
-    def _backoff_iterator(self):
-        stop_gen = self._stop()
-        for delay in self._backoff():
-            next(stop_gen)
-            if stop_gen.send(delay):
-                break
-            yield delay
+    def after_stop(self):
+        self._backoff.after_stop()
+        self._stop_iter = self._stop()
 
-    stop = stop_mod
-    backoff = backoff_mod
-    when = when_mod
+
+class _RetryTemplate(RequestTemplate):
+    def __init__(self, strategy):
+        self._strategy = strategy
+
+    def after_response(self, request, response):
+        delay = self._strategy.after_response(request, response)
+        if delay is None:
+            self._strategy.after_stop()
+            return
+
+        return transitions.sleep(delay)
+
+    def after_exception(self, request, exc_type, exc_val, exc_tb):
+        delay = self._strategy.after_exception(
+            request, exc_type, exc_val, exc_tb
+        )
+        if delay is None:
+            self._strategy.after_stop()
+            return
+
+        return transitions.sleep(delay)
