@@ -4,12 +4,12 @@ handling classes.
 """
 # Standard library imports
 import collections
-from collections import abc
 import functools
 import inspect
 
 # Local imports
 from uplink import exceptions, hooks, interfaces, utils
+from uplink.compat import abc
 from uplink.converters import keys
 
 __all__ = [
@@ -288,7 +288,7 @@ class Path(NamedArgument):
     .. code-block:: python
 
         class TodoService(object):
-            @get("/todos{/id}")
+            @get("/todos/{id}")
             def get_todo(self, todo_id: Path("id")): pass
 
     Then, invoking :code:`get_todo` with a consumer instance:
@@ -308,7 +308,7 @@ class Path(NamedArgument):
 
         .. code-block:: python
 
-            @get("/todos{/id}")
+            @get("/todos/{id}")
             def get_todo(self, id): pass
     """
 

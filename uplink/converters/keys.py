@@ -50,6 +50,8 @@ class CompositeKey(object):
 
         def factory_wrapper(*args, **kwargs):
             converter = factory(*args, **kwargs)
+            if not converter:
+                return None
             return functools.partial(self.convert, converter)
 
         return factory_wrapper

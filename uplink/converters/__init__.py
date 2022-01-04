@@ -1,8 +1,6 @@
-# Standard library imports
-from collections import abc
-
 # Local imports
 from uplink._extras import installer, plugin
+from uplink.compat import abc
 from uplink.converters import keys
 from uplink.converters.interfaces import Factory, ConverterFactory, Converter
 from uplink.converters.register import (

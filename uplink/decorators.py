@@ -3,12 +3,12 @@ This module implements the built-in class and method decorators and their
 handling classes.
 """
 # Standard library imports
-from collections import abc
 import functools
 import inspect
 
 # Local imports
 from uplink import arguments, helpers, hooks, interfaces, utils
+from uplink.compat import abc
 
 __all__ = [
     "headers",

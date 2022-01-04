@@ -16,3 +16,4 @@ Contributors
 - Sakorn Waungwiwatsin (`@SakornW <https://github.com/SakornW>`_)
 - Jacob Floyd (`@cognifloyd <https://github.com/cognifloyd>`_)
 - Guilherme Crocetti (`@gmcrocetti <https://github.com/gmcrocetti/>`_)
+- Alexander Shadchin (`@shadchin <https://github.com/shadchin>`_)

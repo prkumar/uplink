@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+0.9.5_ - 2022-01-04
+====================
+Added
+-----
+- Add Python 3.8, 3.9, and 3.10 as officially supported. (`#237`_)
+
+Fixed
+-----
+- Fix ``FieldMap`` and ``PartMap`` from raising ``NoneType`` error. (`#221`_)
+- Fix Python 2.7 support. (`#217`_)
+
+Deprecated
+----------
+- Python 2.7 support will be removed in v0.10.0.
+
 0.9.4_ - 2021-02-15
 ====================
 Fixed
@@ -341,6 +356,7 @@ Added
 .. _pydantic: https://pydantic-docs.helpmanual.io/
 
 .. Releases
+.. _0.9.5: https://github.com/prkumar/uplink/compare/v0.9.4...v0.9.5
 .. _0.9.4: https://github.com/prkumar/uplink/compare/v0.9.3...v0.9.4
 .. _0.9.3: https://github.com/prkumar/uplink/compare/v0.9.2...v0.9.3
 .. _0.9.2: https://github.com/prkumar/uplink/compare/v0.9.1...v0.9.2
@@ -389,6 +405,9 @@ Added
 .. _#204: https://github.com/prkumar/uplink/pull/204
 .. _#207: https://github.com/prkumar/uplink/pull/207
 .. _#209: https://github.com/prkumar/uplink/pull/209
+.. _#217: https://github.com/prkumar/uplink/issues/217
+.. _#221: https://github.com/prkumar/uplink/issues/221
+.. _#237: https://github.com/prkumar/uplink/discussions/237
 
 .. Commits
 .. _3653a672ee: https://github.com/prkumar/uplink/commit/3653a672ee0703119720d0077bb450649af5459c

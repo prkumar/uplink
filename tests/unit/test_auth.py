@@ -17,7 +17,7 @@ class TestGetAuth(object):
 
     def test_callable(self):
         def func():
-            None
+            pass
 
         output = auth.get_auth(func)
         assert output is func

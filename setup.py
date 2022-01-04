@@ -28,7 +28,7 @@ extras_require = {
     # Twisted 19.7.0 dropped py3.4 support
     "twisted:python_version == '3.4'": "twisted<=19.2.1",
     "typing": ["typing>=3.6.4"],
-    "tests": ["pytest==4.6.5", "pytest-mock", "pytest-cov", "pytest-twisted"],
+    "tests": ["pytest", "pytest-mock", "pytest-cov", "pytest-twisted"],
 }
 
 metadata = {
@@ -45,11 +45,12 @@ metadata = {
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],

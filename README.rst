@@ -1,7 +1,7 @@
 Uplink
 ******
 |PyPI Version| |Build Status| |Coverage Status| |Code Climate| |Documentation Status|
-|Gitter| |Code Style|
+|GitHub Discussions| |Gitter| |Code Style|
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with **Requests**, **aiohttp**, and **Twisted**.
@@ -82,7 +82,9 @@ Features
   - Built-in support for `Basic Authentication`_
   - Use existing auth libraries for supported clients (e.g., |requests-oauthlib|_)
 
-Uplink officially supports Python 2.7 & 3.3-3.7.
+Uplink officially supports Python 2.7 and 3.5+.
+
+**Note:** Python 2.7 suport will be removed in v0.10.0.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. |pydantic| replace:: ``pydantic``
@@ -169,9 +171,14 @@ For new users, a good place to start is this `quick tutorial`_.
 Community
 =========
 
-Join the conversation on `Gitter`_ to ask questions, provide feedback,
+Use the `Discussions`_ tab on GitHub to join the conversation! Ask questions, provide feedback,
 and meet other users!
 
+We're migrating our community from `Gitter`_ to GitHub `Discussions`_. Feel free to search our
+Gitter lobby for past questions and answers. However, to help us transition, please start new
+threads/posts in GitHub Discussions instead of Gitter.
+
+.. _Discussions: https://github.com/prkumar/uplink/discussions
 .. _Gitter: https://gitter.im/python-uplink/Lobby
 
 
@@ -182,6 +189,8 @@ Want to report a bug, request a feature, or contribute code to Uplink?
 Checkout the `Contribution Guide`_ for where to start.
 Thank you for taking the time to improve an open source project :purple_heart:
 
+.. |GitHub Discussions| image:: https://img.shields.io/github/discussions/prkumar/uplink.png
+   :target: https://github.com/prkumar/uplink/discussions
 .. |Build Status| image:: https://travis-ci.com/prkumar/uplink.svg?branch=master
    :target: https://travis-ci.com/prkumar/uplink
 .. |Code Climate| image:: https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability

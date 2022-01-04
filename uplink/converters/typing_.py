@@ -1,9 +1,9 @@
 # Standard library imports
 import collections
-from collections import abc
 import functools
 
 # Local imports
+from uplink.compat import abc
 from uplink.converters import interfaces, register_default_converter_factory
 
 __all__ = ["TypingConverter", "ListConverter", "DictConverter"]

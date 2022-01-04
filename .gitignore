@@ -63,6 +63,7 @@ instance/
 
 # Sphinx documentation
 docs/source/.doctrees/
+docs/source/_build/
 docs/_build/
 
 # PyBuilder
@@ -118,3 +119,7 @@ ENV/
 # [2]: https://docs.pipenv.org/advanced/#pipfile-vs-setup-py
 #
 Pipfile.lock
+
+# macOS
+.DS_Store
+
