@@ -15,7 +15,7 @@ with open(os.path.join("uplink", "__about__.py")) as fp:
     exec(fp.read(), about)
     about = dict((k.strip("_"), about[k]) for k in about)
 
-install_requires = ["requests>=2.18.0", "six>=1.12.0", "uritemplate>=3.0.0"]
+install_requires = ["requests>=2.18.0", "six>=1.13.0", "uritemplate>=3.0.0"]
 
 extras_require = {
     "marshmallow": ["marshmallow>=2.15.0"],
