@@ -75,22 +75,6 @@ def test_stop_or_with_none():
     assert stop1 is (stop1 | None)
 
 
-def test_retry_custom_stop():
-    def custom_stop(*_):
-        return True
-
-    decorator = retry(stop=custom_stop)
-    assert decorator._stop == custom_stop
-
-
-def test_retry_backoff():
-    def custom_backoff(*_):
-        return True
-
-    decorator = retry(backoff=custom_backoff)
-    assert decorator._backoff == custom_backoff
-
-
 def test_retry_decorator_exposes_submodules_as_properties():
     assert retry.backoff is backoff
     assert retry.stop is stop
