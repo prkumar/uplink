@@ -35,6 +35,26 @@ def test_fixed_backoff():
     assert next(iterator) == 10
 
 
+def test_compose_backoff(mocker):
+    left = backoff.from_iterable([0, 1])
+    right = backoff.from_iterable([2])
+    mocker.spy(left, "after_stop")
+    mocker.spy(right, "after_stop")
+    strategy = left | right
+
+    # Should return None after both strategies are exhausted
+    assert strategy.after_response(None, None) == 0
+    assert strategy.after_exception(None, None, None, None) == 1
+    assert strategy.after_response(None, None) == 2
+    assert strategy.after_exception(None, None, None, None) is None
+
+    # Should invoke both strategies after_stop method
+    strategy.after_stop()
+
+    left.after_stop.assert_called_once()
+    right.after_stop.assert_called_once()
+
+
 def test_retry_stop_default():
     decorator = retry()
     assert stop.NEVER == decorator._stop

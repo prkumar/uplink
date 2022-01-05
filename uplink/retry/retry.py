@@ -6,7 +6,7 @@ from uplink.retry import (
     stop as stop_mod,
     backoff as backoff_mod,
 )
-from uplink.retry.backoff import RetryBackoff, IterableBackoff
+from uplink.retry.backoff import RetryBackoff
 from uplink.retry._helpers import ClientExceptionProxy
 
 __all__ = ["retry"]
@@ -90,7 +90,7 @@ class retry(decorators.MethodAnnotation):
             backoff = backoff_mod.jittered()
 
         if not isinstance(backoff, backoff_mod.RetryBackoff):
-            backoff = _CustomIterableBackoff(backoff)
+            backoff = backoff_mod.from_iterable_factory(backoff)
 
         self._when = when
         self._backoff = backoff
@@ -114,14 +114,6 @@ class retry(decorators.MethodAnnotation):
                 )
             )
         )
-
-
-class _CustomIterableBackoff(IterableBackoff):
-    def __init__(self, iterator_func):
-        self.__iterator_func = iterator_func
-
-    def __iter__(self):
-        return self.__iterator_func()
 
 
 class _RetryStrategy(RetryBackoff):
