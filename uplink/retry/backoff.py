@@ -44,7 +44,7 @@ class RetryBackoff(object):
     The resulting backoff strategy will first compute the timeout using
     the left-hand instance. If that timeout is None, the strategy will
     try to compute a fallback using the right-hand instance. If both
-    instances return ``None``, the composite strategy will also return
+    instances return ``None``, the resulting strategy will also return
     ``None``.
     """
 
@@ -72,19 +72,10 @@ class RetryBackoff(object):
         pass  # pragma: no cover
 
     def __or__(self, other):
-        """
-        Composes the current strategy with another.
-
-        The resulting strategy will use the timeout computed by the
-        current strategy if it not ``None``. Otherwise, it will
-        try to fallback on the timeout computed by the other strategy.
-        If both return ``None``, the composite stratey will also return
-        ``None``.
-        """
+        """Composes the current strategy with another."""
         assert isinstance(
             other, RetryBackoff
         ), "Both objects should be backoffs."
-
         return _Or(self, other)
 
 
