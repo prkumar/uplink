@@ -44,8 +44,7 @@ class IterableBackoff(RetryBackoff):
     emits an ordered sequence of timeouts.
     """
 
-    def __init__(self):
-        self.__iterator = None
+    __iterator = None
 
     def __iter__(self):
         raise NotImplementedError  # pragma: no cover
@@ -83,7 +82,6 @@ class jittered(IterableBackoff):
         time of competing clients in a distributed system experiencing
         high contention.
         """
-        super().__init__()
         self._exp_backoff = exponential(base, multiplier, minimum, maximum)
 
     def __iter__(self):
@@ -97,7 +95,6 @@ class exponential(IterableBackoff):
         is multiplied by a constant ``base`` after each attempt, up to
         an optional ``maximum`` value.
         """
-        super().__init__()
         self._base = base
         self._multiplier = multiplier
         self._minimum = minimum
@@ -115,7 +112,6 @@ class exponential(IterableBackoff):
 class fixed(IterableBackoff):
     def __init__(self, seconds):
         """Waits for a fixed number of ``seconds`` before each retry."""
-        super().__init__()
         self._seconds = seconds
 
     def __iter__(self):

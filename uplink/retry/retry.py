@@ -118,7 +118,6 @@ class retry(decorators.MethodAnnotation):
 
 class _CustomIterableBackoff(IterableBackoff):
     def __init__(self, iterator_func):
-        super().__init__()
         self.__iterator_func = iterator_func
 
     def __iter__(self):
