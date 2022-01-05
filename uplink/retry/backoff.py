@@ -33,8 +33,19 @@ def from_iterable_factory(iterable_factory):
 
 class RetryBackoff(object):
     """
-    Base class for strategies that calculate the amount of time to wait
-    between retry attempts.
+    Base class for a strategy that calculates the timeout between
+    retry attempts.
+
+    You can compose two ``RetryBackoff`` instances by using the ``|``
+    operator::
+
+        CustomBackoffA() | CustomBackoffB()
+
+    The resulting backoff strategy will first compute the timeout using
+    the left-hand instance. If that timeout is None, the strategy will
+    try to compute a fallback using the right-hand instance. If both
+    instances return ``None``, the composite strategy will also return
+    ``None``.
     """
 
     def after_response(self, request, response):
