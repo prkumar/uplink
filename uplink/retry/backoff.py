@@ -42,16 +42,16 @@ class RetryBackoff(object):
         CustomBackoffA() | CustomBackoffB()
 
     The resulting backoff strategy will first compute the timeout using
-    the left-hand instance. If that timeout is None, the strategy will
-    try to compute a fallback using the right-hand instance. If both
-    instances return ``None``, the resulting strategy will also return
-    ``None``.
+    the left-hand instance. If that timeout is ``None``, the strategy
+    will try to compute a fallback using the right-hand instance. If
+    both instances return ``None``, the resulting strategy will also
+    return ``None``.
     """
 
     def after_response(self, request, response):
         """
         Returns the number of seconds to wait before retrying the
-        request, or None to indicate that the given response should
+        request, or ``None`` to indicate that the given response should
         be returned.
         """
         raise NotImplementedError  # pragma: no cover
@@ -59,8 +59,8 @@ class RetryBackoff(object):
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         """
         Returns the number of seconds to wait before retrying the
-        request, or None to indicate that the given exception should be
-        raised.
+        request, or ``None`` to indicate that the given exception
+        should be raised.
         """
         raise NotImplementedError  # pragma: no cover
 
