@@ -8,7 +8,7 @@ from uplink.retry import (
 )
 from uplink.retry._helpers import ClientExceptionProxy
 
-__all__ = ["retry", "RetryBackoff"]
+__all__ = ["retry"]
 
 
 # noinspection PyPep8Naming
@@ -87,8 +87,8 @@ class retry(decorators.MethodAnnotation):
         if backoff is None:
             backoff = backoff_mod.jittered()
 
-        if not isinstance(backoff, RetryBackoff):
-            backoff = _IterativeBackoff(backoff)
+        if not isinstance(backoff, backoff_mod.RetryBackoff):
+            backoff = _CustomIterableBackoff(backoff)
 
         self._when = when
         self._backoff = backoff
@@ -114,39 +114,16 @@ class retry(decorators.MethodAnnotation):
         )
 
 
-class RetryBackoff(object):
-    def after_response(self, request, response):
-        raise NotImplementedError
-
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
-        raise NotImplementedError
-
-    def after_stop(self):
-        pass
-
-
-class _IterativeBackoff(RetryBackoff):
+class _CustomIterableBackoff(backoff_mod.IterableBackoff):
     def __init__(self, iterator_func):
-        self._iterator_func = iterator_func
-        self._iterator = iterator_func()
+        super().__init__()
+        self.__iterator_func = iterator_func
 
-    def _next(self):
-        try:
-            return next(self._iterator)
-        except StopIteration:
-            return None
-
-    def after_response(self, request, response):
-        return self._next()
-
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
-        return self._next()
-
-    def after_stop(self):
-        self._iterator = self._iterator_func()
+    def __iter__(self):
+        return self.__iterator_func()
 
 
-class _RetryStrategy(RetryBackoff):
+class _RetryStrategy(backoff_mod.RetryBackoff):
     def __init__(self, condition, backoff, stop):
         self._condition = condition
         self._backoff = backoff
