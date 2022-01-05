@@ -144,7 +144,9 @@ class jittered(_IterableBackoff):
         self._exp_backoff = exponential(base, multiplier, minimum, maximum)
 
     def __iter__(self):
-        return (random.uniform(0, 1) * delay for delay in self._exp_backoff())
+        return (
+            random.uniform(0, 1) * delay for delay in self._exp_backoff()
+        )  # pragma: no branch
 
 
 class exponential(_IterableBackoff):
