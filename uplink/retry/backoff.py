@@ -130,16 +130,17 @@ class _IterableBackoff(RetryBackoff):
 
 
 class jittered(_IterableBackoff):
-    def __init__(self, base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
-        """
-        Waits using capped exponential backoff and full jitter.
+    """
+    Waits using capped exponential backoff and full jitter.
 
-        The implementation is discussed in `this AWS Architecture Blog
-        post <https://amzn.to/2xc2nK2>`_, which recommends this approach
-        for any remote clients, as it minimizes the total completion
-        time of competing clients in a distributed system experiencing
-        high contention.
-        """
+    The implementation is discussed in `this AWS Architecture Blog
+    post <https://amzn.to/2xc2nK2>`_, which recommends this approach
+    for any remote clients, as it minimizes the total completion
+    time of competing clients in a distributed system experiencing
+    high contention.
+    """
+
+    def __init__(self, base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
         self._exp_backoff = exponential(base, multiplier, minimum, maximum)
 
     def __iter__(self):
@@ -147,12 +148,13 @@ class jittered(_IterableBackoff):
 
 
 class exponential(_IterableBackoff):
+    """
+    Waits using capped exponential backoff, meaning that the delay
+    is multiplied by a constant ``base`` after each attempt, up to
+    an optional ``maximum`` value.
+    """
+
     def __init__(self, base=2, multiplier=1, minimum=0, maximum=MAX_VALUE):
-        """
-        Waits using capped exponential backoff, meaning that the delay
-        is multiplied by a constant ``base`` after each attempt, up to
-        an optional ``maximum`` value.
-        """
         self._base = base
         self._multiplier = multiplier
         self._minimum = minimum
@@ -168,8 +170,9 @@ class exponential(_IterableBackoff):
 
 
 class fixed(_IterableBackoff):
+    """Waits for a fixed number of ``seconds`` before each retry."""
+
     def __init__(self, seconds):
-        """Waits for a fixed number of ``seconds`` before each retry."""
         self._seconds = seconds
 
     def __iter__(self):
