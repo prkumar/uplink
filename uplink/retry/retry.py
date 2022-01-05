@@ -6,6 +6,7 @@ from uplink.retry import (
     stop as stop_mod,
     backoff as backoff_mod,
 )
+from uplink.retry.backoff import RetryBackoff, IterableBackoff
 from uplink.retry._helpers import ClientExceptionProxy
 
 __all__ = ["retry"]
@@ -53,9 +54,10 @@ class retry(decorators.MethodAnnotation):
             that should prompt a retry attempt.
         stop (:obj:`callable`, optional): A function that creates
             predicates that decide when to stop retrying a request.
-        backoff (:obj:`callable`, optional): A function that creates
-            an iterator over the ordered sequence of timeouts between
-            retries. If not specified, exponential backoff is used.
+        backoff (:class:`RetryBackoff`, :obj:`callable`, optional): A
+            backoff strategy or a function that creates an iterator
+            over the ordered sequence of timeouts between retries. If
+            not specified, exponential backoff is used.
     """
 
     _DEFAULT_PREDICATE = when_mod.raises(Exception)
@@ -114,7 +116,7 @@ class retry(decorators.MethodAnnotation):
         )
 
 
-class _CustomIterableBackoff(backoff_mod.IterableBackoff):
+class _CustomIterableBackoff(IterableBackoff):
     def __init__(self, iterator_func):
         super().__init__()
         self.__iterator_func = iterator_func
@@ -123,7 +125,7 @@ class _CustomIterableBackoff(backoff_mod.IterableBackoff):
         return self.__iterator_func()
 
 
-class _RetryStrategy(backoff_mod.RetryBackoff):
+class _RetryStrategy(RetryBackoff):
     def __init__(self, condition, backoff, stop):
         self._condition = condition
         self._backoff = backoff
