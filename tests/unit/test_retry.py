@@ -38,8 +38,8 @@ def test_fixed_backoff():
 def test_compose_backoff(mocker):
     left = backoff.from_iterable([0, 1])
     right = backoff.from_iterable([2])
-    left_after_stop = mocker.spy(left, "after_stop")
-    right_after_stop = mocker.spy(right, "after_stop")
+    mocker.spy(left, "after_stop")
+    mocker.spy(right, "after_stop")
     strategy = left | right
 
     # Should return None after both strategies are exhausted
@@ -51,8 +51,8 @@ def test_compose_backoff(mocker):
     # Should invoke both strategies after_stop method
     strategy.after_stop()
 
-    left_after_stop.assert_called_once()
-    right_after_stop.assert_called_once()
+    left.after_stop.assert_called_once_with()
+    right.after_stop.assert_called_once_with()
 
 
 def test_retry_stop_default():
