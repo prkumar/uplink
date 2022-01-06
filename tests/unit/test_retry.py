@@ -35,6 +35,26 @@ def test_fixed_backoff():
     assert next(iterator) == 10
 
 
+def test_compose_backoff(mocker):
+    left = backoff.from_iterable([0, 1])
+    right = backoff.from_iterable([2])
+    mocker.spy(left, "handle_after_final_retry")
+    mocker.spy(right, "handle_after_final_retry")
+    strategy = left | right
+
+    # Should return None after both strategies are exhausted
+    assert strategy.get_timeout_after_response(None, None) == 0
+    assert strategy.get_timeout_after_exception(None, None, None, None) == 1
+    assert strategy.get_timeout_after_response(None, None) == 2
+    assert strategy.get_timeout_after_exception(None, None, None, None) is None
+
+    # Should invoke both strategies after_stop method
+    strategy.handle_after_final_retry()
+
+    left.handle_after_final_retry.assert_called_once_with()
+    right.handle_after_final_retry.assert_called_once_with()
+
+
 def test_retry_stop_default():
     decorator = retry()
     assert stop.NEVER == decorator._stop
@@ -73,22 +93,6 @@ def test_stop_or():
 def test_stop_or_with_none():
     stop1 = stop.after_delay(2)
     assert stop1 is (stop1 | None)
-
-
-def test_retry_custom_stop():
-    def custom_stop(*_):
-        return True
-
-    decorator = retry(stop=custom_stop)
-    assert decorator._stop == custom_stop
-
-
-def test_retry_backoff():
-    def custom_backoff(*_):
-        return True
-
-    decorator = retry(backoff=custom_backoff)
-    assert decorator._backoff == custom_backoff
 
 
 def test_retry_decorator_exposes_submodules_as_properties():

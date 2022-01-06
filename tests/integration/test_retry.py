@@ -29,7 +29,9 @@ class GitHub(Consumer):
     def get_issue(self, user, repo, issue):
         pass
 
-    @retry(max_attempts=3, on_exception=retry.CONNECTION_TIMEOUT)
+    @retry(
+        stop=retry.stop.after_attempt(3), on_exception=retry.CONNECTION_TIMEOUT
+    )
     @get("repos/{user}/{repo}/project/{project}")
     def get_project(self, user, repo, project):
         pass

@@ -150,6 +150,23 @@ to specify one of the alternative approaches exposed through the
         def get_user(self, user):
             """Get user by username."""
 
+You can implement a custom backoff strategy by extending the class
+:class:`uplink.retry.RetryBackoff`:
+
+.. code-block:: python
+   :emphasize-lines: 3,7
+
+    from uplink.retry import RetryBackoff
+
+    class MyCustomBackoff(RetryBackoff):
+        ...
+
+    class GitHub(uplink.Consumer):
+        @uplink.retry(backoff=MyCustomBackoff())
+        @uplink.get("/users/{user}")
+        def get_user(self, user):
+            pass
+
 .. automodule:: uplink.retry.backoff
     :members:
 
