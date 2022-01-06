@@ -48,7 +48,7 @@ class RetryBackoff(object):
     return ``None``.
     """
 
-    def after_response(self, request, response):
+    def get_timeout_after_response(self, request, response):
         """
         Returns the number of seconds to wait before retrying the
         request, or ``None`` to indicate that the given response should
@@ -56,7 +56,7 @@ class RetryBackoff(object):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
+    def get_timeout_after_exception(self, request, exc_type, exc_val, exc_tb):
         """
         Returns the number of seconds to wait before retrying the
         request, or ``None`` to indicate that the given exception
@@ -64,7 +64,7 @@ class RetryBackoff(object):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def after_stop(self):
+    def handle_after_final_retry(self):
         """
         Handles any clean-up necessary following the final retry
         attempt.
@@ -84,23 +84,25 @@ class _Or(RetryBackoff):
         self._left = left
         self._right = right
 
-    def after_response(self, request, response):
-        delay = self._left.after_response(request, response)
-        if delay is None:
-            return self._right.after_response(request, response)
-        return delay
+    def get_timeout_after_response(self, request, response):
+        timeout = self._left.get_timeout_after_response(request, response)
+        if timeout is None:
+            return self._right.get_timeout_after_response(request, response)
+        return timeout
 
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
-        delay = self._left.after_exception(request, exc_type, exc_val, exc_tb)
-        if delay is None:
-            return self._right.after_exception(
+    def get_timeout_after_exception(self, request, exc_type, exc_val, exc_tb):
+        timeout = self._left.get_timeout_after_exception(
+            request, exc_type, exc_val, exc_tb
+        )
+        if timeout is None:
+            return self._right.get_timeout_after_exception(
                 request, exc_type, exc_val, exc_tb
             )
-        return delay
+        return timeout
 
-    def after_stop(self):
-        self._left.after_stop()
-        self._right.after_stop()
+    def handle_after_final_retry(self):
+        self._left.handle_after_final_retry()
+        self._right.handle_after_final_retry()
 
 
 class _IterableBackoff(RetryBackoff):
@@ -121,13 +123,13 @@ class _IterableBackoff(RetryBackoff):
         except StopIteration:
             return None
 
-    def after_response(self, request, response):
+    def get_timeout_after_response(self, request, response):
         return self.__next()
 
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
+    def get_timeout_after_exception(self, request, exc_type, exc_val, exc_tb):
         return self.__next()
 
-    def after_stop(self):
+    def handle_after_final_retry(self):
         self.__iterator = None
 
 

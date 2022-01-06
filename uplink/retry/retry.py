@@ -6,7 +6,6 @@ from uplink.retry import (
     stop as stop_mod,
     backoff as backoff_mod,
 )
-from uplink.retry.backoff import RetryBackoff
 from uplink.retry._helpers import ClientExceptionProxy
 
 __all__ = ["retry"]
@@ -107,69 +106,42 @@ class retry(decorators.MethodAnnotation):
     def modify_request(self, request_builder):
         request_builder.add_request_template(
             _RetryTemplate(
-                _RetryStrategy(
-                    self._when(request_builder),
-                    self._backoff,
-                    self._stop,
-                )
+                self._when(request_builder),
+                self._backoff,
+                self._stop,
             )
         )
 
 
-class _RetryStrategy(RetryBackoff):
+class _RetryTemplate(RequestTemplate):
     def __init__(self, condition, backoff, stop):
         self._condition = condition
         self._backoff = backoff
         self._stop = stop
         self._stop_iter = self._stop()
 
-    def _process_delay(self, delay):
+    def _process_timeout(self, timeout):
         next(self._stop_iter)
-        if self._stop_iter.send(delay):
+        if timeout is None or self._stop_iter.send(timeout):
+            self._backoff.handle_after_final_retry()
+            self._stop_iter = self._stop()
             return None
-        return delay
+        return transitions.sleep(timeout)
 
     def after_response(self, request, response):
         if not self._condition.should_retry_after_response(response):
-            return None
-
-        delay = self._backoff.after_response(request, response)
-        return self._process_delay(delay)
+            return self._process_timeout(None)
+        return self._process_timeout(
+            self._backoff.get_timeout_after_response(request, response)
+        )
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
         if not self._condition.should_retry_after_exception(
             exc_type, exc_val, exc_tb
         ):
-            return None
-
-        delay = self._backoff.after_exception(
-            request, exc_type, exc_val, exc_tb
+            return self._process_timeout(None)
+        return self._process_timeout(
+            self._backoff.get_timeout_after_exception(
+                request, exc_type, exc_val, exc_tb
+            )
         )
-        return self._process_delay(delay)
-
-    def after_stop(self):
-        self._backoff.after_stop()
-        self._stop_iter = self._stop()
-
-
-class _RetryTemplate(RequestTemplate):
-    def __init__(self, strategy):
-        self._strategy = strategy
-
-    def after_response(self, request, response):
-        delay = self._strategy.after_response(request, response)
-        if delay is None:
-            self._strategy.after_stop()
-            return
-
-        return transitions.sleep(delay)
-
-    def after_exception(self, request, exc_type, exc_val, exc_tb):
-        delay = self._strategy.after_exception(
-            request, exc_type, exc_val, exc_tb
-        )
-        if delay is None:
-            self._strategy.after_stop()
-            return
-
-        return transitions.sleep(delay)
