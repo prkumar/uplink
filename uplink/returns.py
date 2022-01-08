@@ -8,8 +8,6 @@ from uplink.converters import keys, interfaces
 
 __all__ = ["json", "from_json", "schema"]
 
-from uplink.utils import is_subclass
-
 
 class ReturnType(object):
     def __init__(self, decorator, type_):
@@ -93,9 +91,6 @@ class JsonStrategy(object):
         content = self._converter(content)
         return content
 
-    def unwrap(self):
-        return self._converter
-
 
 # noinspection PyPep8Naming
 class json(_ReturnsBase):
@@ -124,25 +119,34 @@ class json(_ReturnsBase):
             :emphasize-lines: 2
 
             {
-                "data": { "user": "prkumar", "id": 140232 },
+                "data": { "user": "prkumar", "id": "140232" },
                 "errors": []
             }
 
         If returning the list of errors is unnecessary, we can use the
-        :py:attr:`key` argument to strictly return the inner field
-        :py:attr:`data`:
+        :py:attr:`key` argument to strictly return the nested field
+        :py:attr:`data.id`:
 
         .. code-block:: python
 
-            @returns.json(key="data")
+            @returns.json(key=("data", "id"))
             @get("/users/{username}")
-            def get_user(self, username):
-                \"""Get a specific user.\"""
+            def get_user_id(self, username):
+                \"""Get a specific user's ID.\"""
+
+        We can also configure Uplink to convert the field before it's
+        returned by also specifying the``type`` argument:
+
+       .. code-block:: python
+
+            @returns.json(key=("data", "id"), type=int)
+            @get("/users/{username}")
+            def get_user_id(self, username):
+                \"""Get a specific user's ID.\"""
 
     .. versionadded:: v0.5.0
     """
 
-    _builtin_types = (dict, list, str, int, float)
     _can_be_static = True
 
     class _DummyConverter(interfaces.Converter):
@@ -158,7 +162,7 @@ class json(_ReturnsBase):
 
     __dummy_converter = _DummyConverter()
 
-    def __init__(self, type=None, key=(), cast=None, model=None, member=()):
+    def __init__(self, type=None, key=(), model=None, member=()):
         if model:  # pragma: no cover
             warnings.warn(
                 "The `model` argument of @returns.json is deprecated and will "
@@ -173,13 +177,6 @@ class json(_ReturnsBase):
             )
         self._type = type or model
         self._key = key or member
-        self._cast = cast
-
-        if self._cast and not callable(self._type):
-            raise ValueError(
-                "When the `cast` argument is True, the `type` argument is "
-                "expected to be callable."
-            )
 
     @property
     def return_type(self):
@@ -193,9 +190,8 @@ class json(_ReturnsBase):
         if converter:
             return converter
 
-        cast = self._get_cast(return_type)
-        if cast:
-            return self._CastConverter(cast)
+        if callable(return_type.type):
+            return self._CastConverter(return_type.type)
 
         # If the return_type cannot be converted, the strategy should directly
         # return the JSON body of the HTTP response, instead of trying to
@@ -204,14 +200,6 @@ class json(_ReturnsBase):
         # implements this pass-through behavior, we ensure that
         # _make_strategy is called.
         return self.__dummy_converter
-
-    def _get_cast(self, return_type):
-        if self._cast:
-            return return_type.type
-        if self._cast is None and is_subclass(
-            return_type.type, self._builtin_types
-        ):
-            return return_type.type
 
     def _make_strategy(self, converter):
         return JsonStrategy(converter, self._key)

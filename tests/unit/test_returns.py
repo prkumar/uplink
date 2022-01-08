@@ -1,6 +1,4 @@
 # Local imports
-import pytest
-
 from uplink import returns
 
 
@@ -21,9 +19,7 @@ def test_returns_with_multiple_decorators(request_builder, mocker):
     first_type = returns.ReturnType.with_decorator(None, decorator1)
     second_type = (
         request_builder.return_type
-    ) = returns.ReturnType.with_decorator(
-        first_type, decorator2
-    )
+    ) = returns.ReturnType.with_decorator(first_type, decorator2)
 
     # Verify that the return type doesn't change after being handled by first decorator
     decorator1.modify_request(request_builder)
@@ -101,15 +97,15 @@ class TestReturnsJsonCast(object):
         returns_json.modify_request(request_builder)
         return mock_response
 
-    def test_without_cast(self, request_builder, mocker):
-        mock_response = self.prepare_test(
-            request_builder, mocker, type=int, key="key", cast=False
-        )
+    def test_without_type(self, request_builder, mocker):
+        mock_response = self.prepare_test(request_builder, mocker, key="key")
         assert request_builder.return_type(mock_response) == "1"
 
-    def test_with_cast(self, request_builder, mocker):
+    def test_with_callable_type(self, request_builder, mocker):
         mock_response = self.prepare_test(
-            request_builder, mocker, type=lambda _: "test", cast=True
+            request_builder,
+            mocker,
+            type=lambda _: "test",
         )
         assert request_builder.return_type(mock_response) == "test"
 
@@ -126,8 +122,8 @@ class TestReturnsJsonCast(object):
         assert request_builder.return_type(mock_response) == 1
 
     def test_with_not_callable_cast(self, request_builder, mocker):
-        with pytest.raises(ValueError):
-            self.prepare_test(request_builder, mocker, type=1, cast=True)
+        mock_response = self.prepare_test(request_builder, mocker, type=1)
+        assert request_builder.return_type(mock_response) == self.default_value
 
 
 def test_returns_JsonStrategy(mocker):
@@ -138,5 +134,3 @@ def test_returns_JsonStrategy(mocker):
 
     converter = returns.JsonStrategy(lambda y: y + "!", "hello")
     assert converter(response) == "world!"
-
-    assert returns.JsonStrategy(1).unwrap() == 1
