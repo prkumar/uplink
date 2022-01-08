@@ -59,8 +59,30 @@ class GitHub(uplink.Consumer):
     def create_repo(self, user, repo):
         pass
 
+    @uplink.returns(object)
+    @uplink.get("/users")
+    def list_users(self):
+        pass
+
 
 # Tests
+
+
+def test_returns_response_when_type_has_no_converter(
+    mock_client, mock_response
+):
+    # Setup
+    mock_response.with_json({"id": 123, "name": "prkumar"})
+    mock_client.with_response(mock_response)
+    github = GitHub(
+        base_url=BASE_URL, client=mock_client, converters=user_reader
+    )
+
+    # Run
+    response = github.list_users()
+
+    # Verify
+    assert response == mock_response
 
 
 def test_returns_with_type(mock_client, mock_response):

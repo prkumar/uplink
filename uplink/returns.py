@@ -66,11 +66,13 @@ class _ReturnsBase(decorators.MethodAnnotation):
             return
 
         converter = self._get_converter(request_builder, return_type)
-        if converter is not None:
-            # Found a converter that can handle the return type.
-            request_builder.return_type = return_type.with_strategy(
-                self._make_strategy(converter)
-            )
+        if converter is None:
+            return
+
+        # Found a converter that can handle the return type.
+        request_builder.return_type = return_type.with_strategy(
+            self._make_strategy(converter)
+        )
 
 
 class JsonStrategy(object):
