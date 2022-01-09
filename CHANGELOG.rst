@@ -21,9 +21,10 @@ Changed
 
 Fixed
 -----
-- Fix ``@returns.json`` to cast JSON response (or field referenced by the ``key``
-  argument) when the ``type`` argument is callable. This effectively reverts a
-  change in the decorator's behavior that was introduced in v0.9.3. (`#215`_)
+- Fix ``@returns.json`` to cast the JSON response (or field referenced by the
+ `key`` argument) when the ``type`` argument is a callable. This effectively
+ reverts a change in the decorator's behavior that was introduced in v0.9.3.
+ (`#215`_)
 
 
 0.9.5_ - 2022-01-04
