@@ -19,6 +19,11 @@ try:
 except (ImportError, SyntaxError):
     aiohttp_ = None
 
+try:
+    import asyncio
+except (ImportError):
+    asyncio = None
+
 
 requires_python34 = pytest.mark.skipif(
     not aiohttp_, reason="Requires Python 3.4 or above"
@@ -33,6 +38,23 @@ def _patch(obj, attr, value):
     yield
     if obj is not None:
         setattr(obj, attr, old_value)
+
+
+class AsyncMock(object):
+    def __init__(self, result=None):
+        self._result = result
+        self._calls = 0
+
+    @asyncio.coroutine
+    def __call__(self, *args, **kwargs):
+        self._calls += 1
+        f = asyncio.Future()
+        f.set_result(self._result)
+        return f
+
+    @property
+    def called(self):
+        return self._calls > 0
 
 
 def test_get_default_client_with_non_callable():
@@ -225,8 +247,6 @@ class TestAiohttp(object):
     @requires_python34
     def test_request_send(self, mocker, aiohttp_session_mock):
         # Setup
-        import asyncio
-
         expected_response = mocker.Mock()
 
         @asyncio.coroutine
@@ -247,8 +267,6 @@ class TestAiohttp(object):
     @requires_python34
     def test_callback(self, mocker, aiohttp_session_mock):
         # Setup
-        import asyncio
-
         expected_response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
 
         @asyncio.coroutine
@@ -283,8 +301,6 @@ def call():
 
     @requires_python34
     def test_wrap_callback(self, mocker):
-        import asyncio
-
         # Setup
         c = AiohttpClient()
         mocker.spy(c, "_sync_callback_adapter")
@@ -304,14 +320,12 @@ def call():
 
     @requires_python34
     def test_threaded_callback(self, mocker):
-        import asyncio
-
         def callback(response):
             return response
 
         # Mock response.
         response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
-        response.text = mocker.AsyncMock()
+        response.text = AsyncMock()
 
         # Run
         new_callback = aiohttp_.threaded_callback(callback)
@@ -320,7 +334,7 @@ def call():
         value = loop.run_until_complete(asyncio.ensure_future(return_value))
 
         # Verify
-        response.text.assert_called_with()
+        assert response.text.called
         assert value == response
 
         # Run: Verify with callback that returns new value
@@ -343,9 +357,6 @@ def call():
 
     @requires_python34
     def test_threaded_coroutine(self):
-        # Setup
-        import asyncio
-
         @asyncio.coroutine
         def coroutine():
             return 1
@@ -360,9 +371,6 @@ def call():
 
     @requires_python34
     def test_threaded_response(self, mocker):
-        # Setup
-        import asyncio
-
         @asyncio.coroutine
         def coroutine():
             return 1
@@ -386,9 +394,6 @@ def call():
 
     @requires_python34
     def test_create(self, mocker):
-        # Setup
-        import asyncio
-
         session_cls_mock = mocker.patch("aiohttp.ClientSession")
         positionals = [1]
         keywords = {"keyword": 2}
@@ -409,7 +414,6 @@ def call():
     @requires_python34
     def test_close_auto_created_session(self, mocker):
         # Setup
-        import asyncio
         import gc
         import aiohttp
 
