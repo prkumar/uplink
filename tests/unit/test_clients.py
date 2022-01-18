@@ -24,6 +24,27 @@ try:
 except (ImportError):
     asyncio = None
 
+if asyncio:
+
+    class AsyncMock(object):
+        def __init__(self, result=None):
+            self._result = result
+            self._calls = 0
+
+        @asyncio.coroutine
+        def __call__(self, *args, **kwargs):
+            self._calls += 1
+            f = asyncio.Future()
+            f.set_result(self._result)
+            return f
+
+        @property
+        def called(self):
+            return self._calls > 0
+
+else:
+    AsyncMock = None
+
 
 requires_python34 = pytest.mark.skipif(
     not aiohttp_, reason="Requires Python 3.4 or above"
