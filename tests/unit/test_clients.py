@@ -61,23 +61,6 @@ def _patch(obj, attr, value):
         setattr(obj, attr, old_value)
 
 
-class AsyncMock(object):
-    def __init__(self, result=None):
-        self._result = result
-        self._calls = 0
-
-    @asyncio.coroutine
-    def __call__(self, *args, **kwargs):
-        self._calls += 1
-        f = asyncio.Future()
-        f.set_result(self._result)
-        return f
-
-    @property
-    def called(self):
-        return self._calls > 0
-
-
 def test_get_default_client_with_non_callable():
     # Setup
     old_default = register.get_default_client()
