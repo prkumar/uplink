@@ -311,7 +311,7 @@ def call():
 
         # Mock response.
         response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
-        response.text = asyncio.coroutine(mocker.stub())
+        response.text = mocker.AsyncMock()
 
         # Run
         new_callback = aiohttp_.threaded_callback(callback)
