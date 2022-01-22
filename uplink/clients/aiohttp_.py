@@ -19,14 +19,11 @@ from uplink.clients import exceptions, io, interfaces, register
 
 
 def threaded_callback(callback):
-    coroutine_callback = asyncio.coroutine(callback)
-
-    @asyncio.coroutine
-    def new_callback(response):
+    async def new_callback(response):
         if isinstance(response, aiohttp.ClientResponse):
-            yield from response.text()
+            await response.text()
             response = ThreadedResponse(response)
-        response = yield from coroutine_callback(response)
+        response = callback(response)
         if isinstance(response, ThreadedResponse):
             return response.unwrap()
         else:
@@ -68,6 +65,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         self._sync_callback_adapter = threaded_callback
 
     def __del__(self):
+        # TODO: Consider replacing this with a close method
         if self._auto_created_session:
             # aiohttp v3.0 has made ClientSession.close a coroutine,
             # so we check whether it is one here and register it
@@ -79,8 +77,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             else:
                 self._session.close()
 
-    @asyncio.coroutine
-    def session(self):
+    async def session(self):
         """Returns the underlying `aiohttp.ClientSession`."""
         if isinstance(self._session, self.__ARG_SPEC):
             args, kwargs = self._session
@@ -128,11 +125,10 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)
 
-    @asyncio.coroutine
-    def send(self, request):
+    async def send(self, request):
         method, url, extras = request
-        session = yield from self.session()
-        response = yield from session.request(method, url, **extras)
+        session = await self.session()
+        response = await session.request(method, url, **extras)
 
         # Make `aiohttp` response "quack" like a `requests` response
         response.status_code = response.status

@@ -5,7 +5,6 @@ import pytest_twisted
 # Local imports.
 from uplink import get, Consumer, retry
 from uplink.clients import io
-from tests import requires_python34
 
 # Constants
 BASE_URL = "https://api.github.com/"
@@ -123,30 +122,6 @@ def test_retry_with_status_501(mock_client, mock_response):
 
     # Verify
     assert len(mock_client.history) == 2
-
-
-@requires_python34
-def test_retry_with_asyncio(mock_client, mock_response):
-    import asyncio
-
-    @asyncio.coroutine
-    def coroutine():
-        return mock_response
-
-    # Setup
-    mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect([Exception, coroutine()])
-    mock_client.with_io(io.AsyncioStrategy())
-    github = GitHub(base_url=BASE_URL, client=mock_client)
-
-    # Run
-    awaitable = github.get_user("prkumar")
-    loop = asyncio.get_event_loop()
-    response = loop.run_until_complete(asyncio.ensure_future(awaitable))
-
-    # Verify
-    assert len(mock_client.history) == 2
-    assert response.json() == {"id": 123, "name": "prkumar"}
 
 
 @pytest_twisted.inlineCallbacks
