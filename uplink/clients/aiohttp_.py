@@ -19,13 +19,11 @@ from uplink.clients import exceptions, io, interfaces, register
 
 
 def threaded_callback(callback):
-    coroutine_callback = asyncio.coroutine(callback)
-
     async def new_callback(response):
         if isinstance(response, aiohttp.ClientResponse):
             await response.text()
             response = ThreadedResponse(response)
-        response = await coroutine_callback(response)
+        response = callback(response)
         if isinstance(response, ThreadedResponse):
             return response.unwrap()
         else:
@@ -67,6 +65,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         self._sync_callback_adapter = threaded_callback
 
     def __del__(self):
+        # TODO: Consider replacing this with a close method
         if self._auto_created_session:
             # aiohttp v3.0 has made ClientSession.close a coroutine,
             # so we check whether it is one here and register it

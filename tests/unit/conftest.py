@@ -1,5 +1,6 @@
 # Standard library imports
 import collections
+import sys
 
 # Third-party imports
 import pytest
@@ -7,6 +8,16 @@ import pytest
 # Local imports
 from uplink import clients, converters, hooks, interfaces, helpers
 from uplink.clients.exceptions import Exceptions
+
+
+collect_ignore = []
+if sys.version_info.major < 3:
+    collect_ignore.extend(
+        [
+            "unit/test_aiohttp_client.py",
+            "integration/test_retry_aiohttp.py",
+        ]
+    )
 
 
 @pytest.fixture
