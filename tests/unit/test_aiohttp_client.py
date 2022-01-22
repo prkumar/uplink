@@ -3,6 +3,7 @@ import contextlib
 
 # Third-party imports
 import aiohttp
+import asyncio
 import pytest
 
 # Local imports
@@ -27,6 +28,22 @@ def _patch(obj, attr, value):
 @pytest.fixture
 def aiohttp_session_mock(mocker):
     return mocker.Mock(spec=aiohttp.ClientSession)
+
+
+class AsyncMock(object):
+    def __init__(self, result=None):
+        self._result = result
+        self._calls = 0
+
+    async def __call__(self, *args, **kwargs):
+        self._calls += 1
+        f = asyncio.Future()
+        f.set_result(self._result)
+        return f
+
+    @property
+    def called(self):
+        return self._calls > 0
 
 
 class TestAiohttp(object):
@@ -65,6 +82,7 @@ class TestAiohttp(object):
     async def test_callback(self, mocker, aiohttp_session_mock):
         # Setup
         expected_response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
+        expected_response.text = AsyncMock()
 
         async def request(*args, **kwargs):
             return expected_response
@@ -82,6 +100,7 @@ class TestAiohttp(object):
 
         # Verify
         assert value == 2
+        assert expected_response.text.called
 
     def test_wrap_callback(self, mocker):
         # Setup
@@ -110,7 +129,7 @@ class TestAiohttp(object):
 
         # Mock response.
         response = mocker.Mock(spec=aiohttp_.aiohttp.ClientResponse)
-        response.text = mocker.AsyncMock()
+        response.text = AsyncMock()
 
         # Run
         new_callback = aiohttp_.threaded_callback(callback)
