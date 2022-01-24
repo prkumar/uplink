@@ -119,7 +119,7 @@ Extra! Extra!
 -------------
 
 Further, uplink has optional integrations and features. You can view a full list
-of available extras `here <http://uplink.readthedocs.io/en/latest/install.html#extras>`_.
+of available extras `here <https://uplink.readthedocs.io/en/latest/user/install.html#extras>`_.
 
 When installing Uplink with ``pip``, you can select extras using the format:
 
