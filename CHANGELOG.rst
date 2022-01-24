@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
-Unreleased
-==========
+0.9.6_ - 2022-01-24
+===================
 Added
 -----
 - Add a new base class, ``uplink.retry.RetryBackoff``, which can be extended to
@@ -21,10 +21,11 @@ Changed
 
 Fixed
 -----
-- Fix ``@returns.json`` to cast the JSON response (or field referenced by the
-  ``key`` argument) using the ``type`` argument when it is a callable type.
-  This effectively reverts a change in the decorator's behavior that was
-  introduced in v0.9.3. (`#215`_)
+- Fix ``@returns.json`` to cast JSON response (or field referenced by the ``key``
+  argument) using the ``type`` argument when the given type is callable. This
+  restores behavior that was inadvertently changed in v0.9.3. (`#215`_)
+- Remove all usages of ``asyncio.coroutine`` in the library code to fix warnings
+  related to the function's deprecation in Python 3.8+. (`#203`_)
 
 
 0.9.5_ - 2022-01-04
@@ -377,6 +378,7 @@ Added
 .. _pydantic: https://pydantic-docs.helpmanual.io/
 
 .. Releases
+.. _0.9.6: https://github.com/prkumar/uplink/compare/v0.9.5...v0.9.6
 .. _0.9.5: https://github.com/prkumar/uplink/compare/v0.9.4...v0.9.5
 .. _0.9.4: https://github.com/prkumar/uplink/compare/v0.9.3...v0.9.4
 .. _0.9.3: https://github.com/prkumar/uplink/compare/v0.9.2...v0.9.3
@@ -423,6 +425,7 @@ Added
 .. _#188: https://github.com/prkumar/uplink/pull/188
 .. _#198: https://github.com/prkumar/uplink/pull/198
 .. _#200: https://github.com/prkumar/uplink/pull/200
+.. _#203: https://github.com/prkumar/uplink/issues/203
 .. _#204: https://github.com/prkumar/uplink/pull/204
 .. _#207: https://github.com/prkumar/uplink/pull/207
 .. _#209: https://github.com/prkumar/uplink/pull/209
