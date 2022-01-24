@@ -6,6 +6,27 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+Unreleased
+==========
+Added
+-----
+- Add a new base class, ``uplink.retry.RetryBackoff``, which can be extended to
+  implement custom backoff strategies. An instance of a ``RetryBackoff`` subclass
+  can be provided through the ``backoff`` argument of the ``@retry`` decorator.
+  (`#238`_)
+
+Changed
+-------
+- Bump minimum version of ``six`` to ``1.13.0``. (`#246`_)
+
+Fixed
+-----
+- Fix ``@returns.json`` to cast the JSON response (or field referenced by the
+  ``key`` argument) using the ``type`` argument when it is a callable type.
+  This effectively reverts a change in the decorator's behavior that was
+  introduced in v0.9.3. (`#215`_)
+
+
 0.9.5_ - 2022-01-04
 ====================
 Added
@@ -405,9 +426,12 @@ Added
 .. _#204: https://github.com/prkumar/uplink/pull/204
 .. _#207: https://github.com/prkumar/uplink/pull/207
 .. _#209: https://github.com/prkumar/uplink/pull/209
+.. _#215: https://github.com/prkumar/uplink/issues/215
 .. _#217: https://github.com/prkumar/uplink/issues/217
 .. _#221: https://github.com/prkumar/uplink/issues/221
 .. _#237: https://github.com/prkumar/uplink/discussions/237
+.. _#238: https://github.com/prkumar/uplink/issues/238
+.. _#246: https://github.com/prkumar/uplink/issues/246
 
 .. Commits
 .. _3653a672ee: https://github.com/prkumar/uplink/commit/3653a672ee0703119720d0077bb450649af5459c
