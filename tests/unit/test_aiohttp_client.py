@@ -148,6 +148,15 @@ class TestAiohttp(object):
         assert value == 1
         assert response.text.called
 
+        # Run: Asynchronous callback
+        async def callback(*_):
+            return 2
+
+        new_callback = aiohttp_.threaded_callback(callback)
+        value = await new_callback(response)
+        assert value == 2
+        assert response.text.called
+
         # Run: Verify with response that is not ClientResponse (should not be wrapped)
         response = mocker.Mock()
         await new_callback(response)

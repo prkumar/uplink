@@ -24,6 +24,8 @@ def threaded_callback(callback):
             await response.text()
             response = ThreadedResponse(response)
         response = callback(response)
+        if asyncio.iscoroutine(response):
+            response = await response
         if isinstance(response, ThreadedResponse):
             return response.unwrap()
         else:
