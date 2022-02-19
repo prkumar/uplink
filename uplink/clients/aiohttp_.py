@@ -5,6 +5,7 @@ that returns awaitable responses.
 # Standard library imports
 import asyncio
 import collections
+import inspect
 import threading
 from concurrent import futures
 
@@ -86,7 +87,8 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         return self._session
 
     def wrap_callback(self, callback):
-        if not asyncio.iscoroutinefunction(callback):
+        func = inspect.unwrap(callback)
+        if not asyncio.iscoroutinefunction(func):
             callback = self._sync_callback_adapter(callback)
         return callback
 

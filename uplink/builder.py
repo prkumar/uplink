@@ -41,7 +41,11 @@ class RequestPreparer(object):
         return chain
 
     def _wrap_hook(self, func):
-        return functools.partial(func, self._consumer)
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(self._consumer, *args, **kwargs)
+
+        return wrapper
 
     def apply_hooks(self, execution_builder, chain):
         # TODO:
