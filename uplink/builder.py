@@ -242,10 +242,9 @@ class ConsumerMeta(type):
                 init(self, *args, **kwargs)
                 call_args = utils.get_call_args(init, self, *args, **kwargs)
 
-                @functools.wraps(handler.handle_call_args)
                 def f(*args, **kwargs):
                     return handler.handle_call_args(
-                        *args, **kwargs, call_args=call_args
+                        *args, call_args=call_args, **kwargs
                     )
 
                 hook = hooks_.RequestAuditor(f)
