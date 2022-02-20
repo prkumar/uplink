@@ -8,6 +8,7 @@ from uplink.clients.aiohttp_ import AiohttpClient
 
 # Constants
 BASE_URL = "https://example.com/"
+SIMPLE_RESPONSE = "simple response"
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def mock_aiohttp_session(mocker):
 
 @uplink.response_handler
 async def simple_async_handler(response):
-    return response
+    return SIMPLE_RESPONSE
 
 
 class Calendar(uplink.Consumer):
@@ -44,4 +45,4 @@ async def test_simple_async_handler(mock_aiohttp_session, mock_response):
     response = await calendar.get_todo(todo_id=1)
 
     # Verify
-    assert response == mock_response
+    assert response == SIMPLE_RESPONSE
