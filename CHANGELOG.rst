@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
+Unreleased
+==========
+Fixed
+-----
+- Fix behavior of async ``@response_handler`` with ``AiohttpClient``. (`#256`_)
+
 0.9.6_ - 2022-01-24
 ===================
 Added
