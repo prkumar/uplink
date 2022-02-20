@@ -7,6 +7,7 @@ from uplink import (
     arguments,
     auth as auth_,
     clients,
+    compat,
     converters as converters_,
     exceptions,
     helpers,
@@ -41,7 +42,11 @@ class RequestPreparer(object):
         return chain
 
     def _wrap_hook(self, func):
-        return functools.partial(func, self._consumer)
+        @compat.wraps(func)
+        def wrapper(*args, **kwargs):
+            return func(self._consumer, *args, **kwargs)
+
+        return wrapper
 
     def apply_hooks(self, execution_builder, chain):
         # TODO:
