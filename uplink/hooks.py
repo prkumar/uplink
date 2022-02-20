@@ -2,9 +2,6 @@
 This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
-# Standard library imports
-import functools
-
 # Local imports
 from uplink import compat
 
@@ -18,7 +15,7 @@ def _wrap_if_necessary(hook, requires_consumer):
 
 
 def _wrap_to_ignore_consumer(hook):
-    @functools.wraps(hook)
+    @compat.wraps(hook)
     def wrapper(_, *args, **kwargs):
         # Expects that consumer is the first argument
         return hook(*args, **kwargs)
