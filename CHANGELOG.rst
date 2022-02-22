@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file.
 The format is based on `Keep a Changelog`_, and this project adheres to the
 `Semantic Versioning`_ scheme.
 
-Unreleased
-==========
+0.9.7_ - 2022-02-22
+===================
 Fixed
 -----
 - Fix behavior of async ``@response_handler`` with ``AiohttpClient``. (`#256`_)
@@ -384,6 +384,7 @@ Added
 .. _pydantic: https://pydantic-docs.helpmanual.io/
 
 .. Releases
+.. _0.9.7: https://github.com/prkumar/uplink/compare/v0.9.6...v0.9.7
 .. _0.9.6: https://github.com/prkumar/uplink/compare/v0.9.5...v0.9.6
 .. _0.9.5: https://github.com/prkumar/uplink/compare/v0.9.4...v0.9.5
 .. _0.9.4: https://github.com/prkumar/uplink/compare/v0.9.3...v0.9.4
@@ -441,6 +442,7 @@ Added
 .. _#237: https://github.com/prkumar/uplink/discussions/237
 .. _#238: https://github.com/prkumar/uplink/issues/238
 .. _#246: https://github.com/prkumar/uplink/issues/246
+.. _#256: https://github.com/prkumar/uplink/issues/256
 
 .. Commits
 .. _3653a672ee: https://github.com/prkumar/uplink/commit/3653a672ee0703119720d0077bb450649af5459c
