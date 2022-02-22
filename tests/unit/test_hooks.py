@@ -16,7 +16,7 @@ class TestResponseHandler(object):
 
 class TestRequestAuditor(object):
     def test_audit_request(self, mocker):
-        auditor = mocker.stub()
+        auditor = mocker.Mock()
         ra = hooks.RequestAuditor(auditor)
         ra.audit_request("consumer", "request")
         auditor.assert_called_with("request")
@@ -24,7 +24,7 @@ class TestRequestAuditor(object):
 
 class TestExceptionHandler(object):
     def test_handle_exception_masked(self, mocker):
-        handler = mocker.stub()
+        handler = mocker.Mock()
         eh = hooks.ExceptionHandler(handler)
         eh.handle_exception("consumer", "exc_type", "exc_val", "exc_tb")
         handler.assert_called_with("exc_type", "exc_val", "exc_tb")
@@ -45,8 +45,8 @@ class TestTransactionHookChain(object):
 
     def test_delegate_handle_response_multiple(self, mocker):
         # Include one hook that can't handle responses
-        mock_response_handler = mocker.stub()
-        mock_request_auditor = mocker.stub()
+        mock_response_handler = mocker.Mock()
+        mock_request_auditor = mocker.Mock()
 
         chain = hooks.TransactionHookChain(
             hooks.RequestAuditor(mock_request_auditor),
