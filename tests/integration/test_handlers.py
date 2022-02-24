@@ -61,6 +61,24 @@ class Calendar(uplink.Consumer):
         pass
 
 
+@handle_response
+class CalendarV2(uplink.Consumer):
+    @uplink.get("todos/{todo_id}")
+    def get_todo(self, todo_id):
+        pass
+
+
+def test_class_response_handler(mock_client):
+    calendar = CalendarV2(base_url=BASE_URL, client=mock_client)
+    calendar.flagged = False
+
+    # Run
+    response = calendar.get_todo(todo_id=1)
+
+    # Verify
+    assert response.flagged is True
+
+
 def test_response_handler_with_consumer(mock_client):
     calendar = Calendar(base_url=BASE_URL, client=mock_client)
     calendar.flagged = False
