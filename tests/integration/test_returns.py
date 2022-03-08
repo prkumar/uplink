@@ -70,7 +70,27 @@ class GitHub(uplink.Consumer):
         pass
 
 
+@uplink.returns.json
+class GitHubV2(uplink.Consumer):
+    @uplink.get("/users/{user}/repos/{repo}")
+    def get_repo(self, user, repo):
+        pass
+
+
 # Tests
+def test_returns_json_on_class(mock_client, mock_response):
+    # Setup
+    mock_response.with_json({"owner": "prkumar", "name": "uplink"})
+    mock_client.with_response(mock_response)
+    github = GitHubV2(
+        base_url=BASE_URL, client=mock_client, converters=repo_json_reader
+    )
+
+    # Run
+    repo = github.get_repo("prkumar", "uplink")
+
+    # Verify
+    assert repo == {"owner": "prkumar", "name": "uplink"}
 
 
 def test_returns_response_when_type_has_no_converter(

@@ -17,8 +17,11 @@ class GitHubService(uplink.Consumer):
         """List all public repositories for a specific user."""
 
     @uplink.returns.json
-    @uplink.get("/users/{user}/repos/{repo}")
-    def get_repo(self, user, repo):
+    @uplink.get(
+        "/users/{user}/repos/{repo}",
+        args={"token": uplink.Header("Authorization")},
+    )
+    def get_repo(self, user, repo, token):
         pass
 
     @uplink.get(args={"url": uplink.Url})
@@ -64,10 +67,11 @@ def test_get_repo(mock_client, mock_response):
     github = GitHubService(base_url=BASE_URL, client=mock_client)
 
     # Run
-    actual_json = github.get_repo("prkumar", "uplink")
+    actual_json = github.get_repo("prkumar", "uplink", "Bearer token")
 
     # Verify
     assert expected_json == actual_json
+    assert mock_client.history[0].headers["Authorization"] == "Bearer token"
 
 
 def test_forward(mock_client):

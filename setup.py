@@ -36,6 +36,9 @@ metadata = {
     "author": "P. Raj Kumar",
     "author_email": "raj.pritvi.kumar@gmail.com",
     "url": "https://uplink.readthedocs.io/",
+    "project_urls": {
+        "Source": "https://github.com/prkumar/uplink",
+    },
     "license": "MIT",
     "description": "A Declarative HTTP Client for Python.",
     "long_description": read("README.rst"),

@@ -15,6 +15,7 @@ def _wrap_if_necessary(hook, requires_consumer):
 
 
 def _wrap_to_ignore_consumer(hook):
+    @compat.wraps(hook)
     def wrapper(_, *args, **kwargs):
         # Expects that consumer is the first argument
         return hook(*args, **kwargs)
