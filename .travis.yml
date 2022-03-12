@@ -19,6 +19,7 @@ after_success:
   - codecov
 before_deploy:
   - python verify_tag.py --tag $TRAVIS_TAG
+  - pip install setuptools -U
 deploy:
   provider: pypi
   user: prkumar
