@@ -1,5 +1,4 @@
 language: python
-dist: bionic  # Ubuntu 18.04
 python:
   - '2.7'
   - '3.5'
@@ -7,7 +6,7 @@ python:
   - '3.7'
   - '3.8'
   - '3.9'
-  - '3.10.1'
+  - '3.10'
 before_script:
   - pip install tox
   - if [[ $TRAVIS_PYTHON_VERSION == 3.6 ]]; then pip install flake8 flake8-bugbear; fi
@@ -19,8 +18,6 @@ after_success:
   - codecov
 before_deploy:
   - python verify_tag.py --tag $TRAVIS_TAG
-  - pip cache remove setuptools
-  - pip install setuptools==60.8.2
 deploy:
   provider: pypi
   user: prkumar
