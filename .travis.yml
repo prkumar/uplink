@@ -19,6 +19,7 @@ after_success:
   - codecov
 before_deploy:
   - python verify_tag.py --tag $TRAVIS_TAG
+  - pip cache remove setuptools
   - pip install setuptools==60.8.2
 deploy:
   provider: pypi
