@@ -1,4 +1,5 @@
 # GitHub API Example
+
 By: Kareem Moussa ([@itstehkman](https://github.com/itstehkman))
 
 ---
@@ -11,12 +12,14 @@ To try this out, first fill out keys.sh with your github api client id and clien
 you can use the API.
 
 Then run
+
 ```
 source keys.sh
 python3 Server.py
 ```
 
 These are the endpoints I've written:
+
 ```
 Get a list of users who have committed in repos matching the keyword since oldest-age weeks ago
 /users?keyword=<keyword>[?oldest-age=<age in weeks>]
@@ -29,6 +32,7 @@ Get a list of repos matching the keyword
 ```
 
 I've written a quick test script to try out all the endpoints:
+
 ```
 python3 Tests.py
 ```
