@@ -5,6 +5,11 @@ converter layer to identify the desired conversion type when querying a
 """
 # Standard library imports
 import functools
+try:
+    from enum import Enum
+except ImportError:
+    # Enum is added on version 3.4
+    Enum = type(None)
 
 # Local imports
 
@@ -86,6 +91,8 @@ class Sequence(CompositeKey):
     def convert(self, converter, value):
         if isinstance(value, (list, tuple)):
             return list(map(converter, value))
+        elif isinstance(value, Enum) and hasattr(value, 'value'):
+            return value.value
         else:
             return converter(value)
 
