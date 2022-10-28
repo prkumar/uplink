@@ -7,7 +7,7 @@ converter layer to identify the desired conversion type when querying a
 import functools
 try:
     from enum import Enum
-except ImportError:
+except ImportError:  # pragma: no cover
     # Enum is added on version 3.4
     Enum = type(None)
 
