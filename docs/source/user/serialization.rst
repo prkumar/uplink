@@ -378,7 +378,7 @@ titled "home":
       },
       {
          "id": 4140
-         "title": "Laundry"
+         "name": "Laundry"
          "due_date": "Monday, September 3, 2018 2:00:00 PM PST"
       }
   ]
