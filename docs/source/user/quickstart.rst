@@ -517,7 +517,7 @@ prompt a retry attempt, use the ``on_exception`` argument:
          """Get user by username."""
 
 Further, as long as the expected exception is thrown, the decorator will
-repeatedly retry until a response is rendered. If you'd like to seize
+repeatedly retry until a response is rendered. If you'd like to cease
 retrying after a specific number of attempts, use the ``max_attempts``
 argument:
 
