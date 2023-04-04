@@ -347,6 +347,30 @@ class TestSequence(object):
         # Verify
         assert value == "1"
 
+    def test_convert_enum(self):
+        try:
+            from enum import Enum
+
+            class OptionType(Enum):
+                OP1 = "FirstOp"
+                OP2 = "SecondOp"
+                OP3 = "ThirdOp"
+
+            # Setup
+            registry = converters.ConverterFactoryRegistry(
+                (converters.StandardConverter(),)
+            )
+            key = converters.keys.Sequence(converters.keys.CONVERT_TO_STRING)
+
+            # Run
+            converter = registry[key](None)
+            value = converter(OptionType.OP1)
+
+            # Verify
+            assert value == "FirstOp"
+        except ImportError:
+            pass
+
     def test_eq(self):
         assert converters.keys.Sequence(0) == converters.keys.Sequence(0)
         assert not (converters.keys.Sequence(1) == converters.keys.Sequence(0))
