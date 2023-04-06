@@ -1,14 +1,14 @@
 repos:
--   repo: https://github.com/ambv/black
+  - repo: https://github.com/ambv/black
     rev: 21.12b0
     hooks:
-    - id: black
-      python-version: python3.8
-      files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
--   repo: https://github.com/pycqa/flake8
-    rev: '4.0.1'
+      - id: black
+        python-version: python3.8
+        files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
+  - repo: https://github.com/pycqa/flake8
+    rev: "4.0.1"
     hooks:
-    - id: flake8
-      name: flake8
-      python-version: python3.8
-      files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
+      - id: flake8
+        name: flake8
+        python-version: python3.8
+        files: ^((uplink|examples|tests)\/.+|setup|docs\/conf)\.py$
