@@ -1,6 +1,9 @@
 ---
 name: Question
 about: Pose an inquiry
+title: "[QUESTION]: "
+labels: Needs Maintainer Input, Question
+assignees: prkumar
 
 ---
 
