@@ -84,7 +84,7 @@ Features
 
 Uplink officially supports Python 2.7 and 3.5+.
 
-**Note:** Python 2.7 suport will be removed in v0.10.0.
+**Note:** Python 2.7 support will be removed in v0.10.0.
 
 .. |marshmallow| replace:: ``marshmallow``
 .. |pydantic| replace:: ``pydantic``
