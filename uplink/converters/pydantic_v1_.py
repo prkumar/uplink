@@ -7,6 +7,16 @@ from uplink.converters import register_default_converter_factory
 from uplink.converters.interfaces import Factory, Converter
 from uplink.utils import is_subclass
 
+try:
+    from pydantic.version import VERSION
+    if not VERSION.startswith('1.'):
+        pydantic = None
+    else:
+        import pydantic
+
+except ImportError:  # pragma: no cover
+    pydantic = None
+
 
 def _encode_pydantic(obj):
     from pydantic.json import pydantic_encoder
@@ -72,11 +82,7 @@ class PydanticConverter(Factory):
 
             $ pip install uplink[pydantic]
     """
-
-    try:
-        import pydantic
-    except ImportError:  # pragma: no cover
-        pydantic = None
+    pydantic = pydantic
 
     def __init__(self):
         """

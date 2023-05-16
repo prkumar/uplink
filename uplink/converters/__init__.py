@@ -13,7 +13,7 @@ from uplink.converters.register import (
 # fmt: off
 from uplink.converters.standard import StandardConverter
 from uplink.converters.marshmallow_ import MarshmallowConverter
-from uplink.converters.pydantic_ import PydanticConverter
+from uplink.converters.pydantic_v1_ import PydanticConverter
 from uplink.converters.typing_ import TypingConverter
 # fmt: on
 
