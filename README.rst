@@ -70,7 +70,7 @@ Features
 - **Easy and Transparent Deserialization/Serialization**
 
   - Define `custom converters`_ for your own objects
-  - Support for |marshmallow|_ schemas, |pydantic|_ models, and `handling collections`_ (e.g., list of Users)
+  - Support for |marshmallow|_ schemas, |pydantic|_ models (Pydantic v2 is not supported for now), and `handling collections`_ (e.g., list of Users)
 
 - **Extendable**
 
