@@ -19,7 +19,7 @@ install_requires = ["requests>=2.18.0", "six>=1.13.0", "uritemplate>=3.0.0"]
 
 extras_require = {
     "marshmallow": ["marshmallow>=2.15.0"],
-    "pydantic:python_version >= '3.6'": ["pydantic>=1.6.1"],
+    "pydantic:python_version >= '3.6'": ["pydantic>=1.6.1,<2"],
     "aiohttp:python_version <= '3.4'": [],
     "aiohttp:python_version >= '3.4'": "aiohttp>=2.3.0",
     "twisted:python_version != '3.3' and python_version != '3.4'": "twisted>=17.1.0",
