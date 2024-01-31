@@ -6,7 +6,7 @@ import sys
 import marshmallow
 
 try:
-    import pydantic.v1 as pydantic
+    import pydantic
 except ImportError:
     if sys.version_info >= (3, 6):
         raise
@@ -26,7 +26,7 @@ class TestStringConverter(object):
 
 class TestStandardConverter(object):
     def test_create_response_body_converter_with_converter(
-        self, converter_mock
+            self, converter_mock
     ):
         # Setup
         factory = standard.StandardConverter()
@@ -83,7 +83,7 @@ class TestConverterFactoryRegistry(object):
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
     def test_init_args_are_passed_to_factory(
-        self, converter_factory_mock, converter_mock
+            self, converter_factory_mock, converter_mock
     ):
         args = ("arg1", "arg2")
         kwargs = {"arg3": "arg3"}
@@ -178,7 +178,7 @@ class TestMarshmallowConverter(object):
 
     @for_marshmallow_2_and_3
     def test_create_request_body_converter(
-        self, mocker, schema_mock_and_argument, is_marshmallow_3
+            self, mocker, schema_mock_and_argument, is_marshmallow_3
     ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
@@ -210,7 +210,7 @@ class TestMarshmallowConverter(object):
 
     @for_marshmallow_2_and_3
     def test_create_response_body_converter(
-        self, mocker, schema_mock_and_argument, is_marshmallow_3
+            self, mocker, schema_mock_and_argument, is_marshmallow_3
     ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
@@ -242,7 +242,7 @@ class TestMarshmallowConverter(object):
             c.convert(data)
 
     def test_create_response_body_converter_with_unsupported_response(
-        self, schema_mock_and_argument
+            self, schema_mock_and_argument
     ):
         # Setup
         schema_mock, argument = schema_mock_and_argument
@@ -474,15 +474,6 @@ class TestTypingConverter(object):
     sys.version_info < (3, 6), reason="requires python3.6 or higher"
 )
 class TestPydanticConverter(object):
-    @pytest.fixture
-    def pydantic_model_mock(self, mocker):
-        class Model(pydantic.BaseModel):
-            def __new__(cls, *args, **kwargs):
-                return model
-
-        model = mocker.Mock(spec=Model)
-        return model, Model
-
     def test_init_without_pydantic(self, mocker):
         mocker.patch.object(
             converters.PydanticConverter,
@@ -494,30 +485,29 @@ class TestPydanticConverter(object):
         with pytest.raises(ImportError):
             converters.PydanticConverter()
 
-    def test_create_request_body_converter(self, pydantic_model_mock):
+    def test_create_request_body_converter(self):
+        class Model(pydantic.BaseModel):
+            id: int = 0
+
         expected_result = {"id": 0}
+
         request_body = {}
 
-        model_mock, model = pydantic_model_mock
-        model_mock.dict.return_value = expected_result
-
         converter = converters.PydanticConverter()
-        request_converter = converter.create_request_body_converter(model)
+        request_converter = converter.create_request_body_converter(Model)
 
         result = request_converter.convert(request_body)
 
         assert result == expected_result
-        model_mock.dict.assert_called_once()
-        model_mock.dict.assert_called_once()
 
     def test_convert_complex_model(self):
         from json import loads
         from datetime import datetime
 
         class ComplexModel(pydantic.BaseModel):
-            when = datetime.utcnow()  # type: datetime
-            where = "http://example.com"  # type: pydantic.AnyUrl
-            some = [1]  # type: typing.List[int]
+            when: datetime = datetime.utcnow()
+            where: pydantic.AnyUrl = "http://example.com"
+            some: list[int] = [1]
 
         model = ComplexModel()
         request_body = {}
@@ -532,23 +522,20 @@ class TestPydanticConverter(object):
 
         assert result == expected_result
 
-    def test_create_request_body_converter_with_original_model(
-        self, pydantic_model_mock
-    ):
+    def test_create_request_body_converter_with_original_model(self):
         expected_result = {"id": 0}
 
-        model_mock, model = pydantic_model_mock
-        model_mock.dict.return_value = expected_result
+        class Model(pydantic.BaseModel):
+            id: int = 0
 
-        request_body = model()
+        request_body = Model()
 
         converter = converters.PydanticConverter()
-        request_converter = converter.create_request_body_converter(model)
+        request_converter = converter.create_request_body_converter(Model)
 
         result = request_converter.convert(request_body)
 
         assert result == expected_result
-        model_mock.dict.assert_called_once()
 
     def test_create_request_body_converter_without_schema(self, mocker):
         expected_result = None
@@ -558,43 +545,36 @@ class TestPydanticConverter(object):
 
         assert result is expected_result
 
-    def test_create_response_body_converter(self, mocker, pydantic_model_mock):
-        expected_result = "data"
-        model_mock, model = pydantic_model_mock
+    def test_create_response_body_converter(self, mocker):
+        class Model(pydantic.BaseModel):
+            id: int
 
-        parse_obj_mock = mocker.patch.object(
-            model, "parse_obj", return_value=expected_result
-        )
+        expected_result = Model(id=1)
 
         response = mocker.Mock(spec=["json"])
-        response.json.return_value = {}
+        response.json.return_value = {"id": 1}
 
         converter = converters.PydanticConverter()
-        c = converter.create_response_body_converter(model)
+        c = converter.create_response_body_converter(Model)
 
         result = c.convert(response)
 
         response.json.assert_called_once()
-        parse_obj_mock.assert_called_once_with(response.json())
         assert result == expected_result
 
     def test_create_response_body_converter_invalid_response(
-        self, mocker, pydantic_model_mock
+            self, mocker
     ):
-        data = {"quick": "fox"}
-        _, model = pydantic_model_mock
+        data = {"id": "qwe"}  # Not int
 
-        parse_obj_mock = mocker.patch.object(
-            model, "parse_obj", side_effect=pydantic.ValidationError([], model)
-        )
+        class Model(pydantic.BaseModel):
+            id: int
 
         converter = converters.PydanticConverter()
-        c = converter.create_response_body_converter(model)
+        c = converter.create_response_body_converter(Model)
 
         with pytest.raises(pydantic.ValidationError):
             c.convert(data)
-
-        parse_obj_mock.assert_called_once_with(data)
 
     def test_create_response_body_converter_without_schema(self):
         expected_result = None
@@ -604,12 +584,15 @@ class TestPydanticConverter(object):
 
         assert result is expected_result
 
-    def test_create_string_converter(self, pydantic_model_mock):
+    def test_create_string_converter(self):
         expected_result = None
-        _, model = pydantic_model_mock
+
+        class Model(pydantic.BaseModel):
+            id: int
+
         converter = converters.PydanticConverter()
 
-        c = converter.create_string_converter(model, None)
+        c = converter.create_string_converter(Model, None)
 
         assert c is expected_result
 
