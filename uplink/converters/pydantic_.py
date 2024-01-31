@@ -9,7 +9,7 @@ from uplink.utils import is_subclass
 
 
 def _encode_pydantic(obj):
-    from pydantic.json import pydantic_encoder
+    from pydantic_core import to_jsonable_python
 
     # json atoms
     if isinstance(obj, (str, int, float, bool)) or obj is None:
@@ -22,7 +22,7 @@ def _encode_pydantic(obj):
         return [_encode_pydantic(i) for i in obj]
 
     # pydantic types
-    return _encode_pydantic(pydantic_encoder(obj))
+    return _encode_pydantic(to_jsonable_python(obj))
 
 
 class _PydanticRequestBody(Converter):

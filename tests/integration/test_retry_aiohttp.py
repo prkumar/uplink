@@ -5,17 +5,27 @@ import pytest
 from uplink.clients import io
 
 from . import test_retry
+import sys
 
 
 @pytest.mark.asyncio
 async def test_retry_with_asyncio(mock_client, mock_response):
-    import asyncio
+    # Check the Python version and define coroutine accordingly
+    if sys.version_info >= (3, 5):
+        # For Python 3.5 and newer
+        async def coroutine():
+            return mock_response
+    elif (3, 3) <= sys.version_info < (3, 5):
+        # For Python 3.3 and 3.4
+        import asyncio
+        @asyncio.coroutine
+        def coroutine():
+            yield
+            return mock_response
+    else:
+        # Not applicable for Python 2
+        return
 
-    @asyncio.coroutine
-    def coroutine():
-        return mock_response
-
-    # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
     mock_client.with_side_effect([Exception, coroutine()])
     mock_client.with_io(io.AsyncioStrategy())
