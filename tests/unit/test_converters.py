@@ -6,7 +6,7 @@ import sys
 import marshmallow
 
 try:
-    import pydantic
+    import pydantic.v1 as pydantic
 except ImportError:
     if sys.version_info >= (3, 6):
         raise

@@ -9,7 +9,7 @@ from uplink.utils import is_subclass
 
 
 def _encode_pydantic(obj):
-    from pydantic.json import pydantic_encoder
+    from pydantic.v1.json import pydantic_encoder
 
     # json atoms
     if isinstance(obj, (str, int, float, bool)) or obj is None:
@@ -74,7 +74,7 @@ class PydanticConverter(Factory):
     """
 
     try:
-        import pydantic
+        import pydantic.v1 as pydantic
     except ImportError:  # pragma: no cover
         pydantic = None
 
