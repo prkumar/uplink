@@ -74,7 +74,7 @@ class PydanticV1Converter(Factory):
     """
 
     try:
-        import pydantic_v1 as pydantic_v1
+        import pydantic.v1 as pydantic_v1
     except ImportError:  # pragma: no cover
         pydantic_v1 = None
 
