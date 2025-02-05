@@ -486,7 +486,7 @@ class TestPydanticV1Converter(object):
     def test_init_without_pydantic(self, mocker):
         mocker.patch.object(
             converters.PydanticV1Converter,
-            "pydantic",
+            "pydantic_v1",
             new_callable=mocker.PropertyMock,
             return_value=None,
         )
@@ -591,7 +591,7 @@ class TestPydanticV1Converter(object):
         converter = converters.PydanticV1Converter()
         c = converter.create_response_body_converter(model)
 
-        with pytest.raises(pydantic.ValidationError):
+        with pytest.raises(pydantic.v1.ValidationError):
             c.convert(data)
 
         parse_obj_mock.assert_called_once_with(data)
