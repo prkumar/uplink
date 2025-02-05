@@ -32,7 +32,7 @@ class _PydanticV2ResponseBody(Converter):
         except AttributeError:
             data = response
 
-        return self._model.model_dump(data)
+        return self._model.parse_obj(data)
 
 
 class PydanticV2Converter(Factory):
