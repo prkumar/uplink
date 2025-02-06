@@ -72,7 +72,7 @@ class PydanticConverter(Factory):
 
     @classmethod
     def register_if_necessary(cls, register_func):
-        if (cls.pydantic and cls.pydantic_v1) is not None:
+        if cls.pydantic is not None:
             register_func(cls)
 
 
