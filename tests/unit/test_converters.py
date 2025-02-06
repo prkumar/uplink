@@ -485,14 +485,21 @@ class TestPydanticV1Converter(object):
 
     def test_init_without_pydantic(self, mocker):
         mocker.patch.object(
-            converters.PydanticV1Converter,
+            converters.PydanticConverter,
             "pydantic_v1",
             new_callable=mocker.PropertyMock,
             return_value=None,
         )
 
+        mocker.patch.object(
+            converters.PydanticConverter,
+            "pydantic",
+            new_callable=mocker.PropertyMock,
+            return_value=None,
+        )
+
         with pytest.raises(ImportError):
-            converters.PydanticV1Converter()
+            converters.PydanticConverter()
 
     def test_create_request_body_converter(self, pydantic_model_mock):
         expected_result = {"id": 0}
@@ -501,7 +508,7 @@ class TestPydanticV1Converter(object):
         model_mock, model = pydantic_model_mock
         model_mock.dict.return_value = expected_result
 
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
         request_converter = converter.create_request_body_converter(model)
 
         result = request_converter.convert(request_body)
@@ -523,7 +530,7 @@ class TestPydanticV1Converter(object):
         request_body = {}
         expected_result = loads(model.json())
 
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
         request_converter = converter.create_request_body_converter(
             ComplexModel
         )
@@ -542,7 +549,7 @@ class TestPydanticV1Converter(object):
 
         request_body = model()
 
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
         request_converter = converter.create_request_body_converter(model)
 
         result = request_converter.convert(request_body)
@@ -552,7 +559,7 @@ class TestPydanticV1Converter(object):
 
     def test_create_request_body_converter_without_schema(self, mocker):
         expected_result = None
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
 
         result = converter.create_request_body_converter(mocker.sentinel)
 
@@ -569,7 +576,7 @@ class TestPydanticV1Converter(object):
         response = mocker.Mock(spec=["json"])
         response.json.return_value = {}
 
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
         c = converter.create_response_body_converter(model)
 
         result = c.convert(response)
@@ -588,7 +595,7 @@ class TestPydanticV1Converter(object):
             model, "parse_obj", side_effect=pydantic.v1.ValidationError([], model)
         )
 
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
         c = converter.create_response_body_converter(model)
 
         with pytest.raises(pydantic.v1.ValidationError):
@@ -598,7 +605,7 @@ class TestPydanticV1Converter(object):
 
     def test_create_response_body_converter_without_schema(self):
         expected_result = None
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
 
         result = converter.create_response_body_converter("not a schema")
 
@@ -607,7 +614,7 @@ class TestPydanticV1Converter(object):
     def test_create_string_converter(self, pydantic_model_mock):
         expected_result = None
         _, model = pydantic_model_mock
-        converter = converters.PydanticV1Converter()
+        converter = converters.PydanticConverter()
 
         c = converter.create_string_converter(model, None)
 
@@ -617,20 +624,25 @@ class TestPydanticV1Converter(object):
         "pydantic_installed,expected",
         [
             pytest.param(
-                True, [converters.PydanticV1Converter], id="pydantic_installed"
+                True, [converters.PydanticConverter], id="pydantic_installed"
             ),
             pytest.param(None, [], id="pydantic_not_installed"),
         ],
     )
     def test_register(self, pydantic_installed, expected):
-        converter = converters.PydanticV1Converter
+        converter = converters.PydanticConverter
+        v1,v2 = converter.pydantic_v1, converter.pydantic
         converter.pydantic_v1 = pydantic_installed
+        converter.pydantic = pydantic_installed
 
         register_ = []
         converter.register_if_necessary(register_.append)
 
         assert register_ == expected
 
+        # Revert changes to avoid breaking next tests
+        converter.pydantic_v1 = v1
+        converter.pydantic = v2
 
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
 class TestPydanticV2Converter(object):
@@ -643,24 +655,13 @@ class TestPydanticV2Converter(object):
         model = mocker.Mock(spec=Model)
         return model, Model
 
-    def test_init_without_pydantic(self, mocker):
-        mocker.patch.object(
-            converters.PydanticV2Converter,
-            "pydantic",
-            new_callable=mocker.PropertyMock,
-            return_value=None,
-        )
-
-        with pytest.raises(ImportError):
-            converters.PydanticV2Converter()
-
     def test_create_request_body_converter(self):
         expected_result = {"id": 0}
         request_body = {}
         class BodyModel(pydantic.BaseModel):
             id: int = 0
 
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
         request_converter = converter.create_request_body_converter(BodyModel)
         result = request_converter.convert(request_body)
 
@@ -677,9 +678,9 @@ class TestPydanticV2Converter(object):
 
         model = ComplexModel()
         request_body = {}
-        expected_result = loads(model.json())
+        expected_result = loads(model.model_dump_json())
 
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
         request_converter = converter.create_request_body_converter(ComplexModel)
 
         result = request_converter.convert(request_body)
@@ -695,7 +696,7 @@ class TestPydanticV2Converter(object):
 
         request_body = BodyModel()
 
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
         request_converter = converter.create_request_body_converter(BodyModel)
 
         result = request_converter.convert(request_body)
@@ -704,7 +705,7 @@ class TestPydanticV2Converter(object):
 
     def test_create_request_body_converter_without_schema(self, mocker):
         expected_result = None
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
 
         result = converter.create_request_body_converter(mocker.sentinel)
 
@@ -718,7 +719,7 @@ class TestPydanticV2Converter(object):
         response = mocker.MagicMock(spec=["json"])
         response.json.return_value = {}
 
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
         c = converter.create_response_body_converter(BodyModel)
         result = c.convert(response)
 
@@ -735,7 +736,7 @@ class TestPydanticV2Converter(object):
             model, "parse_obj", side_effect=pydantic.ValidationError("mock_error", [])
         )
 
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
         c = converter.create_response_body_converter(model)
 
         with pytest.raises(pydantic.ValidationError):
@@ -745,7 +746,7 @@ class TestPydanticV2Converter(object):
 
     def test_create_response_body_converter_without_schema(self):
         expected_result = None
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
 
         result = converter.create_response_body_converter("not a schema")
 
@@ -754,26 +755,9 @@ class TestPydanticV2Converter(object):
     def test_create_string_converter(self, pydantic_model_mock):
         expected_result = None
         _, model = pydantic_model_mock
-        converter = converters.PydanticV2Converter()
+        converter = converters.PydanticConverter()
 
         c = converter.create_string_converter(model, None)
 
         assert c is expected_result
 
-    @pytest.mark.parametrize(
-        "pydantic_installed,expected",
-        [
-            pytest.param(
-                True, [converters.PydanticV2Converter], id="pydantic_installed"
-            ),
-            pytest.param(None, [], id="pydantic_not_installed"),
-        ],
-    )
-    def test_register(self, pydantic_installed, expected):
-        converter = converters.PydanticV2Converter
-        converter.pydantic = pydantic_installed
-
-        register_ = []
-        converter.register_if_necessary(register_.append)
-
-        assert register_ == expected
