@@ -1,5 +1,5 @@
 """
-This module defines a converter that uses :py:mod:`pydantic.v1` models
+This module defines a converter that uses :py:mod:`pydantic` models
 to deserialize and serialize values.
 """
 
