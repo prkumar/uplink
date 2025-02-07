@@ -3,10 +3,15 @@ This module defines a converter that uses :py:mod:`pydantic` models
 to deserialize and serialize values.
 """
 
+from typing import TYPE_CHECKING, Any
 from uplink.converters.interfaces import Converter
 
+if TYPE_CHECKING:
+    # To allow using string anotations, as we wanna lazy-import
+    import pydantic
 
-def _encode_pydantic_v2(model):
+
+def _encode_pydantic_v2(model: "pydantic.BaseModel") -> dict[str, Any]:
     return model.model_dump(mode="json")
 
 

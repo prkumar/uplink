@@ -3,10 +3,11 @@ This module defines a converter that uses :py:mod:`pydantic.v1` models
 to deserialize and serialize values.
 """
 
+from typing import Any
 from uplink.converters.interfaces import Converter
 
 
-def _encode_pydantic_v1(obj):
+def _encode_pydantic_v1(obj: Any) -> Any:
     from pydantic.v1.json import pydantic_encoder
 
     # json atoms
