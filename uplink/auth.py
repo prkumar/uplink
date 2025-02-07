@@ -210,7 +210,7 @@ class MultiAuth(object):
         api_consumer = SomeApiConsumerClass(BASE_URL, auth=auth_methods)
 
     API library authors may find it more helpful to treat MultiAuth as
-    a list using ``append`` or ``extend`` to add aditional auth methods.
+    a list using ``append`` or ``extend`` to add additional auth methods.
 
     .. code-block:: python
 
