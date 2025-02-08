@@ -1,6 +1,9 @@
 ---
 name: Bug
 about: Report a problem
+title: "[BUG]: "
+labels: Bug, Needs Maintainer Input
+assignees: prkumar
 
 ---
 
