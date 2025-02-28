@@ -22,7 +22,7 @@ class TestGetAuth:
         assert output is func
 
     def test_unsupported(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011  TODO Replace with the correct Exception
             auth.get_auth(object())
 
 

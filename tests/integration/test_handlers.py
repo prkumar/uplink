@@ -1,4 +1,6 @@
 # Local imports.
+import pytest
+
 import uplink
 
 # Constants
@@ -111,35 +113,30 @@ def test_multiple_response_handlers(mock_client):
     assert calendar.flagged
 
 
+class CustomError(OSError): ...
+
+
 def test_error_handler_with_consumer(mock_client):
     # Setup: raise specific exception
-    expected_error = OSError()
+    expected_error = CustomError()
     mock_client.with_side_effect(expected_error)
 
     calendar = Calendar(base_url=BASE_URL, client=mock_client)
     calendar.flagged = False
 
     # Run
-    try:
+    with pytest.raises(CustomError):
         calendar.get_user(user_id=1)
-    except WrappedException as err:
-        assert err.exception == expected_error
-        assert calendar.flagged is True
-    else:
-        raise AssertionError
+    assert calendar.flagged is True
 
 
 def test_error_handler(mock_client):
     # Setup: raise specific exception
-    expected_error = OSError()
+    expected_error = CustomError()
     mock_client.with_side_effect(expected_error)
 
     calendar = Calendar(base_url=BASE_URL, client=mock_client)
 
     # Run
-    try:
+    with pytest.raises(CustomError):
         calendar.get_event(event_id=1)
-    except WrappedException as err:
-        assert err.exception == expected_error
-    else:
-        raise AssertionError

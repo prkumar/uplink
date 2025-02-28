@@ -17,6 +17,9 @@ def backoff_once():
 backoff_default = retry.backoff.exponential(multiplier=0.1, minimum=0.1)
 
 
+class CustomException(Exception): ...
+
+
 class GitHub(Consumer):
     @retry(max_attempts=2, backoff=backoff_default)
     @get("/users/{user}")
@@ -59,11 +62,11 @@ def test_retry(mock_client, mock_response):
 def test_retry_fail(mock_client, mock_response):
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect([Exception, Exception, mock_response])
+    mock_client.with_side_effect([CustomException, CustomException, mock_response])
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
     # Run
-    with pytest.raises(Exception):
+    with pytest.raises(CustomException):
         github.get_issue("prkumar", "uplink", "#1")
 
     # Verify
@@ -76,7 +79,6 @@ def test_retry_fail_with_client_exception(mock_client, mock_response):
     mock_client.exceptions.ConnectionTimeout = type(
         "ConnectionTimeout", (Exception,), {}
     )
-    CustomException = type("CustomException", (Exception,), {})
     mock_client.with_side_effect(
         [
             mock_client.exceptions.ConnectionTimeout,
@@ -97,11 +99,11 @@ def test_retry_fail_with_client_exception(mock_client, mock_response):
 def test_retry_fail_because_of_wait(mock_client, mock_response):
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect([Exception, Exception, mock_response])
+    mock_client.with_side_effect([CustomException, CustomException, mock_response])
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
     # Run
-    with pytest.raises(Exception):
+    with pytest.raises(CustomException):
         github.get_issue("prkumar", "uplink", "#1")
 
     # Verify
@@ -111,11 +113,11 @@ def test_retry_fail_because_of_wait(mock_client, mock_response):
 def test_retry_with_status_501(mock_client, mock_response):
     # Setup
     mock_response.status_code = 501
-    mock_client.with_side_effect([mock_response, Exception])
+    mock_client.with_side_effect([mock_response, CustomException])
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
     # Run
-    with pytest.raises(Exception):
+    with pytest.raises(CustomException):
         github.get_issues("prkumar", "uplink")
 
     # Verify
@@ -154,7 +156,6 @@ def test_retry_fail_with_twisted(mock_client, mock_response):
         defer.returnValue(mock_response)
 
     # Setup
-    CustomException = type("CustomException", (Exception,), {})
     mock_response.with_json({"id": 123, "name": "prkumar"})
     mock_client.with_side_effect([Exception, CustomException, return_response()])
     mock_client.with_io(io.TwistedStrategy())

@@ -96,8 +96,8 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
     def _add_annotation(self, annotation, name=None):
         try:
             name = next(self.missing_arguments) if name is None else name
-        except StopIteration:
-            raise ExhaustedArguments(annotation, self._func)
+        except StopIteration as e:
+            raise ExhaustedArguments(annotation, self._func) from e
         if name not in self._annotations:
             raise ArgumentNotFound(name, self._func)
         annotation = self._process_annotation(name, annotation)
@@ -526,10 +526,9 @@ class Field(NamedArgument):
         """Updates the request body with chosen field."""
         try:
             request_builder.info["data"][self.name] = value
-        except TypeError:
-            # TODO: re-raise with TypeError
+        except TypeError as e:
             # `data` does not support item assignment
-            raise self.FieldAssignmentFailed(self)
+            raise self.FieldAssignmentFailed(self) from e
 
 
 class FieldMap(TypedArgument):
@@ -566,9 +565,8 @@ class FieldMap(TypedArgument):
         """Updates request body with chosen field mapping."""
         try:
             request_builder.info["data"].update(value)
-        except AttributeError:
-            # TODO: re-raise with AttributeError
-            raise self.FieldMapUpdateFailed()
+        except AttributeError as e:
+            raise self.FieldMapUpdateFailed() from e
 
 
 class Part(NamedArgument):
@@ -684,9 +682,9 @@ class Url(ArgumentAnnotation):
         """Sets dynamic url."""
         try:
             request_definition_builder.uri.is_dynamic = True
-        except ValueError:
+        except ValueError as e:
             # TODO: re-raise with ValueError
-            raise self.DynamicUrlAssignmentFailed(request_definition_builder)
+            raise self.DynamicUrlAssignmentFailed(request_definition_builder) from e
 
     @classmethod
     def _modify_request(cls, request_builder, value):

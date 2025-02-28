@@ -118,5 +118,5 @@ class RequestInvocation:
     def __getattr__(self, item):
         try:
             return self._extras[item]
-        except KeyError:
-            raise AttributeError(item)
+        except KeyError as e:
+            raise AttributeError(item) from e

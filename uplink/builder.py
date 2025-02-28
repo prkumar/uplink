@@ -192,10 +192,9 @@ class ConsumerMethod:
         try:
             return self._request_definition_builder.build()
         except exceptions.InvalidRequestDefinition as error:
-            # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
                 self._owner_name, self._attr_name, error
-            )
+            ) from error
 
     def __get__(self, instance, owner):
         # TODO:
@@ -375,7 +374,8 @@ def build(service_cls, *args, **kwargs):
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
         f"To construct a consumer instance, have `{name}` inherit "
         f"`uplink.Consumer` then instantiate (e.g., `{name}(...)`). ",
-        DeprecationWarning, stacklevel=2,
+        DeprecationWarning,
+        stacklevel=2,
     )
     consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
     return consumer(*args, **kwargs)

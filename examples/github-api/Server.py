@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from flask import Flask, jsonify, request
 
 import uplink
-from uplink import *
+from uplink import Consumer, Query, get, headers
 
 app = Flask(__name__)
 
