@@ -46,7 +46,7 @@ class DictConverter(BaseTypeConverter, interfaces.Converter):
     def convert(self, value):
         if isinstance(value, abc.Mapping):
             key_c, val_c = self._key_converter, self._value_converter
-            return dict((key_c(k), val_c(value[k])) for k in value)
+            return {key_c(k): val_c(value[k]) for k in value}
         # TODO: Handle the case where the value is not a mapping.
         return self._value_converter(value)
 
@@ -119,6 +119,8 @@ class TypingConverter(interfaces.Factory):
                 return ListConverter(*type_.__args__)
             if issubclass(type_.__origin__, self.typing.Mapping):
                 return DictConverter(*type_.__args__)
+            return None
+        return None
 
     def create_response_body_converter(self, type_, *args, **kwargs):
         return self._base_converter(type_)

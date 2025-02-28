@@ -25,7 +25,7 @@ def is_canonical(version):
 
 
 def _get_current_version():
-    about = dict()
+    about = {}
     with open(os.path.join("uplink", "__about__.py")) as fp:
         exec(fp.read(), about)
     return about.get("__version__", None)
@@ -38,8 +38,7 @@ def verify_version(tag):
     assert tag is not None, "The tag is not defined."
     assert is_canonical(version), "The version string [%s] violates PEP-440"
     assert is_appropriate_tag(version, tag), (
-        "The tag [%s] does not match the current version in uplink/__about__.py [%s]"
-        % (tag, version)
+        f"The tag [{tag}] does not match the current version in uplink/__about__.py [{version}]"
     )
     return version
 

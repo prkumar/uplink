@@ -1,10 +1,10 @@
 class AnnotationMeta(type):
     def __call__(cls, *args, **kwargs):
         if cls._can_be_static and cls._is_static_call(*args, **kwargs):
-            self = super(AnnotationMeta, cls).__call__()
+            self = super().__call__()
             self(args[0])
             return args[0]
-        return super(AnnotationMeta, cls).__call__(*args, **kwargs)
+        return super().__call__(*args, **kwargs)
 
 
 class _Annotation:

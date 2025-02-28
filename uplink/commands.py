@@ -56,13 +56,13 @@ class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
     def is_dynamic(self, is_dynamic):
         if self.is_static:
             raise ValueError(
-                "Failed to set dynamic URI as URI is already defined: %s" % self._uri
+                f"Failed to set dynamic URI as URI is already defined: {self._uri}"
             )
         self._is_dynamic = is_dynamic
 
     def add_variable(self, name):
         if self.is_static and name not in self.remaining_variables:
-            raise ValueError("`%s` is not a variable on the uri %s" % (name, self._uri))
+            raise ValueError(f"`{name}` is not a variable on the uri {self._uri}")
         self._uri_variables.add(name)
 
     @property
@@ -334,8 +334,7 @@ class HttpMethod:
         # Use return value type hint as expected return type
         if spec.return_annotation is not None:
             builder = returns.schema(spec.return_annotation)(builder)
-        builder = self._add_args(builder)
-        return builder
+        return self._add_args(builder)
 
 
 get = HttpMethodFactory("GET").__call__

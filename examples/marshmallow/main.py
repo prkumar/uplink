@@ -20,4 +20,4 @@ if __name__ == "__main__":
     # Print contributors for those repositories
     for repo in repos:
         contributors = gh.get_contributors(repo.owner, repo.name)
-        print("Contributors for %s:\n%s\n" % (repo, pformat(contributors, indent=4)))
+        print(f"Contributors for {repo}:\n{pformat(contributors, indent=4)}\n")

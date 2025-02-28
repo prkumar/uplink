@@ -51,6 +51,6 @@ def install(installable, _installers=_INSTALLERS):
             _installers[base_cls](installable)
             break
     else:
-        raise TypeError("Failed to install: '%s'" % str(installable))
+        raise TypeError(f"Failed to install: '{installable!s}'")
 
     return installable

@@ -255,11 +255,11 @@ class ConsumerMeta(type):
         # handles attribute access behavior.
         for key, value in namespace.items():
             namespace[key] = mcs._wrap_if_definition(name, key, value)
-        return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
+        return super().__new__(mcs, name, bases, namespace)
 
     def __setattr__(cls, key, value):
         value = cls._wrap_if_definition(cls.__name__, key, value)
-        super(ConsumerMeta, cls).__setattr__(key, value)
+        super().__setattr__(key, value)
 
 
 _Consumer = ConsumerMeta("_Consumer", (), {})
@@ -375,7 +375,7 @@ def build(service_cls, *args, **kwargs):
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
         f"To construct a consumer instance, have `{name}` inherit "
         f"`uplink.Consumer` then instantiate (e.g., `{name}(...)`). ",
-        DeprecationWarning,
+        DeprecationWarning, stacklevel=2,
     )
     consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
     return consumer(*args, **kwargs)

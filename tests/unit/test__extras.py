@@ -38,4 +38,4 @@ def test_install(mocker):
 
     # Run & Verify Failure
     with pytest.raises(TypeError):
-        _extras.install(dict(), _installers=installers)
+        _extras.install({}, _installers=installers)

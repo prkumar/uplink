@@ -42,6 +42,7 @@ class _Delegate:
     def __call__(self, type_, *args, **kwargs):
         if self._is_relevant(type_, *args, **kwargs):
             return functools.partial(self._func, type_)
+        return None
 
 
 class _Wrapper(converters.Factory):

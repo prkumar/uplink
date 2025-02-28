@@ -132,7 +132,7 @@ class FinishingDecorator(IOStrategyDecorator):
 
 class CallbackDecorator(FinishingDecorator):
     def __init__(self, io, client, callback):
-        super(CallbackDecorator, self).__init__(io)
+        super().__init__(io)
         self._client = client
         self._callback = callback
 
@@ -142,7 +142,7 @@ class CallbackDecorator(FinishingDecorator):
 
 class ErrbackDecorator(FinishingDecorator):
     def __init__(self, io, errback):
-        super(ErrbackDecorator, self).__init__(io)
+        super().__init__(io)
         self._errback = errback
 
     def fail(self, exc_type, exc_val, exc_tb):

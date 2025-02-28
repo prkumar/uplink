@@ -18,10 +18,12 @@ class StandardConverter(interfaces.Factory):
     def create_request_body_converter(self, cls, *args, **kwargs):
         if isinstance(cls, interfaces.Converter):
             return cls
+        return None
 
     def create_response_body_converter(self, cls, *args, **kwargs):
         if isinstance(cls, interfaces.Converter):
             return cls
+        return None
 
     def create_string_converter(self, cls, *args, **kwargs):
         if isinstance(cls, interfaces.Converter):

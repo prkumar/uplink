@@ -14,8 +14,8 @@ class Register:
         factory = proxy() if inspect.isclass(proxy) else proxy
         if not isinstance(factory, interfaces.Factory):
             raise TypeError(
-                "Failed to register '%s' as a converter factory: it is not an "
-                "instance of '%s'." % (factory, interfaces.Factory)
+                f"Failed to register '{factory}' as a converter factory: it is not an "
+                f"instance of '{interfaces.Factory}'."
             )
         self._register.appendleft(factory)
         return proxy

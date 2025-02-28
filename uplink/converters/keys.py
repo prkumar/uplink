@@ -70,7 +70,7 @@ class Map(CompositeKey):
     """
 
     def convert(self, converter, value):
-        return dict((k, converter(value[k])) for k in value)
+        return {k: converter(value[k]) for k in value}
 
 
 class Sequence(CompositeKey):
@@ -85,7 +85,7 @@ class Sequence(CompositeKey):
     """
 
     def convert(self, converter, value):
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             return list(map(converter, value))
         return converter(value)
 

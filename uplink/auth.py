@@ -24,7 +24,7 @@ def get_auth(auth_object=None):
         return BasicAuth(*auth_object)
     if callable(auth_object):
         return auth_object
-    raise ValueError("Invalid authentication strategy: %s" % auth_object)
+    raise ValueError(f"Invalid authentication strategy: {auth_object}")
 
 
 class ApiTokenParam:
@@ -107,7 +107,7 @@ class ApiTokenHeader:
     @property
     def _header_value(self):
         if self._prefix:
-            return "%s %s" % (self._prefix, self._token)
+            return f"{self._prefix} {self._token}"
         return self._token
 
     def __call__(self, request_builder):

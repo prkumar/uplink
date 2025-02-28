@@ -37,6 +37,7 @@ class RequestsClient(interfaces.HttpClientAdapter):
     def with_session(session, *args, **kwargs):
         if isinstance(session, requests.Session):
             return RequestsClient(session, *args, **kwargs)
+        return None
 
     @staticmethod
     def _create_session(**kwargs):

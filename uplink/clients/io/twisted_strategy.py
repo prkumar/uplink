@@ -40,7 +40,7 @@ class TwistedStrategy(interfaces.IOStrategy):
     @defer.inlineCallbacks
     def fail(self, exc_type, exc_val, exc_tb):
         yield
-        super(TwistedStrategy, self).fail(exc_type, exc_val, exc_tb)
+        super().fail(exc_type, exc_val, exc_tb)
 
     @defer.inlineCallbacks
     def execute(self, executable):

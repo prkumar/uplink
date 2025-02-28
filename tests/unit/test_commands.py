@@ -102,7 +102,7 @@ class TestURIDefinitionBuilder:
 
     def test_remaining_variables(self):
         uri = commands.URIDefinitionBuilder("/path/with/{variable}")
-        assert uri.remaining_variables == set(["variable"])
+        assert uri.remaining_variables == {"variable"}
 
     def test_add_variable(self):
         uri = commands.URIDefinitionBuilder("/path/with/{variable}")

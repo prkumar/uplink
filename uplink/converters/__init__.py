@@ -113,6 +113,7 @@ class ConverterFactoryRegistry(abc.Mapping):
                 converter = func(factory)(*args, **kwargs)
                 if callable(converter):
                     return converter
+            return None
 
         return ConverterChain(chain)
 

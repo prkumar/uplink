@@ -11,9 +11,8 @@ class IllegalRequestStateTransition(RuntimeError):
 
     def __str__(self):
         return (
-            "Illegal transition [%s] from request state [%s]: this is "
+            f"Illegal transition [{self._transition}] from request state [{self._state}]: this is "
             "possibly due to a badly designed RequestTemplate."
-            % (self._transition, self._state)
         )
 
 
