@@ -97,7 +97,7 @@ class TestURIDefinitionBuilder:
     def test_is_dynamic_setter_fails_when_is_static(self):
         uri = commands.URIDefinitionBuilder(True)
         assert uri.is_static
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011 TODO set the correct Exception
             uri.is_dynamic = True
 
     def test_remaining_variables(self):
@@ -112,7 +112,7 @@ class TestURIDefinitionBuilder:
 
     def test_add_variable_raise_error_when_name_is_not_in_static_path(self):
         uri = commands.URIDefinitionBuilder("/static/path")
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011 TODO set the correct Exception
             uri.add_variable("variable")
 
     def test_build(self):

@@ -17,8 +17,7 @@ def backoff_once():
 backoff_default = retry.backoff.exponential(multiplier=0.1, minimum=0.1)
 
 
-class CustomException(Exception):
-    pass
+class CustomException(Exception): ...
 
 
 class GitHub(Consumer):
@@ -63,9 +62,7 @@ def test_retry(mock_client, mock_response):
 def test_retry_fail(mock_client, mock_response):
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect(
-        [CustomException, CustomException, mock_response]
-    )
+    mock_client.with_side_effect([CustomException, CustomException, mock_response])
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
     # Run
@@ -102,9 +99,7 @@ def test_retry_fail_with_client_exception(mock_client, mock_response):
 def test_retry_fail_because_of_wait(mock_client, mock_response):
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect(
-        [CustomException, CustomException, mock_response]
-    )
+    mock_client.with_side_effect([CustomException, CustomException, mock_response])
     github = GitHub(base_url=BASE_URL, client=mock_client)
 
     # Run
@@ -162,9 +157,7 @@ def test_retry_fail_with_twisted(mock_client, mock_response):
 
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect(
-        [CustomException, CustomException, return_response()]
-    )
+    mock_client.with_side_effect([CustomException, CustomException, return_response()])
     mock_client.with_io(io.TwistedStrategy())
     github = GitHub(base_url=BASE_URL, client=mock_client)
 

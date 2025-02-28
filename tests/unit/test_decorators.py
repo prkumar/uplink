@@ -220,14 +220,14 @@ def test_json(request_builder):
 
     # Verify that error is raised when path is empty
     request_builder.info["data"] = {(): "value"}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011 TODO set the correct Exception
         json.set_json_body(request_builder)
 
     # Verify that error is raised when paths conflict
     request_builder.info["data"] = body = collections.OrderedDict()
     body["key"] = "outer"
     body["key", "inner"] = "inner value"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011 TODO set the correct Exception
         json.set_json_body(request_builder)
 
 

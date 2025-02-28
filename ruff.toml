@@ -15,11 +15,6 @@ extend-select = [
   "TCH", # flake8-type-checking
   "RET", # flake8-return
   "RUF", # ruff
-  # These require manual fixes and there are too many of them
-  "RET503",
-  "RET505",
-  "RET506",
-  "RET507",
 ]
 
 ignore = [
@@ -28,12 +23,6 @@ ignore = [
   "RUF012",
 ]
 
-
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-# fixable = ["A", "B", "C", "D", "E", "F", "I", "UP", "PT", "TCH"]
-# unfixable = []
-
-# Exclude a variety of commonly ignored directories.
 exclude = [
   ".direnv",
   ".git",

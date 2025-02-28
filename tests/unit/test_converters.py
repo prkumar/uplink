@@ -663,9 +663,7 @@ class TestPydanticV2Converter:
         expected_result = loads(model.model_dump_json())
 
         converter = converters.PydanticConverter()
-        request_converter = converter.create_request_body_converter(
-            ComplexModel
-        )
+        request_converter = converter.create_request_body_converter(ComplexModel)
 
         result = request_converter.convert(request_body)
 

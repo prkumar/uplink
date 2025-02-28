@@ -2,7 +2,7 @@ import sys
 
 # add uplink directory to path
 sys.path.insert(0, "../../")
-from uplink import *
+from uplink import Consumer, error_handler, get, headers, response_handler
 
 BASE_URL = "https://www.google.com"
 

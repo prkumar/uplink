@@ -192,10 +192,9 @@ class ConsumerMethod:
         try:
             return self._request_definition_builder.build()
         except exceptions.InvalidRequestDefinition as error:
-            # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
                 self._owner_name, self._attr_name, error
-            )
+            ) from error
 
     def __get__(self, instance, owner):
         # TODO:
