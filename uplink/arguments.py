@@ -91,6 +91,7 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         if self._is_annotation(annotation):
             return self._add_annotation(annotation, name)
         self._argument_types[name] = annotation
+        return None
 
     def _add_annotation(self, annotation, name=None):
         try:
@@ -100,7 +101,7 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         if name not in self._annotations:
             raise ArgumentNotFound(name, self._func)
         annotation = self._process_annotation(name, annotation)
-        super(ArgumentAnnotationHandlerBuilder, self).add_annotation(annotation)
+        super().add_annotation(annotation)
         self._defined += self._annotations[name] is None
         self._annotations[name] = annotation
         return annotation
@@ -204,7 +205,7 @@ class NamedArgument(TypedArgument):
 
     def __init__(self, name=None, type=None):
         self._arg_name = name
-        super(NamedArgument, self).__init__(type)
+        super().__init__(type)
 
     @property
     def name(self):
@@ -235,13 +236,13 @@ class EncodeNoneMixin:
                 # ignore value if it is None and shouldn't be encoded
                 return
             value = self._encode_none
-        super(EncodeNoneMixin, self).modify_request(request_builder, value)
+        super().modify_request(request_builder, value)
 
 
 class FuncDecoratorMixin:
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
-        if super(FuncDecoratorMixin, cls)._is_static_call(*args_, **kwargs):
+        if super()._is_static_call(*args_, **kwargs):
             return True
         try:
             is_func = inspect.isfunction(args_[0])
@@ -254,7 +255,7 @@ class FuncDecoratorMixin:
         if inspect.isfunction(obj):
             ArgumentAnnotationHandlerBuilder.from_func(obj).add_annotation(self)
             return obj
-        return super(FuncDecoratorMixin, self).__call__(obj)
+        return super().__call__(obj)
 
     def with_value(self, value):
         """
@@ -369,7 +370,7 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
         message = "Failed to join encoded and unencoded query parameters."
 
     def __init__(self, name=None, encoded=False, type=None, encode_none=None):
-        super(Query, self).__init__(name, type)
+        super().__init__(name, type)
         self._encoded = encoded
         self._encode_none = encode_none
 
@@ -378,14 +379,14 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
         # TODO: Consider moving some of this to the client backend.
         if encoded:
             params = [] if existing is None else [str(existing)]
-            params.extend("%s=%s" % (n, new_params[n]) for n in new_params)
+            params.extend(f"{n}={new_params[n]}" for n in new_params)
             info["params"] = "&".join(params)
         else:
             info["params"].update(new_params)
 
     @staticmethod
     def update_params(info, new_params, encoded):
-        existing = info.setdefault("params", None if encoded else dict())
+        existing = info.setdefault("params", None if encoded else {})
         if encoded == isinstance(existing, abc.Mapping):
             raise Query.QueryStringEncodingError()
         Query._update_params(info, existing, new_params, encoded)
@@ -423,7 +424,7 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
     """
 
     def __init__(self, encoded=False, type=None):
-        super(QueryMap, self).__init__(type)
+        super().__init__(type)
         self._encoded = encoded
 
     @property

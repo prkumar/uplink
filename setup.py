@@ -11,10 +11,10 @@ def read(filename):
 
 # Read package metadata from __about__.py, to avoid importing the whole
 # package prior to installation.
-about = dict()
+about = {}
 with open(os.path.join("uplink", "__about__.py")) as fp:
     exec(fp.read(), about)
-    about = dict((k.strip("_"), about[k]) for k in about)
+    about = {k.strip("_"): about[k] for k in about}
 
 install_requires = [
     "requests>=2.18.0",

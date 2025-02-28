@@ -93,8 +93,7 @@ class TestAiohttp:
         # Run
         async def call():
             response = await client.send((1, 2, {}))
-            response = await client.apply_callback(lambda x: 2, response)
-            return response
+            return await client.apply_callback(lambda x: 2, response)
 
         value = await call()
 

@@ -24,8 +24,8 @@ class RateLimitExceeded(RuntimeError):
     """A request failed because it exceeded the client-side rate limit."""
 
     def __init__(self, calls, period):
-        super(RateLimitExceeded, self).__init__(
-            "Exceeded rate limit of [%s] calls every [%s] seconds." % (calls, period)
+        super().__init__(
+            f"Exceeded rate limit of [{calls}] calls every [{period}] seconds."
         )
 
 

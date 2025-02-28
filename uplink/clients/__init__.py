@@ -23,6 +23,7 @@ from uplink.clients.twisted_ import TwistedClient
 def _client_class_handler(key):
     if utils.is_subclass(key, interfaces.HttpClientAdapter):
         return key()
+    return None
 
 
 try:

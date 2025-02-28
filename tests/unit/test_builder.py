@@ -122,7 +122,7 @@ class TestBuilder:
 
     def test_add_converter_factory(self, uplink_builder, converter_factory_mock):
         uplink_builder.converters = (converter_factory_mock,)
-        factory = list(uplink_builder.converters)[0]
+        factory = next(iter(uplink_builder.converters))
         assert factory == converter_factory_mock
 
     def test_build(self, request_definition, uplink_builder):
@@ -161,7 +161,7 @@ def test_build(
     )
     assert builder_mock.base_url == "example.com"
     assert builder_mock.client is http_client_mock
-    assert list(builder_mock.converters)[0] is converter_factory_mock
+    assert next(iter(builder_mock.converters)) is converter_factory_mock
     assert isinstance(builder_mock.auth, auth.BasicAuth)
 
 

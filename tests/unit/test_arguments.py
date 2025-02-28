@@ -4,7 +4,7 @@ import pytest
 from uplink import arguments, hooks
 from uplink.converters import keys
 
-inject_args = pytest.mark.parametrize("args", (["arg1", "arg2", "arg3"],))
+inject_args = pytest.mark.parametrize("args", [["arg1", "arg2", "arg3"]])
 
 
 @pytest.fixture

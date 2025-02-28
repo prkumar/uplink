@@ -21,6 +21,7 @@ def handle_client_key(key):
         client = func(key)
         if isinstance(client, interfaces.HttpClientAdapter):
             return client
+    return None
 
 
 def set_default_client(client):

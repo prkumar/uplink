@@ -32,7 +32,7 @@ class ReturnType:
 
 class CallableReturnType(ReturnType):
     def __init__(self, decorator, type_, strategy):
-        super(CallableReturnType, self).__init__(decorator, type_)
+        super().__init__(decorator, type_)
         self._strategy = strategy
 
     def __call__(self, *args, **kwargs):
@@ -48,7 +48,7 @@ class _ReturnsBase(decorators.MethodAnnotation):
         pass
 
     def _modify_request_definition(self, definition, kwargs):
-        super(_ReturnsBase, self)._modify_request_definition(definition, kwargs)
+        super()._modify_request_definition(definition, kwargs)
         definition.return_type = ReturnType.with_decorator(definition.return_type, self)
 
     def _get_converter(self, request_builder, return_type):  # pragma: no cover
@@ -78,7 +78,7 @@ class JsonStrategy:
     def __init__(self, converter, key=()):
         self._converter = converter
 
-        if not isinstance(key, (list, tuple)):
+        if not isinstance(key, list | tuple):
             key = (key,)
         self._key = key
 
@@ -86,8 +86,7 @@ class JsonStrategy:
         content = response.json()
         for name in self._key:
             content = content[name]
-        content = self._converter(content)
-        return content
+        return self._converter(content)
 
 
 # noinspection PyPep8Naming
@@ -183,7 +182,7 @@ class json(_ReturnsBase):
         return self._type
 
     def _get_converter(self, request_builder, return_type):
-        converter = super(json, self)._get_converter(request_builder, return_type)
+        converter = super()._get_converter(request_builder, return_type)
 
         if converter:
             return converter

@@ -7,8 +7,7 @@ import marshmallow
 try:
     import pydantic
 except ImportError:
-    if sys.version_info >= (3, 6):
-        raise
+    raise
 
 import pytest
 
@@ -353,7 +352,7 @@ class TestIdentity:
         return converters.keys.Identity()
 
     @pytest.mark.parametrize(
-        "value, expected",
+        ("value", "expected"),
         [
             (1, 1),
             ("a", "a"),
@@ -374,7 +373,7 @@ class TestRegistry:
     @pytest.mark.parametrize(
         "converter",
         # Try with both class and instance
-        (converters.StandardConverter, converters.StandardConverter()),
+        [converters.StandardConverter, converters.StandardConverter()],
     )
     def test_register_converter_factory_pass(self, converter):
         # Setup
@@ -399,7 +398,7 @@ class TestRegistry:
 class TestTypingConverter:
     singleton = converters.TypingConverter()
     inject_methods = pytest.mark.parametrize(
-        "method, use_typing",
+        ("method", "use_typing"),
         [
             (singleton.create_request_body_converter, True),
             (singleton.create_request_body_converter, False),
@@ -605,7 +604,7 @@ class TestPydanticV1Converter:
         assert c is expected_result
 
     @pytest.mark.parametrize(
-        "pydantic_installed,expected",
+        ("pydantic_installed", "expected"),
         [
             pytest.param(True, [converters.PydanticConverter], id="pydantic_installed"),
             pytest.param(None, [], id="pydantic_not_installed"),

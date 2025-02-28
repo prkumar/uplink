@@ -99,6 +99,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         """
         if isinstance(session, aiohttp.ClientSession):
             return AiohttpClient(session, *args, **kwargs)
+        return None
 
     @classmethod
     def _create_session(cls, *args, **kwargs):
@@ -150,8 +151,7 @@ class ThreadedCoroutine:
     def __call__(self, *args, **kwargs):
         with AsyncioExecutor() as executor:
             future = executor.submit(self.__coroutine, *args, **kwargs)
-            result = future.result()
-        return result
+            return future.result()
 
 
 class ThreadedResponse:

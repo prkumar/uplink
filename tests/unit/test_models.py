@@ -8,7 +8,7 @@ from uplink.models import dumps, loads
 
 
 @pytest.mark.parametrize(
-    "cls, method",
+    ("cls", "method"),
     [
         (loads, "create_response_body_converter"),
         (dumps, "create_request_body_converter"),
@@ -38,7 +38,7 @@ def test_models(mocker, cls, method, request_definition):
 
 
 @pytest.mark.parametrize(
-    "cls, method, decorator",
+    ("cls", "method", "decorator"),
     [
         (loads.from_json, "create_response_body_converter", returns.json()),
         (dumps.to_json, "create_request_body_converter", json()),
