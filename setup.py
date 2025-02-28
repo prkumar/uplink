@@ -25,17 +25,17 @@ install_requires = [
 
 extras_require = {
     "marshmallow": ["marshmallow>=2.15.0"],
-    "pydantic:python_version >= '3.6'": ["pydantic>=2.0.0"],
-    "aiohttp:python_version <= '3.4'": [],
-    "aiohttp:python_version >= '3.4'": "aiohttp>=2.3.0",
-    "twisted:python_version != '3.3' and python_version != '3.4'": "twisted>=17.1.0",
-    # Twisted 18.4.0 dropped py3.3 support
-    "twisted:python_version == '3.3'": "twisted<=17.9.0",
-    # Twisted 19.7.0 dropped py3.4 support
-    "twisted:python_version == '3.4'": "twisted<=19.2.1",
+    "pydantic": ["pydantic>=2.0.0"],
+    "aiohttp": "aiohttp>=2.3.0",
+    "twisted": "twisted>=17.1.0",
     "typing": ["typing>=3.6.4"],
-    "tests": ["pytest", "pytest-mock", "pytest-cov", "pytest-twisted"],
-    "tests:python_version >= '3.5'": ["pytest-asyncio"],
+    "tests": [
+        "pytest",
+        "pytest-mock",
+        "pytest-cov",
+        "pytest-twisted",
+        "pytest-asyncio",
+    ],
 }
 
 metadata = {
@@ -52,15 +52,10 @@ metadata = {
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
@@ -68,6 +63,7 @@ metadata = {
     "packages": find_packages(exclude=("tests", "tests.*")),
     "install_requires": install_requires,
     "extras_require": extras_require,
+    "python_requires": ">=3.10.0",
 }
 metadata = dict(metadata, **about)
 
