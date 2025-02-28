@@ -1,7 +1,6 @@
 ---
 name: Question
 about: Pose an inquiry
-
 ---
 
 --
