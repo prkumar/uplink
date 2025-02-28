@@ -1,60 +1,18 @@
-"""
-This module defines a converter that uses :py:mod:`pydantic` models
-to deserialize and serialize values.
-"""
-
+import pydantic
 from uplink.converters import register_default_converter_factory
-from uplink.converters.interfaces import Factory, Converter
+from uplink.converters.interfaces import Factory
 from uplink.utils import is_subclass
-
-
-def _encode_pydantic(obj):
-    from pydantic.json import pydantic_encoder
-
-    # json atoms
-    if isinstance(obj, (str, int, float, bool)) or obj is None:
-        return obj
-
-    # json containers
-    if isinstance(obj, dict):
-        return {_encode_pydantic(k): _encode_pydantic(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [_encode_pydantic(i) for i in obj]
-
-    # pydantic types
-    return _encode_pydantic(pydantic_encoder(obj))
-
-
-class _PydanticRequestBody(Converter):
-    def __init__(self, model):
-        self._model = model
-
-    def convert(self, value):
-        if isinstance(value, self._model):
-            return _encode_pydantic(value)
-        return _encode_pydantic(self._model.parse_obj(value))
-
-
-class _PydanticResponseBody(Converter):
-    def __init__(self, model):
-        self._model = model
-
-    def convert(self, response):
-        try:
-            data = response.json()
-        except AttributeError:
-            data = response
-
-        return self._model.parse_obj(data)
+from .pydantic_v1 import _PydanticV1RequestBody, _PydanticV1ResponseBody
+from .pydantic_v2 import _PydanticV2RequestBody, _PydanticV2ResponseBody
 
 
 class PydanticConverter(Factory):
     """
     A converter that serializes and deserializes values using
-    :py:mod:`pydantic` models.
+    :py:mod:`pydantic.v1` and `pydantic` models.
 
     To deserialize JSON responses into Python objects with this
-    converter, define a :py:class:`pydantic.BaseModel` subclass and set
+    converter, define a :py:class:`pydantic.v1.BaseModel` or `pydantic.BaseModel` subclass and set
     it as the return annotation of a consumer method:
 
     .. code-block:: python
@@ -75,20 +33,24 @@ class PydanticConverter(Factory):
 
     try:
         import pydantic
+        import pydantic.v1 as pydantic_v1
     except ImportError:  # pragma: no cover
         pydantic = None
+        pydantic_v1 = None
 
     def __init__(self):
         """
         Validates if :py:mod:`pydantic` is installed
         """
-        if self.pydantic is None:
+        if (self.pydantic or self.pydantic_v1) is None:
             raise ImportError("No module named 'pydantic'")
 
     def _get_model(self, type_):
-        if is_subclass(type_, self.pydantic.BaseModel):
+        if is_subclass(type_, (self.pydantic_v1.BaseModel, self.pydantic.BaseModel)):
             return type_
-        raise ValueError("Expected pydantic.BaseModel subclass or instance")
+        raise ValueError(
+            "Expected pydantic.BaseModel or pydantic.v1.BaseModel subclass or instance"
+        )
 
     def _make_converter(self, converter, type_):
         try:
@@ -99,10 +61,14 @@ class PydanticConverter(Factory):
         return converter(model)
 
     def create_request_body_converter(self, type_, *args, **kwargs):
-        return self._make_converter(_PydanticRequestBody, type_)
+        if is_subclass(type_, pydantic.BaseModel):
+            return self._make_converter(_PydanticV2RequestBody, type_)
+        return self._make_converter(_PydanticV1RequestBody, type_)
 
     def create_response_body_converter(self, type_, *args, **kwargs):
-        return self._make_converter(_PydanticResponseBody, type_)
+        if is_subclass(type_, pydantic.BaseModel):
+            return self._make_converter(_PydanticV2ResponseBody, type_)
+        return self._make_converter(_PydanticV1ResponseBody, type_)
 
     @classmethod
     def register_if_necessary(cls, register_func):
