@@ -2,9 +2,13 @@
 from uplink import decorators
 from uplink.clients.io import RequestTemplate, transitions
 from uplink.retry import (
-    when as when_mod,
-    stop as stop_mod,
     backoff as backoff_mod,
+)
+from uplink.retry import (
+    stop as stop_mod,
+)
+from uplink.retry import (
+    when as when_mod,
 )
 from uplink.retry._helpers import ClientExceptionProxy
 
@@ -95,9 +99,7 @@ class retry(decorators.MethodAnnotation):
         self._backoff = backoff
         self._stop = stop
 
-    BASE_CLIENT_EXCEPTION = ClientExceptionProxy(
-        lambda ex: ex.BaseClientException
-    )
+    BASE_CLIENT_EXCEPTION = ClientExceptionProxy(lambda ex: ex.BaseClientException)
     CONNECTION_ERROR = ClientExceptionProxy(lambda ex: ex.ConnectionError)
     CONNECTION_TIMEOUT = ClientExceptionProxy(lambda ex: ex.ConnectionTimeout)
     SERVER_TIMEOUT = ClientExceptionProxy(lambda ex: ex.ServerTimeout)
@@ -136,9 +138,7 @@ class _RetryTemplate(RequestTemplate):
         )
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
-        if not self._condition.should_retry_after_exception(
-            exc_type, exc_val, exc_tb
-        ):
+        if not self._condition.should_retry_after_exception(exc_type, exc_val, exc_tb):
             return self._process_timeout(None)
         return self._process_timeout(
             self._backoff.get_timeout_after_exception(

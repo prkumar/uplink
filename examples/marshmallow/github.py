@@ -1,7 +1,7 @@
-from uplink import Consumer, get, headers
-
 # Local imports
-from schemas import RepoSchema, ContributorSchema
+from schemas import ContributorSchema, RepoSchema
+
+from uplink import Consumer, get, headers
 
 
 @headers({"Accept": "application/vnd.github.v3.full+json"})

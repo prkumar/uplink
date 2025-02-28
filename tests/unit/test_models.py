@@ -4,7 +4,7 @@ import pytest
 # Local imports
 from uplink import returns
 from uplink.decorators import json
-from uplink.models import loads, dumps
+from uplink.models import dumps, loads
 
 
 @pytest.mark.parametrize(

@@ -2,6 +2,7 @@
 This module implements the built-in argument annotations and their
 handling classes.
 """
+
 # Standard library imports
 import collections
 import functools
@@ -13,27 +14,24 @@ from uplink.compat import abc
 from uplink.converters import keys
 
 __all__ = [
+    "Body",
+    "Context",
+    "Field",
+    "FieldMap",
+    "Header",
+    "HeaderMap",
+    "Part",
+    "PartMap",
     "Path",
     "Query",
     "QueryMap",
-    "Header",
-    "HeaderMap",
-    "Field",
-    "FieldMap",
-    "Part",
-    "PartMap",
-    "Body",
-    "Url",
     "Timeout",
-    "Context",
+    "Url",
 ]
 
 
 class ExhaustedArguments(exceptions.AnnotationError):
-    message = (
-        "Failed to add `%s` to method `%s`, as all arguments have "
-        "been annotated."
-    )
+    message = "Failed to add `%s` to method `%s`, as all arguments have been annotated."
 
     def __init__(self, annotation, func):
         self.message = self.message % (annotation, func.__name__)
@@ -77,11 +75,9 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         if annotations is not None:
             if not isinstance(annotations, abc.Mapping):
                 missing = tuple(
-                    a
-                    for a in self.missing_arguments
-                    if a not in more_annotations
+                    a for a in self.missing_arguments if a not in more_annotations
                 )
-                annotations = dict(zip(missing, annotations))
+                annotations = dict(zip(missing, annotations, strict=False))
             more_annotations.update(annotations)
         for name in more_annotations:
             self.add_annotation(more_annotations[name], name)
@@ -94,8 +90,7 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
     def add_annotation(self, annotation, name=None, *args, **kwargs):
         if self._is_annotation(annotation):
             return self._add_annotation(annotation, name)
-        else:
-            self._argument_types[name] = annotation
+        self._argument_types[name] = annotation
 
     def _add_annotation(self, annotation, name=None):
         try:
@@ -227,7 +222,7 @@ class NamedArgument(TypedArgument):
         raise NotImplementedError
 
 
-class EncodeNoneMixin(object):
+class EncodeNoneMixin:
     #: Identifies how a `None` value should be encoded in the request.
     _encode_none = None  # type: str
 
@@ -239,12 +234,11 @@ class EncodeNoneMixin(object):
             if self._encode_none is None:
                 # ignore value if it is None and shouldn't be encoded
                 return
-            else:
-                value = self._encode_none
+            value = self._encode_none
         super(EncodeNoneMixin, self).modify_request(request_builder, value)
 
 
-class FuncDecoratorMixin(object):
+class FuncDecoratorMixin:
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
         if super(FuncDecoratorMixin, cls)._is_static_call(*args_, **kwargs):
@@ -260,8 +254,7 @@ class FuncDecoratorMixin(object):
         if inspect.isfunction(obj):
             ArgumentAnnotationHandlerBuilder.from_func(obj).add_annotation(self)
             return obj
-        else:
-            return super(FuncDecoratorMixin, self).__call__(obj)
+        return super(FuncDecoratorMixin, self).__call__(obj)
 
     def with_value(self, value):
         """
@@ -402,14 +395,11 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
         """Converts query parameters to the request body."""
         if self._encoded:
             return keys.CONVERT_TO_STRING
-        else:
-            return keys.Sequence(keys.CONVERT_TO_STRING)
+        return keys.Sequence(keys.CONVERT_TO_STRING)
 
     def _modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
-        self.update_params(
-            request_builder.info, {self.name: value}, self._encoded
-        )
+        self.update_params(request_builder.info, {self.name: value}, self._encoded)
 
 
 class QueryMap(FuncDecoratorMixin, TypedArgument):
@@ -441,8 +431,7 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
         """Converts query mapping to request body."""
         if self._encoded:
             return keys.Map(keys.CONVERT_TO_STRING)
-        else:
-            return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
+        return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
     def _modify_request(self, request_builder, value):
         """Updates request body with the mapping of query args."""

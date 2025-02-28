@@ -135,9 +135,7 @@ def test_when_status(mocker, request_builder):
 
     # Verify: Should return false for exceptions
     assert (
-        when.status(401).should_retry_after_exception(
-            Exception, Exception(), None
-        )
+        when.status(401).should_retry_after_exception(Exception, Exception(), None)
         is False
     )
 
@@ -160,9 +158,7 @@ def test_when_status_5xx(mocker, request_builder):
 
     # Verify: Should return false for exceptions
     assert (
-        when.status_5xx().should_retry_after_exception(
-            Exception, Exception(), None
-        )
+        when.status_5xx().should_retry_after_exception(Exception, Exception(), None)
         is False
     )
 
@@ -200,20 +196,15 @@ def test_when_or_operator_with_exception(mocker, request_builder):
 
     # Verify: when right predicate matches
     assert (
-        predicate.should_retry_after_exception(
-            RuntimeError, RuntimeError(), None
-        )
+        predicate.should_retry_after_exception(RuntimeError, RuntimeError(), None)
         is True
     )
 
     # Verify: when neither matches
-    assert (
-        predicate.should_retry_after_exception(Exception, Exception(), None)
-        is False
-    )
+    assert predicate.should_retry_after_exception(Exception, Exception(), None) is False
 
 
-class TestClientExceptionProxies(object):
+class TestClientExceptionProxies:
     @staticmethod
     def _get_exception(proxy, request_builder):
         return proxy(request_builder.client.exceptions)

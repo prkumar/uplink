@@ -2,6 +2,7 @@
 This module defines an :py:class:`aiohttp.ClientSession` adapter
 that returns awaitable responses.
 """
+
 # Standard library imports
 import asyncio
 import collections
@@ -16,7 +17,7 @@ except ImportError:  # pragma: no cover
     aiohttp = None
 
 # Local imports
-from uplink.clients import exceptions, io, interfaces, register
+from uplink.clients import exceptions, interfaces, io, register
 
 
 def threaded_callback(callback):
@@ -27,8 +28,7 @@ def threaded_callback(callback):
         response = callback(response)
         if isinstance(response, ThreadedResponse):
             return response.unwrap()
-        else:
-            return response
+        return response
 
     return new_callback
 
@@ -72,9 +72,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
             # so we check whether it is one here and register it
             # to run appropriately at exit
             if asyncio.iscoroutinefunction(self._session.close):
-                asyncio.get_event_loop().run_until_complete(
-                    self._session.close()
-                )
+                asyncio.get_event_loop().run_until_complete(self._session.close())
             else:
                 self._session.close()
 
@@ -145,7 +143,7 @@ class AiohttpClient(interfaces.HttpClientAdapter):
         return io.AsyncioStrategy()
 
 
-class ThreadedCoroutine(object):
+class ThreadedCoroutine:
     def __init__(self, coroutine):
         self.__coroutine = coroutine
 
@@ -156,7 +154,7 @@ class ThreadedCoroutine(object):
         return result
 
 
-class ThreadedResponse(object):
+class ThreadedResponse:
     def __init__(self, response):
         self.__response = response
 

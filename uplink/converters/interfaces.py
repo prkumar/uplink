@@ -1,4 +1,4 @@
-class Converter(object):
+class Converter:
     def convert(self, value):
         raise NotImplementedError
 
@@ -9,7 +9,7 @@ class Converter(object):
         pass
 
 
-class Factory(object):
+class Factory:
     """
     An adapter that handles serialization of HTTP request properties
     (e.g., headers, query parameters, request body) and deserialization
@@ -126,7 +126,5 @@ class ConverterFactory(Factory):
     ):
         pass
 
-    def make_string_converter(
-        self, type, argument_annotations, method_annotations
-    ):
+    def make_string_converter(self, type, argument_annotations, method_annotations):
         pass

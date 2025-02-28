@@ -2,7 +2,7 @@
 from uplink import arguments
 
 
-class Session(object):
+class Session:
     """
     The session of a :class:`~uplink.Consumer` instance.
 

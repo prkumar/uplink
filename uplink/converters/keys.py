@@ -3,15 +3,16 @@ This module defines common converter keys, used by consumers of the
 converter layer to identify the desired conversion type when querying a
 :py:class:`uplink.converters.ConverterFactoryRegistry`.
 """
+
 # Standard library imports
 import functools
 
 # Local imports
 
 __all__ = [
-    "CONVERT_TO_STRING",
-    "CONVERT_TO_REQUEST_BODY",
     "CONVERT_FROM_RESPONSE_BODY",
+    "CONVERT_TO_REQUEST_BODY",
+    "CONVERT_TO_STRING",
     "Map",
     "Sequence",
 ]
@@ -26,7 +27,7 @@ CONVERT_TO_REQUEST_BODY = 1
 CONVERT_FROM_RESPONSE_BODY = 2
 
 
-class CompositeKey(object):
+class CompositeKey:
     """
     A utility class for defining composable converter keys.
 
@@ -86,11 +87,10 @@ class Sequence(CompositeKey):
     def convert(self, converter, value):
         if isinstance(value, (list, tuple)):
             return list(map(converter, value))
-        else:
-            return converter(value)
+        return converter(value)
 
 
-class Identity(object):
+class Identity:
     """
     Identity conversion - pass value as is
     """

@@ -3,7 +3,7 @@ import pytest
 import pytest_twisted
 
 # Local imports.
-from uplink import get, Consumer, retry
+from uplink import Consumer, get, retry
 from uplink.clients import io
 
 # Constants
@@ -28,9 +28,7 @@ class GitHub(Consumer):
     def get_issue(self, user, repo, issue):
         pass
 
-    @retry(
-        stop=retry.stop.after_attempt(3), on_exception=retry.CONNECTION_TIMEOUT
-    )
+    @retry(stop=retry.stop.after_attempt(3), on_exception=retry.CONNECTION_TIMEOUT)
     @get("repos/{user}/{repo}/project/{project}")
     def get_project(self, user, repo, project):
         pass
@@ -158,9 +156,7 @@ def test_retry_fail_with_twisted(mock_client, mock_response):
     # Setup
     CustomException = type("CustomException", (Exception,), {})
     mock_response.with_json({"id": 123, "name": "prkumar"})
-    mock_client.with_side_effect(
-        [Exception, CustomException, return_response()]
-    )
+    mock_client.with_side_effect([Exception, CustomException, return_response()])
     mock_client.with_io(io.TwistedStrategy())
     github = GitHub(base_url=BASE_URL, client=mock_client)
 

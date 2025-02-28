@@ -5,7 +5,7 @@ import collections
 import pytest
 
 # Local imports
-from uplink import clients, converters, hooks, interfaces, helpers
+from uplink import clients, converters, helpers, hooks, interfaces
 from uplink.clients.exceptions import Exceptions
 
 

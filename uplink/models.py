@@ -2,9 +2,10 @@
 import functools
 
 # Local imports
-from uplink import converters, decorators, install as _install, returns, utils
+from uplink import converters, decorators, returns, utils
+from uplink import install as _install
 
-__all__ = ["loads", "dumps"]
+__all__ = ["dumps", "loads"]
 
 _get_classes = functools.partial(map, type)
 
@@ -19,7 +20,7 @@ class RequestBodyConverterFactory(converters.Factory):
         self.create_request_body_converter = delegate
 
 
-class _Delegate(object):
+class _Delegate:
     def __init__(self, model_class, annotations, func):
         self._model_class = model_class
         self._annotations = annotations
@@ -54,7 +55,7 @@ class _Wrapper(converters.Factory):
         return self._func(*args, **kwargs)
 
 
-class _ModelConverterBuilder(object):
+class _ModelConverterBuilder:
     def __init__(self, base_class, annotations=()):
         """
         Args:

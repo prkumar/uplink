@@ -2,10 +2,10 @@
 import pytest
 
 # Local imports
-from uplink import commands, converters, arguments, utils
+from uplink import arguments, commands, converters, utils
 
 
-class TestHttpMethodFactory(object):
+class TestHttpMethodFactory:
     def test_call_as_decorator_with_no_args(self):
         @commands.HttpMethodFactory(None)
         def func():
@@ -23,7 +23,7 @@ class TestHttpMethodFactory(object):
         assert isinstance(func, commands.RequestDefinitionBuilder)
 
 
-class TestHttpMethod(object):
+class TestHttpMethod:
     def test_call(self, mocker, annotation_mock):
         # Setup
         def func():
@@ -84,7 +84,7 @@ class TestHttpMethod(object):
         args.assert_called_with(arg1="value")
 
 
-class TestURIDefinitionBuilder(object):
+class TestURIDefinitionBuilder:
     def test_is_static(self):
         assert not commands.URIDefinitionBuilder(None).is_static
 
@@ -125,10 +125,8 @@ class TestURIDefinitionBuilder(object):
             uri.build()
 
 
-class TestRequestDefinitionBuilder(object):
-    def test_method_handler_builder_getter(
-        self, annotation_handler_builder_mock
-    ):
+class TestRequestDefinitionBuilder:
+    def test_method_handler_builder_getter(self, annotation_handler_builder_mock):
         builder = commands.RequestDefinitionBuilder(
             None,
             None,
@@ -155,9 +153,7 @@ class TestRequestDefinitionBuilder(object):
         assert argument_handler_builder.build.called
         assert method_handler_builder.build.called
 
-    def test_auto_fill_when_not_done(
-        self, mocker, annotation_handler_builder_mock
-    ):
+    def test_auto_fill_when_not_done(self, mocker, annotation_handler_builder_mock):
         # Setup
         argument_handler_builder = mocker.Mock(
             stub=arguments.ArgumentAnnotationHandlerBuilder
@@ -208,7 +204,7 @@ class TestRequestDefinitionBuilder(object):
             builder.build()
 
 
-class TestRequestDefinition(object):
+class TestRequestDefinition:
     def test_argument_annotations(self, annotation_handler_mock):
         annotation_handler_mock.annotations = ["arg1", "arg2"]
         definition = commands.RequestDefinition(

@@ -2,11 +2,10 @@
 import sys
 
 # Third-party imports
-from twisted.internet import reactor, defer, task
+from twisted.internet import defer, reactor, task
 
 # Local imports
 from uplink.clients.io import interfaces
-
 
 __all__ = ["TwistedStrategy"]
 

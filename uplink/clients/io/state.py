@@ -36,9 +36,7 @@ class BeforeRequest(_BaseState):
         return execution.before_request(self._request)
 
     def __eq__(self, other):
-        return (
-            isinstance(other, BeforeRequest) and self.request == other.request
-        )
+        return isinstance(other, BeforeRequest) and self.request == other.request
 
 
 class Sleep(interfaces.RequestState):
@@ -62,9 +60,7 @@ class Sleep(interfaces.RequestState):
         self._duration = duration
 
     def execute(self, execution):
-        return execution.sleep(
-            self._duration, self._Callback(execution, self._request)
-        )
+        return execution.sleep(self._duration, self._Callback(execution, self._request))
 
     @property
     def request(self):

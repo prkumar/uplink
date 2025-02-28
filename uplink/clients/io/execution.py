@@ -1,11 +1,10 @@
 # Local imports
-from uplink.clients.io import interfaces
-from uplink.clients.io import state
+from uplink.clients.io import interfaces, state
 
 __all__ = ["RequestExecutionBuilder"]
 
 
-class RequestExecutionBuilder(object):
+class RequestExecutionBuilder:
     def __init__(self):
         self._client = None
         self._template = None
@@ -62,9 +61,7 @@ class DefaultRequestExecution(interfaces.RequestExecution):
         return self.execute()
 
     def after_exception(self, request, exc_type, exc_val, exc_tb):
-        action = self._template.after_exception(
-            request, exc_type, exc_val, exc_tb
-        )
+        action = self._template.after_exception(request, exc_type, exc_val, exc_tb)
         next_state = action(self._state)
         self._state = next_state
         return self.execute()
@@ -140,9 +137,7 @@ class CallbackDecorator(FinishingDecorator):
         self._callback = callback
 
     def finish(self, response):
-        return self._invoke(
-            self._client.apply_callback, self._callback, response
-        )
+        return self._invoke(self._client.apply_callback, self._callback, response)
 
 
 class ErrbackDecorator(FinishingDecorator):

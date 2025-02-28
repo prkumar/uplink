@@ -1,9 +1,9 @@
 # Local imports.
-import uplink
-
 # Third-party imports
 import aiohttp
 import pytest
+
+import uplink
 from uplink.clients.aiohttp_ import AiohttpClient
 
 # Constants
@@ -37,9 +37,7 @@ async def test_simple_async_handler(mock_aiohttp_session, mock_response):
 
     mock_aiohttp_session.request = request
 
-    calendar = Calendar(
-        base_url=BASE_URL, client=AiohttpClient(mock_aiohttp_session)
-    )
+    calendar = Calendar(base_url=BASE_URL, client=AiohttpClient(mock_aiohttp_session))
 
     # Run
     response = await calendar.get_todo(todo_id=1)

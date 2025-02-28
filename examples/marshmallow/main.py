@@ -4,7 +4,6 @@ from pprint import pformat
 # Local imports
 import github
 
-
 BASE_URL = "https://api.github.com/"
 
 
@@ -21,7 +20,4 @@ if __name__ == "__main__":
     # Print contributors for those repositories
     for repo in repos:
         contributors = gh.get_contributors(repo.owner, repo.name)
-        print(
-            "Contributors for %s:\n%s\n"
-            % (repo, pformat(contributors, indent=4))
-        )
+        print("Contributors for %s:\n%s\n" % (repo, pformat(contributors, indent=4)))

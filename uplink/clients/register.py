@@ -31,8 +31,7 @@ def get_default_client():
     default_client = _registrar[0]
     if callable(default_client):
         return default_client()
-    else:
-        return default_client
+    return default_client
 
 
 def get_client(client=DEFAULT_CLIENT):
@@ -41,6 +40,5 @@ def get_client(client=DEFAULT_CLIENT):
 
     if isinstance(client, interfaces.HttpClientAdapter):
         return client
-    else:
-        # Try handlers
-        return handle_client_key(client)
+    # Try handlers
+    return handle_client_key(client)

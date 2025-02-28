@@ -17,7 +17,7 @@ class IllegalRequestStateTransition(RuntimeError):
         )
 
 
-class InvokeCallback(object):
+class InvokeCallback:
     """
     Callbacks to continue the running request execution after invoking
     a function using the underlying I/O model.
@@ -44,7 +44,7 @@ class InvokeCallback(object):
         raise NotImplementedError
 
 
-class SleepCallback(object):
+class SleepCallback:
     """
     Callbacks to continue the running request execution after an
     intended pause.
@@ -150,7 +150,7 @@ class RequestExecution(Executable):
         raise NotImplementedError
 
 
-class RequestState(object):
+class RequestState:
     @property
     def request(self):
         raise NotImplementedError
@@ -174,7 +174,7 @@ class RequestState(object):
         raise NotImplementedError
 
 
-class RequestTemplate(object):
+class RequestTemplate:
     """
     Hooks for managing the lifecycle of a request.
 
@@ -229,7 +229,7 @@ class RequestTemplate(object):
         """
 
 
-class Client(object):
+class Client:
     """An HTTP Client implementation."""
 
     def send(self, request):
@@ -252,7 +252,7 @@ class Client(object):
         raise NotImplementedError
 
 
-class IOStrategy(object):
+class IOStrategy:
     """An adapter for a specific I/O model."""
 
     def invoke(self, func, args, kwargs, callback):

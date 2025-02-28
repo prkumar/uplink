@@ -1,6 +1,7 @@
 # Local imports
-from uplink import utils, clients
-from uplink.clients import io, exceptions as client_exceptions
+from uplink import clients, utils
+from uplink.clients import exceptions as client_exceptions
+from uplink.clients import io
 
 
 class MockClient(clients.interfaces.HttpClientAdapter):
@@ -42,7 +43,7 @@ class MockClient(clients.interfaces.HttpClientAdapter):
         return self._mock_client.send(method, url, extras)
 
 
-class MockResponse(object):
+class MockResponse:
     def __init__(self, response):
         self._response = response
 
@@ -54,7 +55,7 @@ class MockResponse(object):
         return self._response.__getattr__(item)
 
 
-class RequestInvocation(object):
+class RequestInvocation:
     def __init__(self, method, url, extras):
         self._method = method
         self._url = url

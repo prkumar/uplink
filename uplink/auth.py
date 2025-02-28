@@ -8,27 +8,26 @@ from uplink import utils
 from uplink.compat import abc
 
 __all__ = [
-    "ApiTokenParam",
     "ApiTokenHeader",
+    "ApiTokenParam",
     "BasicAuth",
-    "ProxyAuth",
     "BearerToken",
     "MultiAuth",
+    "ProxyAuth",
 ]
 
 
 def get_auth(auth_object=None):
     if auth_object is None:
         return utils.no_op
-    elif isinstance(auth_object, abc.Iterable):
+    if isinstance(auth_object, abc.Iterable):
         return BasicAuth(*auth_object)
-    elif callable(auth_object):
+    if callable(auth_object):
         return auth_object
-    else:
-        raise ValueError("Invalid authentication strategy: %s" % auth_object)
+    raise ValueError("Invalid authentication strategy: %s" % auth_object)
 
 
-class ApiTokenParam(object):
+class ApiTokenParam:
     """
     Authorizes requests using a token or key in a query parameter.
 
@@ -62,7 +61,7 @@ class ApiTokenParam(object):
         request_builder.info["params"][self._param] = self._param_value
 
 
-class ApiTokenHeader(object):
+class ApiTokenHeader:
     """
     Authorizes requests using a token or key in a header.
     Users should subclass this class to define which header is the token header.
@@ -109,8 +108,7 @@ class ApiTokenHeader(object):
     def _header_value(self):
         if self._prefix:
             return "%s %s" % (self._prefix, self._token)
-        else:
-            return self._token
+        return self._token
 
     def __call__(self, request_builder):
         request_builder.info["headers"][self._header] = self._header_value
@@ -183,7 +181,7 @@ class BearerToken(ApiTokenHeader):
         self._token = token
 
 
-class MultiAuth(object):
+class MultiAuth:
     """
     Authorizes requests using multiple auth methods at the same time.
 
@@ -229,9 +227,7 @@ class MultiAuth(object):
     """
 
     def __init__(self, *auth_methods):
-        self._auth_methods = [
-            get_auth(auth_method) for auth_method in auth_methods
-        ]
+        self._auth_methods = [get_auth(auth_method) for auth_method in auth_methods]
 
     def __call__(self, request_builder):
         for auth_method in self._auth_methods:
