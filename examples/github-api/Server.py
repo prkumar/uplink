@@ -58,7 +58,7 @@ async def _repos_for_keyword(keyword):
 
 
 async def _users_for_repo(user, repo_name, oldest_age=55):
-    """ Returns users that have commited in a repo in the last N weeks """
+    """ Returns users that have committed in a repo in the last N weeks """
 
     since = (datetime.now() - timedelta(weeks=oldest_age)).isoformat()
     r = await github.commits_for_repo(user, repo_name, since=since)
@@ -98,7 +98,7 @@ def users_for_repo(user, repo_name):
     """
   /users/<user>/repo/<repo_name>[?oldest-age=<age in weeks>]
 
-  Returns list of users who have commited in the resource user/repo in the last given amount of
+  Returns list of users who have committed in the resource user/repo in the last given amount of
   weeks """
 
     oldest_age = (
@@ -114,7 +114,7 @@ def users_for_keyword():
     """
   /users?keyword=<keyword>[?oldest-age=<age in weeks>]
 
-  Find the top users who have commited in repositories matching the keyword in the last month """
+  Find the top users who have committed in repositories matching the keyword in the last month """
     if "keyword" not in request.args:
         return "", 400
 

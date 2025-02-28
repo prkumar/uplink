@@ -52,7 +52,7 @@ class RequestPreparer(object):
         # TODO:
         #   Instead of creating a TransactionChain, we could simply
         #   add each response and error handler in the chain to the
-        #   execution builder. This would allow heterogenous response
+        #   execution builder. This would allow heterogeneous response
         #   and error handlers. Right now, the TransactionChain
         #   enforces that all response/error handlers are blocking if
         #   any response/error handler is blocking, which is
