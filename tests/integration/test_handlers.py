@@ -113,7 +113,7 @@ def test_multiple_response_handlers(mock_client):
 
 def test_error_handler_with_consumer(mock_client):
     # Setup: raise specific exception
-    expected_error = IOError()
+    expected_error = OSError()
     mock_client.with_side_effect(expected_error)
 
     calendar = Calendar(base_url=BASE_URL, client=mock_client)
@@ -131,7 +131,7 @@ def test_error_handler_with_consumer(mock_client):
 
 def test_error_handler(mock_client):
     # Setup: raise specific exception
-    expected_error = IOError()
+    expected_error = OSError()
     mock_client.with_side_effect(expected_error)
 
     calendar = Calendar(base_url=BASE_URL, client=mock_client)

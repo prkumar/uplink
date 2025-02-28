@@ -6,7 +6,7 @@ import inspect
 from uplink.converters import interfaces
 
 
-class Register(object):
+class Register:
     def __init__(self):
         self._register = collections.deque()
 

@@ -5,7 +5,7 @@ from uplink import helpers
 
 
 def test_get_api_definitions(request_definition_builder):
-    class Service(object):
+    class Service:
         builder = request_definition_builder
 
     assert dict(helpers.get_api_definitions(Service)) == {
@@ -14,7 +14,7 @@ def test_get_api_definitions(request_definition_builder):
 
 
 def test_get_api_definitions_from_parent(request_definition_builder):
-    class Parent(object):
+    class Parent:
         builder = request_definition_builder
 
     class Child(Parent):
@@ -26,7 +26,7 @@ def test_get_api_definitions_from_parent(request_definition_builder):
     }
 
 
-class TestRequestBuilder(object):
+class TestRequestBuilder:
     def test_return_type(self):
         # Setup
         builder = helpers.RequestBuilder(None, {}, "base_url")

@@ -2,6 +2,7 @@
 This module implements the built-in class and method decorators and their
 handling classes.
 """
+
 # Standard library imports
 import functools
 import inspect
@@ -11,16 +12,16 @@ from uplink import arguments, helpers, hooks, interfaces, utils
 from uplink.compat import abc
 
 __all__ = [
-    "headers",
-    "params",
-    "form_url_encoded",
-    "multipart",
-    "json",
-    "timeout",
     "args",
-    "response_handler",
     "error_handler",
+    "form_url_encoded",
+    "headers",
     "inject",
+    "json",
+    "multipart",
+    "params",
+    "response_handler",
+    "timeout",
 ]
 
 
@@ -449,8 +450,7 @@ class args(MethodAnnotation):
             handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
             return obj
-        else:
-            return super(args, self).__call__(obj)
+        return super(args, self).__call__(obj)
 
     def _helper(self, builder):
         builder.set_annotations(self._annotations, **self._more_annotations)

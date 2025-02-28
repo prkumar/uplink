@@ -4,6 +4,7 @@ to deserialize and serialize values.
 """
 
 from typing import TYPE_CHECKING, Any
+
 from uplink.converters.interfaces import Converter
 
 if TYPE_CHECKING:

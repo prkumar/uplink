@@ -1,4 +1,4 @@
-__all__ = ["sleep", "send", "finish", "fail", "prepare"]
+__all__ = ["fail", "finish", "prepare", "send", "sleep"]
 
 
 def sleep(seconds):

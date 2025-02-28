@@ -15,7 +15,7 @@ def request_state_mock(mocker):
     return mocker.Mock(spec=interfaces.RequestState)
 
 
-class BasicStateTest(object):
+class BasicStateTest:
     def create_state(self, request):
         raise NotImplementedError
 
@@ -76,7 +76,7 @@ class TestAfterException(BasicStateTest):
         return state.AfterException(request, Exception, Exception(), None)
 
 
-class TestSleep(object):
+class TestSleep:
     def test_execute(self, request_execution_mock):
         request = object()
         sleep = state.Sleep(request, 10)
@@ -97,7 +97,7 @@ class TestSleep(object):
         )
 
 
-class TestSendRequest(object):
+class TestSendRequest:
     def test_execute(self, request_execution_mock):
         request = object()
         send_request = state.SendRequest(request)
@@ -110,9 +110,7 @@ class TestSendRequest(object):
 
         response = object()
         callback.on_success(response)
-        assert request_execution_mock.state == state.AfterResponse(
-            request, response
-        )
+        assert request_execution_mock.state == state.AfterResponse(request, response)
 
         error = Exception()
         callback.on_failure(Exception, error, None)
@@ -121,7 +119,7 @@ class TestSendRequest(object):
         )
 
 
-class TestFail(object):
+class TestFail:
     def test_execute(self, request_execution_mock):
         request, error = object(), Exception()
         fail = state.Fail(request, type(error), error, None)
@@ -129,7 +127,7 @@ class TestFail(object):
         request_execution_mock.fail.assert_called_with(Exception, error, None)
 
 
-class TestFinish(object):
+class TestFinish:
     def test_execute(self, request_execution_mock):
         request, response = object(), object()
         finish = state.Finish(request, response)

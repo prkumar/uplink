@@ -1,5 +1,5 @@
 # Local imports
-from uplink import Consumer, PartMap, post, multipart
+from uplink import Consumer, PartMap, multipart, post
 
 # Constants
 BASE_URL = "https://example.com/"

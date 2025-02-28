@@ -2,11 +2,10 @@
 import pytest
 
 # Local imports
-from uplink import auth
-from uplink import utils
+from uplink import auth, utils
 
 
-class TestGetAuth(object):
+class TestGetAuth:
     def test_none(self):
         authentication = auth.get_auth(None)
         assert authentication == utils.no_op
@@ -47,7 +46,9 @@ def test_api_token_header_without_prefix(request_builder):
 
 def test_api_token_header_with_prefix(request_builder):
     # Setup
-    token_header_auth = auth.ApiTokenHeader("Token-Header", "token-value", prefix="Prefix")
+    token_header_auth = auth.ApiTokenHeader(
+        "Token-Header", "token-value", prefix="Prefix"
+    )
 
     # Verify
     token_header_auth(request_builder)
@@ -117,7 +118,7 @@ def test_bearer_token(request_builder):
     assert request_builder.info["headers"]["Authorization"] == auth_str
 
 
-class TestMultiAuth(object):
+class TestMultiAuth:
     def setup_basic_auth(self):
         return auth.BasicAuth("apiuser", "apipass")
 

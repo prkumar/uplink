@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Uplink documentation build configuration file, created by
 # sphinx-quickstart on Sun Sep 24 19:40:30 2017.
@@ -133,9 +132,9 @@ html_static_path = ["_static"]
 
 # Custom sidebar templates, maps document names to template names.
 html_sidebars = {
-    'index': ['about.html', 'links.html', 'navigation.html', 'searchbox.html'],
-    '**': ["about.html", 'localtoc.html', 'relations.html', 'searchbox.html'],
-    'changes': ['about.html', 'searchbox.html']
+    "index": ["about.html", "links.html", "navigation.html", "searchbox.html"],
+    "**": ["about.html", "localtoc.html", "relations.html", "searchbox.html"],
+    "changes": ["about.html", "searchbox.html"],
 }
 
 

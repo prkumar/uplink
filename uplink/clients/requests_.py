@@ -4,7 +4,7 @@
 import requests
 
 # Local imports
-from uplink.clients import exceptions, io, interfaces, register
+from uplink.clients import exceptions, interfaces, io, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):

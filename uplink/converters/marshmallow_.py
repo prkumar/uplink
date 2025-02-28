@@ -70,7 +70,7 @@ class MarshmallowConverter(interfaces.Factory):
     def _get_schema(cls, type_):
         if utils.is_subclass(type_, cls.marshmallow.Schema):
             return type_()
-        elif isinstance(type_, cls.marshmallow.Schema):
+        if isinstance(type_, cls.marshmallow.Schema):
             return type_
         raise ValueError("Expected marshmallow.Scheme subclass or instance.")
 

@@ -1,5 +1,5 @@
 # Local imports
-from uplink import Consumer, form_url_encoded, put, FieldMap
+from uplink import Consumer, FieldMap, form_url_encoded, put
 
 # Constants
 BASE_URL = "https://example.com/"

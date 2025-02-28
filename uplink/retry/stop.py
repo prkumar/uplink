@@ -1,13 +1,12 @@
-
 __all__ = ["after_attempt", "after_delay"]
 
 
-class RetryBreaker(object):
+class RetryBreaker:
     def __or__(self, other):
         if other is not None:
-            assert isinstance(
-                other, RetryBreaker
-            ), "Both objects should be retry breakers."
+            assert isinstance(other, RetryBreaker), (
+                "Both objects should be retry breakers."
+            )
             return _Or(self, other)
         return self
 

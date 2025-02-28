@@ -1,14 +1,14 @@
 # Standard library imports
-import inspect
 import collections
-import pkg_resources
+import inspect
 
+import pkg_resources
 
 _INSTALLERS = collections.OrderedDict()
 _ENTRY_POINTS = collections.OrderedDict()
 
 
-class plugin(object):
+class plugin:
     _BASE_ENTRY_POINT_NAME = "uplink.plugins."
 
     def __init__(self, name, _entry_points=_ENTRY_POINTS):
@@ -20,7 +20,7 @@ class plugin(object):
         return func
 
 
-class installer(object):
+class installer:
     def __init__(self, base_cls, _installers=_INSTALLERS):
         self._base_cls = base_cls
         self._installers = _installers

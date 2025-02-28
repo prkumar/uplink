@@ -13,7 +13,7 @@ from uplink import (
 )
 from uplink.compat import abc
 
-__all__ = ["get", "head", "put", "post", "patch", "delete"]
+__all__ = ["delete", "get", "head", "patch", "post", "put"]
 
 
 class MissingArgumentAnnotations(exceptions.InvalidRequestDefinition):
@@ -56,16 +56,13 @@ class URIDefinitionBuilder(interfaces.UriDefinitionBuilder):
     def is_dynamic(self, is_dynamic):
         if self.is_static:
             raise ValueError(
-                "Failed to set dynamic URI as URI is already defined: %s"
-                % self._uri
+                "Failed to set dynamic URI as URI is already defined: %s" % self._uri
             )
         self._is_dynamic = is_dynamic
 
     def add_variable(self, name):
         if self.is_static and name not in self.remaining_variables:
-            raise ValueError(
-                "`%s` is not a variable on the uri %s" % (name, self._uri)
-            )
+            raise ValueError("`%s` is not a variable on the uri %s" % (name, self._uri))
         self._uri_variables.add(name)
 
     @property
@@ -195,9 +192,8 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
         if callable(uri):
             return factory(self.uri.template, args)(uri)
-        else:
-            uri = self.uri.template if uri is None else uri
-            return factory(uri, args)
+        uri = self.uri.template if uri is None else uri
+        return factory(uri, args)
 
     def _extend(self, func, method, uri, arg_handler, _):
         builder = RequestDefinitionBuilder(
@@ -257,9 +253,7 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
 
 
 class RequestDefinition(interfaces.RequestDefinition):
-    def __init__(
-        self, method, uri, return_type, argument_handler, method_handler
-    ):
+    def __init__(self, method, uri, return_type, argument_handler, method_handler):
         self._method = method
         self._uri = uri
         self._return_type = return_type
@@ -281,36 +275,31 @@ class RequestDefinition(interfaces.RequestDefinition):
         request_builder.method = self._method
         request_builder.relative_url = self._uri
         request_builder.return_type = self._return_type
-        self._argument_handler.handle_call(
-            request_builder, func_args, func_kwargs
-        )
+        self._argument_handler.handle_call(request_builder, func_args, func_kwargs)
         self._method_handler.handle_builder(request_builder)
 
 
-class HttpMethodFactory(object):
+class HttpMethodFactory:
     def __init__(
         self,
         method,
         request_definition_builder_factory=RequestDefinitionBuilder,
     ):
         self._method = method
-        self._request_definition_builder_factory = (
-            request_definition_builder_factory
-        )
+        self._request_definition_builder_factory = request_definition_builder_factory
 
     def __call__(self, uri=None, args=()):
         if callable(uri) and not args:
             return HttpMethod(self._method)(
                 uri, self._request_definition_builder_factory
             )
-        else:
-            return functools.partial(
-                HttpMethod(self._method, uri, args),
-                request_definition_builder_factory=self._request_definition_builder_factory,
-            )
+        return functools.partial(
+            HttpMethod(self._method, uri, args),
+            request_definition_builder_factory=self._request_definition_builder_factory,
+        )
 
 
-class HttpMethod(object):
+class HttpMethod:
     @staticmethod
     def _add_args(obj):
         return obj
@@ -329,9 +318,7 @@ class HttpMethod(object):
         self, func, request_definition_builder_factory=RequestDefinitionBuilder
     ):
         spec = utils.get_arg_spec(func)
-        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(
-            func, spec.args
-        )
+        arg_handler = arguments.ArgumentAnnotationHandlerBuilder(func, spec.args)
         builder = request_definition_builder_factory(
             func,
             self._method,

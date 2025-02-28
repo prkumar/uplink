@@ -1,5 +1,4 @@
 # Standard library imports
-import typing
 import sys
 
 # Third-party imports
@@ -18,16 +17,14 @@ from uplink import converters
 from uplink.converters import register, standard
 
 
-class TestStringConverter(object):
+class TestStringConverter:
     def test_convert(self):
         converter_ = standard.StringConverter()
         assert converter_.convert(2) == "2"
 
 
-class TestStandardConverter(object):
-    def test_create_response_body_converter_with_converter(
-        self, converter_mock
-    ):
+class TestStandardConverter:
+    def test_create_response_body_converter_with_converter(self, converter_mock):
         # Setup
         factory = standard.StandardConverter()
 
@@ -79,7 +76,7 @@ class TestStandardConverter(object):
         assert isinstance(converter, standard.StringConverter)
 
 
-class TestConverterFactoryRegistry(object):
+class TestConverterFactoryRegistry:
     backend = converters.ConverterFactoryRegistry._converter_factory_registry
 
     def test_init_args_are_passed_to_factory(
@@ -87,9 +84,7 @@ class TestConverterFactoryRegistry(object):
     ):
         args = ("arg1", "arg2")
         kwargs = {"arg3": "arg3"}
-        converter_factory_mock.create_string_converter.return_value = (
-            converter_mock
-        )
+        converter_factory_mock.create_string_converter.return_value = converter_mock
         registry = converters.ConverterFactoryRegistry(
             (converter_factory_mock,), *args, **kwargs
         )
@@ -105,12 +100,8 @@ class TestConverterFactoryRegistry(object):
         assert return_value is None
 
     def test_hooks(self, converter_factory_mock, converter_mock):
-        converter_factory_mock.create_string_converter.return_value = (
-            converter_mock
-        )
-        registry = converters.ConverterFactoryRegistry(
-            (converter_factory_mock,)
-        )
+        converter_factory_mock.create_string_converter.return_value = converter_mock
+        registry = converters.ConverterFactoryRegistry((converter_factory_mock,))
         registry[converters.keys.CONVERT_TO_STRING]()
         assert converter_mock.set_chain.called
 
@@ -147,14 +138,11 @@ def schema_mock_and_argument(request, mocker):
     schema = mocker.Mock(spec=marshmallow.Schema)
     if request.param == "class":
         return schema, Schema
-    else:
-        return schema, schema
+    return schema, schema
 
 
-class TestMarshmallowConverter(object):
-    for_marshmallow_2_and_3 = pytest.mark.parametrize(
-        "is_marshmallow_3", [True, False]
-    )
+class TestMarshmallowConverter:
+    for_marshmallow_2_and_3 = pytest.mark.parametrize("is_marshmallow_3", [True, False])
 
     @staticmethod
     def _mock_data(mocker, expected_result, is_marshmallow_3):
@@ -297,7 +285,7 @@ class TestMarshmallowConverter(object):
         converters.MarshmallowConverter.marshmallow = old_marshmallow
 
 
-class TestMap(object):
+class TestMap:
     def test_convert(self):
         # Setup
         registry = converters.ConverterFactoryRegistry(
@@ -318,7 +306,7 @@ class TestMap(object):
         assert not (converters.keys.Map(1) == 1)
 
 
-class TestSequence(object):
+class TestSequence:
     def test_convert_with_sequence(self):
         # Setup
         registry = converters.ConverterFactoryRegistry(
@@ -353,14 +341,12 @@ class TestSequence(object):
         assert not (converters.keys.Sequence(1) == 1)
 
 
-class TestIdentity(object):
+class TestIdentity:
     _sentinel = object()
 
     @pytest.fixture(scope="class")
     def registry(self):
-        return converters.ConverterFactoryRegistry(
-            (converters.StandardConverter(),)
-        )
+        return converters.ConverterFactoryRegistry((converters.StandardConverter(),))
 
     @pytest.fixture(scope="class")
     def key(self):
@@ -384,7 +370,7 @@ class TestIdentity(object):
         assert converters.keys.Identity() == converters.keys.Identity()
 
 
-class TestRegistry(object):
+class TestRegistry:
     @pytest.mark.parametrize(
         "converter",
         # Try with both class and instance
@@ -410,7 +396,7 @@ class TestRegistry(object):
             registry.register_converter_factory(object())
 
 
-class TestTypingConverter(object):
+class TestTypingConverter:
     singleton = converters.TypingConverter()
     inject_methods = pytest.mark.parametrize(
         "method, use_typing",
@@ -440,7 +426,7 @@ class TestTypingConverter(object):
 
         # Verify with unsupported type
         if use_typing:
-            converter = method(typing.Set[str])
+            converter = method(set[str])
             assert converter is None
 
     def test_list_converter(self):
@@ -470,10 +456,8 @@ class TestTypingConverter(object):
         assert output == "1"
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 6), reason="requires python3.6 or higher"
-)
-class TestPydanticV1Converter(object):
+@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
+class TestPydanticV1Converter:
     @pytest.fixture
     def pydantic_model_mock(self, mocker):
         class Model(pydantic.v1.BaseModel):
@@ -518,8 +502,8 @@ class TestPydanticV1Converter(object):
         model_mock.dict.assert_called_once()
 
     def test_convert_complex_model(self):
-        from json import loads
         from datetime import datetime
+        from json import loads
 
         class ComplexModel(pydantic.v1.BaseModel):
             when = datetime.utcnow()  # type: datetime
@@ -531,9 +515,7 @@ class TestPydanticV1Converter(object):
         expected_result = loads(model.json())
 
         converter = converters.PydanticConverter()
-        request_converter = converter.create_request_body_converter(
-            ComplexModel
-        )
+        request_converter = converter.create_request_body_converter(ComplexModel)
 
         result = request_converter.convert(request_body)
 
@@ -625,9 +607,7 @@ class TestPydanticV1Converter(object):
     @pytest.mark.parametrize(
         "pydantic_installed,expected",
         [
-            pytest.param(
-                True, [converters.PydanticConverter], id="pydantic_installed"
-            ),
+            pytest.param(True, [converters.PydanticConverter], id="pydantic_installed"),
             pytest.param(None, [], id="pydantic_not_installed"),
         ],
     )
@@ -647,10 +627,7 @@ class TestPydanticV1Converter(object):
         converter.pydantic = v2
 
 
-@pytest.mark.skipif(
-    sys.version_info < (3, 6), reason="requires python3.6 or higher"
-)
-class TestPydanticV2Converter(object):
+class TestPydanticV2Converter:
     @pytest.fixture
     def pydantic_model_mock(self, mocker):
         class Model(pydantic.BaseModel):
@@ -674,8 +651,8 @@ class TestPydanticV2Converter(object):
         assert result == expected_result
 
     def test_convert_complex_model(self):
-        from json import loads
         from datetime import datetime
+        from json import loads
 
         class ComplexModel(pydantic.BaseModel):
             when: datetime = datetime.utcnow()

@@ -4,12 +4,12 @@ import warnings
 
 # Local imports
 from uplink import decorators
-from uplink.converters import keys, interfaces
+from uplink.converters import interfaces, keys
 
-__all__ = ["json", "from_json", "schema"]
+__all__ = ["from_json", "json", "schema"]
 
 
-class ReturnType(object):
+class ReturnType:
     def __init__(self, decorator, type_):
         self._decorator = decorator
         self._type_ = type_
@@ -49,9 +49,7 @@ class _ReturnsBase(decorators.MethodAnnotation):
 
     def _modify_request_definition(self, definition, kwargs):
         super(_ReturnsBase, self)._modify_request_definition(definition, kwargs)
-        definition.return_type = ReturnType.with_decorator(
-            definition.return_type, self
-        )
+        definition.return_type = ReturnType.with_decorator(definition.return_type, self)
 
     def _get_converter(self, request_builder, return_type):  # pragma: no cover
         return request_builder.get_converter(
@@ -73,7 +71,7 @@ class _ReturnsBase(decorators.MethodAnnotation):
         )
 
 
-class JsonStrategy(object):
+class JsonStrategy:
     # TODO: Consider moving this under json decorator
     # TODO: Support JSON Pointer (https://tools.ietf.org/html/rfc6901)
 
@@ -185,9 +183,7 @@ class json(_ReturnsBase):
         return self._type
 
     def _get_converter(self, request_builder, return_type):
-        converter = super(json, self)._get_converter(
-            request_builder, return_type
-        )
+        converter = super(json, self)._get_converter(request_builder, return_type)
 
         if converter:
             return converter
@@ -289,7 +285,7 @@ class schema(_ReturnsBase):
         return converter
 
 
-class _ModuleProxy(object):
+class _ModuleProxy:
     __module = sys.modules[__name__]
 
     schema = model = schema

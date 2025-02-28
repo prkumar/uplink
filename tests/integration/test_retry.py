@@ -3,7 +3,7 @@ import pytest
 import pytest_twisted
 
 # Local imports.
-from uplink import get, Consumer, retry
+from uplink import Consumer, get, retry
 from uplink.clients import io
 
 # Constants
@@ -32,9 +32,7 @@ class GitHub(Consumer):
     def get_issue(self, user, repo, issue):
         pass
 
-    @retry(
-        stop=retry.stop.after_attempt(3), on_exception=retry.CONNECTION_TIMEOUT
-    )
+    @retry(stop=retry.stop.after_attempt(3), on_exception=retry.CONNECTION_TIMEOUT)
     @get("repos/{user}/{repo}/project/{project}")
     def get_project(self, user, repo, project):
         pass

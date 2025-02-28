@@ -45,9 +45,7 @@ class TwistedClient(interfaces.HttpClientAdapter):
         return io.TwistedStrategy()
 
     def apply_callback(self, callback, response):
-        return threads.deferToThread(
-            self._proxy.apply_callback, callback, response
-        )
+        return threads.deferToThread(self._proxy.apply_callback, callback, response)
 
     def send(self, request):
         return threads.deferToThread(self._proxy.send, request)

@@ -29,7 +29,7 @@ def test_call_args():
     assert call_args == {"pos1": 1, "args": (2,), "kwargs": {"named": 3}}
 
 
-class TestURIBuilder(object):
+class TestURIBuilder:
     def test_variables_not_string(self):
         assert utils.URIBuilder.variables(None) == set()
 
