@@ -2,6 +2,7 @@
 This module implements the built-in argument annotations and their
 handling classes.
 """
+
 # Standard library imports
 import collections
 import functools
@@ -13,27 +14,24 @@ from uplink.compat import abc
 from uplink.converters import keys
 
 __all__ = [
+    "Body",
+    "Context",
+    "Field",
+    "FieldMap",
+    "Header",
+    "HeaderMap",
+    "Part",
+    "PartMap",
     "Path",
     "Query",
     "QueryMap",
-    "Header",
-    "HeaderMap",
-    "Field",
-    "FieldMap",
-    "Part",
-    "PartMap",
-    "Body",
-    "Url",
     "Timeout",
-    "Context",
+    "Url",
 ]
 
 
 class ExhaustedArguments(exceptions.AnnotationError):
-    message = (
-        "Failed to add `%s` to method `%s`, as all arguments have "
-        "been annotated."
-    )
+    message = "Failed to add `%s` to method `%s`, as all arguments have been annotated."
 
     def __init__(self, annotation, func):
         self.message = self.message % (annotation, func.__name__)
@@ -77,11 +75,9 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         if annotations is not None:
             if not isinstance(annotations, abc.Mapping):
                 missing = tuple(
-                    a
-                    for a in self.missing_arguments
-                    if a not in more_annotations
+                    a for a in self.missing_arguments if a not in more_annotations
                 )
-                annotations = dict(zip(missing, annotations))
+                annotations = dict(zip(missing, annotations, strict=False))
             more_annotations.update(annotations)
         for name in more_annotations:
             self.add_annotation(more_annotations[name], name)
@@ -94,18 +90,18 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
     def add_annotation(self, annotation, name=None, *args, **kwargs):
         if self._is_annotation(annotation):
             return self._add_annotation(annotation, name)
-        else:
-            self._argument_types[name] = annotation
+        self._argument_types[name] = annotation
+        return None
 
     def _add_annotation(self, annotation, name=None):
         try:
             name = next(self.missing_arguments) if name is None else name
-        except StopIteration:
-            raise ExhaustedArguments(annotation, self._func)
+        except StopIteration as e:
+            raise ExhaustedArguments(annotation, self._func) from e
         if name not in self._annotations:
             raise ArgumentNotFound(name, self._func)
         annotation = self._process_annotation(name, annotation)
-        super(ArgumentAnnotationHandlerBuilder, self).add_annotation(annotation)
+        super().add_annotation(annotation)
         self._defined += self._annotations[name] is None
         self._annotations[name] = annotation
         return annotation
@@ -209,7 +205,7 @@ class NamedArgument(TypedArgument):
 
     def __init__(self, name=None, type=None):
         self._arg_name = name
-        super(NamedArgument, self).__init__(type)
+        super().__init__(type)
 
     @property
     def name(self):
@@ -227,7 +223,7 @@ class NamedArgument(TypedArgument):
         raise NotImplementedError
 
 
-class EncodeNoneMixin(object):
+class EncodeNoneMixin:
     #: Identifies how a `None` value should be encoded in the request.
     _encode_none = None  # type: str
 
@@ -239,15 +235,14 @@ class EncodeNoneMixin(object):
             if self._encode_none is None:
                 # ignore value if it is None and shouldn't be encoded
                 return
-            else:
-                value = self._encode_none
-        super(EncodeNoneMixin, self).modify_request(request_builder, value)
+            value = self._encode_none
+        super().modify_request(request_builder, value)
 
 
-class FuncDecoratorMixin(object):
+class FuncDecoratorMixin:
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
-        if super(FuncDecoratorMixin, cls)._is_static_call(*args_, **kwargs):
+        if super()._is_static_call(*args_, **kwargs):
             return True
         try:
             is_func = inspect.isfunction(args_[0])
@@ -260,8 +255,7 @@ class FuncDecoratorMixin(object):
         if inspect.isfunction(obj):
             ArgumentAnnotationHandlerBuilder.from_func(obj).add_annotation(self)
             return obj
-        else:
-            return super(FuncDecoratorMixin, self).__call__(obj)
+        return super().__call__(obj)
 
     def with_value(self, value):
         """
@@ -376,7 +370,7 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
         message = "Failed to join encoded and unencoded query parameters."
 
     def __init__(self, name=None, encoded=False, type=None, encode_none=None):
-        super(Query, self).__init__(name, type)
+        super().__init__(name, type)
         self._encoded = encoded
         self._encode_none = encode_none
 
@@ -385,14 +379,14 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
         # TODO: Consider moving some of this to the client backend.
         if encoded:
             params = [] if existing is None else [str(existing)]
-            params.extend("%s=%s" % (n, new_params[n]) for n in new_params)
+            params.extend(f"{n}={new_params[n]}" for n in new_params)
             info["params"] = "&".join(params)
         else:
             info["params"].update(new_params)
 
     @staticmethod
     def update_params(info, new_params, encoded):
-        existing = info.setdefault("params", None if encoded else dict())
+        existing = info.setdefault("params", None if encoded else {})
         if encoded == isinstance(existing, abc.Mapping):
             raise Query.QueryStringEncodingError()
         Query._update_params(info, existing, new_params, encoded)
@@ -402,14 +396,11 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
         """Converts query parameters to the request body."""
         if self._encoded:
             return keys.CONVERT_TO_STRING
-        else:
-            return keys.Sequence(keys.CONVERT_TO_STRING)
+        return keys.Sequence(keys.CONVERT_TO_STRING)
 
     def _modify_request(self, request_builder, value):
         """Updates request body with the query parameter."""
-        self.update_params(
-            request_builder.info, {self.name: value}, self._encoded
-        )
+        self.update_params(request_builder.info, {self.name: value}, self._encoded)
 
 
 class QueryMap(FuncDecoratorMixin, TypedArgument):
@@ -433,7 +424,7 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
     """
 
     def __init__(self, encoded=False, type=None):
-        super(QueryMap, self).__init__(type)
+        super().__init__(type)
         self._encoded = encoded
 
     @property
@@ -441,8 +432,7 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
         """Converts query mapping to request body."""
         if self._encoded:
             return keys.Map(keys.CONVERT_TO_STRING)
-        else:
-            return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
+        return keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
     def _modify_request(self, request_builder, value):
         """Updates request body with the mapping of query args."""
@@ -536,10 +526,9 @@ class Field(NamedArgument):
         """Updates the request body with chosen field."""
         try:
             request_builder.info["data"][self.name] = value
-        except TypeError:
-            # TODO: re-raise with TypeError
+        except TypeError as e:
             # `data` does not support item assignment
-            raise self.FieldAssignmentFailed(self)
+            raise self.FieldAssignmentFailed(self) from e
 
 
 class FieldMap(TypedArgument):
@@ -576,9 +565,8 @@ class FieldMap(TypedArgument):
         """Updates request body with chosen field mapping."""
         try:
             request_builder.info["data"].update(value)
-        except AttributeError:
-            # TODO: re-raise with AttributeError
-            raise self.FieldMapUpdateFailed()
+        except AttributeError as e:
+            raise self.FieldMapUpdateFailed() from e
 
 
 class Part(NamedArgument):
@@ -694,9 +682,9 @@ class Url(ArgumentAnnotation):
         """Sets dynamic url."""
         try:
             request_definition_builder.uri.is_dynamic = True
-        except ValueError:
+        except ValueError as e:
             # TODO: re-raise with ValueError
-            raise self.DynamicUrlAssignmentFailed(request_definition_builder)
+            raise self.DynamicUrlAssignmentFailed(request_definition_builder) from e
 
     @classmethod
     def _modify_request(cls, request_builder, value):

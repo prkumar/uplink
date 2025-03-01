@@ -8,7 +8,7 @@ from uplink.clients import io
 
 @pytest.fixture
 def fake_service_cls(request_definition_builder, request_definition):
-    class Service(object):
+    class Service:
         builder = request_definition_builder
 
     request_definition_builder.build.return_value = request_definition
@@ -22,7 +22,7 @@ def uplink_builder(http_client_mock):
     return b
 
 
-class TestRequestPreparer(object):
+class TestRequestPreparer:
     def test_prepare_request(self, mocker, request_builder):
         request_builder.method = "METHOD"
         request_builder.relative_url = "/example/path"
@@ -54,9 +54,7 @@ class TestRequestPreparer(object):
         request_preparer.prepare_request(request_builder, execution_builder)
 
         # Verify
-        transaction_hook_mock.audit_request.assert_called_with(
-            None, request_builder
-        )
+        transaction_hook_mock.audit_request.assert_called_with(None, request_builder)
         execution_builder.with_client.assert_called_with(uplink_builder.client)
         execution_builder.with_io.assert_called_with(uplink_builder.client.io())
         execution_builder.with_template(request_builder.request_template)
@@ -83,7 +81,7 @@ class TestRequestPreparer(object):
         assert isinstance(request, helpers.RequestBuilder)
 
 
-class TestCallFactory(object):
+class TestCallFactory:
     def test_call(self, mocker, request_definition, request_builder):
         args = ()
         kwargs = {}
@@ -94,10 +92,7 @@ class TestCallFactory(object):
         factory = builder.CallFactory(
             request_preparer, request_definition, lambda: execution_builder
         )
-        assert (
-            factory(*args, **kwargs)
-            is execution_builder.build().start.return_value
-        )
+        assert factory(*args, **kwargs) is execution_builder.build().start.return_value
         request_definition.define_request.assert_called_with(
             request_builder, args, kwargs
         )
@@ -109,11 +104,9 @@ class TestCallFactory(object):
         )
 
 
-class TestBuilder(object):
+class TestBuilder:
     def test_init_adds_standard_converter_factory(self, uplink_builder):
-        assert isinstance(
-            uplink_builder.converters[-1], converters.StandardConverter
-        )
+        assert isinstance(uplink_builder.converters[-1], converters.StandardConverter)
 
     def test_client_getter(self, uplink_builder, http_client_mock):
         uplink_builder.client = http_client_mock
@@ -127,11 +120,9 @@ class TestBuilder(object):
         uplink_builder.base_url = "example"
         assert uplink_builder._base_url == "example"
 
-    def test_add_converter_factory(
-        self, uplink_builder, converter_factory_mock
-    ):
+    def test_add_converter_factory(self, uplink_builder, converter_factory_mock):
         uplink_builder.converters = (converter_factory_mock,)
-        factory = list(uplink_builder.converters)[0]
+        factory = next(iter(uplink_builder.converters))
         assert factory == converter_factory_mock
 
     def test_build(self, request_definition, uplink_builder):
@@ -170,7 +161,7 @@ def test_build(
     )
     assert builder_mock.base_url == "example.com"
     assert builder_mock.client is http_client_mock
-    assert list(builder_mock.converters)[0] is converter_factory_mock
+    assert next(iter(builder_mock.converters)) is converter_factory_mock
     assert isinstance(builder_mock.auth, auth.BasicAuth)
 
 

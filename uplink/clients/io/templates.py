@@ -37,9 +37,7 @@ class CompositeRequestTemplate(RequestTemplate):
         self._fallback = fallback
 
     def before_request(self, request):
-        return self._get_transition(
-            RequestTemplate.before_request.__name__, request
-        )
+        return self._get_transition(RequestTemplate.before_request.__name__, request)
 
     def after_response(self, request, response):
         return self._get_transition(

@@ -9,10 +9,7 @@ from . import test_retry
 
 @pytest.mark.asyncio
 async def test_retry_with_asyncio(mock_client, mock_response):
-    import asyncio
-
-    @asyncio.coroutine
-    def coroutine():
+    async def coroutine():
         return mock_response
 
     # Setup

@@ -1,0 +1,44 @@
+line-length = 88
+
+target-version = "py310"
+
+[lint]
+extend-select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "C",   # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+  "PT",  # flake8-pytest-style
+  "TCH", # flake8-type-checking
+  "RET", # flake8-return
+  "RUF", # ruff
+]
+
+ignore = [
+  "E501",
+  "C901",   # too complex"
+  "RUF012",
+]
+
+exclude = [
+  ".direnv",
+  ".git",
+  ".mypy_cache",
+  ".ruff_cache",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+per-file-ignores = {}
+
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"

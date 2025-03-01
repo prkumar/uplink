@@ -2,10 +2,11 @@
 This module provides a class for defining custom handling for specific
 points of an HTTP transaction.
 """
+
 # Local imports
 from uplink import compat
 
-__all__ = ["TransactionHook", "RequestAuditor", "ResponseHandler"]
+__all__ = ["RequestAuditor", "ResponseHandler", "TransactionHook"]
 
 
 def _wrap_if_necessary(hook, requires_consumer):
@@ -23,7 +24,7 @@ def _wrap_to_ignore_consumer(hook):
     return wrapper
 
 
-class TransactionHook(object):
+class TransactionHook:
     """
     A utility class providing methods that define hooks for specific
     points of an HTTP transaction.
@@ -44,9 +45,7 @@ class TransactionHook(object):
         response: The received HTTP response.
     """
 
-    def handle_exception(
-        self, consumer, exc_type, exc_val, exc_tb
-    ):  # pragma: no cover
+    def handle_exception(self, consumer, exc_type, exc_val, exc_tb):  # pragma: no cover
         """
         Handles an exception thrown while waiting for a response from
         the server.
@@ -137,6 +136,4 @@ class ExceptionHandler(TransactionHook):
     """
 
     def __init__(self, exception_handler, requires_consumer=False):
-        self.handle_exception = _wrap_if_necessary(
-            exception_handler, requires_consumer
-        )
+        self.handle_exception = _wrap_if_necessary(exception_handler, requires_consumer)

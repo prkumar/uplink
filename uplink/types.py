@@ -1,7 +1,7 @@
 # Local imports
 from uplink import converters
 
-__all__ = ["List", "Dict"]
+__all__ = ["Dict", "List"]
 
 List = converters.TypingConverter.List
 """

@@ -2,6 +2,7 @@
 This module implements the built-in class and method decorators and their
 handling classes.
 """
+
 # Standard library imports
 import functools
 import inspect
@@ -11,30 +12,30 @@ from uplink import arguments, helpers, hooks, interfaces, utils
 from uplink.compat import abc
 
 __all__ = [
-    "headers",
-    "params",
-    "form_url_encoded",
-    "multipart",
-    "json",
-    "timeout",
     "args",
-    "response_handler",
     "error_handler",
+    "form_url_encoded",
+    "headers",
     "inject",
+    "json",
+    "multipart",
+    "params",
+    "response_handler",
+    "timeout",
 ]
 
 
 class MethodAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
     def __init__(self):
-        self._class_annotations = list()
-        self._method_annotations = list()
+        self._class_annotations = []
+        self._method_annotations = []
 
     def add_annotation(self, annotation, *args_, **kwargs):
         if kwargs.get("is_class", False):
             self._class_annotations.append(annotation)
         else:
             self._method_annotations.append(annotation)
-        super(MethodAnnotationHandlerBuilder, self).add_annotation(annotation)
+        super().add_annotation(annotation)
         return annotation
 
     def copy(self):
@@ -86,7 +87,7 @@ class MethodAnnotation(interfaces.Annotation):
 
     @classmethod
     def _is_static_call(cls, *args_, **kwargs):
-        if super(MethodAnnotation, cls)._is_static_call(*args_, **kwargs):
+        if super()._is_static_call(*args_, **kwargs):
             return True
         try:
             is_consumer_class = cls._is_consumer_class(args_[0])
@@ -164,7 +165,7 @@ class headers(_BaseRequestProperties):
         if isinstance(arg, str):
             key, value = self._split(arg)
             arg = {key: value}
-        super(headers, self).__init__(arg or {}, **kwargs)
+        super().__init__(arg or {}, **kwargs)
 
     @property
     def _delimiter(self):
@@ -206,7 +207,7 @@ class params(_BaseRequestProperties):
     def __init__(self, arg=None, **kwargs):
         if isinstance(arg, str):
             arg = arg.split("&")
-        super(params, self).__init__(arg or {}, **kwargs)
+        super().__init__(arg or {}, **kwargs)
 
     @property
     def _property_name(self):
@@ -345,8 +346,8 @@ class json(MethodAnnotation):
             body = body.setdefault(name, {})
             if not isinstance(body, abc.Mapping):
                 raise ValueError(
-                    "Failed to set nested JSON attribute '%s': "
-                    "parent field '%s' is not a JSON object." % (path, name)
+                    f"Failed to set nested JSON attribute '{path}': "
+                    f"parent field '{name}' is not a JSON object."
                 )
         body[path[-1]] = value
 
@@ -449,8 +450,7 @@ class args(MethodAnnotation):
             handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(obj)
             self._helper(handler)
             return obj
-        else:
-            return super(args, self).__call__(obj)
+        return super().__call__(obj)
 
     def _helper(self, builder):
         builder.set_annotations(self._annotations, **self._more_annotations)
@@ -469,7 +469,7 @@ class _BaseHandlerAnnotation(_InjectableMethodAnnotation):
     def __new__(cls, func=None, *args, **kwargs):
         if func is None:
             return lambda f: cls(f, *args, **kwargs)
-        self = super(_BaseHandlerAnnotation, cls).__new__(cls)
+        self = super().__new__(cls)
         functools.update_wrapper(self, func)
         return self
 

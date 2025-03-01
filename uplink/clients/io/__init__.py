@@ -1,23 +1,23 @@
+from uplink.clients.io.blocking_strategy import BlockingStrategy
+from uplink.clients.io.execution import RequestExecutionBuilder
 from uplink.clients.io.interfaces import (
     Client,
     Executable,
     IOStrategy,
     RequestTemplate,
 )
-from uplink.clients.io.execution import RequestExecutionBuilder
 from uplink.clients.io.templates import CompositeRequestTemplate
-from uplink.clients.io.blocking_strategy import BlockingStrategy
 
 __all__ = [
+    "AsyncioStrategy",
+    "BlockingStrategy",
     "Client",
     "CompositeRequestTemplate",
     "Executable",
     "IOStrategy",
-    "RequestTemplate",
-    "BlockingStrategy",
-    "AsyncioStrategy",
-    "TwistedStrategy",
     "RequestExecutionBuilder",
+    "RequestTemplate",
+    "TwistedStrategy",
 ]
 
 try:

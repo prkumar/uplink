@@ -5,7 +5,7 @@ import pytest
 from uplink import hooks
 
 
-class TestResponseHandler(object):
+class TestResponseHandler:
     def test_handle_response(self, mocker):
         converter = mocker.Mock()
         input_value = "converted"
@@ -14,7 +14,7 @@ class TestResponseHandler(object):
         assert rc.handle_response(None) is input_value
 
 
-class TestRequestAuditor(object):
+class TestRequestAuditor:
     def test_audit_request(self, mocker):
         auditor = mocker.Mock()
         ra = hooks.RequestAuditor(auditor)
@@ -22,7 +22,7 @@ class TestRequestAuditor(object):
         auditor.assert_called_with("request")
 
 
-class TestExceptionHandler(object):
+class TestExceptionHandler:
     def test_handle_exception_masked(self, mocker):
         handler = mocker.Mock()
         eh = hooks.ExceptionHandler(handler)
@@ -30,13 +30,11 @@ class TestExceptionHandler(object):
         handler.assert_called_with("exc_type", "exc_val", "exc_tb")
 
 
-class TestTransactionHookChain(object):
+class TestTransactionHookChain:
     def test_delegate_audit_request(self, transaction_hook_mock):
         chain = hooks.TransactionHookChain(transaction_hook_mock)
         chain.audit_request("consumer", "request")
-        transaction_hook_mock.audit_request.assert_called_with(
-            "consumer", "request"
-        )
+        transaction_hook_mock.audit_request.assert_called_with("consumer", "request")
 
     def test_delegate_handle_response(self, transaction_hook_mock):
         chain = hooks.TransactionHookChain(transaction_hook_mock)

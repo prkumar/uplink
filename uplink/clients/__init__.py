@@ -10,6 +10,7 @@ Todo:
     At some point, we may want to expose this layer to the user, so
     they can create custom adapters.
 """
+
 # Local imports
 from uplink import utils
 from uplink.clients import interfaces, register
@@ -22,6 +23,7 @@ from uplink.clients.twisted_ import TwistedClient
 def _client_class_handler(key):
     if utils.is_subclass(key, interfaces.HttpClientAdapter):
         return key()
+    return None
 
 
 try:
@@ -37,10 +39,10 @@ except (ImportError, SyntaxError):  # pragma: no cover
 
 
 __all__ = [
-    "RequestsClient",
-    "AiohttpClient",
-    "TwistedClient",
     "DEFAULT_CLIENT",
+    "AiohttpClient",
+    "RequestsClient",
+    "TwistedClient",
     "get_client",
 ]
 

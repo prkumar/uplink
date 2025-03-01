@@ -93,15 +93,11 @@ def test_returns_json_on_class(mock_client, mock_response):
     assert repo == {"owner": "prkumar", "name": "uplink"}
 
 
-def test_returns_response_when_type_has_no_converter(
-    mock_client, mock_response
-):
+def test_returns_response_when_type_has_no_converter(mock_client, mock_response):
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
     mock_client.with_response(mock_response)
-    github = GitHub(
-        base_url=BASE_URL, client=mock_client, converters=user_reader
-    )
+    github = GitHub(base_url=BASE_URL, client=mock_client, converters=user_reader)
 
     # Run
     response = github.list_users()
@@ -114,9 +110,7 @@ def test_returns_with_type(mock_client, mock_response):
     # Setup
     mock_response.with_json({"id": 123, "name": "prkumar"})
     mock_client.with_response(mock_response)
-    github = GitHub(
-        base_url=BASE_URL, client=mock_client, converters=user_reader
-    )
+    github = GitHub(base_url=BASE_URL, client=mock_client, converters=user_reader)
 
     # Run
     user = github.get_user("prkumar")
@@ -129,9 +123,7 @@ def test_returns_json_with_type(mock_client, mock_response):
     # Setup
     mock_response.with_json({"owner": "prkumar", "name": "uplink"})
     mock_client.with_response(mock_response)
-    github = GitHub(
-        base_url=BASE_URL, client=mock_client, converters=repo_json_reader
-    )
+    github = GitHub(base_url=BASE_URL, client=mock_client, converters=repo_json_reader)
 
     # Run
     repo = github.get_repo("prkumar", "uplink")
@@ -152,9 +144,7 @@ def test_returns_json_with_list(mock_client, mock_response):
         }
     )
     mock_client.with_response(mock_response)
-    github = GitHub(
-        base_url=BASE_URL, client=mock_client, converters=repo_json_reader
-    )
+    github = GitHub(base_url=BASE_URL, client=mock_client, converters=repo_json_reader)
 
     # Run
     repo = github.get_repos("prkumar")
@@ -210,9 +200,7 @@ def test_returns_json_with_key_and_type(mock_client, mock_response):
 
 def test_post_json(mock_client):
     # Setup
-    github = GitHub(
-        base_url=BASE_URL, client=mock_client, converters=repo_json_writer
-    )
+    github = GitHub(base_url=BASE_URL, client=mock_client, converters=repo_json_writer)
     github.create_repo("prkumar", Repo(owner="prkumar", name="uplink"))
     request = mock_client.history[0]
     assert request.json == {"owner": "prkumar", "name": "uplink"}

@@ -1,14 +1,13 @@
 # Standard library imports
-import inspect
 import collections
-import pkg_resources
-
+import inspect
+from importlib.metadata import entry_points
 
 _INSTALLERS = collections.OrderedDict()
 _ENTRY_POINTS = collections.OrderedDict()
 
 
-class plugin(object):
+class plugin:
     _BASE_ENTRY_POINT_NAME = "uplink.plugins."
 
     def __init__(self, name, _entry_points=_ENTRY_POINTS):
@@ -20,7 +19,7 @@ class plugin(object):
         return func
 
 
-class installer(object):
+class installer:
     def __init__(self, base_cls, _installers=_INSTALLERS):
         self._base_cls = base_cls
         self._installers = _installers
@@ -32,12 +31,12 @@ class installer(object):
 
 def load_entry_points(
     _entry_points=_ENTRY_POINTS,
-    _iter_entry_points=pkg_resources.iter_entry_points,
+    _iter_entry_points=entry_points,
 ):
     for name in _entry_points:
         plugins = {
             entry_point.name: entry_point.load()
-            for entry_point in _iter_entry_points(name)
+            for entry_point in _iter_entry_points(name=name)
         }
         func = _entry_points[name]
         for value in plugins.values():
@@ -51,6 +50,6 @@ def install(installable, _installers=_INSTALLERS):
             _installers[base_cls](installable)
             break
     else:
-        raise TypeError("Failed to install: '%s'" % str(installable))
+        raise TypeError(f"Failed to install: '{installable!s}'")
 
     return installable

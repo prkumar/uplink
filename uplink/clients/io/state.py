@@ -36,9 +36,7 @@ class BeforeRequest(_BaseState):
         return execution.before_request(self._request)
 
     def __eq__(self, other):
-        return (
-            isinstance(other, BeforeRequest) and self.request == other.request
-        )
+        return isinstance(other, BeforeRequest) and self.request == other.request
 
 
 class Sleep(interfaces.RequestState):
@@ -62,9 +60,7 @@ class Sleep(interfaces.RequestState):
         self._duration = duration
 
     def execute(self, execution):
-        return execution.sleep(
-            self._duration, self._Callback(execution, self._request)
-        )
+        return execution.sleep(self._duration, self._Callback(execution, self._request))
 
     @property
     def request(self):
@@ -116,7 +112,7 @@ class SendRequest(interfaces.RequestState):
 
 class AfterResponse(_BaseState):
     def __init__(self, request, response):
-        super(AfterResponse, self).__init__(request)
+        super().__init__(request)
         self._response = response
 
     def execute(self, execution):
@@ -136,7 +132,7 @@ class AfterResponse(_BaseState):
 
 class AfterException(_BaseState):
     def __init__(self, request, exc_type, exc_val, exc_tb):
-        super(AfterException, self).__init__(request)
+        super().__init__(request)
         self._exc_type = exc_type
         self._exc_val = exc_val
         self._exc_tb = exc_tb
@@ -182,7 +178,7 @@ class TerminalState(interfaces.RequestState):
 
 class Fail(TerminalState):
     def __init__(self, request, exc_type, exc_val, exc_tb):
-        super(Fail, self).__init__(request)
+        super().__init__(request)
         self._exc_type = exc_type
         self._exc_val = exc_val
         self._exc_tb = exc_tb
@@ -214,7 +210,7 @@ class Fail(TerminalState):
 
 class Finish(TerminalState):
     def __init__(self, request, response):
-        super(Finish, self).__init__(request)
+        super().__init__(request)
         self._response = response
 
     def execute(self, execution):

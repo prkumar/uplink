@@ -1,8 +1,7 @@
 # Local imports
-from uplink._extras import installer, plugin
+from uplink._extras import installer, plugin  # noqa: I001
 from uplink.compat import abc
 from uplink.converters import keys
-from uplink.converters.interfaces import Factory, ConverterFactory, Converter
 from uplink.converters.register import (
     get_default_converter_factories,
     register_default_converter_factory,
@@ -12,22 +11,24 @@ from uplink.converters.register import (
 # last in the converter chain.
 # fmt: off
 from uplink.converters.standard import StandardConverter
+from uplink.converters.typing_ import TypingConverter
+
+from uplink.converters.interfaces import Converter, ConverterFactory, Factory
 from uplink.converters.marshmallow_ import MarshmallowConverter
 from uplink.converters.pydantic_ import PydanticConverter
-from uplink.converters.typing_ import TypingConverter
 # fmt: on
 
 __all__ = [
-    "StandardConverter",
+    "Converter",
+    "ConverterFactory",  # TODO: Remove this in v1.0.0
+    "Factory",
     "MarshmallowConverter",
     "PydanticConverter",
+    "StandardConverter",
     "TypingConverter",
     "get_default_converter_factories",
-    "register_default_converter_factory",
-    "Factory",
-    "ConverterFactory",  # TODO: Remove this in v1.0.0
-    "Converter",
     "keys",
+    "register_default_converter_factory",
 ]
 
 
@@ -44,7 +45,7 @@ plugin("converters")(install)
 installer(Factory)(install)
 
 
-class ConverterChain(object):
+class ConverterChain:
     def __init__(self, converter_factory):
         self._converter_factory = converter_factory
 
@@ -112,6 +113,7 @@ class ConverterFactoryRegistry(abc.Mapping):
                 converter = func(factory)(*args, **kwargs)
                 if callable(converter):
                     return converter
+            return None
 
         return ConverterChain(chain)
 
@@ -132,8 +134,7 @@ class ConverterFactoryRegistry(abc.Mapping):
         """
         if callable(converter_key):
             return converter_key(self)
-        else:
-            return self._make_chain_for_key(converter_key)
+        return self._make_chain_for_key(converter_key)
 
     def __len__(self):
         return len(self._converter_factory_registry)

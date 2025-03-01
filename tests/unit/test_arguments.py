@@ -1,11 +1,10 @@
 import pytest
 
 # Local imports
-from uplink import hooks, arguments
+from uplink import arguments, hooks
 from uplink.converters import keys
 
-
-inject_args = pytest.mark.parametrize("args", (["arg1", "arg2", "arg3"],))
+inject_args = pytest.mark.parametrize("args", [["arg1", "arg2", "arg3"]])
 
 
 @pytest.fixture
@@ -18,7 +17,7 @@ def named_argument_mock(mocker):
     return mocker.Mock(spec=arguments.NamedArgument)
 
 
-class ArgumentTestCase(object):
+class ArgumentTestCase:
     @property
     def type_cls(self):
         raise NotImplementedError
@@ -43,7 +42,7 @@ class ArgumentTestCase(object):
         builder.add_annotation.assert_called_with(mocker.ANY)
 
 
-class FuncDecoratorTestCase(object):
+class FuncDecoratorTestCase:
     def test_static_call_with_function(self):
         def func(a1, a2):
             return a1, a2
@@ -52,20 +51,16 @@ class FuncDecoratorTestCase(object):
         assert output is func
 
     def test_equals(self):
-        assert isinstance(
-            self.type_cls().with_value("hello"), hooks.TransactionHook
-        )
+        assert isinstance(self.type_cls().with_value("hello"), hooks.TransactionHook)
 
 
-class TestArgumentAnnotationHandlerBuilder(object):
+class TestArgumentAnnotationHandlerBuilder:
     def test_from_func(self):
         def func(_):
             pass
 
         handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(func)
-        another_handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(
-            func
-        )
+        another_handler = arguments.ArgumentAnnotationHandlerBuilder.from_func(func)
         assert handler is another_handler
 
     @inject_args
@@ -95,9 +90,7 @@ class TestArgumentAnnotationHandlerBuilder(object):
         assert args[-1] not in builder.missing_arguments
 
     @inject_args
-    def test_add_named_annotation_without_name(
-        self, mocker, named_argument_mock, args
-    ):
+    def test_add_named_annotation_without_name(self, mocker, named_argument_mock, args):
         builder = arguments.ArgumentAnnotationHandlerBuilder(None, args, False)
         named_argument_mock.name = None
         builder.listener = mocker.stub()
@@ -136,9 +129,7 @@ class TestArgumentAnnotationHandlerBuilder(object):
         def dummy():
             pass
 
-        builder = arguments.ArgumentAnnotationHandlerBuilder(
-            dummy, ["arg1"], False
-        )
+        builder = arguments.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
         builder.add_annotation(type, "arg1")
         assert builder.remaining_args_count == 1
 
@@ -159,15 +150,13 @@ class TestArgumentAnnotationHandlerBuilder(object):
         assert args[0] not in builder.missing_arguments
 
     def test_is_done(self, argument_mock):
-        builder = arguments.ArgumentAnnotationHandlerBuilder(
-            None, ("arg1",), False
-        )
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, ("arg1",), False)
         assert not builder.is_done()
         builder.add_annotation(argument_mock)
         assert builder.is_done()
 
 
-class TestArgumentAnnotationHandler(object):
+class TestArgumentAnnotationHandler:
     def test_get_relevant_arguments(self):
         args = {"arg1": "value1"}
         annotation_handler = arguments.ArgumentAnnotationHandler(None, args)
@@ -182,21 +171,19 @@ class TestArgumentAnnotationHandler(object):
         get_call_args = mocker.patch("uplink.utils.get_call_args")
         get_call_args.return_value = {"arg1": "hello"}
         annotation = mocker.Mock(arguments.ArgumentAnnotation)
-        handlers = arguments.ArgumentAnnotationHandler(
-            dummy, {"arg1": annotation}
-        )
+        handlers = arguments.ArgumentAnnotationHandler(dummy, {"arg1": annotation})
         handlers.handle_call(request_builder, (), {})
         annotation.modify_request.assert_called_with(request_builder, "hello")
 
     @inject_args
     def test_annotations(self, args):
         annotations = ["annotation"] * len(args)
-        arg_dict = dict(zip(args, annotations))
+        arg_dict = dict(zip(args, annotations, strict=False))
         annotation_handler = arguments.ArgumentAnnotationHandler(None, arg_dict)
         assert list(annotation_handler.annotations) == annotations
 
 
-class TestArgumentAnnotation(object):
+class TestArgumentAnnotation:
     def test_call(self, request_definition_builder):
         annotation = arguments.ArgumentAnnotation()
         return_value = annotation(request_definition_builder)
@@ -205,7 +192,7 @@ class TestArgumentAnnotation(object):
         assert return_value is request_definition_builder
 
 
-class TestTypedArgument(object):
+class TestTypedArgument:
     def test_type(self):
         assert arguments.TypedArgument("hello").type == "hello"
 
@@ -221,7 +208,7 @@ class TestTypedArgument(object):
             annotation.type = "new type"
 
 
-class TestNamedArgument(object):
+class TestNamedArgument:
     def test_name(self):
         assert arguments.NamedArgument("name").name == "name"
 
@@ -242,9 +229,7 @@ class TestPath(ArgumentTestCase):
     expected_converter_key = keys.CONVERT_TO_STRING
 
     def test_modify_request_definition(self, request_definition_builder):
-        arguments.Path("name").modify_request_definition(
-            request_definition_builder
-        )
+        arguments.Path("name").modify_request_definition(request_definition_builder)
         request_definition_builder.uri.add_variable.assert_called_with("name")
 
     def test_modify_request(self, request_builder):
@@ -261,15 +246,11 @@ class TestQuery(ArgumentTestCase, FuncDecoratorTestCase):
         assert request_builder.info["params"] == {"name": "value"}
 
     def test_modify_request_with_encoded(self, request_builder):
-        arguments.Query("name", encoded=True).modify_request(
-            request_builder, "value"
-        )
+        arguments.Query("name", encoded=True).modify_request(request_builder, "value")
         assert request_builder.info["params"] == "name=value"
 
     def test_modify_request_with_mismatched_encoding(self, request_builder):
-        arguments.Query("name", encoded=True).modify_request(
-            request_builder, "value"
-        )
+        arguments.Query("name", encoded=True).modify_request(request_builder, "value")
         with pytest.raises(arguments.Query.QueryStringEncodingError):
             arguments.Query("name2", encoded=False).modify_request(
                 request_builder, "value2"
@@ -314,9 +295,7 @@ class TestQueryMap(ArgumentTestCase, FuncDecoratorTestCase):
 
     def test_converter_type(self):
         query = arguments.QueryMap(encoded=False)
-        assert query.converter_key == keys.Map(
-            keys.Sequence(keys.CONVERT_TO_STRING)
-        )
+        assert query.converter_key == keys.Map(keys.Sequence(keys.CONVERT_TO_STRING))
 
 
 class TestHeader(ArgumentTestCase, FuncDecoratorTestCase):
@@ -337,9 +316,7 @@ class TestHeaderMap(ArgumentTestCase, FuncDecoratorTestCase):
     expected_converter_key = keys.Map(TestHeader.expected_converter_key)
 
     def test_modify_request(self, request_builder):
-        arguments.HeaderMap().modify_request(
-            request_builder, {"hello": "world"}
-        )
+        arguments.HeaderMap().modify_request(request_builder, {"hello": "world"})
         assert request_builder.info["headers"] == {"hello": "world"}
 
 
@@ -419,9 +396,7 @@ class TestUrl(ArgumentTestCase):
         type(request_definition_builder.uri).is_dynamic = is_dynamic_mock
         request_definition_builder.__name__ = "dummy"
         with pytest.raises(arguments.Url.DynamicUrlAssignmentFailed):
-            arguments.Url().modify_request_definition(
-                request_definition_builder
-            )
+            arguments.Url().modify_request_definition(request_definition_builder)
 
     def test_modify_request(self, request_builder):
         arguments.Url().modify_request(request_builder, "/some/path")

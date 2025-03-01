@@ -7,10 +7,10 @@ import pytest
 # Local imports
 from uplink.clients import (
     interfaces,
+    io,
+    register,
     requests_,
     twisted_,
-    register,
-    io,
 )
 
 
@@ -47,7 +47,7 @@ def test_get_client_with_unrecognized_key():
     assert register.get_client("no client for this key") is None
 
 
-class TestRequests(object):
+class TestRequests:
     def test_get_client(self, mocker):
         import requests
 
@@ -82,8 +82,9 @@ class TestRequests(object):
 
     def test_dont_close_provided_session(self, mocker):
         # Setup
-        import requests
         import gc
+
+        import requests
 
         session_mock = mocker.Mock(spec=requests.Session)
         session_mock.request.return_value = "response"
@@ -98,8 +99,9 @@ class TestRequests(object):
 
     def test_close_auto_generated_session(self, mocker):
         # Setup
-        import requests
         import gc
+
+        import requests
 
         session_mock = mocker.Mock(spec=requests.Session)
         session_mock.request.return_value = "response"
@@ -145,7 +147,7 @@ class TestRequests(object):
         assert isinstance(requests_.RequestsClient.io(), io.BlockingStrategy)
 
 
-class TestTwisted(object):
+class TestTwisted:
     def test_init_without_client(self):
         twisted = twisted_.TwistedClient()
         assert isinstance(twisted._proxy, requests_.RequestsClient)
@@ -174,9 +176,7 @@ class TestTwisted(object):
 
         # Verify
         assert response is deferred
-        deferToThread.assert_called_with(
-            http_client_mock.apply_callback, callback, 1
-        )
+        deferToThread.assert_called_with(http_client_mock.apply_callback, callback, 1)
 
     def test_exceptions(self, http_client_mock):
         twisted_client = twisted_.TwistedClient(http_client_mock)

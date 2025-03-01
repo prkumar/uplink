@@ -2,9 +2,10 @@
 import pytest
 import requests
 
+from tests.integration import MockClient, MockResponse
+
 # Local imports
 from uplink import clients
-from tests.integration import MockClient, MockResponse
 
 
 @pytest.fixture

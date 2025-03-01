@@ -1,4 +1,4 @@
-class ClientExceptionProxy(object):
+class ClientExceptionProxy:
     def __init__(self, getter):
         self._getter = getter
 

@@ -4,6 +4,7 @@ to deserialize and serialize values.
 """
 
 from typing import Any
+
 from uplink.converters.interfaces import Converter
 
 
@@ -11,7 +12,7 @@ def _encode_pydantic_v1(obj: Any) -> Any:
     from pydantic.v1.json import pydantic_encoder
 
     # json atoms
-    if isinstance(obj, (str, int, float, bool)) or obj is None:
+    if isinstance(obj, str | int | float | bool) or obj is None:
         return obj
 
     # json containers

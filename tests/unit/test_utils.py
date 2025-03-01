@@ -29,7 +29,7 @@ def test_call_args():
     assert call_args == {"pos1": 1, "args": (2,), "kwargs": {"named": 3}}
 
 
-class TestURIBuilder(object):
+class TestURIBuilder:
     def test_variables_not_string(self):
         assert utils.URIBuilder.variables(None) == set()
 
@@ -41,6 +41,6 @@ class TestURIBuilder(object):
 
     def test_remaining_variables(self):
         builder = utils.URIBuilder("{variable}")
-        assert builder.remaining_variables() == set(["variable"])
+        assert builder.remaining_variables() == {"variable"}
         builder.set_variable(variable="resource")
         assert len(builder.remaining_variables()) == 0

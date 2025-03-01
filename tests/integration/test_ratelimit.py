@@ -27,9 +27,7 @@ class GitHub(uplink.Consumer):
     def get_repo(self, user, repo):
         pass
 
-    @uplink.ratelimit(
-        calls=1, period=10, raise_on_limit=CustomRateLimitException
-    )
+    @uplink.ratelimit(calls=1, period=10, raise_on_limit=CustomRateLimitException)
     @uplink.get("repos/{user}/{repo}/comments/{comment}")
     def get_comment(self, user, repo, comment):
         pass
