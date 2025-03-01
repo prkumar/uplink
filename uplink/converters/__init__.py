@@ -1,10 +1,7 @@
 # Local imports
-from uplink._extras import installer, plugin
+from uplink._extras import installer, plugin  # noqa: I001
 from uplink.compat import abc
 from uplink.converters import keys
-from uplink.converters.interfaces import Converter, ConverterFactory, Factory
-from uplink.converters.marshmallow_ import MarshmallowConverter
-from uplink.converters.pydantic_ import PydanticConverter
 from uplink.converters.register import (
     get_default_converter_factories,
     register_default_converter_factory,
@@ -16,6 +13,9 @@ from uplink.converters.register import (
 from uplink.converters.standard import StandardConverter
 from uplink.converters.typing_ import TypingConverter
 
+from uplink.converters.interfaces import Converter, ConverterFactory, Factory
+from uplink.converters.marshmallow_ import MarshmallowConverter
+from uplink.converters.pydantic_ import PydanticConverter
 # fmt: on
 
 __all__ = [

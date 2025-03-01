@@ -57,3 +57,6 @@ twisted = ["twisted>=21.7.0"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tools.pytest]
+twisted=1
