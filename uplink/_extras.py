@@ -1,8 +1,7 @@
 # Standard library imports
 import collections
 import inspect
-
-import pkg_resources
+from importlib.metadata import entry_points
 
 _INSTALLERS = collections.OrderedDict()
 _ENTRY_POINTS = collections.OrderedDict()
@@ -32,12 +31,12 @@ class installer:
 
 def load_entry_points(
     _entry_points=_ENTRY_POINTS,
-    _iter_entry_points=pkg_resources.iter_entry_points,
+    _iter_entry_points=entry_points,
 ):
     for name in _entry_points:
         plugins = {
             entry_point.name: entry_point.load()
-            for entry_point in _iter_entry_points(name)
+            for entry_point in _iter_entry_points(name=name)
         }
         func = _entry_points[name]
         for value in plugins.values():
