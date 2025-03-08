@@ -384,6 +384,7 @@ def build(service_cls, *args, **kwargs):
         "To construct a consumer instance, have `{0}` inherit "
         "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(name),
         DeprecationWarning,
+        stacklevel=2,
     )
     consumer = type(name, (service_cls, Consumer), dict(service_cls.__dict__))
     return consumer(*args, **kwargs)
