@@ -125,8 +125,11 @@ def test_error_handler_with_consumer(mock_client):
     calendar.flagged = False
 
     # Run
-    with pytest.raises(CustomError):
+    with pytest.raises(WrappedException) as exc_info:
         calendar.get_user(user_id=1)
+
+    # Verify
+    assert exc_info.value.exception == expected_error
     assert calendar.flagged is True
 
 
@@ -138,5 +141,8 @@ def test_error_handler(mock_client):
     calendar = Calendar(base_url=BASE_URL, client=mock_client)
 
     # Run
-    with pytest.raises(CustomError):
+    with pytest.raises(WrappedException) as exc_info:
         calendar.get_event(event_id=1)
+
+    # Verify
+    assert exc_info.value.exception == expected_error
