@@ -1,24 +1,18 @@
 # Standard library imports
-import sys
 
 # Local imports
 from uplink import utils
 
-is_py2 = sys.version_info[0] == 2
-
 
 def test_get_arg_spec():
-    if is_py2:
-        code = "def func(pos1, *args, **kwargs): pass"
-    else:
-        code = "def func(pos1, *args: 2, **kwargs: 3) -> 4: pass"
-    exec(code, globals(), locals())
-    signature = utils.get_arg_spec(locals()["func"])
+    def func(pos1, *args: 2, **kwargs: 3) -> 4:
+        pass
+
+    signature = utils.get_arg_spec(func)
     assert isinstance(signature, utils.Signature)
     assert signature.args == ["pos1", "args", "kwargs"]
-    if not is_py2:
-        assert signature.annotations == {"args": 2, "kwargs": 3}
-        assert signature.return_annotation == 4
+    assert signature.annotations == {"args": 2, "kwargs": 3}
+    assert signature.return_annotation == 4
 
 
 def test_call_args():
