@@ -592,7 +592,9 @@ class TestPydanticV1Converter(object):
         _, model = pydantic_model_mock
 
         parse_obj_mock = mocker.patch.object(
-            model, "parse_obj", side_effect=pydantic.v1.ValidationError([], model)
+            model,
+            "parse_obj",
+            side_effect=pydantic.v1.ValidationError([], model),
         )
 
         converter = converters.PydanticConverter()
@@ -631,7 +633,7 @@ class TestPydanticV1Converter(object):
     )
     def test_register(self, pydantic_installed, expected):
         converter = converters.PydanticConverter
-        v1,v2 = converter.pydantic_v1, converter.pydantic
+        v1, v2 = converter.pydantic_v1, converter.pydantic
         converter.pydantic_v1 = pydantic_installed
         converter.pydantic = pydantic_installed
 
@@ -644,7 +646,10 @@ class TestPydanticV1Converter(object):
         converter.pydantic_v1 = v1
         converter.pydantic = v2
 
-@pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")
+
+@pytest.mark.skipif(
+    sys.version_info < (3, 6), reason="requires python3.6 or higher"
+)
 class TestPydanticV2Converter(object):
     @pytest.fixture
     def pydantic_model_mock(self, mocker):
@@ -658,6 +663,7 @@ class TestPydanticV2Converter(object):
     def test_create_request_body_converter(self):
         expected_result = {"id": 0}
         request_body = {}
+
         class BodyModel(pydantic.BaseModel):
             id: int = 0
 
@@ -681,16 +687,17 @@ class TestPydanticV2Converter(object):
         expected_result = loads(model.model_dump_json())
 
         converter = converters.PydanticConverter()
-        request_converter = converter.create_request_body_converter(ComplexModel)
+        request_converter = converter.create_request_body_converter(
+            ComplexModel
+        )
 
         result = request_converter.convert(request_body)
 
         assert result == expected_result
 
-    def test_create_request_body_converter_with_original_model(
-        self
-    ):
+    def test_create_request_body_converter_with_original_model(self):
         expected_result = {"id": 0}
+
         class BodyModel(pydantic.BaseModel):
             id: int = 0
 
@@ -712,7 +719,6 @@ class TestPydanticV2Converter(object):
         assert result is expected_result
 
     def test_create_response_body_converter(self, mocker):
-
         class BodyModel(pydantic.BaseModel):
             id: int = 0
 
@@ -733,7 +739,9 @@ class TestPydanticV2Converter(object):
         _, model = pydantic_model_mock
 
         parse_obj_mock = mocker.patch.object(
-            model, "parse_obj", side_effect=pydantic.ValidationError("mock_error", [])
+            model,
+            "parse_obj",
+            side_effect=pydantic.ValidationError("mock_error", []),
         )
 
         converter = converters.PydanticConverter()
@@ -760,4 +768,3 @@ class TestPydanticV2Converter(object):
         c = converter.create_string_converter(model, None)
 
         assert c is expected_result
-

@@ -168,12 +168,14 @@ class json(_ReturnsBase):
                 "The `model` argument of @returns.json is deprecated and will "
                 "be removed in v1.0.0. Use `type` instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         if member:  # pragma: no cover
             warnings.warn(
                 "The `member` argument of @returns.json is deprecated and will "
                 "be removed in v1.0.0. Use `key` instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
         self._type = type or model
         self._key = key or member
