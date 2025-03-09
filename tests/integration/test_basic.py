@@ -38,9 +38,7 @@ def test_list_repo_wrapper(mock_client):
         == "List all public repositories for a specific user."
     )
     assert (
-        github.list_repos.__name__
-        == GitHubService.list_repos.__name__
-        == "list_repos"
+        github.list_repos.__name__ == GitHubService.list_repos.__name__ == "list_repos"
     )
 
 

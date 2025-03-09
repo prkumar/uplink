@@ -5,7 +5,7 @@ import sys
 # Constants
 MAX_VALUE = sys.maxsize / 2
 
-__all__ = ["jittered", "exponential", "fixed"]
+__all__ = ["exponential", "fixed", "jittered"]
 
 
 def from_iterable(iterable):
@@ -31,7 +31,7 @@ def from_iterable_factory(iterable_factory):
     return IterableRetryBackoff()
 
 
-class RetryBackoff(object):
+class RetryBackoff:
     """
     Base class for a strategy that calculates the timeout between
     retry attempts.
@@ -73,9 +73,7 @@ class RetryBackoff(object):
 
     def __or__(self, other):
         """Composes the current strategy with another."""
-        assert isinstance(
-            other, RetryBackoff
-        ), "Both objects should be backoffs."
+        assert isinstance(other, RetryBackoff), "Both objects should be backoffs."
         return _Or(self, other)
 
 

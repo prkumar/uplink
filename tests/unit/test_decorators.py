@@ -23,15 +23,13 @@ def method_handler_builder():
     return decorators.MethodAnnotationHandlerBuilder()
 
 
-class TestMethodAnnotationHandlerBuilder(object):
+class TestMethodAnnotationHandlerBuilder:
     def test_add_annotation(
         self, mocker, method_handler_builder, method_annotation_mock
     ):
         method_handler_builder.listener = mocker.stub()
         method_handler_builder.add_annotation(method_annotation_mock)
-        method_handler_builder.listener.assert_called_with(
-            method_annotation_mock
-        )
+        method_handler_builder.listener.assert_called_with(method_annotation_mock)
         annotations = method_handler_builder.build().annotations
         assert list(annotations) == [method_annotation_mock]
 
@@ -60,34 +58,28 @@ class TestMethodAnnotationHandlerBuilder(object):
         ]
 
 
-class TestMethodAnnotationHandler(object):
+class TestMethodAnnotationHandler:
     def test_handle_builder(self, request_builder, method_annotation_mock):
         handler = decorators.MethodAnnotationHandler([method_annotation_mock])
         handler.handle_builder(request_builder)
-        method_annotation_mock.modify_request.assert_called_with(
-            request_builder
-        )
+        method_annotation_mock.modify_request.assert_called_with(request_builder)
 
     def test_annotations(self, method_annotation_mock):
         handler = decorators.MethodAnnotationHandler([method_annotation_mock])
         assert list(handler.annotations) == [method_annotation_mock]
 
 
-class TestMethodAnnotation(object):
+class TestMethodAnnotation:
     class FakeMethodAnnotation(decorators.MethodAnnotation):
         _can_be_static = True
 
-    def test_call_with_class(
-        self, method_annotation, request_definition_builder
-    ):
+    def test_call_with_class(self, method_annotation, request_definition_builder):
         class Class(interfaces.Consumer):
             builder = request_definition_builder
 
         method_annotation(Class)
         builder = request_definition_builder.method_handler_builder
-        builder.add_annotation.assert_called_with(
-            method_annotation, is_class=True
-        )
+        builder.add_annotation.assert_called_with(method_annotation, is_class=True)
 
     def test_static_call_with_class(self, mocker, request_definition_builder):
         class Class(interfaces.Consumer):
@@ -97,9 +89,7 @@ class TestMethodAnnotation(object):
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(mocker.ANY, is_class=True)
 
-    def test_call_with_builder(
-        self, method_annotation, request_definition_builder
-    ):
+    def test_call_with_builder(self, method_annotation, request_definition_builder):
         method_annotation(request_definition_builder)
         builder = request_definition_builder.method_handler_builder
         builder.add_annotation.assert_called_with(method_annotation)
@@ -118,21 +108,15 @@ class TestMethodAnnotation(object):
             request_definition_builder.method
         )
 
-    def test_method_not_in_http_method_blacklist(
-        self, request_definition_builder
-    ):
+    def test_method_not_in_http_method_blacklist(self, request_definition_builder):
         class DummyAnnotation(decorators.MethodAnnotation):
             _http_method_whitelist = ["POST"]
 
         request_definition_builder.method = "POST"
         request_definition_builder.__name__ = "dummy"
-        assert DummyAnnotation().supports_http_method(
-            request_definition_builder.method
-        )
+        assert DummyAnnotation().supports_http_method(request_definition_builder.method)
 
-    def test_call_with_child_class(
-        self, method_annotation, request_definition_builder
-    ):
+    def test_call_with_child_class(self, method_annotation, request_definition_builder):
         class Parent(interfaces.Consumer):
             builder = request_definition_builder
 
@@ -148,7 +132,7 @@ class TestMethodAnnotation(object):
     def test_no_call_on_non_consumer(
         self, method_annotation, request_definition_builder
     ):
-        class Class(object):
+        class Class:
             builder = request_definition_builder
 
         method_annotation(Class)
@@ -236,14 +220,14 @@ def test_json(request_builder):
 
     # Verify that error is raised when path is empty
     request_builder.info["data"] = {(): "value"}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011 TODO set the correct Exception
         json.set_json_body(request_builder)
 
     # Verify that error is raised when paths conflict
     request_builder.info["data"] = body = collections.OrderedDict()
     body["key"] = "outer"
     body["key", "inner"] = "inner value"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011 TODO set the correct Exception
         json.set_json_body(request_builder)
 
 
@@ -277,9 +261,7 @@ def test_args_decorate_function(mocker):
     def patched(*_):
         return handler
 
-    mocker.patch(
-        "uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func", patched
-    )
+    mocker.patch("uplink.arguments.ArgumentAnnotationHandlerBuilder.from_func", patched)
     args = decorators.args(str, str, name=str)
     func = mocker.stub()
     args(func)

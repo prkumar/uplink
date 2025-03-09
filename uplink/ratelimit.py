@@ -1,15 +1,15 @@
 # Standard library imports
 import contextlib
 import math
+import sys
 import threading
 import time
-import sys
 
 # Local imports
 from uplink import decorators, utils
 from uplink.clients.io import RequestTemplate, transitions
 
-__all__ = ["ratelimit", "RateLimitExceeded"]
+__all__ = ["RateLimitExceeded", "ratelimit"]
 
 # Use monotonic time if available, otherwise fall back to the system clock.
 now = time.monotonic if hasattr(time, "monotonic") else time.time
@@ -24,13 +24,12 @@ class RateLimitExceeded(RuntimeError):
     """A request failed because it exceeded the client-side rate limit."""
 
     def __init__(self, calls, period):
-        super(RateLimitExceeded, self).__init__(
-            "Exceeded rate limit of [%s] calls every [%s] seconds."
-            % (calls, period)
+        super().__init__(
+            f"Exceeded rate limit of [{calls}] calls every [{period}] seconds."
         )
 
 
-class Limiter(object):
+class Limiter:
     _last_reset = _num_calls = None
 
     def __init__(self, max_calls, period, clock):
@@ -65,11 +64,10 @@ class RateLimiterTemplate(RequestTemplate):
     def before_request(self, request):
         with self._limiter.check() as ok:
             if ok:
-                return  # Fallback to default behavior
-            elif self._create_limit_reached_exception is not None:
+                return None  # Fallback to default behavior
+            if self._create_limit_reached_exception is not None:
                 raise self._create_limit_reached_exception()
-            else:
-                return transitions.sleep(self._limiter.period_remaining)
+            return transitions.sleep(self._limiter.period_remaining)
 
 
 # noinspection PyPep8Naming
@@ -122,9 +120,7 @@ class ratelimit(decorators.MethodAnnotation):
         ):
             self._create_limit_reached_exception = raise_on_limit
         elif raise_on_limit:
-            self._create_limit_reached_exception = (
-                self._create_rate_limit_exceeded
-            )
+            self._create_limit_reached_exception = self._create_rate_limit_exceeded
         else:
             self._create_limit_reached_exception = None
 

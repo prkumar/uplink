@@ -1,7 +1,9 @@
 import pydantic
+
 from uplink.converters import register_default_converter_factory
 from uplink.converters.interfaces import Factory
 from uplink.utils import is_subclass
+
 from .pydantic_v1 import _PydanticV1RequestBody, _PydanticV1ResponseBody
 from .pydantic_v2 import _PydanticV2RequestBody, _PydanticV2ResponseBody
 

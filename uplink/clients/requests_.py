@@ -4,7 +4,7 @@
 import requests
 
 # Local imports
-from uplink.clients import exceptions, io, interfaces, register
+from uplink.clients import exceptions, interfaces, io, register
 
 
 class RequestsClient(interfaces.HttpClientAdapter):
@@ -37,6 +37,7 @@ class RequestsClient(interfaces.HttpClientAdapter):
     def with_session(session, *args, **kwargs):
         if isinstance(session, requests.Session):
             return RequestsClient(session, *args, **kwargs)
+        return None
 
     @staticmethod
     def _create_session(**kwargs):

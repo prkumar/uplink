@@ -1,21 +1,62 @@
-[build-system]
-# Minimum requirements for the build system to execute.
-requires = ["setuptools", "wheel"]  # PEP 508 specifications.
+[project]
+name = "uplink"
+version = "1.0.0-alpha"
+description = "A Declarative HTTP Client for Python."
+readme = "README.rst"
+maintainers = [{ name = "P. Raj Kumar", email = "raj.pritvi.kumar@gmail.com" }]
+authors = [
+  { name = "Kareem Moussa" },
+  { name = "Brandon Milton" },
+  { name = "Fabio Rosado" },
+  { name = "Niko Eckerskorn" },
+  { name = "Or Carmi" },
+  { name = "George Kontridze" },
+  { name = "Sean Chambers" },
+  { name = "Nils Philippsen" },
+  { name = "Alexander Duryagin" },
+  { name = "Sakorn Waungwiwatsin" },
+  { name = "Jacob Floyd" },
+  { name = "Guilherme Crocetti" },
+  { name = "Alexander Shadchin" },
+  { name = "Lieser Fernández Gallo", email = "leiserfg@gmail.com" },
+]
+license = { file = "LICENSE" }
+keywords = ["http", "api", "rest", "client", "retrofit"]
+urls = { Repository = "https://github.com/prkumar/uplink" }
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Libraries",
+]
 
-[tool.black]
-line-length = 80
-py36 = false
-safe = true
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | build
-  | dist
-)/
-'''
+requires-python = ">=3.10"
+dependencies = ["requests>=2.18.0", "six>=1.13.0", "uritemplate>=3.0.0"]
+
+[dependency-groups]
+test = [
+  "pytest",
+  "pytest-mock",
+  "pytest-cov",
+  "pytest-twisted",
+  "pytest-asyncio",
+]
+marshmallow = ["marshmallow>=2.15.0"]
+pydantic = ["pydantic>=2.0.0"]
+aiohttp = ["aiohttp>=3.8.1"]
+twisted = ["twisted>=21.7.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tools.pytest]
+twisted=1

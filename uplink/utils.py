@@ -7,7 +7,8 @@ try:
     from inspect import signature
 except ImportError:  # pragma: no cover
     # Python 2.7
-    from inspect import getcallargs as get_call_args, getargspec as _getargspec
+    from inspect import getargspec as _getargspec
+    from inspect import getcallargs as get_call_args
 
     def signature(_):
         raise ImportError
@@ -67,12 +68,9 @@ except ImportError:
 # Third-party imports
 import uritemplate
 
-
 urlparse = _urlparse
 
-Signature = collections.namedtuple(
-    "Signature", "args annotations return_annotation"
-)
+Signature = collections.namedtuple("Signature", "args annotations return_annotation")
 
 Request = collections.namedtuple("Request", "method uri info return_type")
 
@@ -85,7 +83,7 @@ def no_op(*_, **__):
     pass
 
 
-class URIBuilder(object):
+class URIBuilder:
     @staticmethod
     def variables(uri):
         try:

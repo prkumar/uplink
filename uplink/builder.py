@@ -5,23 +5,29 @@ import warnings
 # Local imports
 from uplink import (
     arguments,
-    auth as auth_,
     clients,
     compat,
-    converters as converters_,
     exceptions,
     helpers,
-    hooks as hooks_,
     interfaces,
     session,
     utils,
 )
+from uplink import (
+    auth as auth_,
+)
+from uplink import (
+    converters as converters_,
+)
+from uplink import (
+    hooks as hooks_,
+)
 from uplink.clients import io
 
-__all__ = ["build", "Consumer"]
+__all__ = ["Consumer", "build"]
 
 
-class RequestPreparer(object):
+class RequestPreparer:
     def __init__(self, builder, consumer=None):
         self._client = builder.client
         self._base_url = str(builder.base_url)
@@ -58,9 +64,7 @@ class RequestPreparer(object):
         #   any response/error handler is blocking, which is
         #   unnecessary now that we delegate execution to an IO layer.
         if chain.handle_response is not None:
-            execution_builder.with_callbacks(
-                self._wrap_hook(chain.handle_response)
-            )
+            execution_builder.with_callbacks(self._wrap_hook(chain.handle_response))
         execution_builder.with_errbacks(self._wrap_hook(chain.handle_exception))
 
     def prepare_request(self, request_builder, execution_builder):
@@ -85,10 +89,8 @@ class RequestPreparer(object):
         return req
 
 
-class CallFactory(object):
-    def __init__(
-        self, request_preparer, request_definition, execution_builder_factory
-    ):
+class CallFactory:
+    def __init__(self, request_preparer, request_definition, execution_builder_factory):
         self._request_preparer = request_preparer
         self._request_definition = request_definition
         self._execution_builder_factory = execution_builder_factory
@@ -99,9 +101,7 @@ class CallFactory(object):
         )
         self._request_definition.define_request(request_builder, args, kwargs)
         execution_builder = self._execution_builder_factory()
-        self._request_preparer.prepare_request(
-            request_builder, execution_builder
-        )
+        self._request_preparer.prepare_request(request_builder, execution_builder)
         execution = execution_builder.build()
         return execution.start(
             # TODO: Create request value object
@@ -175,7 +175,7 @@ class Builder(interfaces.CallBuilder):
         )
 
 
-class ConsumerMethod(object):
+class ConsumerMethod:
     """
     A wrapper around a :py:class`interfaces.RequestDefinitionBuilder`
     instance bound to a :py:class:`Consumer` subclass, mainly responsible
@@ -192,10 +192,9 @@ class ConsumerMethod(object):
         try:
             return self._request_definition_builder.build()
         except exceptions.InvalidRequestDefinition as error:
-            # TODO: Find a Python 2.7 compatible way to reraise
             raise exceptions.UplinkBuilderError(
                 self._owner_name, self._attr_name, error
-            )
+            ) from error
 
     def __get__(self, instance, owner):
         # TODO:
@@ -242,9 +241,7 @@ class ConsumerMeta(type):
             def new_init(self, *args, **kwargs):
                 init(self, *args, **kwargs)
                 call_args = utils.get_call_args(init, self, *args, **kwargs)
-                f = functools.partial(
-                    handler.handle_call_args, call_args=call_args
-                )
+                f = functools.partial(handler.handle_call_args, call_args=call_args)
                 hook = hooks_.RequestAuditor(f)
                 self.session.inject(hook)
 
@@ -257,11 +254,11 @@ class ConsumerMeta(type):
         # handles attribute access behavior.
         for key, value in namespace.items():
             namespace[key] = mcs._wrap_if_definition(name, key, value)
-        return super(ConsumerMeta, mcs).__new__(mcs, name, bases, namespace)
+        return super().__new__(mcs, name, bases, namespace)
 
     def __setattr__(cls, key, value):
         value = cls._wrap_if_definition(cls.__name__, key, value)
-        super(ConsumerMeta, cls).__setattr__(key, value)
+        super().__setattr__(key, value)
 
 
 _Consumer = ConsumerMeta("_Consumer", (), {})
@@ -306,13 +303,7 @@ class Consumer(interfaces.Consumer, _Consumer):
     """
 
     def __init__(
-        self,
-        base_url="",
-        client=None,
-        converters=(),
-        auth=None,
-        hooks=(),
-        **kwargs
+        self, base_url="", client=None, converters=(), auth=None, hooks=(), **kwargs
     ):
         builder = Builder()
         builder.base_url = base_url
@@ -381,8 +372,8 @@ def build(service_cls, *args, **kwargs):
     name = service_cls.__name__
     warnings.warn(
         "`uplink.build` is deprecated and will be removed in v1.0.0. "
-        "To construct a consumer instance, have `{0}` inherit "
-        "`uplink.Consumer` then instantiate (e.g., `{0}(...)`). ".format(name),
+        f"To construct a consumer instance, have `{name}` inherit "
+        f"`uplink.Consumer` then instantiate (e.g., `{name}(...)`). ",
         DeprecationWarning,
         stacklevel=2,
     )

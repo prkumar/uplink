@@ -1,17 +1,17 @@
 # Standard library imports
+import asyncio
 import contextlib
 
 # Third-party imports
 import aiohttp
-import asyncio
 import pytest
 
 # Local imports
 from uplink.clients import (
     AiohttpClient,
     aiohttp_,
-    register,
     io,
+    register,
 )
 
 
@@ -30,7 +30,7 @@ def aiohttp_session_mock(mocker):
     return mocker.Mock(spec=aiohttp.ClientSession)
 
 
-class AsyncMock(object):
+class AsyncMock:
     def __init__(self, result=None):
         self._result = result
         self._calls = 0
@@ -46,7 +46,7 @@ class AsyncMock(object):
         return self._calls > 0
 
 
-class TestAiohttp(object):
+class TestAiohttp:
     def test_init_when_aiohttp_is_not_installed(self):
         with _patch(aiohttp_, "aiohttp", None):
             with pytest.raises(NotImplementedError):
@@ -93,8 +93,7 @@ class TestAiohttp(object):
         # Run
         async def call():
             response = await client.send((1, 2, {}))
-            response = await client.apply_callback(lambda x: 2, response)
-            return response
+            return await client.apply_callback(lambda x: 2, response)
 
         value = await call()
 
@@ -246,9 +245,7 @@ class TestAiohttp(object):
             raise aiohttp.ClientConnectionError()
 
         with pytest.raises(exceptions.ConnectionTimeout):
-            raise aiohttp.ClientConnectorError.__new__(
-                aiohttp.ClientConnectorError
-            )
+            raise aiohttp.ClientConnectorError.__new__(aiohttp.ClientConnectorError)
 
         with pytest.raises(exceptions.ServerTimeout):
             raise aiohttp.ServerTimeoutError()

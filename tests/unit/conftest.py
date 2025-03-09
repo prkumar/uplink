@@ -5,14 +5,13 @@ import collections
 import pytest
 
 # Local imports
-from uplink import clients, converters, hooks, interfaces, helpers
+from uplink import clients, converters, helpers, hooks, interfaces
 from uplink.clients.exceptions import Exceptions
 
 
 @pytest.fixture
 def http_client_mock(mocker):
-    client = mocker.Mock(spec=clients.interfaces.HttpClientAdapter)
-    return client
+    return mocker.Mock(spec=clients.interfaces.HttpClientAdapter)
 
 
 @pytest.fixture

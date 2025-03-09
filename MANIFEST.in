@@ -1,2 +1,0 @@
-include AUTHORS.rst README.rst CHANGELOG.rst LICENSE
-recursive-include tests *.py

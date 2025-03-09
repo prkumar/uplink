@@ -2,19 +2,20 @@
 Example of using Uplink with Twisted for non-blocking HTTP requests.
 This should work on Python 2.7 and 3.3+.
 """
-from twisted.internet import reactor, defer
-import uplink
 
 # Local imports
 from github import BASE_URL, GitHub
+from twisted.internet import defer, reactor
+
+import uplink
 
 
 @defer.inlineCallbacks
 def get_contributors(full_name):
-    print("Getting GitHub repository `{}`".format(full_name))
+    print(f"Getting GitHub repository `{full_name}`")
     response = yield gh_async.get_contributors(*full_name.split("/"))
     json = response.json()
-    print("response for {}: {}".format(full_name, json))
+    print(f"response for {full_name}: {json}")
 
 
 if __name__ == "__main__":

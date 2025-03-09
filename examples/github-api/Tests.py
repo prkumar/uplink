@@ -1,11 +1,10 @@
-import requests
 import pprint
+
+import requests
 
 
 def test_repo():
-    r = requests.get(
-        "http://localhost:5000/repos?keyword=natural+language+processing"
-    )
+    r = requests.get("http://localhost:5000/repos?keyword=natural+language+processing")
     pprint.pprint(r.json())
 
 

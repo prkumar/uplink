@@ -36,7 +36,7 @@ def set_api_definition(service, name, definition):
     setattr(service, name, definition)
 
 
-class RequestBuilder(object):
+class RequestBuilder:
     def __init__(self, client, converter_registry, base_url):
         self._method = None
         self._relative_url_template = utils.URIBuilder("")

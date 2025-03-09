@@ -4,7 +4,7 @@ from uplink.retry._helpers import ClientExceptionProxy
 __all__ = ["RetryPredicate", "raises", "status", "status_5xx"]
 
 
-class RetryPredicate(object):
+class RetryPredicate:
     def should_retry_after_response(self, response):
         return False
 
@@ -16,9 +16,9 @@ class RetryPredicate(object):
 
     def __or__(self, other):
         if other is not None:
-            assert isinstance(
-                other, RetryPredicate
-            ), "Both objects should be retry conditions."
+            assert isinstance(other, RetryPredicate), (
+                "Both objects should be retry conditions."
+            )
             return _Or(self, other)
         return self
 
@@ -52,9 +52,7 @@ class raises(RetryPredicate):
         self._expected_exception = expected_exception
 
     def __call__(self, request_builder):
-        proxy = ClientExceptionProxy.wrap_proxy_if_necessary(
-            self._expected_exception
-        )
+        proxy = ClientExceptionProxy.wrap_proxy_if_necessary(self._expected_exception)
         type_ = proxy(request_builder.client.exceptions)
         return raises(type_)
 

@@ -2,15 +2,14 @@ import sys
 
 # add uplink directory to path
 sys.path.insert(0, "../../")
-import uplink
-from uplink import *
-
 import asyncio
-import json
 import os
-
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify
+
+from flask import Flask, jsonify, request
+
+import uplink
+from uplink import Consumer, Query, get, headers
 
 app = Flask(__name__)
 
@@ -28,7 +27,7 @@ class Github(Consumer):
         client_id: Query = CLIENT_ID,
         client_secret: Query = CLIENT_SECRET,
     ):
-        """ Get a list of repositories which have a given keyword in the name, description or readme """
+        """Get a list of repositories which have a given keyword in the name, description or readme"""
         pass
 
     @get("/repos/{user}/{repo_name}/commits")
@@ -40,7 +39,7 @@ class Github(Consumer):
         client_id: Query = CLIENT_ID,
         client_secret: Query = CLIENT_SECRET,
     ):
-        """ Get a list of commits in a repo since some start date """
+        """Get a list of commits in a repo since some start date"""
         pass
 
 
@@ -51,14 +50,14 @@ loop = asyncio.get_event_loop()
 
 
 async def _repos_for_keyword(keyword):
-    """ Get repos which match the keyword search """
+    """Get repos which match the keyword search"""
     r = await github.repos_for_keyword(keyword)
     r_json = await r.json()
     return [item["full_name"] for item in r_json["items"]]
 
 
 async def _users_for_repo(user, repo_name, oldest_age=55):
-    """ Returns users that have commited in a repo in the last N weeks """
+    """Returns users that have commited in a repo in the last N weeks"""
 
     since = (datetime.now() - timedelta(weeks=oldest_age)).isoformat()
     r = await github.commits_for_repo(user, repo_name, since=since)
@@ -81,9 +80,9 @@ async def _users_for_repo(user, repo_name, oldest_age=55):
 @app.route("/repos", methods=["GET"])
 def repos_for_keyword():
     """
-  /repos?keyword=<keyword>
+    /repos?keyword=<keyword>
 
-  Finds all repos which contain the given keyword in the name, readme, or description """
+    Finds all repos which contain the given keyword in the name, readme, or description"""
     if "keyword" not in request.args:
         return "", 400
 
@@ -96,14 +95,12 @@ def repos_for_keyword():
 @app.route("/users/<user>/repo/<repo_name>", methods=["GET"])
 def users_for_repo(user, repo_name):
     """
-  /users/<user>/repo/<repo_name>[?oldest-age=<age in weeks>]
+    /users/<user>/repo/<repo_name>[?oldest-age=<age in weeks>]
 
-  Returns list of users who have commited in the resource user/repo in the last given amount of
-  weeks """
+    Returns list of users who have commited in the resource user/repo in the last given amount of
+    weeks"""
 
-    oldest_age = (
-        55 if "oldest-age" not in request.args else request.args["oldest-age"]
-    )
+    oldest_age = 55 if "oldest-age" not in request.args else request.args["oldest-age"]
     future = _users_for_repo(user, repo_name, oldest_age=oldest_age)
     users = loop.run_until_complete(future)
     return jsonify(users)
@@ -112,16 +109,14 @@ def users_for_repo(user, repo_name):
 @app.route("/users", methods=["GET"])
 def users_for_keyword():
     """
-  /users?keyword=<keyword>[?oldest-age=<age in weeks>]
+    /users?keyword=<keyword>[?oldest-age=<age in weeks>]
 
-  Find the top users who have commited in repositories matching the keyword in the last month """
+    Find the top users who have commited in repositories matching the keyword in the last month"""
     if "keyword" not in request.args:
         return "", 400
 
     keyword = request.args["keyword"]
-    oldest_age = (
-        55 if "oldest-age" not in request.args else request.args["oldest-age"]
-    )
+    oldest_age = 55 if "oldest-age" not in request.args else request.args["oldest-age"]
 
     repos_future = _repos_for_keyword(keyword)
     repos = loop.run_until_complete(repos_future)
@@ -131,9 +126,7 @@ def users_for_keyword():
     users = set()
     for repo in repos:
         user, repo_name = repo.split("/")
-        users_futures.append(
-            _users_for_repo(user, repo_name, oldest_age=oldest_age)
-        )
+        users_futures.append(_users_for_repo(user, repo_name, oldest_age=oldest_age))
 
     # barrier on all the users futures
     users_results = loop.run_until_complete(asyncio.wait(users_futures))

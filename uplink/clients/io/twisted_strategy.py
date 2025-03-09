@@ -2,11 +2,10 @@
 import sys
 
 # Third-party imports
-from twisted.internet import reactor, defer, task
+from twisted.internet import defer, reactor, task
 
 # Local imports
 from uplink.clients.io import interfaces
-
 
 __all__ = ["TwistedStrategy"]
 
@@ -41,7 +40,7 @@ class TwistedStrategy(interfaces.IOStrategy):
     @defer.inlineCallbacks
     def fail(self, exc_type, exc_val, exc_tb):
         yield
-        super(TwistedStrategy, self).fail(exc_type, exc_val, exc_tb)
+        super().fail(exc_type, exc_val, exc_tb)
 
     @defer.inlineCallbacks
     def execute(self, executable):

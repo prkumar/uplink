@@ -1,14 +1,13 @@
 class AnnotationMeta(type):
     def __call__(cls, *args, **kwargs):
         if cls._can_be_static and cls._is_static_call(*args, **kwargs):
-            self = super(AnnotationMeta, cls).__call__()
+            self = super().__call__()
             self(args[0])
             return args[0]
-        else:
-            return super(AnnotationMeta, cls).__call__(*args, **kwargs)
+        return super().__call__(*args, **kwargs)
 
 
-class _Annotation(object):
+class _Annotation:
     _can_be_static = False
 
     def modify_request_definition(self, request_definition_builder):
@@ -27,7 +26,7 @@ class _Annotation(object):
 Annotation = AnnotationMeta("Annotation", (_Annotation,), {})
 
 
-class AnnotationHandlerBuilder(object):
+class AnnotationHandlerBuilder:
     __listener = None
 
     @property
@@ -49,13 +48,13 @@ class AnnotationHandlerBuilder(object):
         raise NotImplementedError
 
 
-class AnnotationHandler(object):
+class AnnotationHandler:
     @property
     def annotations(self):
         raise NotImplementedError
 
 
-class UriDefinitionBuilder(object):
+class UriDefinitionBuilder:
     @property
     def is_static(self):
         raise NotImplementedError
@@ -79,7 +78,7 @@ class UriDefinitionBuilder(object):
         raise NotImplementedError
 
 
-class RequestDefinitionBuilder(object):
+class RequestDefinitionBuilder:
     @property
     def method(self):
         raise NotImplementedError
@@ -106,7 +105,7 @@ class RequestDefinitionBuilder(object):
         raise NotImplementedError
 
 
-class RequestDefinition(object):
+class RequestDefinition:
     def make_converter_registry(self, converters):
         raise NotImplementedError
 
@@ -114,7 +113,7 @@ class RequestDefinition(object):
         raise NotImplementedError
 
 
-class CallBuilder(object):
+class CallBuilder:
     @property
     def client(self):
         raise NotImplementedError
@@ -142,12 +141,12 @@ class CallBuilder(object):
         raise NotImplementedError
 
 
-class Auth(object):
+class Auth:
     def __call__(self, request_builder):
         raise NotImplementedError
 
 
-class Consumer(object):
+class Consumer:
     @property
     def session(self):
         raise NotImplementedError
