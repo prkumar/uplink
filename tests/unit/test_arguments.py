@@ -196,6 +196,8 @@ class TestTypedArgument:
     def test_type(self):
         assert arguments.TypedArgument("hello").type == "hello"
 
+        assert arguments.TypedArgument["hello"].type == "hello"
+
     def test_set_type(self):
         annotation = arguments.TypedArgument()
         assert annotation.type is None
@@ -211,6 +213,8 @@ class TestTypedArgument:
 class TestNamedArgument:
     def test_name(self):
         assert arguments.NamedArgument("name").name == "name"
+
+        assert arguments.NamedArgument["name"].name == "name"
 
     def test_set_name(self):
         annotation = arguments.NamedArgument()

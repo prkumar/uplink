@@ -184,6 +184,10 @@ class TypedArgument(ArgumentAnnotation):
     def __init__(self, type=None):
         self._type = type
 
+    @classmethod
+    def __class_getitem__(cls, type):
+        return cls(type=type)
+
     @property
     def type(self):
         return self._type
@@ -206,6 +210,10 @@ class NamedArgument(TypedArgument):
     def __init__(self, name=None, type=None):
         self._arg_name = name
         super().__init__(type)
+
+    @classmethod
+    def __class_getitem__(cls, name):
+        return cls(name=name)
 
     @property
     def name(self):

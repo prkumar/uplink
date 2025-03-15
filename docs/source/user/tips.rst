@@ -137,6 +137,16 @@ When using Python 3, you can use these classes as function annotations
         def get_commit(self, commit_url: uplink.Url, sha: uplink.Path):
             pass
 
+Annotations receiving a :py:class:`str` or a :obj:`type` can be also initialized
+by using `generic types emulation <https://docs.python.org/3/reference/datamodel.html#emulating-generic-types>`_:
+
+.. code-block:: python
+   :emphasize-lines: 3
+
+    class GitHub(uplink.Consumer):
+        @uplink.get("user")
+        def get_user(self, authorization: Header["Authorization"]):
+            """Get an authenticated user."""
 
 .. _`annotating constructor arguments`:
 
