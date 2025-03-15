@@ -84,29 +84,29 @@ Uplink officially supports Python 2.7 and 3.5+.
 To install the latest stable release, you can use `pip` (or `pipenv`):
 
 ```bash
-$ pip install -U uplink
+pip install -U uplink
 ```
 
 If you are interested in the cutting-edge, preview the upcoming release with:
 
 ```bash
-$ pip install https://github.com/prkumar/uplink/archive/master.zip
+pip install https://github.com/prkumar/uplink/archive/master.zip
 ```
 
-### Extra! Extra!
+### Extra! Extra
 
 Further, uplink has optional integrations and features. You can view a full list of available extras [here](https://uplink.readthedocs.io/en/latest/user/install.html#extras).
 
 When installing Uplink with `pip`, you can select extras using the format:
 
 ```bash
-$ pip install -U uplink[extra1, extra2, ..., extraN]
+pip install -U uplink[extra1, extra2, ..., extraN]
 ```
 
 For instance, to install `aiohttp` and `marshmallow` support:
 
 ```bash
-$ pip install -U uplink[aiohttp, marshmallow]
+pip install -U uplink[aiohttp, marshmallow]
 ```
 
 ## User Testimonials
@@ -121,7 +121,7 @@ $ pip install -U uplink[aiohttp, marshmallow]
 
 ## Documentation
 
-Check out the library's documentation at https://uplink.readthedocs.io/.
+Check out the library's documentation at <https://uplink.readthedocs.io/>.
 
 For new users, a good place to start is this [quick tutorial](https://uplink.readthedocs.io/en/latest/user/quickstart.html).
 
