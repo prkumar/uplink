@@ -14,12 +14,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v5
-    - id: file_changes
-      uses: tj-actions/changed-files@v41
-    - uses: actions/cache@v3
-      with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-    - uses: pre-commit/action@v3.0.0
-      with:
-        extra_args: --files ${{ steps.file_changes.outputs.all_changed_files}}
+    - uses: pre-commit/action@v3.0.1
+
