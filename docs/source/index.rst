@@ -10,7 +10,7 @@ A Declarative HTTP Client for Python. Inspired by `Retrofit
 
 |Release| |Python Version| |License| |Coverage Status| |GitHub Discussions|
 
-.. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.rst
+.. _`Contribution Guide on GitHub`: https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.md
 .. _Hacktoberfest: https://hacktoberfest.digitalocean.com/
 
 .. note::
@@ -117,7 +117,7 @@ User Testimonials
 
 **Or Carmi** (`@liiight`_), notifiers_ maintainer-
 
-    Uplink’s intelligent usage of decorators and typing leverages the most
+    Uplink's intelligent usage of decorators and typing leverages the most
     pythonic features in an elegant and dynamic way. If you need to create an
     API abstraction layer, there is really no reason to look elsewhere.
 
