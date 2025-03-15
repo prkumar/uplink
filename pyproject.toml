@@ -2,7 +2,7 @@
 name = "uplink"
 version = "1.0.0-alpha"
 description = "A Declarative HTTP Client for Python."
-readme = "README.rst"
+readme = "README.md"
 maintainers = [{ name = "P. Raj Kumar", email = "raj.pritvi.kumar@gmail.com" }]
 authors = [
   { name = "Kareem Moussa" },

@@ -352,7 +352,7 @@ Fixed
 Added
 -----
 - Contribution guide, ``CONTRIBUTING.rst``.
-- "Contributing" Section in README.rst that links to contribution guide.
+- "Contributing" Section in README.md that links to contribution guide.
 - ``AUTHORS.rst`` file for listing project contributors.
 - Adopt `Contributor Covenant Code of Conduct`_.
 
