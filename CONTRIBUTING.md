@@ -46,7 +46,7 @@ And, their development typically follows this workflow:
 2. Make your changes, adhering to the [style guide](#style-guide).
 3. Add or update [tests](#tests).
 4. Update documentation, if necessary.
-5. Add yourself to [AUTHORS.rst](AUTHORS.rst).
+5. Add yourself to the `authors` list in `pyproject.toml`.
 6. When your changes are ready for review, open a [pull request](#pull-request).
 7. Merge changes.
 
