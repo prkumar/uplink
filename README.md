@@ -1,7 +1,7 @@
 # Uplink
 
 [![PyPI Version](https://img.shields.io/pypi/v/uplink.svg)](https://pypi.python.org/pypi/uplink)
-[![Build Status](https://travis-ci.com/prkumar/uplink.svg?branch=master)](https://travis-ci.com/prkumar/uplink)
+[![CI](https://img.shields.io/github/actions/workflow/status/prkumar/uplink/ci.yml?branch=master&logo=github&label=CI)](https://github.com/prkumar/uplink/actions?query=event%3Apush+branch%master+workflow%3ACI)
 [![Coverage Status](https://img.shields.io/codecov/c/github/prkumar/uplink.svg)](https://codecov.io/gh/prkumar/uplink)
 [![Code Climate](https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability)](https://codeclimate.com/github/prkumar/uplink/maintainability)
 [![Documentation Status](https://readthedocs.org/projects/uplink/badge/?version=latest)](http://uplink.readthedocs.io/en/latest/?badge=latest)

@@ -93,7 +93,7 @@ Once we're ready to begin the release process, we'll create a release branch off
 
 Once the release branch is merged into `stable`, we consider the release completed. However, up until this point, we can make necessary changes to the release branch, while normal feature development continues on `master`.
 
-When merging the release branch into `stable`, perform an explicit, non fast-forward **merge**. Then, on the merge commit in `stable`, create a tag named `v{version}`, where `{version}` is the target release version number (e.g., `v1.0.0`). Tagging the commit prompts Travis CI to deploy the latest release to PyPI.
+When merging the release branch into `stable`, perform an explicit, non fast-forward **merge**. Then, on the merge commit in `stable`, create a tag named `v{version}`, where `{version}` is the target release version number (e.g., `v1.0.0`). Tagging the commit prompts our CI pipeline to deploy the latest release to PyPI.
 
 Notably, before removing a release branch, we'll need to merge the branch into `master` to incorporate commits made after the release branch was cut. Moreover, once a release branch is cut, we need to bump the version number on `master`.
 
@@ -103,10 +103,10 @@ Depending on the type of change you are making, the branching model may require 
 
 1. Open a pull request (PR) to merge your forked branch, the **candidate**, into a **base** branch of this repository.
 2. Add Raj (`prkumar`) as a reviewer.
-3. If your PR fails the Travis CI check, investigate the build log for cause of failure, address locally, and update the candidate branch. Repeat this step until the PR passes the Travis CI check.
+3. If your PR fails the CI check, investigate the build log for cause of failure, address locally, and update the candidate branch. Repeat this step until the PR passes the CI check.
 4. If your PR fails the Codecov check, check the PR's Codecov report to identify modules experiencing a test coverage drop. Improve testing locally, then update the candidate branch.
 5. Once all checks have passed and the assigned reviewers have approved, a maintainer will merge your pull requests into the base branch by selecting "Merge Pull Request" (i.e., a `--no-ff` merge).
-6. If the Travis CI build for the merge commit fails, you should revert the merge commit, address the issue locally, update the candidate branch, then revisit step 3.
+6. If the CI build for the merge commit fails, you should revert the merge commit, address the issue locally, update the candidate branch, then revisit step 3.
 
 ## Tests
 
