@@ -9,14 +9,12 @@ from uplink.clients import exceptions, interfaces, io, register
 
 class RequestsClient(interfaces.HttpClientAdapter):
     """
-    A :py:mod:`requests` client that returns
-    :py:class:`requests.Response` responses.
+    A `requests` client that returns
+    `requests.Response` responses.
 
     Args:
-        session (:py:class:`requests.Session`, optional): The session
-            that should handle sending requests. If this argument is
-            omitted or set to :py:obj:`None`, a new session will be
-            created.
+        session: The session that should handle sending requests. If this argument is
+            omitted or set to `None`, a new session will be created.
     """
 
     exceptions = exceptions.Exceptions()

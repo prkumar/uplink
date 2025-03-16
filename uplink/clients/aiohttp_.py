@@ -35,18 +35,20 @@ def threaded_callback(callback):
 
 class AiohttpClient(interfaces.HttpClientAdapter):
     """
-    An :py:mod:`aiohttp` client that creates awaitable responses.
+    An `aiohttp` client that creates awaitable responses.
 
     Note:
-        This client is an optional feature and requires the :py:mod:`aiohttp`
-        package. For example, here's how to install this extra using pip::
+        This client is an optional feature and requires the `aiohttp`
+        package. For example, here's how to install this extra using pip:
 
-            $ pip install uplink[aiohttp]
+        ```bash
+        $ pip install 'uplink[aiohttp]'
+        ```
 
     Args:
-        session (:py:class:`aiohttp.ClientSession`, optional):
+        session (aiohttp.ClientSession, optional):
             The session that should handle sending requests. If this
-            argument is omitted or set to :py:obj:`None`, a new session
+            argument is omitted or set to `None`, a new session
             will be created.
     """
 
@@ -109,19 +111,19 @@ class AiohttpClient(interfaces.HttpClientAdapter):
     def create(cls, *args, **kwargs):
         """
         Builds a client instance with
-        :py:class:`aiohttp.ClientSession` arguments.
+        [`aiohttp.ClientSession`][aiohttp.ClientSession] arguments.
 
         Instead of directly initializing this class with a
-        :py:class:`aiohttp.ClientSession`, use this method to have the
+        [`aiohttp.ClientSession`][aiohttp.ClientSession], use this method to have the
         client lazily construct a session when sending the first
         request. Hence, this method guarantees that the creation of the
         underlying session happens inside of a coroutine.
 
         Args:
             *args: positional arguments that
-                :py:class:`aiohttp.ClientSession` takes.
+                [`aiohttp.ClientSession`][aiohttp.ClientSession] takes.
             **kwargs: keyword arguments that
-                :py:class:`aiohttp.ClientSession` takes.
+                [`aiohttp.ClientSession`][aiohttp.ClientSession] takes.
         """
         session_build_args = cls._create_session(*args, **kwargs)
         return AiohttpClient(session=session_build_args)

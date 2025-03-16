@@ -11,25 +11,26 @@ from uplink.converters import interfaces, register_default_converter_factory
 class MarshmallowConverter(interfaces.Factory):
     """
     A converter that serializes and deserializes values using
-    :py:mod:`marshmallow` schemas.
+    `marshmallow` schemas.
 
     To deserialize JSON responses into Python objects with this
-    converter, define a :py:class:`marshmallow.Schema` subclass and set
+    converter, define a `marshmallow.Schema` subclass and set
     it as the return annotation of a consumer method:
 
-    .. code-block:: python
+    ```python
+    @get("/users")
+    def get_users(self, username) -> UserSchema():
+        '''Fetch a single user'''
+    ```
 
-        @get("/users")
-        def get_users(self, username) -> UserSchema():
-            '''Fetch a single user'''
-
-    Note:
-
+    !!! note
         This converter is an optional feature and requires the
-        :py:mod:`marshmallow` package. For example, here's how to
-        install this feature using pip::
+        `marshmallow` package. For example, here's how to
+        install this feature using pip:
 
-            $ pip install uplink[marshmallow]
+        ```
+        $ pip install uplink[marshmallow]
+        ```
     """
 
     try:

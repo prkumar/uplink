@@ -1,23 +1,24 @@
-# Minimal makefile for Sphinx documentation
-#
+# Makefile for MkDocs documentation
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
-SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = Uplink
-SOURCEDIR     = source
-BUILDDIR      = build
+MKDOCS = mkdocs
 
-# Put it first so that "make" without argument is like "make help".
+# Default target
+.PHONY: help
 help:
-	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  serve      to start the live-reloading docs server"
+	@echo "  build      to build the documentation site"
+	@echo "  deploy     to deploy the site to GitHub Pages"
 
-.PHONY: help Makefile
+.PHONY: serve
+serve:
+	$(MKDOCS) serve
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+.PHONY: build
+build:
+	$(MKDOCS) build
 
-livehtml:
-	sphinx-autobuild -b html $(ALLSPHINXOPTS) "$(SOURCEDIR)" "$(BUILDDIR)/html"
+.PHONY: deploy
+deploy:
+	$(MKDOCS) gh-deploy --force

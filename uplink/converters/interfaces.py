@@ -19,75 +19,73 @@ class Factory:
     encapsulates a specific encoding/decoding strategy
     (e.g., Protocol Buffers or JSON).
 
-    .. note::
-
+    !!! note
         Overriding all inherited methods is unnecessary; the default
-        implementation is to return :obj:`None`, which tells the
+        implementation is to return `None`, which tells the
         converter layer to move on to the next factory. Hence,
         you only should implement the methods you intend to support.
-
     """
 
     def create_response_body_converter(self, cls, request_definition):
         """
         Returns a callable that can convert a response body into the
-        specified :obj:`cls`.
+        specified `cls`.
 
         The returned callable should expect a single positional
         argument: the response body.
 
         If this factory can't produce such a callable, it should return
-        :obj:`None`, so another factory can have a chance to handle
+        `None`, so another factory can have a chance to handle
         the type.
 
         Args:
-            cls (:obj:`type`): The target class for conversion.
+            cls (type): The target class for conversion.
             request_definition: Metadata for the outgoing request.
                 This object exposes two properties: the
-                :obj:`method_annotations` (e.g., `~uplink.headers`) and
-                :obj:`argument_annotations` (e.g., `~uplink.Body) bound
+                `method_annotations` (e.g., `~uplink.headers`) and
+                `argument_annotations` (e.g., `~uplink.Body`) bound
                 to the underlying consumer method
         """
 
     def create_request_body_converter(self, cls, request_definition):
         """
-        Returns a callable that can convert :obj:`cls` into an acceptable
+        Returns a callable that can convert `cls` into an acceptable
         request body.
 
         The returned callable should expect a single positional
-        argument: an instance of given type, :obj:`cls`.
+        argument: an instance of given type, `cls`.
 
         If this factory can't produce such a callable, it should return
-        :py:obj:`None`, so another factory can have a chance to handle
+        `None`, so another factory can have a chance to handle
         the type.
 
         Args:
-            cls (obj:`type`): The target class for conversion.
+            cls (type): The target class for conversion.
             request_definition: Metadata for the outgoing request.
                 This object exposes two properties: the
-                :obj:`method_annotations` (e.g., `~uplink.headers`) and
-                :obj:`argument_annotations` (e.g., `~uplink.Body) bound
+                `method_annotations` (e.g., `~uplink.headers`) and
+                `argument_annotations` (e.g., `~uplink.Body`) bound
                 to the underlying consumer method
         """
 
     def create_string_converter(self, cls, request_definition):
         """
         Returns a callable that can convert `cls` into a
-        :py:class:`str`.
+        `str`.
 
         The returned callable should expect a single positional
-        argument: an instance of given type, :obj:`cls`.
+        argument: an instance of given type, `cls`.
 
         If this factory can't produce such a callable, it should return
-        :py:obj:`None`, so another factory can have a chance to handle
+        `None`, so another factory can have a chance to handle
         the type.
 
         Args:
-            cls (obj:`type`): The target class for conversion.
+            cls (type): The target class for conversion.
             request_definition: Metadata for the outgoing request.
                 This object exposes two properties: the
-                :obj:`method_annotations` (e.g., `~uplink.headers`) and
-                :obj:`argument_annotations` (e.g., `~uplink.Body) bound
+                `method_annotations` (e.g., `~uplink.headers`) and
+                `argument_annotations` (e.g., `~uplink.Body`) bound
                 to the underlying consumer method
         """
 

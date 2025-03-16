@@ -280,26 +280,24 @@ class FuncDecoratorMixin:
 
 class Path(NamedArgument):
     """
-    Substitution of a path variable in a `URI template
-    <https://tools.ietf.org/html/rfc6570>`__.
+    Substitution of a path variable in a [URI template](https://tools.ietf.org/html/rfc6570).
 
-    URI template parameters are enclosed in braces (e.g.,
-    :code:`{name}`). To map an argument to a declared URI parameter, use
-    the :py:class:`Path` annotation:
+    URI template parameters are enclosed in braces (e.g., `{name}`). To map an argument to a declared URI parameter, use
+    the `Path` annotation:
 
-    .. code-block:: python
+    ```python
+    class TodoService(object):
+        @get("/todos/{id}")
+        def get_todo(self, todo_id: Path("id")): pass
+    ```
 
-        class TodoService(object):
-            @get("/todos/{id}")
-            def get_todo(self, todo_id: Path("id")): pass
+    Then, invoking `get_todo` with a consumer instance:
 
-    Then, invoking :code:`get_todo` with a consumer instance:
+    ```python
+    todo_service.get_todo(100)
+    ```
 
-    .. code-block:: python
-
-        todo_service.get_todo(100)
-
-    creates an HTTP request with a URL ending in :code:`/todos/100`.
+    creates an HTTP request with a URL ending in `/todos/100`.
 
     Note:
         Any unannotated function argument that shares a name with a URL path
@@ -308,10 +306,10 @@ class Path(NamedArgument):
         For example, we could simplify the method from the previous
         example by matching the path variable and method argument names:
 
-        .. code-block:: python
-
-            @get("/todos/{id}")
-            def get_todo(self, id): pass
+        ```python
+        @get("/todos/{id}")
+        def get_todo(self, id): pass
+        ```
     """
 
     @property
@@ -331,47 +329,47 @@ class Query(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
 
     This annotation turns argument values into URL query
     parameters. You can include it as function argument
-    annotation, in the format: ``<query argument>: uplink.Query``.
+    annotation, in the format: `<query argument>: uplink.Query`.
 
-    If the API endpoint you are trying to query uses ``q`` as a query
-    parameter, you can add ``q: uplink.Query`` to the consumer method to
-    set the ``q`` search term at runtime.
+    If the API endpoint you are trying to query uses `q` as a query
+    parameter, you can add `q: uplink.Query` to the consumer method to
+    set the `q` search term at runtime.
 
-    Example:
-        .. code-block:: python
-
-            @get("/search/commits")
-            def search(self, search_term: Query("q")):
-                \"""Search all commits with the given search term.\"""
+    Examples:
+        ```python
+        @get("/search/commits")
+        def search(self, search_term: Query("q")):
+            \"""Search all commits with the given search term.\"""
+        ```
 
         To specify whether or not the query parameter is already URL encoded,
-        use the optional :py:obj:`encoded` argument:
+        use the optional `encoded` argument:
 
-        .. code-block:: python
+        ```python
+        @get("/search/commits")
+        def search(self, search_term: Query("q", encoded=True)):
+            \"""Search all commits with the given search term.\"""
+        ```
 
-            @get("/search/commits")
-            def search(self, search_term: Query("q", encoded=True)):
-                \"""Search all commits with the given search term.\"""
+        To specify if and how `None` values should be encoded, use the
+        optional `encode_none` argument:
 
-        To specify if and how :py:obj:`None` values should be encoded, use the
-        optional :py:obj:`encode_none` argument:
-
-        .. code-block:: python
-
-            @get("/search/commits")
-            def search(self, search_term: Query("q"),
-                       search_order: Query("o", encode_none="null")):
-                \"""
-                Search all commits with the given search term using the
-                optional search order.
-                \"""
+        ```python
+        @get("/search/commits")
+        def search(self, search_term: Query("q"),
+                   search_order: Query("o", encode_none="null")):
+            \"""
+            Search all commits with the given search term using the
+            optional search order.
+            \"""
+        ```
 
     Args:
-        encoded (:obj:`bool`, optional): Specifies whether the parameter
-            :py:obj:`name` and value are already URL encoded.
-        encode_none (:obj:`str`, optional): Specifies an optional string with
-            which :py:obj:`None` values should be encoded. If not specified,
-            parameters with a value of :py:obj:`None` will not be sent.
+        name: The name of the query parameter.
+        encoded: Specifies whether the parameter name and value are already URL encoded.
+        type: The type of the query parameter.
+        encode_none: Specifies an optional string with which `None` values should be encoded.
+            If not specified, parameters with a value of `None` will not be sent.
     """
 
     class QueryStringEncodingError(exceptions.AnnotationError):
@@ -417,18 +415,18 @@ class QueryMap(FuncDecoratorMixin, TypedArgument):
 
     If the API you are using accepts multiple query arguments, you can
     include them all in your function method by using the format:
-    ``<query argument>: uplink.QueryMap``
+    `<query argument>: uplink.QueryMap`
 
     Example:
-        .. code-block:: python
-
-            @get("/search/users")
-            def search(self, **params: QueryMap):
-                \"""Search all users.\"""
+        ```python
+        @get("/search/users")
+        def search(self, **params: QueryMap):
+            \"""Search all users.\"""
+        ```
 
     Args:
-        encoded (:obj:`bool`, optional): Specifies whether the parameter
-            :py:obj:`name` and value are already URL encoded.
+        encoded: Specifies whether the parameter name and value are already URL encoded.
+        type: The type of the query parameters.
     """
 
     def __init__(self, encoded=False, type=None):
@@ -451,26 +449,27 @@ class Header(FuncDecoratorMixin, EncodeNoneMixin, NamedArgument):
     """
     Pass a header as a method argument at runtime.
 
-    While :py:class:`uplink.headers` attaches request headers values
+    While `uplink.headers` attaches request headers values
     that are static across all requests sent from the decorated
     consumer method, this annotation turns a method argument into a
     dynamic request header.
 
-    Example:
-        .. code-block:: python
+    ```python
+    @get("/user")
+    def me(self, session_id: Header("Authorization")):
+        \"""Get the authenticated user.\"""
+    ```
 
-            @get("/user")
-            def me(self, session_id: Header("Authorization")):
-                \"""Get the authenticated user.\"""
+    To define an optional header, use the default value of `None`:
 
-        To define an optional header, use the default value of `None`:
+    ```python
+    @get("/repositories")
+    def fetch_repos(self, auth: Header("Authorization") = None):
+        \"""List all public repositories.\"""
+    ```
 
-            @get("/repositories")
-            def fetch_repos(self, auth: Header("Authorization") = None):
-                \"""List all public repositories.\"""
-
-        When the argument is not used, the header will not be added
-        to the request.
+    When the argument is not used, the header will not be added
+    to the request.
     """
 
     @property
@@ -501,17 +500,16 @@ class Field(NamedArgument):
     """
     Defines a form field to the request body.
 
-    Use together with the decorator :py:class:`uplink.form_url_encoded`
+    Use together with the decorator `uplink.form_url_encoded`
     and annotate each argument accepting a form field with
-    :py:class:`uplink.Field`.
+    `uplink.Field`.
 
-    Example::
-        .. code-block:: python
-
-            @form_url_encoded
-            @post("/users/edit")
-            def update_user(self, first_name: Field, last_name: Field):
-                \"""Update the current user.\"""
+    ```python
+    @form_url_encoded
+    @post("/users/edit")
+    def update_user(self, first_name: Field, last_name: Field):
+        \"""Update the current user.\"""
+    ```
     """
 
     class FieldAssignmentFailed(exceptions.AnnotationError):
@@ -543,17 +541,16 @@ class FieldMap(TypedArgument):
     """
     Defines a mapping of form fields to the request body.
 
-    Use together with the decorator :py:class:`uplink.form_url_encoded`
+    Use together with the decorator `uplink.form_url_encoded`
     and annotate each argument accepting a form field with
-    :py:class:`uplink.FieldMap`.
+    `uplink.FieldMap`.
 
-    Example:
-        .. code-block:: python
-
-            @form_url_encoded
-            @post("/user/edit")
-            def create_post(self, **user_info: FieldMap):
-                \"""Update the current user.\"""
+    ```python
+    @form_url_encoded
+    @post("/user/edit")
+    def create_post(self, **user_info: FieldMap):
+        \"""Update the current user.\"""
+    ```
     """
 
     class FieldMapUpdateFailed(exceptions.AnnotationError):
@@ -581,16 +578,15 @@ class Part(NamedArgument):
     """
     Marks an argument as a form part.
 
-    Use together with the decorator :py:class:`uplink.multipart` and
-    annotate each form part with :py:class:`uplink.Part`.
+    Use together with the decorator `uplink.multipart` and
+    annotate each form part with `uplink.Part`.
 
-    Example:
-        .. code-block:: python
-
-            @multipart
-            @put(/user/photo")
-            def update_user(self, photo: Part, description: Part):
-                \"""Upload a user profile photo.\"""
+    ```python
+    @multipart
+    @put("/user/photo")
+    def update_user(self, photo: Part, description: Part):
+        \"""Upload a user profile photo.\"""
+    ```
     """
 
     @property
@@ -607,16 +603,15 @@ class PartMap(TypedArgument):
     """
     A mapping of form field parts.
 
-    Use together with the decorator :py:class:`uplink.multipart` and
-    annotate each part of form parts with :py:class:`uplink.PartMap`
+    Use together with the decorator `uplink.multipart` and
+    annotate each part of form parts with `uplink.PartMap`
 
-    Example:
-        .. code-block:: python
-
-            @multipart
-            @put(/user/photo")
-            def update_user(self, photo: Part, description: Part):
-                \"""Upload a user profile photo.\"""
+    ```python
+    @multipart
+    @put("/user/photo")
+    def update_user(self, photo: Part, description: Part):
+        \"""Upload a user profile photo.\"""
+    ```
     """
 
     @property
@@ -633,17 +628,16 @@ class Body(TypedArgument):
     """
     Set the request body at runtime.
 
-    Use together with the decorator :py:class:`uplink.json`. The method
+    Use together with the decorator `uplink.json`. The method
     argument value will become the request's body when annotated
-    with :py:class:`uplink.Body`.
+    with `uplink.Body`.
 
-    Example:
-        .. code-block:: python
-
-            @json
-            @patch(/user")
-            def update_user(self, **info: Body):
-                \"""Update the current user.\"""
+    ```python
+    @json
+    @patch("/user")
+    def update_user(self, **info: Body):
+        \"""Update the current user.\"""
+    ```
     """
 
     @property
@@ -662,15 +656,14 @@ class Url(ArgumentAnnotation):
     Sets a dynamic URL.
 
     Provides the URL at runtime as a method argument. Drop the decorator
-    parameter path from :py:class:`uplink.get` and annotate the
-    corresponding argument with :py:class:`uplink.Url`
+    parameter path from `uplink.get` and annotate the
+    corresponding argument with `uplink.Url`
 
-    Example:
-        .. code-block:: python
-
-            @get
-            def get(self, endpoint: Url):
-                \"""Execute a GET requests against the given endpoint\"""
+    ```python
+    @get
+    def get(self, endpoint: Url):
+        \"""Execute a GET requests against the given endpoint\"""
+    ```
     """
 
     class DynamicUrlAssignmentFailed(exceptions.InvalidRequestDefinition):
@@ -704,17 +697,17 @@ class Timeout(FuncDecoratorMixin, ArgumentAnnotation):
     """
     Passes a timeout as a method argument at runtime.
 
-    While :py:class:`uplink.timeout` attaches static timeout to all requests
+    While [`uplink.timeout`][uplink.timeout] attaches static timeout to all requests
     sent from a consumer method, this class turns a method argument into a
     dynamic timeout value.
 
     Example:
-        .. code-block:: python
-
-            @get("/user/posts")
-            def get_posts(self, timeout: Timeout() = 60):
-                \"""Fetch all posts for the current users giving up after given
-                number of seconds.\"""
+        ```python
+        @get("/user/posts")
+        def get_posts(self, timeout: Timeout() = 60):
+            \"""Fetch all posts for the current users giving up after given
+            number of seconds.\"""
+        ```
     """
 
     @property
@@ -740,40 +733,38 @@ class Context(FuncDecoratorMixin, NamedArgument):
     control over the middleware's behavior.
 
     Example:
-        Consider a custom decorator :obj:`@cache` (this would be a
-        subclass of :class:`uplink.decorators.MethodAnnotation`):
+        Consider a custom decorator `@cache` (this would be a
+        subclass of `uplink.decorators.MethodAnnotation`):
 
-        .. code-block:: python
+        ```python
+        @cache(hours=3)
+        @get("users/user_id")
+        def get_user(self, user_id)
+            \"""Retrieves a single user.\"""
+        ```
 
-            @cache(hours=3)
-            @get("users/user_id")
-            def get_user(self, user_id)
-                \"""Retrieves a single user.\"""
-
-        As its name suggests, the :obj:`@cache` decorator enables
+        As its name suggests, the `@cache` decorator enables
         caching server responses so that, once a request is cached,
         subsequent identical requests can be served by the cache
         provider rather than adding load to the upstream service.
 
-        Importantly, the writers of the :obj:`@cache` decorators can
+        Importantly, the writers of the `@cache` decorators can
         allow users to pass their own cache provider implementation
-        through an argument annotated with :class:`Context <uplink.Context>`:
+        through an argument annotated with [`Context`][uplink.Context]:
 
-        .. code-block:: python
-
-            @cache(hours=3)
-            @get("users/user_id")
-            def get_user(self, user_id, cache_provider: Context)
-                \"""Retrieves a single user.\"""
+        ```python
+        @cache(hours=3)
+        @get("users/user_id")
+        def get_user(self, user_id, cache_provider: Context)
+            \"""Retrieves a single user.\"""
+        ```
 
         To add a name-value pair to the context of any request made from
-        a :class:`Consumer <uplink.Consumer>` instance, you
-        can use the :attr:`Consumer.session.context
-        <uplink.session.Session.context>` property. Alternatively, you
-        can annotate a constructor argument of a :class:`Consumer
-        <uplink.Consumer>` subclass with :class:`Context
-        <uplink.Context>`, as explained
-        :ref:`here <annotating constructor arguments>`.
+        a [`Consumer`][uplink.Consumer] instance, you
+        can use the [`Consumer.session.context`][uplink.session.Session.context]
+        property. Alternatively, you can annotate a constructor argument of a
+        [`Consumer`][uplink.Consumer] subclass with [`Context`][uplink.Context],
+        as explained [here][annotating constructor arguments].
     """
 
     @property

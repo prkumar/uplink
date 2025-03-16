@@ -1,3 +1,7 @@
+"""
+Functions for transitioning between request execution states.
+"""
+
 __all__ = ["fail", "finish", "prepare", "send", "sleep"]
 
 

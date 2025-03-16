@@ -4,9 +4,9 @@ from uplink import arguments
 
 class Session:
     """
-    The session of a :class:`~uplink.Consumer` instance.
+    The session of a [`Consumer`][uplink.Consumer] instance.
 
-    Exposes the configuration of a :class:`~uplink.Consumer` instance and
+    Exposes the configuration of a [`Consumer`][uplink.Consumer] instance and
     allows the persistence of certain properties across all requests sent
     from that instance.
     """
@@ -72,7 +72,7 @@ class Session:
     def inject(self, hook, *more_hooks):
         """
         Add hooks (e.g., functions decorated with either
-        :class:`~uplink.response_handler` or
-        :class:`~uplink.error_handler`) to the session.
+        [`uplink.response_handler`][uplink.response_handler] or
+        [`uplink.error_handler`][uplink.error_handler]) to the session.
         """
         self.__builder.add_hook(hook, *more_hooks)

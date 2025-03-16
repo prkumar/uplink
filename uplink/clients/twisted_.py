@@ -15,19 +15,21 @@ from uplink.clients import interfaces, io, register
 
 class TwistedClient(interfaces.HttpClientAdapter):
     """
-    Client that returns :py:class:`twisted.internet.defer.Deferred`
+    Client that returns [`twisted.internet.defer.Deferred`][twisted.internet.defer.Deferred]
     responses.
 
     Note:
-        This client is an optional feature and requires the :py:mod:`twisted`
-        package. For example, here's how to install this extra using pip::
+        This client is an optional feature and requires the [`twisted`][twisted]
+        package. For example, here's how to install this extra using pip:
 
-            $ pip install uplink[twisted]
+        ```bash
+        $ pip install uplink[twisted]
+        ```
 
     Args:
-        session (:py:class:`requests.Session`, optional): The session
+        session ([`requests.Session`][requests.Session], optional): The session
             that should handle sending requests. If this argument is
-            omitted or set to :py:obj:`None`, a new session will be
+            omitted or set to `None`, a new session will be
             created.
     """
 
