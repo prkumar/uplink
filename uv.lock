@@ -924,6 +924,7 @@ wheels = [
 
 [[package]]
 name = "uplink"
+version = "0.10.0a1"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
