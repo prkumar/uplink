@@ -4,5 +4,6 @@ that is used both in distribution (i.e., setup.py) and within the
 codebase.
 """
 
-__version__ = "0.10.0a1"
-"""The version of Uplink."""
+import importlib.metadata
+
+__version__ = importlib.metadata.version("uplink")

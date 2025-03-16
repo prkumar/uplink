@@ -40,9 +40,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Build package
-        run: |
-          uv pip install build
-          python -m build
+        run: uv build
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        run: uv publish --trusted-publishing always

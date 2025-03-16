@@ -1,6 +1,7 @@
 [project]
 name = 'uplink'
 description = 'A Declarative HTTP Client for Python.'
+version = '0.10.0a1'
 readme = 'README.md'
 maintainers = [{ name = 'P. Raj Kumar', email = 'raj.pritvi.kumar@gmail.com' }]
 authors = [
@@ -57,9 +58,6 @@ twisted = ['twisted>=21.7.0']
 [build-system]
 requires = ['hatchling']
 build-backend = 'hatchling.build'
-
-[tool.hatch.version]
-path = 'uplink/__about__.py'
 
 [tool.pytest]
 twisted=1
