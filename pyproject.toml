@@ -59,7 +59,7 @@ requires = ['hatchling']
 build-backend = 'hatchling.build'
 
 [tools.hatch.version]
-path = 'uplink/version.py'
+path = 'uplink/__about__.py'
 
 [tools.pytest]
 twisted=1
