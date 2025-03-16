@@ -31,6 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && contains(github.ref, 'refs/tags/')
     environment: release
+    permissions:
+      # IMPORTANT: This is required to publish to PyPI using Trusted Publishing.
+      # See: https://docs.pypi.org/trusted-publishers/using-a-publisher/
+      id-token: write
     
     steps:
       - name: Checkout repository
