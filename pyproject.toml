@@ -37,10 +37,8 @@ classifiers = [
   'Programming Language :: Python :: Implementation :: PyPy',
   'Topic :: Software Development :: Libraries',
 ]
-
 requires-python = '>=3.10'
 dependencies = ['requests>=2.18.0', 'six>=1.13.0', 'uritemplate>=3.0.0']
-dynamic = ['version']
 
 [dependency-groups]
 test = [
