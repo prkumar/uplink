@@ -18,7 +18,7 @@ def _encode_pydantic_v1(obj: Any) -> Any:
     # json containers
     if isinstance(obj, dict):
         return {_encode_pydantic_v1(k): _encode_pydantic_v1(v) for k, v in obj.items()}
-    if isinstance(obj, list):
+    if isinstance(obj, list | tuple):
         return [_encode_pydantic_v1(i) for i in obj]
 
     # pydantic v1 types
