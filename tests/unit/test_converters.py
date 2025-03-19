@@ -505,9 +505,10 @@ class TestPydanticV1Converter:
         from json import loads
 
         class ComplexModel(pydantic.v1.BaseModel):
-            when = datetime.utcnow()  # type: datetime
-            where = "http://example.com"  # type: pydantic.v1.AnyUrl
-            some = [1]  # type: typing.List[int]
+            when: datetime = datetime.now()
+            where: pydantic.v1.AnyUrl = "http://example.com"
+            some: list[int] = [1]
+            some_more: tuple[int] = (1,)
 
         model = ComplexModel()
         request_body = {}
