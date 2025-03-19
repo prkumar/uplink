@@ -19,8 +19,10 @@ As we're in initial development, the project is accepting feature requests! To r
 Install all development dependencies using:
 
 ```bash
-pipenv install --dev
-pipenv run pre-commit install
+# Creates .venv and install dependencies
+uv sync
+# Setups pre-commit
+uv tool install pre-commit --with pre-commit-uv --force-reinstall
 ```
 
 If you are unfamiliar with [pipenv](https://docs.pipenv.org/) but are comfortable with [virtualenvs](https://virtualenv.pypa.io/en/stable/), you can alternatively run `pip install pipenv` inside the virtualenv you are already using then invoke the commands from above. This will setup your virtualenv correctly.
@@ -28,8 +30,10 @@ If you are unfamiliar with [pipenv](https://docs.pipenv.org/) but are comfortabl
 Before submitting a pull request, run all tests with [tox](https://tox.readthedocs.io/en/latest/):
 
 ```bash
-tox
+# Runs the tests, you can pass `-e py311` to run the tests in that version else it will run all
+ uv tool run --with=tox-uv tox r
 ```
+
 
 ## Making Changes to the Source
 
