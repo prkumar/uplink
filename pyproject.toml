@@ -59,3 +59,20 @@ build-backend = 'hatchling.build'
 
 [tool.pytest]
 twisted=1
+
+
+[tool.tox]
+env_list = ["py310", "py311", "py312", "py313"]
+
+[tool.tox.testenv]
+runner = "uv-venv-lock-runner"
+deps = [
+    "test",
+    "marshmallow",
+    "aiohttp",
+    "twisted",
+    "pydantic",
+]
+commands = [
+    "pytest tests --cov-config .coveragerc --cov=uplink {posargs}",
+]
