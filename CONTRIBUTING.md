@@ -20,7 +20,7 @@ Install all development dependencies using:
 
 ```bash
 # Creates .venv and install dependencies
-uv sync
+uv sync --all-extras
 # Setups pre-commit
 uv tool install pre-commit --with pre-commit-uv --force-reinstall
 ```

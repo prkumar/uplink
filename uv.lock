@@ -932,7 +932,7 @@ dependencies = [
     { name = "uritemplate" },
 ]
 
-[package.dev-dependencies]
+[package.optional-dependencies]
 aiohttp = [
     { name = "aiohttp" },
 ]
@@ -942,36 +942,39 @@ marshmallow = [
 pydantic = [
     { name = "pydantic" },
 ]
-test = [
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
-    { name = "pytest-mock" },
-    { name = "pytest-twisted" },
-]
 twisted = [
     { name = "twisted" },
 ]
 
-[package.metadata]
-requires-dist = [
-    { name = "requests", specifier = ">=2.18.0" },
-    { name = "six", specifier = ">=1.13.0" },
-    { name = "uritemplate", specifier = ">=3.0.0" },
-]
-
-[package.metadata.requires-dev]
-aiohttp = [{ name = "aiohttp", specifier = ">=3.8.1" }]
-marshmallow = [{ name = "marshmallow", specifier = ">=2.15.0" }]
-pydantic = [{ name = "pydantic", specifier = ">=2.0.0" }]
-test = [
+[package.dev-dependencies]
+dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-cov" },
     { name = "pytest-mock" },
     { name = "pytest-twisted" },
 ]
-twisted = [{ name = "twisted", specifier = ">=21.7.0" }]
+
+[package.metadata]
+requires-dist = [
+    { name = "aiohttp", marker = "extra == 'aiohttp'", specifier = ">=3.8.1" },
+    { name = "marshmallow", marker = "extra == 'marshmallow'", specifier = ">=2.15.0" },
+    { name = "pydantic", marker = "extra == 'pydantic'", specifier = ">=2.0.0" },
+    { name = "requests", specifier = ">=2.18.0" },
+    { name = "six", specifier = ">=1.13.0" },
+    { name = "twisted", marker = "extra == 'twisted'", specifier = ">=21.7.0" },
+    { name = "uritemplate", specifier = ">=3.0.0" },
+]
+provides-extras = ["marshmallow", "pydantic", "aiohttp", "twisted"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-cov" },
+    { name = "pytest-mock" },
+    { name = "pytest-twisted" },
+]
 
 [[package]]
 name = "uritemplate"
