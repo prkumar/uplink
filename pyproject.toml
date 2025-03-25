@@ -40,18 +40,20 @@ classifiers = [
 requires-python = '>=3.10'
 dependencies = ['requests>=2.18.0', 'six>=1.13.0', 'uritemplate>=3.0.0']
 
+[project.optional-dependencies]
+marshmallow = ['marshmallow>=2.15.0']
+pydantic = ['pydantic>=2.0.0']
+aiohttp = ['aiohttp>=3.8.1']
+twisted = ['twisted>=21.7.0']
+
 [dependency-groups]
-test = [
+dev = [
   'pytest',
   'pytest-mock',
   'pytest-cov',
   'pytest-twisted',
   'pytest-asyncio',
 ]
-marshmallow = ['marshmallow>=2.15.0']
-pydantic = ['pydantic>=2.0.0']
-aiohttp = ['aiohttp>=3.8.1']
-twisted = ['twisted>=21.7.0']
 
 [build-system]
 requires = ['hatchling']
