@@ -18,7 +18,8 @@ authors = [
   { name = 'Jacob Floyd' },
   { name = 'Guilherme Crocetti' },
   { name = 'Alexander Shadchin' },
-  { name = 'Lieser Fernández Gallo', email = 'leiserfg@gmail.com' },
+  { name = 'Ernesto Avilés Vázquez' },
+  { name = 'Leiser Fernández Gallo', email = 'leiserfg@gmail.com' },
 ]
 license = { file = 'LICENSE' }
 keywords = ['http', 'api', 'rest', 'client', 'retrofit']
