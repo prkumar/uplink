@@ -247,7 +247,7 @@ class schema(_ReturnsBase):
     """
     Specifies that the function returns a specific type of response.
 
-    In Python 3, to provide a consumer method's return type, you can
+    The standard way to provide a consumer method's return type is to
     set it as the method's return annotation:
 
     ```python
@@ -256,7 +256,7 @@ class schema(_ReturnsBase):
         \"""Get a specific user.\"""
     ```
 
-    For Python 2.7 compatibility, you can use this decorator instead:
+    Alternatively, you can use this decorator instead:
 
     ```python
     @returns.schema(UserSchema)

@@ -1,6 +1,5 @@
 """
 Example of using Uplink with Twisted for non-blocking HTTP requests.
-This should work on Python 2.7 and 3.3+.
 """
 
 # Local imports

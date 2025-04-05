@@ -407,7 +407,7 @@ class timeout(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class args(MethodAnnotation):
-    """Annotate method arguments for Python 2.7 compatibility.
+    """Annotate method arguments using positional or keyword arguments.
 
     Arrange annotations in the same order as their corresponding
     function arguments.

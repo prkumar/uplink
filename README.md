@@ -75,9 +75,7 @@ Ready to launch your first API client with Uplink? Start with this [quick tutori
   - Built-in support for [Basic Authentication](https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication)
   - Use existing auth libraries for supported clients (e.g., [`requests-oauthlib`](https://github.com/requests/requests-oauthlib))
 
-Uplink officially supports Python 2.7 and 3.5+.
-
-**Note:** Python 2.7 support will be removed in v0.10.0.
+Uplink officially supports Python 3.10+.
 
 ## Installation
 

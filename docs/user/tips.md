@@ -65,19 +65,17 @@ class GitHub(uplink.Consumer):
 Some annotations that support this behavior include: `uplink.Path`,
 `uplink.Field`, `uplink.Part` `uplink.Header`, and `uplink.Query`.
 
-## Annotating Your Arguments For Python 2.7
+## Annotating Your Arguments
 
 There are several ways to annotate arguments. Most examples in this
-documentation use function annotations, but this approach is unavailable
-for Python 2.7 users. Instead, you should either utilize the method
-annotation `uplink.args` or use the optional `args` parameter of the
+documentation use function annotations. Alternatively, you can use the
+method annotation `uplink.args` or the optional `args` parameter of the
 HTTP method decorators (e.g., `uplink.get`).
 
 ### Using `uplink.args`
 
-One approach for Python 2.7 users involves using the method annotation
-`uplink.args`, arranging annotations in the same order as their
-corresponding function arguments (again, ignore `self`):
+The method annotation `uplink.args` arranges annotations in the same
+order as their corresponding function arguments (again, ignore `self`):
 
 ``` python
 class GitHub(uplink.Consumer):
@@ -87,8 +85,6 @@ class GitHub(uplink.Consumer):
 ```
 
 ### The `args` argument
-
-v0.5.0
 
 The HTTP method decorators (e.g., `uplink.get`) support an optional
 positional argument `args`, which accepts a list of annotations,
@@ -108,10 +104,9 @@ class GitHub(uplink.Consumer):
     def get_commit(self, commits_url, sha): pass
 ```
 
-### Function Annotations (Python 3 only)
+### Function Annotations
 
-When using Python 3, you can use these classes as function annotations
-(`3107`):
+You can use these classes as function annotation (`3107`):
 
 ``` python
 class GitHub(uplink.Consumer):

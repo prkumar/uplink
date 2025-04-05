@@ -82,10 +82,7 @@ For sending non-blocking requests, Uplink comes with support for
     -   Use existing auth libraries for supported clients (e.g.,
         [`requests-oauthlib`](https://github.com/requests/requests-oauthlib))
 
-Uplink officially supports Python 2.7 & 3.5+.
-
-!!! note
-Python 2.7 suport will be removed in v0.10.0.
+Uplink officially supports Python 3.10+.
 
 ## User Testimonials
 
