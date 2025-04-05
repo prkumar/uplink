@@ -55,6 +55,11 @@ dev = [
   'pytest-twisted',
   'pytest-asyncio',
 ]
+docs = [
+  'mkdocs',
+  'mkdocs-material',
+  'mkdocstrings[python]',
+]
 
 [build-system]
 requires = ['hatchling']
