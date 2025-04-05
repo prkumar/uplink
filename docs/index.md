@@ -106,25 +106,8 @@ Bytes](https://twitter.com/pythonbytes) podcasts-
 > pythonic features in an elegant and dynamic way. If you need to create
 > an API abstraction layer, there is really no reason to look elsewhere.
 
-## User Manual
+## Where to go from here
 
-Follow this guide to get up and running with Uplink.
-
-user/install.rst user/quickstart.rst user/auth.rst
-user/serialization.rst user/clients.rst user/tips.rst
-
-## API Reference
-
-This guide details the classes and methods in Uplink's public API.
-
-dev/index
-
-## Miscellaneous
-
-changes.rst
-
-To install Uplink, use `pip` (or `uv`):
-
-```
-$ pip install -U uplink
-```
+- [Quickstart](user/quickstart.md)
+- [Installation](user/install.md)
+- [Introduction](user/introduction.md)
