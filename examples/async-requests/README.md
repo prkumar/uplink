@@ -12,10 +12,10 @@ extras, you can declare them when installing Uplink with ``pip``:
 # Install both clients (requires Python 3.4+)
 $ pip install -U uplink[twisted, aiohttp]
 
-# Or, install support for twisted only (requires Python 2.7+):
+# Or, install support for twisted only:
 $ pip install -U uplink[twisted]
 
-# Or, install support for aiohttp only (requires Python 3.4+):
+# Or, install support for aiohttp only:
 $ pip install -U uplink[aiohttp]
 ```
 

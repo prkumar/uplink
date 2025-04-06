@@ -25,7 +25,7 @@ uv sync --all-extras
 uv tool install pre-commit --with pre-commit-uv --force-reinstall
 ```
 
-If you are unfamiliar with [pipenv](https://docs.pipenv.org/) but are comfortable with [virtualenvs](https://virtualenv.pypa.io/en/stable/), you can alternatively run `pip install pipenv` inside the virtualenv you are already using then invoke the commands from above. This will setup your virtualenv correctly.
+If you are unfamiliar with [uv](https://github.com/astral-sh/uv) but are comfortable with [virtualenvs](https://virtualenv.pypa.io/en/stable/), you can alternatively run `pip install uv` inside the virtualenv you are already using then invoke the commands from above. This will setup your virtualenv correctly.
 
 Before submitting a pull request, run all tests with [tox](https://tox.readthedocs.io/en/latest/):
 
@@ -169,5 +169,3 @@ assert {"id": 123, "username": "prkumar"} == response.json()
 ## Style Guide
 
 To maintain a consistent code style with the rest of Uplink, follow the [Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md).
-
-Notably, we use a Sphinx plugin that can parse docstrings adherent to this style. Checkout [this page](http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html) for examples of Google Python Style Guide docstrings.

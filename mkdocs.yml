@@ -1,0 +1,96 @@
+site_name: Uplink
+site_description: A Declarative HTTP Client for Python
+repo_url: https://github.com/prkumar/uplink
+repo_name: prkumar/uplink
+
+hooks:
+  - docs/plugins/main.py
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.expand
+    - navigation.indexes
+    - navigation.tabs
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [uplink]
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_if_no_docstring: true
+            inherited_members: true
+            members_order: source
+            separate_signature: true
+            unwrap_annotated: true
+            # preload_modules:
+            # - requests
+            # - aiohttp
+            # - pydantic
+            # - twisted
+            filters:
+              - "!^_"
+            merge_init_into_class: true
+            docstring_section_style: spacy
+            signature_crossrefs: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - footnotes
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Introduction: user/introduction.md
+      - Installation: user/install.md
+      - Quickstart: user/quickstart.md
+      - Authentication: user/auth.md
+      - Clients: user/clients.md
+      - Serialization: user/serialization.md
+      - Tips & Tricks: user/tips.md
+  - API Reference:
+      - Overview: api/index.md
+      - The Base Consumer Class: api/consumer.md
+      - Decorators: api/decorators.md
+      - Function Annotations: api/types.md
+      - HTTP Clients: api/clients.md
+      - Converters: api/converters.md
+      - Authentication: api/auth.md
+  - Changelog: changelog.md

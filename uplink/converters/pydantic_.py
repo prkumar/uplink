@@ -11,26 +11,27 @@ from .pydantic_v2 import _PydanticV2RequestBody, _PydanticV2ResponseBody
 class PydanticConverter(Factory):
     """
     A converter that serializes and deserializes values using
-    :py:mod:`pydantic.v1` and `pydantic` models.
+    `pydantic.v1` and `pydantic` models.
 
     To deserialize JSON responses into Python objects with this
-    converter, define a :py:class:`pydantic.v1.BaseModel` or `pydantic.BaseModel` subclass and set
+    converter, define a `pydantic.v1.BaseModel` or `pydantic.BaseModel` subclass and set
     it as the return annotation of a consumer method:
 
-    .. code-block:: python
+    ```python
+    @returns.json()
+    @get("/users")
+    def get_users(self, username) -> List[UserModel]:
+        '''Fetch multiple users'''
+    ```
 
-        @returns.json()
-        @get("/users")
-        def get_users(self, username) -> List[UserModel]:
-            '''Fetch multiple users'''
-
-    Note:
-
+    !!! note
         This converter is an optional feature and requires the
-        :py:mod:`pydantic` package. For example, here's how to
-        install this feature using pip::
+        `pydantic` package. For example, here's how to
+        install this feature using pip:
 
-            $ pip install uplink[pydantic]
+        ```bash
+        $ pip install uplink[pydantic]
+        ```
     """
 
     try:

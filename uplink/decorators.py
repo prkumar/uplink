@@ -138,23 +138,23 @@ class headers(_BaseRequestProperties):
     """
     A decorator that adds static headers for API calls.
 
-    .. code-block:: python
+    ```python
+    @headers({"User-Agent": "Uplink-Sample-App"})
+    @get("/user")
+    def get_user(self):
+        \"""Get the current user\"""
+    ```
 
-        @headers({"User-Agent": "Uplink-Sample-App"})
-        @get("/user")
-        def get_user(self):
-            \"""Get the current user\"""
-
-    When used as a class decorator, :py:class:`headers` applies to
+    When used as a class decorator, `headers` applies to
     all consumer methods bound to the class:
 
-    .. code-block:: python
+    ```python
+    @headers({"Accept": "application/vnd.github.v3.full+json"})
+    class GitHub(Consumer):
+        ...
+    ```
 
-        @headers({"Accept": "application/vnd.github.v3.full+json"})
-        class GitHub(Consumer):
-            ...
-
-    :py:class:`headers` takes the same arguments as :py:class:`dict`.
+    `headers` takes the same arguments as `dict`.
 
     Args:
         arg: A dict containing header values.
@@ -181,23 +181,23 @@ class params(_BaseRequestProperties):
     """
     A decorator that adds static query parameters for API calls.
 
-    .. code-block:: python
+    ```python
+    @params({"sort": "created"})
+    @get("/user")
+    def get_user(self):
+        \"""Get the current user\"""
+    ```
 
-        @params({"sort": "created"})
-        @get("/user")
-        def get_user(self):
-            \"""Get the current user\"""
-
-    When used as a class decorator, :py:class:`params` applies to
+    When used as a class decorator, `params` applies to
     all consumer methods bound to the class:
 
-    .. code-block:: python
+    ```python
+    @params({"client_id": "my-app-client-id"})
+    class GitHub(Consumer):
+        ...
+    ```
 
-        @params({"client_id": "my-app-client-id"})
-        class GitHub(Consumer):
-            ...
-
-    :py:class:`params` takes the same arguments as :py:class:`dict`.
+    `params` takes the same arguments as `dict`.
 
     Args:
         arg: A dict containing query parameters.
@@ -224,17 +224,17 @@ class form_url_encoded(MethodAnnotation):
     URL-encodes the request body.
 
     Used on POST/PUT/PATCH request. It url-encodes the body of the
-    message and sets the appropriate ``Content-Type`` header. Further,
+    message and sets the appropriate `Content-Type` header. Further,
     each field argument should be annotated with
-    :py:class:`uplink.Field`.
+    [`uplink.Field`][uplink.Field].
 
     Example:
-        .. code-block:: python
-
-            @form_url_encoded
-            @post("/users/edit")
-            def update_user(self, first_name: Field, last_name: Field):
-                \"""Update the current user.\"""
+        ```python
+        @form_url_encoded
+        @post("/users/edit")
+        def update_user(self, first_name: Field, last_name: Field):
+            \"""Update the current user.\"""
+        ```
     """
 
     _http_method_blacklist = {"GET"}
@@ -253,16 +253,15 @@ class multipart(MethodAnnotation):
     Sends multipart form data.
 
     Multipart requests are commonly used to upload files to a server.
-    Further, annotate each part argument with :py:class:`Part`.
+    Further, annotate each part argument with [`Part`][uplink.Part].
 
-    Example:
-
-        .. code-block:: python
-
-            @multipart
-            @put(/user/photo")
-            def update_user(self, photo: Part, description: Part):
-                \"""Upload a user profile photo.\"""
+    Examples:
+        ```python
+        @multipart
+        @put("/user/photo")
+        def update_user(self, photo: Part, description: Part):
+            \"""Upload a user profile photo.\"""
+        ```
     """
 
     _http_method_blacklist = {"GET"}
@@ -279,60 +278,58 @@ class multipart(MethodAnnotation):
 class json(MethodAnnotation):
     """Use as a decorator to make JSON requests.
 
-    You can annotate a method argument with :py:class:`uplink.Body`,
+    You can annotate a method argument with `uplink.Body`,
     which indicates that the argument's value should become the
-    request's body. :py:class:`uplink.Body` has to be either a dict or a
-    subclass of py:class:`abc.Mapping`.
+    request's body. `uplink.Body` has to be either a dict or a
+    subclass of `abc.Mapping`.
 
     Example:
-        .. code-block:: python
+        ```python
+        @json
+        @patch(/user")
+        def update_user(self, **info: Body):
+            \"""Update the current user.\"""
+        ```
 
-            @json
-            @patch(/user")
-            def update_user(self, **info: Body):
-                \"""Update the current user.\"""
-
-    You can alternatively use the :py:class:`uplink.Field` annotation to
+    You can alternatively use the `uplink.Field` annotation to
     specify JSON fields separately, across multiple arguments:
 
     Example:
-        .. code-block:: python
-
-            @json
-            @patch(/user")
-            def update_user(self, name: Field, email: Field("e-mail")):
-                \"""Update the current user.\"""
+        ```python
+        @json
+        @patch(/user")
+        def update_user(self, name: Field, email: Field("e-mail")):
+            \"""Update the current user.\"""
+        ```
 
     Further, to set a nested field, you can specify the path of the
     target field with a tuple of strings as the first argument of
-    :py:class:`uplink.Field`.
+    `uplink.Field`.
 
     Example:
         Consider a consumer method that sends a PATCH request with a JSON
         body of the following format:
 
-        .. code-block:: json
-            :emphasize-lines: 3
+        ```json
+        {
+            user: {
+                name: "<User's Name>"
+            },
+        }
+        ```
 
-            {
-                user: {
-                    name: "<User's Name>"
-                },
-            }
-
-        The tuple :py:obj:`("user", "name")` specifies the path to the
+        The tuple `("user", "name")` specifies the path to the
         highlighted inner field:
 
-        .. code-block:: python
-            :emphasize-lines: 5
-
-            @json
-            @patch(/user")
-            def update_user(
-                            self,
-                            new_name: Field(("user", "name"))
-            ):
-                \"""Update the current user.\"""
+        ```python
+        @json
+        @patch(/user")
+        def update_user(
+                        self,
+                        new_name: Field(("user", "name"))
+        ):
+            \"""Update the current user.\"""
+        ```
     """
 
     _http_method_blacklist = {"GET"}
@@ -379,25 +376,24 @@ class json(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class timeout(MethodAnnotation):
-    """
-    Time to wait for a server response before giving up.
+    """Time to wait for a server response before giving up.
 
-    When used on other decorators it specifies how long (in secs) a
+    When used on other decorators it specifies how long (in seconds) a
     decorator should wait before giving up.
 
     Example:
-        .. code-block:: python
+        ```python
+        @timeout(60)
+        @get("/user/posts")
+        def get_posts(self):
+            \"""Fetch all posts for the current users.\"""
+        ```
 
-            @timeout(60)
-            @get("/user/posts")
-            def get_posts(self):
-                \"""Fetch all posts for the current users.\"""
-
-    When used as a class decorator, :py:class:`timeout` applies to all
+    When used as a class decorator, `timeout` applies to all
     consumer methods bound to the class.
 
     Args:
-        seconds (int): An integer used to indicate how long should the
+        seconds: An integer used to indicate how long should the
             request wait.
     """
 
@@ -411,29 +407,29 @@ class timeout(MethodAnnotation):
 
 # noinspection PyPep8Naming
 class args(MethodAnnotation):
-    """
-    Annotate method arguments for Python 2.7 compatibility.
+    """Annotate method arguments using positional or keyword arguments.
 
     Arrange annotations in the same order as their corresponding
     function arguments.
 
-    Example:
-        .. code-block:: python
+    Examples:
+        Basic usage with positional annotations:
 
-            @args(Path, Query)
-            @get("/users/{username})
-            def get_user(self, username, visibility):
-                \"""Get a specific user.\"""
+        ```python
+        @args(Path, Query)
+        @get("/users/{username}")
+        def get_user(self, username, visibility):
+            \"""Get a specific user.\"""
+        ```
 
-    Use keyword args to target specific method parameters.
+        Using keyword args to target specific method parameters:
 
-    Example:
-        .. code-block:: python
-
-            @args(visibility=Query)
-            @get("/users/{username})
-            def get_user(self, username, visibility):
-                \"""Get a specific user.\"""
+        ```python
+        @args(visibility=Query)
+        @get("/users/{username}")
+        def get_user(self, username, visibility):
+            \"""Get a specific user.\"""
+        ```
 
     Args:
         *annotations: Any number of annotations.
@@ -484,48 +480,48 @@ class response_handler(_BaseHandlerAnnotation, hooks.ResponseHandler):
     positional argument, an HTTP response object:
 
     Example:
-        .. code-block:: python
-
-            @response_handler
-            def raise_for_status(response):
-                response.raise_for_status()
-                return response
+    ```python
+    @response_handler
+    def raise_for_status(response):
+        response.raise_for_status()
+        return response
+    ```
 
     Then, to apply custom response handling to a request method, simply
     decorate the method with the registered response handler:
 
     Example:
-        .. code-block:: python
-
-            @raise_for_status
-            @get("/user/posts")
-            def get_posts(self):
-                \"""Fetch all posts for the current users.\"""
+    ```python
+    @raise_for_status
+    @get("/user/posts")
+    def get_posts(self):
+        \"""Fetch all posts for the current users.\"""
+    ```
 
     To apply custom response handling on all request methods of a
-    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    `uplink.Consumer` subclass, simply decorate the class with
     the registered response handler:
 
     Example:
-        .. code-block:: python
-
-            @raise_for_status
-            class GitHub(Consumer):
-               ...
+    ```python
+    @raise_for_status
+    class GitHub(Consumer):
+       ...
+    ```
 
     Lastly, the decorator supports the optional argument
-    :obj:`requires_consumer`. When this option is set to :obj:`True`,
+    `requires_consumer`. When this option is set to `True`,
     the registered callback should accept a reference to the
-    :class:`~Consumer` instance as its leading argument:
+    `Consumer` instance as its leading argument:
 
     Example:
-        .. code-block:: python
+    ```python
+    @response_handler(requires_consumer=True)
+    def raise_for_status(consumer, response):
+        ...
+    ```
 
-            @response_handler(requires_consumer=True)
-            def raise_for_status(consumer, response):
-                ...
-
-    .. versionadded:: 0.4.0
+    Added in version 0.4.0
     """
 
 
@@ -540,48 +536,48 @@ class error_handler(_BaseHandlerAnnotation, hooks.ExceptionHandler):
     exception instance raised, and (3) a traceback instance.
 
     Example:
-        .. code-block:: python
-
-            @error_handler
-            def raise_api_error(exc_type, exc_val, exc_tb):
-                # wrap client error with custom API error
-                ...
+    ```python
+    @error_handler
+    def raise_api_error(exc_type, exc_val, exc_tb):
+        # wrap client error with custom API error
+        ...
+    ```
 
     Then, to apply custom error handling to a request method, simply
     decorate the method with the registered error handler:
 
     Example:
-        .. code-block:: python
-
-            @raise_api_error
-            @get("/user/posts")
-            def get_posts(self):
-                \"""Fetch all posts for the current users.\"""
+    ```python
+    @raise_api_error
+    @get("/user/posts")
+    def get_posts(self):
+        \"""Fetch all posts for the current users.\"""
+    ```
 
     To apply custom error handling on all request methods of a
-    :py:class:`uplink.Consumer` subclass, simply decorate the class with
+    `uplink.Consumer` subclass, simply decorate the class with
     the registered error handler:
 
     Example:
-        .. code-block:: python
-
-            @raise_api_error
-            class GitHub(Consumer):
-               ...
+    ```python
+    @raise_api_error
+    class GitHub(Consumer):
+       ...
+    ```
 
     Lastly, the decorator supports the optional argument
-    :obj:`requires_consumer`. When this option is set to :obj:`True`,
+    `requires_consumer`. When this option is set to `True`,
     the registered callback should accept a reference to the
-    :class:`~Consumer` instance as its leading argument:
+    `Consumer` instance as its leading argument:
 
     Example:
-        .. code-block:: python
+    ```python
+    @error_handler(requires_consumer=True)
+    def raise_api_error(consumer, exc_type, exc_val, exc_tb):
+        ...
+    ```
 
-             @error_handler(requires_consumer=True)
-             def raise_api_error(consumer, exc_type, exc_val, exc_tb):
-                ...
-
-    .. versionadded:: 0.4.0
+    Added in version 0.4.0
 
     Note:
         Error handlers can not completely suppress exceptions. The
@@ -595,5 +591,5 @@ class inject(_InjectableMethodAnnotation, hooks.TransactionHookChain):
     """
     A decorator that applies one or more hooks to a request method.
 
-    .. versionadded:: 0.4.0
+    Added in version 0.4.0
     """

@@ -130,58 +130,57 @@ class RequestDefinitionBuilder(interfaces.RequestDefinitionBuilder):
         minimize duplication across similar consumer methods.
 
         Examples:
-
             Define request templates:
 
-            .. code-block:: python
+            ```python
+            from uplink import Consumer, get, json, returns
 
-                from uplink import Consumer, get, json, returns
+            @returns.json
+            @json
+            @get
+            def get_json():
+                \"""GET request that consumes and produces JSON.\"""
 
-                @returns.json
-                @json
-                @get
-                def get_json():
-                    \"""GET request that consumes and produces JSON.\"""
-
-                class GitHub(Consumer):
-                    @get_json("/users/{user}")
-                    def get_user(self, user):
-                         \"""Fetches a specific GitHub user.\"""
+            class GitHub(Consumer):
+                @get_json("/users/{user}")
+                def get_user(self, user):
+                     \"""Fetches a specific GitHub user.\"""
+            ```
 
             Remove duplication across definitions of similar consumer
             methods, whether or not the methods are defined in the same
             class:
 
-            .. code-block:: python
+            ```python
+            from uplink import Consumer, get, params, timeout
 
-                from uplink import Consumer, get, params, timeout
+            class GitHub(Consumer):
+                @timeout(10)
+                @get("/users/{user}/repos")
+                def get_user_repos(self, user):
+                    \"""Retrieves the repos that the user owns.\"""
 
-                class GitHub(Consumer):
-                    @timeout(10)
-                    @get("/users/{user}/repos")
-                    def get_user_repos(self, user):
-                        \"""Retrieves the repos that the user owns.\"""
+                # Extends the above method to define a variant:
+                @params(type="member")
+                @get_user_repos
+                def get_repos_for_collaborator(self, user):
+                    \"""
+                    Retrieves the repos for which the given user is
+                    a collaborator.
+                    \"""
 
-                    # Extends the above method to define a variant:
-                    @params(type="member")
-                    @get_user_repos
-                    def get_repos_for_collaborator(self, user):
-                        \"""
-                        Retrieves the repos for which the given user is
-                        a collaborator.
-                        \"""
-
-                class EnhancedGitHub(Github):
-                    # Updates the return type of an inherited method.
-                    @GitHub.get_user_repos
-                    def get_user_repos(self, user) -> List[Repo]:
-                        \"""Retrieves the repos that the user owns.\"""
+            class EnhancedGitHub(Github):
+                # Updates the return type of an inherited method.
+                @GitHub.get_user_repos
+                def get_user_repos(self, user) -> List[Repo]:
+                    \"""Retrieves the repos that the user owns.\"""
+            ```
 
         Args:
             uri (str, optional): the request's relative path
             args: a list or mapping of function annotations (e.g.
-                  :class:`uplink.Path`) corresponding to the decorated
-                  function's arguments
+                 `uplink.Path`) corresponding to the decorated
+                 function's arguments
         """
         return self.extend(uri, args)
 
@@ -337,9 +336,190 @@ class HttpMethod:
         return self._add_args(builder)
 
 
-get = HttpMethodFactory("GET").__call__
-head = HttpMethodFactory("HEAD").__call__
-put = HttpMethodFactory("PUT").__call__
-post = HttpMethodFactory("POST").__call__
-patch = HttpMethodFactory("PATCH").__call__
-delete = HttpMethodFactory("DELETE").__call__
+def get(uri=None, args=()):
+    """Creates a decorator that makes the decorated function an HTTP GET request handler.
+
+    Args:
+        uri (str, optional): The URI template for the request. Can include path parameters
+            in the format {param_name}. If not provided, can be specified when the decorator is used.
+        args (tuple|dict, optional): A sequence of argument annotations or mapping of
+            argument names to annotations for the handler method.
+
+    Returns:
+        A decorator that can be used to define a GET request handler method.
+
+    Examples:
+        Basic usage with path parameter:
+
+        ```python
+        @get("users/{username}")
+        def get_user(self, username):
+            \"""Get a specific user.\"""
+        ```
+
+        Using query parameters:
+
+        ```python
+        @get("users")
+        def list_users(self, page: Query, per_page: Query = 30):
+            \"""List users with pagination.\"""
+        ```
+    """
+    return HttpMethodFactory("GET").__call__(uri, args)
+
+
+def head(uri=None, args=()):
+    """Creates a decorator that makes the decorated function an HTTP HEAD request handler.
+
+    Args:
+        uri (str, optional): The URI template for the request. Can include path parameters
+            in the format {param_name}. If not provided, can be specified when the decorator is used.
+        args (tuple|dict, optional): A sequence of argument annotations or mapping of
+            argument names to annotations for the handler method.
+
+    Returns:
+        A decorator that can be used to define a HEAD request handler method.
+
+    Examples:
+        Basic usage:
+
+        ```python
+        @head("users/{username}")
+        def check_user(self, username):
+            \"""Check if a user exists.\"""
+        ```
+    """
+    return HttpMethodFactory("HEAD")(uri, args)
+
+
+def put(uri=None, args=()):
+    """Creates a decorator that makes the decorated function an HTTP PUT request handler.
+
+    Args:
+        uri (str, optional): The URI template for the request. Can include path parameters
+            in the format {param_name}. If not provided, can be specified when the decorator is used.
+        args (tuple|dict, optional): A sequence of argument annotations or mapping of
+            argument names to annotations for the handler method.
+
+    Returns:
+        A decorator that can be used to define a PUT request handler method.
+
+    Examples:
+        Using request body:
+
+        ```python
+        @put("users/{username}")
+        def update_user(self, username, **user_info: Body):
+            \"""Update a specific user.\"""
+        ```
+
+        Using form fields:
+
+        ```python
+        @form_url_encoded
+        @put("users/{username}")
+        def update_user(self, username, name: Field, email: Field):
+            \"""Update a user's information.\"""
+        ```
+    """
+    return HttpMethodFactory("PUT")(uri, args)
+
+
+def post(uri=None, args=()):
+    """Creates a decorator that makes the decorated function an HTTP POST request handler.
+
+    Args:
+        uri (str, optional): The URI template for the request. Can include path parameters
+            in the format {param_name}. If not provided, can be specified when the decorator is used.
+        args (tuple|dict, optional): A sequence of argument annotations or mapping of
+            argument names to annotations for the handler method.
+
+    Returns:
+        A decorator that can be used to define a POST request handler method.
+
+    Examples:
+        Using JSON body:
+
+        ```python
+        @json
+        @post("users")
+        def create_user(self, **user_info: Body):
+            \"""Create a new user.\"""
+        ```
+
+        Using form data:
+
+        ```python
+        @form_url_encoded
+        @post("auth/login")
+        def login(self, username: Field, password: Field):
+            \"""Login with credentials.\"""
+        ```
+    """
+    return HttpMethodFactory("POST")(uri, args)
+
+
+def patch(uri=None, args=()):
+    """Creates a decorator that makes the decorated function an HTTP PATCH request handler.
+
+    Args:
+        uri (str, optional): The URI template for the request. Can include path parameters
+            in the format {param_name}. If not provided, can be specified when the decorator is used.
+        args (tuple|dict, optional): A sequence of argument annotations or mapping of
+            argument names to annotations for the handler method.
+
+    Returns:
+        A decorator that can be used to define a PATCH request handler method.
+
+    Examples:
+        Partial update with JSON:
+
+        ```python
+        @json
+        @patch("users/{username}")
+        def update_user_partially(self, username, **updates: Body):
+            \"""Partially update a user.\"""
+        ```
+
+        Update specific fields:
+
+        ```python
+        @form_url_encoded
+        @patch("users/{username}")
+        def update_status(self, username, status: Field):
+            \"""Update a user's status.\"""
+        ```
+    """
+    return HttpMethodFactory("PATCH")(uri, args)
+
+
+def delete(uri=None, args=()):
+    """Creates a decorator that makes the decorated function an HTTP DELETE request handler.
+
+    Args:
+        uri (str, optional): The URI template for the request. Can include path parameters
+            in the format {param_name}. If not provided, can be specified when the decorator is used.
+        args (tuple|dict, optional): A sequence of argument annotations or mapping of
+            argument names to annotations for the handler method.
+
+    Returns:
+        A decorator that can be used to define a DELETE request handler method.
+
+    Examples:
+        Basic usage:
+
+        ```python
+        @delete("users/{username}")
+        def delete_user(self, username):
+            \"""Delete a specific user.\"""
+        ```
+
+        With query parameters:
+
+        ```python
+        @delete("users/{username}/posts")
+        def delete_posts(self, username, before_date: Query = None):
+            \"""Delete user's posts, optionally before a specific date.\"""
+        ```
+    """
+    return HttpMethodFactory("DELETE")(uri, args)

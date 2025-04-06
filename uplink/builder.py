@@ -177,8 +177,8 @@ class Builder(interfaces.CallBuilder):
 
 class ConsumerMethod:
     """
-    A wrapper around a :py:class`interfaces.RequestDefinitionBuilder`
-    instance bound to a :py:class:`Consumer` subclass, mainly responsible
+    A wrapper around a [`interfaces.RequestDefinitionBuilder`][uplink.interfaces.RequestDefinitionBuilder]
+    instance bound to a [`Consumer`][uplink.Consumer] subclass, mainly responsible
     for controlling access to the instance.
     """
 
@@ -270,36 +270,36 @@ class Consumer(interfaces.Consumer, _Consumer):
 
     Example usage:
 
-    .. code-block:: python
+    ```python
+    from uplink import Consumer, get
 
-        from uplink import Consumer, get
+    class GitHub(Consumer):
 
-        class GitHub(Consumer):
+        @get("/users/{user}")
+        def get_user(self, user):
+            pass
 
-            @get("/users/{user}")
-            def get_user(self, user):
-                pass
-
-        client = GitHub("https://api.github.com/")
-        client.get_user("prkumar").json()  # {'login': 'prkumar', ... }
+    client = GitHub("https://api.github.com/")
+    client.get_user("prkumar").json()  # {'login': 'prkumar', ... }
+    ```
 
     Args:
-        base_url (:obj:`str`, optional): The base URL for any request
+        base_url (str, optional): The base URL for any request
             sent from this consumer instance.
         client (optional): A supported HTTP client instance (e.g.,
-            a :class:`requests.Session`) or an adapter (e.g.,
-            :class:`~uplink.RequestsClient`).
-        converters (:class:`ConverterFactory`, optional):
+            a `requests.Session`) or an adapter (e.g.,
+            `uplink.RequestsClient`).
+        converters (ConverterFactory, optional):
             One or more objects that encapsulate custom
             (de)serialization strategies for request properties and/or
             the response body. (E.g.,
-            :class:`~uplink.converters.MarshmallowConverter`)
-        auth (:obj:`tuple` or :obj:`callable`, optional): The
+            `uplink.converters.MarshmallowConverter`)
+        auth (tuple or callable, optional): The
             authentication object for this consumer instance.
-        hooks (:class:`~uplink.hooks.TransactionHook`, optional):
+        hooks (uplink.hooks.TransactionHook, optional):
             One or more hooks to modify behavior of request execution
-            and response handling (see :class:`~uplink.response_handler`
-            or :class:`~uplink.error_handler`).
+            and response handling (see `uplink.response_handler`
+            or `uplink.error_handler`).
     """
 
     def __init__(
@@ -323,27 +323,27 @@ class Consumer(interfaces.Consumer, _Consumer):
     @property
     def session(self):
         """
-        The :class:`~uplink.session.Session` object for this consumer
+        The [Session][uplink.session.Session] object for this consumer
         instance.
 
-        Exposes the configuration of this :class:`~uplink.Consumer`
+        Exposes the configuration of this [Consumer][uplink.Consumer]
         instance and allows the persistence of certain properties across
         all requests sent from that instance.
 
         Example usage:
 
-        .. code-block:: python
+        ```python
+        import uplink
 
-            import uplink
-
-            class MyConsumer(uplink.Consumer):
-                def __init__(self, language):
-                    # Set this header for all requests of the instance.
-                    self.session.headers["Accept-Language"] = language
-                    ...
+        class MyConsumer(uplink.Consumer):
+            def __init__(self, language):
+                # Set this header for all requests of the instance.
+                self.session.headers["Accept-Language"] = language
+                ...
+        ```
 
         Returns:
-            :class:`~uplink.session.Session`
+            [Session][uplink.session.Session]
         """
         return self.__session
 
@@ -356,14 +356,13 @@ class Consumer(interfaces.Consumer, _Consumer):
         the backing HTTP client.
 
         Example:
-
-            .. code-block:: python
-
-                try:
-                    github.get_user(user_id)
-                except github.exceptions.ServerTimeout:
-                    # Handle the timeout of the request
-                    ...
+            ```python
+            try:
+                github.get_user(user_id)
+            except github.exceptions.ServerTimeout:
+                # Handle the timeout of the request
+                ...
+            ```
         """
         return self.__client.exceptions
 

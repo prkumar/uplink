@@ -17,6 +17,9 @@ def get_api_definitions(service):
 
     Args:
         service: A class object.
+
+    Returns:
+        A list of tuples containing the name and value of each request definition.
     """
     # In Python 3.3, `inspect.getmembers` doesn't respect the descriptor
     # protocol when the first argument is a class. In other words, the

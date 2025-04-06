@@ -62,11 +62,13 @@ class Map(CompositeKey):
     """
     Object to mapping conversion.
 
-    The constructor argument :py:data:`converter_key` details the type
-    for the values in the mapping. For instance::
+    The constructor argument `converter_key` details the type
+    for the values in the mapping. For instance:
 
-        # Key for conversion of an object to a mapping of strings.
-        Map(CONVERT_TO_STRING)
+    ```python
+    # Key for conversion of an object to a mapping of strings.
+    Map(CONVERT_TO_STRING)
+    ```
     """
 
     def convert(self, converter, value):
@@ -77,11 +79,13 @@ class Sequence(CompositeKey):
     """
     Object to sequence conversion.
 
-    The constructor argument :py:data:`converter_key` details the type
-    for the elements in the sequence. For instance::
+    The constructor argument `converter_key` details the type
+    for the elements in the sequence. For instance:
 
-        # Key for conversion of an object to a sequence of strings.
-        Sequence(CONVERT_TO_STRING)
+    ```python
+    # Key for conversion of an object to a sequence of strings.
+    Sequence(CONVERT_TO_STRING)
+    ```
     """
 
     def convert(self, converter, value):

@@ -75,13 +75,11 @@ Ready to launch your first API client with Uplink? Start with this [quick tutori
   - Built-in support for [Basic Authentication](https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication)
   - Use existing auth libraries for supported clients (e.g., [`requests-oauthlib`](https://github.com/requests/requests-oauthlib))
 
-Uplink officially supports Python 2.7 and 3.5+.
-
-**Note:** Python 2.7 support will be removed in v0.10.0.
+Uplink officially supports Python 3.10+.
 
 ## Installation
 
-To install the latest stable release, you can use `pip` (or `pipenv`):
+To install the latest stable release, you can use `pip` (or `uv`):
 
 ```bash
 pip install -U uplink
@@ -135,3 +133,4 @@ We're migrating our community from [Gitter](https://gitter.im/python-uplink/Lobb
 
 Want to report a bug, request a feature, or contribute code to Uplink? Checkout the [Contribution Guide](https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.md) for where to start.
 Thank you for taking the time to improve an open source project 💜
+

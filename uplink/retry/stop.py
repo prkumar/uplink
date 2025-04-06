@@ -1,7 +1,26 @@
+"""
+Defines stop conditions for retry operations.
+
+This module provides classes and functions to control when retry operations should stop.
+"""
+
 __all__ = ["after_attempt", "after_delay"]
 
 
 class RetryBreaker:
+    """
+    Base class for defining retry stop conditions.
+
+    You can compose two `RetryBreaker` instances by using the `|` operator:
+
+    ```python
+    CustomBreakerA() | CustomBreakerB()
+    ```
+
+    The resulting breaker will stop retrying if either of the composed breakers
+    indicates to stop.
+    """
+
     def __or__(self, other):
         if other is not None:
             assert isinstance(other, RetryBreaker), (
@@ -33,7 +52,12 @@ class _Or(RetryBreaker):
 
 # noinspection PyPep8Naming
 class after_attempt(RetryBreaker):
-    """Stops retrying after the specified number of ``attempts``."""
+    """
+    Stops retrying after the specified number of attempts.
+
+    Args:
+        attempt: The maximum number of retry attempts before stopping.
+    """
 
     def __init__(self, attempt):
         self._max_attempt = attempt
@@ -50,8 +74,10 @@ class after_attempt(RetryBreaker):
 # noinspection PyPep8Naming
 class after_delay(RetryBreaker):
     """
-    Stops retrying after the backoff exceeds the specified ``delay``
-    in seconds.
+    Stops retrying after the backoff exceeds the specified delay in seconds.
+
+    Args:
+        delay: The maximum delay in seconds before stopping retry attempts.
     """
 
     def __init__(self, delay):
@@ -64,6 +90,8 @@ class after_delay(RetryBreaker):
 
 
 class _NeverStop(RetryBreaker):
+    """Never stops retrying."""
+
     def __call__(self):
         while True:
             yield
@@ -72,6 +100,9 @@ class _NeverStop(RetryBreaker):
 
 #: Continuously retry until the server returns a successful response
 NEVER = _NeverStop()
+"""
+Continuously retry until the server returns a successful response.
+"""
 
 # Keep for backwards compatibility with v0.8.0
 # TODO: Remove in v1.0.0
