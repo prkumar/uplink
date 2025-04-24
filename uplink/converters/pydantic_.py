@@ -1,5 +1,3 @@
-import pydantic
-
 from uplink.converters import register_default_converter_factory
 from uplink.converters.interfaces import Factory
 from uplink.utils import is_subclass
