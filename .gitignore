@@ -122,3 +122,4 @@ Pipfile.lock
 
 # VS Code
 .vscode/
+.envrc
