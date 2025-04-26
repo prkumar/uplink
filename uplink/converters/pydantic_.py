@@ -1,5 +1,3 @@
-import pydantic
-
 from uplink.converters import register_default_converter_factory
 from uplink.converters.interfaces import Factory
 from uplink.utils import is_subclass
@@ -64,12 +62,12 @@ class PydanticConverter(Factory):
         return converter(model)
 
     def create_request_body_converter(self, type_, *args, **kwargs):
-        if is_subclass(type_, pydantic.BaseModel):
+        if is_subclass(type_, self.pydantic.BaseModel):
             return self._make_converter(_PydanticV2RequestBody, type_)
         return self._make_converter(_PydanticV1RequestBody, type_)
 
     def create_response_body_converter(self, type_, *args, **kwargs):
-        if is_subclass(type_, pydantic.BaseModel):
+        if is_subclass(type_, self.pydantic.BaseModel):
             return self._make_converter(_PydanticV2ResponseBody, type_)
         return self._make_converter(_PydanticV1ResponseBody, type_)
 
