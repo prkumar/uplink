@@ -4,6 +4,8 @@ to deserialize and serialize values.
 """
 
 # Local imports
+import importlib.metadata
+
 from uplink import utils
 from uplink.converters import interfaces, register_default_converter_factory
 
@@ -39,7 +41,7 @@ class MarshmallowConverter(interfaces.Factory):
         marshmallow = None
         is_marshmallow_3 = None
     else:
-        is_marshmallow_3 = marshmallow.__version__ >= "3.0"
+        is_marshmallow_3 = importlib.metadata.version("marshmallow") >= "3.0"
 
     def __init__(self):
         if self.marshmallow is None:
