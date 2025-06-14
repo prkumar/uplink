@@ -1,3 +1,13 @@
+"""
+Script to verify that:
+1. The tag version and package version match.
+3. The tag version is a valid PEP-440 version.
+
+NOTE: After the migration from Travis to GitHub Actions, this script is no longer used.
+
+TODO: We should migrate this to a GitHub Action, or use an existing tool.
+"""
+
 # Standard library imports
 import argparse
 import os
@@ -25,6 +35,7 @@ def is_canonical(version):
 
 
 def _get_current_version():
+    # NOTE: We no longer keep the hardcoded version in __about__.py. It's now in pyproject.toml.
     about = {}
     with open(os.path.join("uplink", "__about__.py")) as fp:
         exec(fp.read(), about)
