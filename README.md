@@ -4,10 +4,10 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/prkumar/uplink/ci.yml?branch=master&logo=github&label=CI)](https://github.com/prkumar/uplink/actions?query=event%3Apush+branch%master+workflow%3ACI)
 [![Coverage Status](https://img.shields.io/codecov/c/github/prkumar/uplink.svg)](https://codecov.io/gh/prkumar/uplink)
 [![Code Climate](https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability)](https://codeclimate.com/github/prkumar/uplink/maintainability)
-[![Documentation Status](https://readthedocs.org/projects/uplink/badge/?version=latest)](http://uplink.readthedocs.io/en/latest/?badge=latest)
 [![GitHub Discussions](https://img.shields.io/github/discussions/prkumar/uplink.png)](https://github.com/prkumar/uplink/discussions)
-[![Gitter](https://badges.gitter.im/python-uplink/Lobby.svg)](https://gitter.im/python-uplink/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
+[![Documentation](https://img.shields.io/badge/docs-blue?style=flat&link=https%3A%2F%2Fuplink.prkumar.dev%2F)](https://uplink.prkumar.dev/)
 
 - Builds Reusable Objects for Consuming Web APIs.
 - Works with **Requests**, **aiohttp**, and **Twisted**.
@@ -50,7 +50,7 @@ print(repos.json())
 
 For sending non-blocking requests, Uplink comes with support for [`aiohttp` and `twisted`](https://github.com/prkumar/uplink/tree/master/examples/async-requests).
 
-Ready to launch your first API client with Uplink? Start with this [quick tutorial](https://uplink.readthedocs.io/en/latest/user/quickstart.html)!
+Ready to launch your first API client with Uplink? Start with this [quick tutorial](https://uplink.prkumar.dev/user/quickstart)!
 
 ## Features
 
@@ -61,18 +61,18 @@ Ready to launch your first API client with Uplink? Start with this [quick tutori
 
 - **Bring Your Own HTTP Library**
   - [Non-blocking I/O support](https://github.com/prkumar/uplink/tree/master/examples/async-requests) for Aiohttp and Twisted
-  - [Supply your own session](https://uplink.readthedocs.io/en/latest/user/clients.html#swapping-out-the-default-http-session) (e.g., `requests.Session`) for greater control
+  - [Supply your own session](https://uplink.prkumar.dev/user/clients/#swapping-out-the-default-http-session) (e.g., `requests.Session`) for greater control
 
 - **Easy and Transparent Deserialization/Serialization**
-  - Define [custom converters](https://uplink.readthedocs.io/en/latest/user/serialization.html#custom-json-deserialization) for your own objects
-  - Support for [`marshmallow`](https://github.com/prkumar/uplink/tree/master/examples/marshmallow) schemas, [`pydantic`](https://pydantic-docs.helpmanual.io/) models, and [handling collections](https://uplink.readthedocs.io/en/latest/user/serialization.html#converting-collections) (e.g., list of Users)
+  - Define [custom converters](https://uplink.prkumar.dev/user/serialization/#custom-json-deserialization) for your own objects
+  - Support for [`marshmallow`](https://github.com/prkumar/uplink/tree/master/examples/marshmallow) schemas, [`pydantic`](https://pydantic-docs.helpmanual.io/) models, and [handling collections](https://uplink.prkumar.dev/user/serialization/#converting-collections) (e.g., list of Users)
 
 - **Extendable**
   - Install optional plugins for additional features (e.g., [protobuf support](https://github.com/prkumar/uplink-protobuf))
-  - Compose [custom response and error handling](https://uplink.readthedocs.io/en/latest/user/quickstart.html#response-and-error-handling) functions as middleware
+  - Compose [custom response and error handling](https://uplink.prkumar.dev/user/quickstart/#response-and-error-handling) functions as middleware
 
 - **Authentication**
-  - Built-in support for [Basic Authentication](https://uplink.readthedocs.io/en/latest/user/auth.html#basic-authentication)
+  - Built-in support for [Basic Authentication](https://uplink.prkumar.dev/user/auth/#basic-authentication)
   - Use existing auth libraries for supported clients (e.g., [`requests-oauthlib`](https://github.com/requests/requests-oauthlib))
 
 Uplink officially supports Python 3.10+.
@@ -93,7 +93,7 @@ pip install https://github.com/prkumar/uplink/archive/master.zip
 
 ### Extra! Extra
 
-Further, uplink has optional integrations and features. You can view a full list of available extras [here](https://uplink.readthedocs.io/en/latest/user/install.html#extras).
+Further, uplink has optional integrations and features. You can view a full list of available extras [here](https://uplink.prkumar.dev/user/install/#extras).
 
 When installing Uplink with `pip`, you can select extras using the format:
 
@@ -119,9 +119,9 @@ pip install -U uplink[aiohttp, marshmallow]
 
 ## Documentation
 
-Check out the library's documentation at <https://uplink.readthedocs.io/>.
+Check out the library's documentation at <https://uplink.prkumar.dev/>.
 
-For new users, a good place to start is this [quick tutorial](https://uplink.readthedocs.io/en/latest/user/quickstart.html).
+For new users, a good place to start is this [quick tutorial](https://uplink.prkumar.dev/user/quickstart).
 
 ## Community
 
@@ -133,4 +133,3 @@ We're migrating our community from [Gitter](https://gitter.im/python-uplink/Lobb
 
 Want to report a bug, request a feature, or contribute code to Uplink? Checkout the [Contribution Guide](https://github.com/prkumar/uplink/blob/master/CONTRIBUTING.md) for where to start.
 Thank you for taking the time to improve an open source project 💜
-
