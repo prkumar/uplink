@@ -1,6 +1,6 @@
 [project]
 name = 'uplink'
-version = '0.10.0a1'
+version = '0.10.0'
 description = 'A Declarative HTTP Client for Python.'
 readme = 'README.md'
 maintainers = [{ name = 'P. Raj Kumar', email = 'raj.pritvi.kumar@gmail.com' }]
