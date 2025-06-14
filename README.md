@@ -6,7 +6,6 @@
 [![Code Climate](https://api.codeclimate.com/v1/badges/d5c5666134763ff1d6c0/maintainability)](https://codeclimate.com/github/prkumar/uplink/maintainability)
 [![GitHub Discussions](https://img.shields.io/github/discussions/prkumar/uplink.png)](https://github.com/prkumar/uplink/discussions)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-
 [![Documentation](https://img.shields.io/badge/docs-blue?style=flat&link=https%3A%2F%2Fuplink.prkumar.dev%2F)](https://uplink.prkumar.dev/)
 
 - Builds Reusable Objects for Consuming Web APIs.
