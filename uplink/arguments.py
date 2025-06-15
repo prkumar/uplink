@@ -596,7 +596,9 @@ class Part(NamedArgument):
 
     def _modify_request(self, request_builder, value):
         """Updates the request body with the form part."""
-        request_builder.info["files"][self.name] = value
+        if "files" not in request_builder.info:
+            request_builder.info["files"] = []
+        request_builder.info["files"].append((self.name, value))
 
 
 class PartMap(TypedArgument):
@@ -619,9 +621,12 @@ class PartMap(TypedArgument):
         """Converts each part to the request body."""
         return keys.Map(keys.CONVERT_TO_REQUEST_BODY)
 
-    def _modify_request(self, request_builder, value):
+    def _modify_request(self, request_builder, filemap):
         """Updates request body to with the form parts."""
-        request_builder.info["files"].update(value)
+        if "files" not in request_builder.info:
+            request_builder.info["files"] = []
+        for key in filemap:
+            request_builder.info["files"].append((key, filemap[key]))
 
 
 class Body(TypedArgument):
