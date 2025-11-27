@@ -504,9 +504,9 @@ from uplink import retry, Consumer, get
 class GitHub(Consumer):
    @retry(
       # Retry on 503 response status code or any exception.
-      when=retry.when.status(503) | retry.when.raises(Exception)
+      when=retry.when.status(503) | retry.when.raises(Exception),
       # Stop after 5 attempts or when backoff exceeds 10 seconds.
-      stop=retry.stop.after_attempt(5) | retry.stop.after_delay(10)
+      stop=retry.stop.after_attempt(5) | retry.stop.after_delay(10),
       # Use exponential backoff with added randomness.
       backoff=retry.backoff.jittered(multiplier=0.5)
    )
