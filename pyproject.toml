@@ -1,6 +1,6 @@
 [project]
 name = 'uplink'
-version = '0.10.0'
+version = '0.10.1'
 description = 'A Declarative HTTP Client for Python.'
 readme = 'README.md'
 maintainers = [{ name = 'P. Raj Kumar', email = 'raj.pritvi.kumar@gmail.com' }]
@@ -33,6 +33,7 @@ classifiers = [
   'Programming Language :: Python :: 3.11',
   'Programming Language :: Python :: 3.12',
   'Programming Language :: Python :: 3.13',
+  'Programming Language :: Python :: 3.14',
   'Programming Language :: Python :: 3 :: Only',
   'Programming Language :: Python :: Implementation :: CPython',
   'Programming Language :: Python :: Implementation :: PyPy',
@@ -70,7 +71,7 @@ twisted=1
 
 
 [tool.tox]
-env_list = ["py310", "py311", "py312", "py313"]
+env_list = ["py310", "py311", "py312", "py313", "py314"]
 
 [tool.tox.testenv]
 runner = "uv-venv-lock-runner"

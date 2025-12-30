@@ -36,4 +36,4 @@ class _PydanticV2ResponseBody(Converter):
         except AttributeError:
             data = response
 
-        return self._model.parse_obj(data)
+        return self._model.model_validate(data)
