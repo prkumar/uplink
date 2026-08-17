@@ -15,6 +15,21 @@ def test_get_arg_spec():
     assert signature.return_annotation == 4
 
 
+def test_get_arg_spec_with_deferred_annotations():
+    namespace = {}
+    exec(
+        "from __future__ import annotations\n"
+        "def func(pos1, *args: int, **kwargs: str) -> bool:\n"
+        "    pass\n",
+        namespace,
+    )
+    func = namespace["func"]
+
+    signature = utils.get_arg_spec(func)
+    assert signature.annotations == {"args": int, "kwargs": str}
+    assert signature.return_annotation is bool
+
+
 def test_call_args():
     def func(pos1, *args, **kwargs):
         pass

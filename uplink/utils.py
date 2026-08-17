@@ -46,7 +46,8 @@ else:  # pragma: no cover
         return collections.OrderedDict(new_arguments)
 
     def get_arg_spec(f):
-        sig = signature(f)
+        # resolve string annotations (e.g. from `__future__.annotations`):
+        sig = signature(f, eval_str=True)
         parameters = sig.parameters
         args = []
         annotations = collections.OrderedDict()
