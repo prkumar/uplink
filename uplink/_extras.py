@@ -36,7 +36,7 @@ def load_entry_points(
     for name in _entry_points:
         plugins = {
             entry_point.name: entry_point.load()
-            for entry_point in _iter_entry_points(name=name)
+            for entry_point in _iter_entry_points(group=name)
         }
         func = _entry_points[name]
         for value in plugins.values():
