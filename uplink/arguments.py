@@ -7,6 +7,7 @@ handling classes.
 import collections
 import functools
 import inspect
+import typing
 
 # Local imports
 from uplink import exceptions, hooks, interfaces, utils
@@ -87,8 +88,19 @@ class ArgumentAnnotationHandlerBuilder(interfaces.AnnotationHandlerBuilder):
         cls = interfaces.Annotation
         return utils.is_subclass(annotation, cls) or isinstance(annotation, cls)
 
+    @classmethod
+    def _unwrap_annotated(cls, annotation):
+        if typing.get_origin(annotation) is not typing.Annotated:
+            return annotation, None
+        arg_type, *metadata = typing.get_args(annotation)
+        marker = next((m for m in metadata if cls._is_annotation(m)), None)
+        return (marker, arg_type) if marker is not None else (annotation, None)
+
     def add_annotation(self, annotation, name=None, *args, **kwargs):
+        annotation, arg_type = self._unwrap_annotated(annotation)
         if self._is_annotation(annotation):
+            if arg_type is not None:
+                self._argument_types[name] = arg_type
             return self._add_annotation(annotation, name)
         self._argument_types[name] = annotation
         return None
