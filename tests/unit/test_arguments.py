@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import pytest
 
 # Local imports
@@ -131,6 +133,22 @@ class TestArgumentAnnotationHandlerBuilder:
 
         builder = arguments.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
         builder.add_annotation(type, "arg1")
+        assert builder.remaining_args_count == 1
+
+    def test_add_annotation_with_annotated_marker(self):
+        builder = arguments.ArgumentAnnotationHandlerBuilder(None, ["arg1"], False)
+        annotation = builder.add_annotation(Annotated[float, arguments.Query], "arg1")
+        assert isinstance(annotation, arguments.Query)
+        assert annotation.type is float
+        assert annotation.name == "arg1"
+        assert "arg1" not in builder.missing_arguments
+
+    def test_add_annotation_with_annotated_non_marker(self):
+        def dummy():
+            pass
+
+        builder = arguments.ArgumentAnnotationHandlerBuilder(dummy, ["arg1"], False)
+        builder.add_annotation(Annotated[int, "not-a-marker"], "arg1")
         assert builder.remaining_args_count == 1
 
     @inject_args

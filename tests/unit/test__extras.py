@@ -22,6 +22,7 @@ def test_load_entry_points(mocker):
 
     # Verify
     func.assert_called_with("plugin-value")
+    iter_entry_points.assert_called_with(group="entry-point")
 
 
 def test_install(mocker):
